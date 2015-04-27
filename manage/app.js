@@ -8,13 +8,13 @@ console.log("start with args",process.argv);
 
 app.get('/',function(req,res) {
 
-    redis.connect();
+    var cache=redis.connect();
 
-    redis.hset('test','a',"asdf",function() {
+    cache.hset("test",'a',"asdf",function() {
         console.log('set')
     });
 
-    redis.hget('test','a',function(err,obj) {
+    cache.hget("test",'a',function(err,obj) {
         console.log(obj)
     })
 
