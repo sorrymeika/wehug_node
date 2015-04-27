@@ -1,22 +1,24 @@
 ﻿var express=require('express');
+var redis=require('../data/redis');
 var app=express();
 var args=process.argv;
 var port=args.length>=3?parseInt(args[2]):5555;
 
-console.log("start with args",process.argv)
+console.log("start with args",process.argv);
 
-app.get('/',function (req,res) {
+app.get('/',function(req,res) {
 
-    var MongoClient=require('mongodb').MongoClient;
+    redis.connect();
 
-    var url='mongodb://192.168.0.106:27017/test';
-
-    MongoClient.connect(url,function (err,db) {
-        console.log("Connected correctly to server.");
-        db.close();
+    redis.hset('test','a',"asdf",function() {
+        console.log('set')
     });
 
-    res.send('hello world');
+    redis.hget('test','a',function(err,obj) {
+        console.log(obj)
+    })
+
+    res.send('hello world1');
 });
 
 app.listen(port,"127.0.0.1");
