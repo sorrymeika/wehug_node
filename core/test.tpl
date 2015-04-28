@@ -4,8 +4,6 @@ sdf'a
 sdf''
 asd
 
-@{asdfasdf}
-
 @function asdfasdf(test){
 alert(1);
 }
@@ -19,12 +17,19 @@ alert(1);
 
 @for(var i=0;i<1;i++){
 
-alert(1);
-
 <div>asdfasdf</div>
 
 }
 
-@if (a)
+@if (5>3) {
+console.log(2);
+}
+
+@{var asdf="asdf";var adsfasdf="ccc";}
 fa
 sdf
+
+@adsfasdf
+
+@(asdf)
+
