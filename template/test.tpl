@@ -13,8 +13,6 @@ alert(1);
 alert(1);
 }
 
-
-
 @for(var i=0;i<1;i++){
 
 <div>asdfasdf</div>
@@ -25,7 +23,7 @@ alert(1);
 console.log(2);
 }
 
-@{var asdf="asdf";var adsfasdf="ccc";}
+@{var asdf="as        df";var adsfasdf="ccc";}
 fa
 sdf
 

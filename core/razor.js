@@ -1,11 +1,6 @@
-﻿var rcmd=/^(for|if|(?:function|helper|each)\s+([a-zA-Z_$][a-zA-Z_$1-9]*))\s*\(([^\)]*)\)\s*(?={)/m;
-var rparam=/^(html|)([\w]+(?:\[(?:\"[^\"]+\"|\w+?)\]|\.[\w]+|\([^\)]*\))*|\((?:.+?\((?:\"[^\"]+\"|[^\)]+?)\)|.+?)\))/m;
-
-var rif='^if\\s*\\(([^\\)]*)\\)\\s*{...}';
-var relse='^\\s*(else\\s+if\s*\\(([^\\)]*)\\)|else)\\s*{...}';
-
-var matchPair=function (input,left,right) {
-    var i=0,
+﻿
+var matchPair=function(input,left,right,from) {
+    var i=from||0,
         len=input.length,
         count=0,
         c,
@@ -44,53 +39,82 @@ var matchPair=function (input,left,right) {
         i++;
     }
     return res;
-}
+};
 
-var match=function (input,part) {
-    var result=[];
+function XRegExp(str) {
+    this.str=str;
 
-    result.input=input;
-    result.match='';
-    part=part.split('...');
+    str=str.split('...');
 
-    for(var i=0,n=part.length-1;i<=n;i++) {
-        var m=new RegExp(part[i],'m').exec(input);
-        if(!m) return null;
+    this.parts=[];
 
-        for(var j=0,l=m.length;j<l;j++) {
-            result.push(m[j]);
+    for(var i=0,l=str.length-1,item;i<=l;i++) {
+        item=new RegExp(str[i],'m');
+
+        if(i!=l) {
+            item.left=left=str[i].charAt(str[i].length-1);
+            item.right=str[i+1].charAt(str[i+1].length-1);
         }
-        input=input.substr(m.index+m[0].length);
-
-        result.match+=m[0];
-
-        if(i==0) {
-            result.index=m.index;
-        }
-
-        if(i!=n) {
-            var left=part[i].charAt(part[i].length-1),
-                right=part[i+1].charAt(part[i+1].length-1),
-                res=matchPair(left+input,left,right);
-
-            result.match+=res;
-            result.push(res);
-
-            input=input.substr(res.length);
-        }
+        this.parts.push(item);
     }
-
-    return result;
 }
 
-match('for(var i=0;i<1;i++){as"{"dfasdf} ','{...}');
+XRegExp.prototype={
 
-var isEmpty=function (c) {
+    exec: function(input) {
+        var result=[],
+            start=0,
+            part=this.parts;
+
+        result.input=input;
+        result.match='';
+
+        for(var i=0,n=part.length-1,item,m;i<=n;i++) {
+            item=part[i];
+
+            m=item.exec(input);
+            if(!m) return null;
+
+            for(var j=0,l=m.length;j<l;j++) {
+                result.push(m[j]);
+            }
+
+            start=m.index+m[0].length;
+
+            result.match+=m[0];
+
+            if(i==0) {
+                result.index=m.index;
+            }
+
+            if(i!=n) {
+                var res=matchPair(input,item.left,item.right,start-1);
+
+                result.match+=res;
+                result.push(res);
+
+                input=input.substr(start+res.length);
+            }
+        }
+
+        return result;
+    }
+}
+
+var rcmd=/^(for|if|(function|helper)\s+([a-zA-Z_$][a-zA-Z_$1-9]*))\s*\(([^\)]*)\)\s*(?={)/m;
+var rparam=/^(html|)([\w]+(?:\[(?:\"[^\"]+\"|\w+?)\]|\.[\w]+|\([^\)]*\))*|\((?:.+?\((?:\"[^\"]+\"|[^\)]+?)\)|.+?)\))/m;
+
+var rif=new XRegExp('^if\\s*\\(([^\\)]*)\\)\\s*{...}');
+var relse=new XRegExp('^\\s*(else\\s+if\s*\\(([^\\)]*)\\)|else)\\s*{...}');
+var rcode=new XRegExp('{...}');
+
+var rdom=/<(\/{0,1}[a-zA-Z]+)(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(\/){0,1}\s*>/m;
+
+var isEmpty=function(c) {
     return c==' '||c=='\t'||c=='\n'||c=='\r';
-}
+};
 
-var rdom=/<(\/{0,1}[a-zA-Z]+)(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(\/){0,1}\s*>/;
-var matchDom=function (input) {
+var matchDom=function(input) {
     if(!input) return '';
     var m=rdom.exec(input),
         tagName,
@@ -100,13 +124,22 @@ var matchDom=function (input) {
         code;
 
     while(m) {
-        code=input.substr(0,m.index);
-
         if(count==0) {
-            if(code) str+=code;
+
+            if(m.index!=0) {
+                code=input.substr(0,m.index);
+                if(!/^\s+$/.test(code)) {
+                    if(dom) {
+                        str+=parse(dom).code;
+                        dom='';
+                    }
+                    str+=code;
+                }
+            }
 
             if(m[2]=='/') {
-                str+=parse(m[0]);
+                if(dom) dom+=m[0];
+                else str+=parse(m[0]).code;
             } else {
                 tagName=m[1];
                 if(tagName!='text') dom+=m[0];
@@ -115,7 +148,7 @@ var matchDom=function (input) {
             }
 
         } else {
-            dom+=code;
+            dom+=input.substr(0,m.index);
 
             if(m[1]!='/text') dom+=m[0];
 
@@ -124,10 +157,6 @@ var matchDom=function (input) {
 
             } else if(m[1]=='/'+tagName) {
                 count--;
-                if(count<=0) {
-                    str+=parse(dom);
-                    dom='';
-                }
             }
         }
 
@@ -135,11 +164,18 @@ var matchDom=function (input) {
         m=rdom.exec(input);
     }
 
+    if(dom) {
+        str+=parse(dom).code;
+    }
+
     return str+input;
 }
-var parse=function (templateStr,result) {
 
-    var name,
+var parse=function(templateStr) {
+
+    var functions={},
+        helpers={},
+        name,
         i=0,
         len=templateStr.length,
         prev,
@@ -147,7 +183,7 @@ var parse=function (templateStr,result) {
         c,
         code='',
         codeStr,
-        str="__.push('";
+        str="__+='";
 
     while(i<len) {
         curr=templateStr.charAt(i);
@@ -155,13 +191,13 @@ var parse=function (templateStr,result) {
         if(curr=='@') {
             c=templateStr.charAt(i+1);
 
-            if(prev!='@'&&!isEmpty(c)) {
+            if(prev!='@'&&c!='@'&&!isEmpty(c)) {
                 codeStr=templateStr.substr(++i);
 
-                if(c=='{'||c=='[') {
-                    code=match(codeStr,c=='['?'[...]':'{...}');
+                if(c=='{') {
+                    code=rcode.exec(codeStr);
 
-                    str+="');"+code[1]+"__.push('";
+                    str+="';"+code[1]+"__+='";
                     i+=code.match.length;
                 } else {
                     var m=rcmd.exec(codeStr);
@@ -169,31 +205,31 @@ var parse=function (templateStr,result) {
                     if(m) {
                         name=m[2];
                         if('if'==m[1]) {
-                            code=match(codeStr,rif);
-                            str+="');"
+                            code=rif.exec(codeStr);
+                            str+="';"
 
                             do {
                                 str+=code[0]+matchDom(code[2])+"}"
                                 i+=code.match.length;
-                                code=match(templateStr.substr(i),relse);
+                                code=relse.exec(templateStr.substr(i));
                             }
                             while(code);
 
-                            str+="__.push('";
+                            str+="__+='";
 
                         } else {
                             i+=m[0].length;
 
-                            code=match(codeStr,'{...}');
+                            code=rcode.exec(codeStr);
 
                             if('for'==m[1]) {
-                                str+="');"+m[0]+"{"+matchDom(code[1])+"}"+"__.push('";
+                                str+="';"+m[0]+"{"+matchDom(code[1])+"}"+"__+='";
 
-                            } else if(/^function\s/.test(m[1])) {
-                                result[name]=eval('[function('+m[3]+'){'+code[1]+'}][0]');
+                            } else if('function'==m[2]) {
+                                functions[name]='function('+m[4]+'){'+code[1]+'}';
 
-                            } else if(/^helper\s/.test(m[1])) {
-                                result.helper[name]=razor.parse(code[1],m[3]).T;
+                            } else if('helper'==m[2]) {
+                                helpers[name]='function('+m[4]+'){'+razor.parse(code[1],m[4]).code+'}';
                             }
 
                             i+=code.match.length;
@@ -202,7 +238,7 @@ var parse=function (templateStr,result) {
                     } else {
                         m=rparam.exec(codeStr);
 
-                        str+="',"+(m[1]=="html"?m[2]:"this.encodeHTML("+m[2]+")")+",'";
+                        str+="'+"+(m[1]=="html"?m[2]:"this.encodeHTML("+m[2]+")")+"+'";
                         i+=m[0].length;
                     }
                 }
@@ -214,52 +250,157 @@ var parse=function (templateStr,result) {
             }
 
         } else {
-            str+=curr=='\\'?'\\\\':curr=='\''?'\\\'':curr=='\r'?'\\r':curr=='\n'?'\\n':curr=='\t'?'\\t':curr;
+            str+=curr=='\\'?'\\\\':curr=='\''?'\\\'':isEmpty(curr)?(isEmpty(prev)?'':' '):curr;
         }
 
         prev=curr;
         i++;
     }
 
-    return str+"');";
-};
-
-var encodeHTML=function (text) {
-    return (""+text).split("<").join("&lt;").split(">").join("&gt;").split('"').join("&#34;").split("'").join("&#39;");
+    return {
+        helpers: helpers,
+        functions: functions,
+        code: str+"';"
+    };
 };
 
 var razor={};
 
-razor.parse=function (templateStr,args) {
-    if(typeof args!=='string') args="$data";
+razor.create=function(templateStr) {
+    var result=razor.parse(templateStr);
+    var str='var T={encodeHTML:function(a){return (""+a).replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&#34;").replace(/\'/g,"&#39;")},html:function($data){'+result.code+'},helpers:{';
 
-    var result={
-        helper: {},
-        encodeHTML: encodeHTML
-    },
-    str="var __=[];"+(args==="$data"?"with($data||{})":"")+"{";
+    if(result.helpers) {
+        var helpers=[];
+        for(var key in result.helpers) {
+            helpers.push(key+':'+result.helpers[key]);
+        }
+        str+=helpers.join(',');
+    }
+    str+='}';
 
-    str+=parse(templateStr,result);
+    if(result.functions) {
+        for(var key in result.functions) {
+            str+=','+key+':'+result.functions[key];
+        }
+    }
 
-    str+="}return __.join('');";
+    str+='};T.template=T.html;';
 
-    //console.log(str)
-
-    var fn=new Function(args,str);
-
-    result.template=result.T=function () {
-        return fn.apply(result,arguments);
-    };
-    return result;
+    return str;
 }
 
+razor.parse=function(templateStr,args) {
+    if(typeof args!=='string') args="$data";
 
-var fs=require('fs');
+    var str="var __='';"+(args==="$data"?"with($data||{})":"")+"{",
+        res=parse(templateStr);
 
-fs.readFile('./test.tpl',{
-    encoding: 'utf8'
-},function (err,data) {
-    var t=razor.parse(data).T;
+    str+=res.code;
 
-    console.log(t())
-});
+    str+="}return __;";
+
+    res.code=str;
+
+    return res;
+};
+
+razor.web=function(templateStr) {
+    return 'define(function(){'+razor.create(templateStr)+' return T;});';
+};
+
+razor.node=function(templateStr) {
+    return razor.create(templateStr)+"module.exports=T;";
+};
+
+module.exports=razor;
+
+/*
+var testData="asdfasd\
+asdfa中文\
+sdf'a\
+sdf''\
+asd\
+\
+@function asdfasdf(test){\
+alert(1);\
+}\
+\
+\
+@helper asdfasdf(test){\
+alert(1);\
+}\
+\
+@for(var i=0;i<1;i++){\
+\
+<div>asdfasdf</div>\
+<div>asdfasdf</div><div>asdfasdf</div>\
+<div>asdfasdf</div>\
+<div>asdfasdf</div>\
+\
+}\
+@function asdfasdf(test){\
+alert(1);\
+}\
+@@\
+\
+@helper asdfasdf(test){\
+alert(1);\
+}\
+\
+@for(var i=0;i<10;i++){\
+\
+<div>asdfasdf</div>\
+<div>asdfasdf</div><div>asdfasdf</div>\
+\
+}\
+@function asdfasdf(test){\
+alert(1);\
+}\
+\
+\
+@helper asdfasdf(test){\
+alert(1);\
+}\
+\
+@for(var i=0;i<10;i++){\
+\
+<div>asdfasdf</div>\
+\
+}\
+@function asdfasdf(test){\
+alert(1);\
+}\
+\
+\
+@helper asdfasdf(test){\
+alert(1);\
+}\
+\
+@for(var i=0;i<1;i++){\
+\
+<div>asdfasdf</div>\
+\
+}\
+\
+@if (5>3) {\
+console.log(2);\
+<div>asdfasdf</div><div>asdfasdf</div>\
+<div>asdfasdf</div><div>asdfasdf</div>\
+}\
+\
+@{var asdf='as        df';var adsfasdf='ccc';}\
+fa\
+sdf\
+\
+@adsfasdf\
+\
+@(asdf);"
+
+//console.log(rif.exec('if (asdfasdf){ as"}"; dfasdf;   } asdfasdfasdf asdfasdf'))
+
+
+eval("function asdf(){"+razor.create(testData)+";return T;}");
+
+console.log(asdf().html())
+*/
