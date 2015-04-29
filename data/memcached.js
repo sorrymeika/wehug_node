@@ -1,7 +1,5 @@
-﻿var host="172.16.163.141";
+﻿var Memcached=require('memcached');
 
-var Memcached=require('memcached');
-
-var memcached=new Memcached(host+":11211");
+var memcached=new Memcached(require('./config').host+":11211");
 
 module.exports=memcached;

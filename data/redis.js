@@ -1,4 +1,4 @@
-﻿var host="172.16.163.141";
+﻿var host=require('./config').host;
 
 var redis=require('redis');
 
