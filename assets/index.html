@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <title></title>
+    <link debug href="anim.css" rel="stylesheet" type="text/css" />
+    <link debug href="style.css" rel="stylesheet" type="text/css" />
+    <script src="js/seajs/sea.js"></script>
+    <script debug src="js/zepto.js"></script>
+    <script debug src="js/extend/touch.js"></script>
+    <script debug src="js/extend/deferred.js"></script>
+    <script debug src="js/extend/fx.js"></script>
+    <script debug src="js/extend/matchMedia.js"></script>
+    <script debug src="js/extend/ortchange.js"></script>
+    <script debug src="js/tools/tools.js"></script>
+</head>
+<body>
+    <script debug>
+        seajs.use(['zepto','tools/tools','sl/linklist'],function ($,tools,linklist) {
+            return;
+            tools.build({
+                api: 'http://photo.ie1e.com',
+                compress: [
+                    'seajs/sea.js'
+                    ],
+                combine: {
+                    'style.css': [
+                        'anim.css',
+                        'style.css'
+                    ],
+                    sl: [
+                        'zepto',
+                        'extend/touch',
+                        'extend/deferred',
+                        'extend/fx',
+                        'extend/matchMedia',
+                        'extend/ortchange',
+                        'extend/throttle',
+                        'util',
+                        'bridge',
+                        'graphics/matrix2d',
+                        'sl/base',
+                        'sl/linklist',
+                        'sl/event',
+                        'sl/razor',
+                        'sl/view',
+                        'sl/animations',
+                        'sl/app',
+                        'sl/activity',
+                        'sl/tween',
+                        'sl/touch',
+                        'sl/widget/scrollview',
+                        'sl/widget/scroll',
+                        'sl/widget/dialog',
+                        'sl/widget/tip',
+                        'sl/widget/button',
+                        'sl/widget/selector',
+                        'sl/widget/loading',
+                        'sl/widget/slider',
+                        'sl/widget/dropdown'
+                        ],
+                    views: [
+                        'views/index'
+                        ]
+                },
+                html: ['index.html'],
+                template: [
+                    'views/index.html'
+                    ],
+                razor: [
+                    'views/index.html'
+                    ],
+                resource: [
+                    'images'
+                    ]
+            });
+        });
+        
+    </script>
+    <script>
+        seajs.config({
+            base: './js',
+            alias: {
+                "$": "zepto",
+                "tween": "sl/tween"
+            }
+        });
+
+        seajs.use(['$','sl/app','bridge'],function ($,Application,bridge,views) {
+            //$(document).on('touchmove',function() { return false });
+
+            var app=new Application();
+
+            app.mapRoute({
+                '': 'index',
+                'menu/{name:\\w+}.html': 'menu',
+                'login.html': 'login',
+                'register.html': 'register',
+                'registerS1.html': 'registerS1',
+                'registerS2.html': 'registerS2',
+                'password.html': 'password',
+                'cart.html': 'cart',
+                'user.html': 'user',
+                'order.html': 'order',
+                'orderlist.html': 'orderlist',
+                'order/{id:\\d+}.html': 'orderinfo',
+                'about.html': 'about',
+                'eco.html': 'eco',
+                'create/{id:\\d+}.html': 'create',
+                'product/{id:\\d+}.html': 'product',
+                'ourdesigner.html': 'ourdesigner',
+                'credit/{id:\\d+}.html': 'credit',
+                'credits.html': 'credits',
+                'support.html': 'support',
+                'user.html': 'user',
+                'news/{id:\\d+}.html': 'news'
+            });
+
+            app.start();
+
+            //            bridge.isAndroid&&setTimeout(function() {
+            //                bridge.exitLauncher(function() { });
+            //            },1500);
+        });
+    </script>
+</body>
+</html>

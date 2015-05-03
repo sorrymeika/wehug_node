@@ -1,42 +1,48 @@
 ﻿var LinkList=require('./linklist');
 var slice=Array.prototype.slice;
 
-var Promise=function(callback) {
+var Promise=function (args,callback,ctx) {
     if(!(this instanceof Promise))
-        return new Promise(callback);
+        return new Promise(args,callback,ctx);
 
     this.queue=new LinkList();
     this.state=2;
 
-    if(callback) {
+    if(args) {
         this.state=0;
-        this.then(callback);
+        this.then(args,callback,ctx);
     }
 }
 
 Promise.prototype={
-    reject: function(reason) {
+    reject: function (reason) {
         this.resolve(reason||'unknow error',null);
     },
-    resolve: function() {
+    resolve: function () {
         var that=this,
             args=slice.call(arguments),
             then=that.queue.shift(),
+            thenArgs,
             next,
             ctx,
             promise;
 
         if(then) {
             that.state=1;
-            next=then[0];
-            ctx=then[1];
+            thenArgs=then[0];
+            next=then[1];
+            ctx=then[2];
+
+            if(thenArgs&&thenArgs.length) {
+                args=thenArgs.concat(args);
+            }
 
             if(typeof next=='function') {
                 promise=next.apply(ctx,args);
 
                 if(promise instanceof Promise) {
                     if(promise!==that) {
-                        promise.then(function(err,result) {
+                        promise.then(function (err,result) {
                             that.resolve(err,result);
                         });
                     }
@@ -50,7 +56,7 @@ Promise.prototype={
                     count=0;
 
                 for(var i=0,n=next.length;i<n;i++) {
-                    (function(fn,i,n) {
+                    (function (fn,i,n) {
 
                         if(typeof fn=='function'&&!(fn instanceof Promise)) {
                             fn=fn.apply(ctx,args);
@@ -58,7 +64,7 @@ Promise.prototype={
 
                         if(fn instanceof Promise) {
 
-                            fn.then(function(err,obj) {
+                            fn.then(function (err,obj) {
                                 if(err) errors[i]=err;
 
                                 count++;
@@ -86,10 +92,11 @@ Promise.prototype={
             that.state=0;
         }
     },
-    when: function() {
-        var args=slice.call(arguments);
+    when: function (args,ctx) {
+        if(!(args instanceof Array))
+            args=[args];
 
-        this.queue.append([args,this]);
+        this.queue.append([null,args,ctx||this]);
 
         if(this.state!=1) {
             this.resolve();
@@ -97,8 +104,14 @@ Promise.prototype={
 
         return this;
     },
-    then: function(callback,ctx) {
-        this.queue.append([callback,ctx||this]);
+    then: function (args,callback,ctx) {
+        if(!(args instanceof Array)) {
+            ctx=callback;
+            callback=args;
+            args=null;
+        }
+
+        this.queue.append([args,callback,ctx||this]);
 
         if(!this.state) {
             this.resolve();
@@ -111,50 +124,50 @@ Promise.prototype={
 module.exports=Promise;
 
 /*
-var promise=Promise(function() {
-    var that=this;
+var promise=Promise(function () {
+var that=this;
 
-    setTimeout(function() {
-        console.log('init');
+setTimeout(function () {
+console.log('init');
 
-        that.resolve(null,'tes1t');
+that.resolve(null,'tes1t');
 
-    },2000);
+},2000);
 
-    return that;
+return that;
 });
 
-promise.when(function() {
-    var dfd=Promise();
+promise.when(function () {
+var dfd=Promise();
 
-    setTimeout(function() {
-        console.log('when');
+setTimeout(function () {
+console.log('when');
 
-        dfd.resolve(null,'test');
+dfd.resolve(null,'test');
 
-    },2000);
+},2000);
 
-    return dfd;
+return dfd;
 })
-.then(function(err,result) {
-    setTimeout(function() {
-        console.log('then',err,result);
+.then(function (err,result) {
+setTimeout(function () {
+console.log('then',err,result);
 
-        promise.resolve();
+promise.resolve();
 
-    },1000);
+},1000);
 
-    return promise;
+return promise;
 })
-.then(function(err,result) {
+.then(function (err,result) {
 
-    setTimeout(function() {
-        console.log('end',err,result);
+setTimeout(function () {
+console.log('end',err,result);
 
-        promise.resolve();
+promise.resolve();
 
-    },500);
+},500);
 
-    return promise;
+return promise;
 });
 */
