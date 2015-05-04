@@ -14,7 +14,8 @@
     "redis": "",
     "hiredis": "",
     "async": "",
-    "uglify-js": ""
+    "uglify-js": "",
+    "fs-extra": ""
   },
   "author": "SL",
   "license": "ISC"

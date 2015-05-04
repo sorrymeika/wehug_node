@@ -1,12 +1,18 @@
 ﻿var LinkList=require('./linklist');
 var slice=Array.prototype.slice;
+var rparam=/^\$(\d+)$/;
 
 var Promise=function (args,callback,ctx) {
     if(!(this instanceof Promise))
         return new Promise(args,callback,ctx);
 
+    var self=this;
+
     this.queue=new LinkList();
     this.state=2;
+    this.resolver=function () {
+        self.resolve.apply(self,arguments);
+    };
 
     if(args) {
         this.state=0;
@@ -22,29 +28,24 @@ Promise.prototype={
         var that=this,
             args=slice.call(arguments),
             then=that.queue.shift(),
-            thenArgs,
             next,
             ctx,
             promise;
 
         if(then) {
             that.state=1;
-            thenArgs=then[0];
-            next=then[1];
-            ctx=then[2];
+            next=then[0];
+            ctx=then[1];
 
-            if(thenArgs&&thenArgs.length) {
-                args=thenArgs.concat(args);
-            }
+            if(next instanceof Promise) {
+                next.then(that.resolver);
 
-            if(typeof next=='function') {
+            } else if(typeof next=='function') {
                 promise=next.apply(ctx,args);
 
                 if(promise instanceof Promise) {
                     if(promise!==that) {
-                        promise.then(function (err,result) {
-                            that.resolve(err,result);
-                        });
+                        promise.then(that.resolver);
                     }
 
                 } else
@@ -91,12 +92,14 @@ Promise.prototype={
         } else {
             that.state=0;
         }
+
+        return that;
     },
     when: function (args,ctx) {
         if(!(args instanceof Array))
             args=[args];
 
-        this.queue.append([null,args,ctx||this]);
+        this.queue.append([args,ctx||this]);
 
         if(this.state!=1) {
             this.resolve();
@@ -105,19 +108,37 @@ Promise.prototype={
         return this;
     },
     then: function (args,callback,ctx) {
+        var self=this,
+            fn;
+
         if(!(args instanceof Array)) {
             ctx=callback;
             callback=args;
             args=null;
+
+        } else {
+            fn=callback;
+            callback=function () {
+                var newArgs=[];
+
+                for(var i=0,n=args.length,arg;i<n;i++) {
+                    arg=args[i];
+                    newArgs.push(typeof arg==='string'?(rparam.test(arg)?arguments[parseInt(arg.match(rparam)[1])]:arg.replace(/^\$\$/,'$')):arg);
+                }
+                newArgs.push(self.resolver);
+
+                fn.apply(this,newArgs);
+                return self;
+            };
         }
 
-        this.queue.append([args,callback,ctx||this]);
+        self.queue.append([callback,ctx||this]);
 
-        if(!this.state) {
-            this.resolve();
+        if(!self.state) {
+            self.resolve();
         }
 
-        return this;
+        return self;
     }
 };
 

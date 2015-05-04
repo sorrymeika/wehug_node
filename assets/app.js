@@ -55,7 +55,6 @@ tools.build({
         views: ['views/index']
     },
     html: ['index.html'],
-    template: ['views/index.html'],
     razor: ['views/index.html'],
     resource: ['images']
 });
