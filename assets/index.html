@@ -14,68 +14,12 @@
     <script debug src="js/extend/fx.js"></script>
     <script debug src="js/extend/matchMedia.js"></script>
     <script debug src="js/extend/ortchange.js"></script>
-    <script debug src="js/tools/tools.js"></script>
 </head>
 <body>
     <script debug>
-        seajs.use(['zepto','tools/tools','sl/linklist'],function ($,tools,linklist) {
+        seajs.use(['zepto','tools/tools','sl/linklist'],function($,tools,linklist) {
             return;
-            tools.build({
-                api: 'http://photo.ie1e.com',
-                compress: [
-                    'seajs/sea.js'
-                    ],
-                combine: {
-                    'style.css': [
-                        'anim.css',
-                        'style.css'
-                    ],
-                    sl: [
-                        'zepto',
-                        'extend/touch',
-                        'extend/deferred',
-                        'extend/fx',
-                        'extend/matchMedia',
-                        'extend/ortchange',
-                        'extend/throttle',
-                        'util',
-                        'bridge',
-                        'graphics/matrix2d',
-                        'sl/base',
-                        'sl/linklist',
-                        'sl/event',
-                        'sl/razor',
-                        'sl/view',
-                        'sl/animations',
-                        'sl/app',
-                        'sl/activity',
-                        'sl/tween',
-                        'sl/touch',
-                        'sl/widget/scrollview',
-                        'sl/widget/scroll',
-                        'sl/widget/dialog',
-                        'sl/widget/tip',
-                        'sl/widget/button',
-                        'sl/widget/selector',
-                        'sl/widget/loading',
-                        'sl/widget/slider',
-                        'sl/widget/dropdown'
-                        ],
-                    views: [
-                        'views/index'
-                        ]
-                },
-                html: ['index.html'],
-                template: [
-                    'views/index.html'
-                    ],
-                razor: [
-                    'views/index.html'
-                    ],
-                resource: [
-                    'images'
-                    ]
-            });
+            
         });
         
     </script>
@@ -88,13 +32,14 @@
             }
         });
 
-        seajs.use(['$','sl/app','bridge'],function ($,Application,bridge,views) {
+        seajs.use(['$','sl/app','bridge'],function($,Application,bridge,views) {
             //$(document).on('touchmove',function() { return false });
 
             var app=new Application();
 
             app.mapRoute({
                 '': 'index',
+                'index1.html': 'index1',
                 'menu/{name:\\w+}.html': 'menu',
                 'login.html': 'login',
                 'register.html': 'register',

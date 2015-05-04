@@ -550,6 +550,8 @@
             newDuration=0;
 
         if(typeof options[0]==='number') options=[options];
+        else if(!options.length) { end.call(context);return; }
+
         for(var i=0,n=options.length,m;i<n;i++) {
             m=this._momentum.apply(this,options[i]);
 

@@ -1,11 +1,11 @@
-﻿define(['$','./../view','./../razor'],function(require,exports,module) {
+﻿define(['$','./../view','util'],function(require,exports,module) {
     var $=require('$'),
+        util=require('util'),
         sl=require('./../base'),
-        razor=require('./../razor'),
         view=require('./../view');
 
     var Dropdown=view.extend({
-        el: '<div class="dropdown hide"><ul class="dropdown_bd js_dropdown">{%each(i,item) data%}<li>${item.text}</li>{%/each%}</ul></div>',
+        el: '<div class="dropdown hide"><ul class="dropdown_bd js_dropdown"><%for(var i=0,n=data.length,item;i<n;i++) {%><li><%=item.text%></li><%}%></ul></div>',
         events: {
             'tap .js_dropdown>li': function(e) {
                 var $target=$(e.currentTarget);
@@ -34,7 +34,7 @@
             });
 
             that.$bd=that.$('.js_dropdown');
-            that._template=razor.create(that.$bd.html()).T;
+            that._template=util.template(that.$bd.html());
             that.$bd.html(that._template(that.options));
 
             that.$attacher=$(that.options.attacher);

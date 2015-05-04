@@ -6,9 +6,9 @@
         ios=util.ios,
         isAndroid=util.android,
         slice=Array.prototype.slice,
-        blankFn=function() { };
-
-    var baseUrl=document.querySelector('meta[name="api-base-url"]').getAttribute('content');
+        blankFn=function() { },
+        $win=$(window),
+        baseUrl=$('meta[name="api-base-url"]').attr('content');
 
     window.hybridFunctions={};
     window.complete=function() {
@@ -19,7 +19,7 @@
     };
 
     window.trigger=window.app_trigger=function() {
-        $.fn.trigger.apply($(window),arguments);
+        $.fn.trigger.apply($win,arguments);
     };
 
     var queue=[],guid=0,
@@ -65,12 +65,6 @@
             android: isAndroid,
             ios: ios,
             versionName: isAndroid?'1.0':"1.0",
-            //needRefresh: /^HUAWEI_P7/.test(ua),
-            log: function(msg) {
-                !this.$log&&(this.$log=$('<div style="position:absolute;overflow:hidden;height:1px;width:1px;left:0px;top:0px;margin:0;padding:0;"></div>').appendTo(document.body));
-
-                this.$log.html(msg);
-            },
             exec: hybrid,
             exitLauncher: function(f) {
                 hybrid('exitLauncher',function() {
@@ -127,7 +121,7 @@
 
     var prepareExit=false;
 
-    $(window).on('back',function() {
+    $win.on('back',function() {
         var hash=location.hash;
         if(hash==''||hash==='#'||hash==="/"||hash==="#/") {
             if(prepareExit) {
@@ -144,6 +138,12 @@
             history.back();
         }
     });
+
+    //<--debug
+    bridge.url=function(url) {
+        return /^http\:\/\//.test(url)?url:('index.cshtml?path='+encodeURIComponent(url));
+    };
+    //debug-->
 
     return bridge;
 

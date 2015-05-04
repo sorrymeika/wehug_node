@@ -36,8 +36,8 @@
             var that=this,
                 point=e.touches[0];
 
-            that.pointX=that.startX=point.pageX;
-            that.pointY=that.startY=point.pageY;
+            that.pointX=that.startX=that.sx=point.pageX;
+            that.pointY=that.startY=that.sy=point.pageY;
 
             that.isTouchStop=false;
             that.isTouchStart=false;
@@ -91,6 +91,9 @@
 
             that.deltaX=deltaX;
             that.deltaY=deltaY;
+
+            that.dx=that.sx-point.pageX;
+            that.dy=that.sy-point.pageY;
 
             var moveEvent=event.createEvent('move');
 

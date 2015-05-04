@@ -1,4 +1,4 @@
-﻿define(['$'],function (require,exports,module) {
+﻿define(['$'],function(require,exports,module) {
     var $=require('$'),
         slice=Array.prototype.slice;
 
@@ -20,17 +20,13 @@
     var tagReg=/<(\w+)(?:\s+[^>]+)*>(.*?)<\/\1>/img;
 
 
-    $.encodeHTML=function (text) {
+    $.encodeHTML=function(text) {
         return (""+text).split("<").join("&lt;").split(">").join("&gt;").split('"').join("&#34;").split("'").join("&#39;");
     };
 
     var razor={};
 
-    razor.cache={};
-
-    razor.use=$.get;
-
-    razor.create=function (templateStr,args) {
+    razor.create=function(templateStr,args) {
         var result={
             helper: {}
         },
@@ -38,7 +34,7 @@
 
         templateStr=templateStr.replace(/\\/g,'\\\\')
             .replace(/'/g,'\\\'')
-            .replace(expReg,function (text,pre,cmd,exp,code) {
+            .replace(expReg,function(text,pre,cmd,exp,code) {
                 //console.log(text)
 
                 if(/^(function|helper)\s+/.test(cmd)) {
@@ -56,7 +52,7 @@
                 } else {
                     code=code.replace(/\\'/,'\'')
                         .replace(/[\r\n\t]/g,' ')
-                        .replace(tagReg,function (text,tag,html) {
+                        .replace(tagReg,function(text,tag,html) {
                             return "__.push('"+(tag=='text'?html:text)+"');";
                         });
 
@@ -69,7 +65,7 @@
                     return pre+'\');'+code+'__.push(\'';
                 }
             })
-            .replace(cmdReg,function (text,pre,cmd,code) {
+            .replace(cmdReg,function(text,pre,cmd,code) {
                 code=code.replace(/\\'/,'\'');
                 return pre+'\','+(cmd=="html"?code:'$.encodeHTML('+code+')')+',\'';
             })
@@ -80,10 +76,10 @@
 
         if(typeof args!=='string') args="$data";
 
-        var parsed_markup_data="var __=[];"+(args==="$data"?"with($data||{})":"")+"{__.push('"+templateStr+"');}return __.join('');",
-            fn=new Function(args,parsed_markup_data);
+        var str="var __=[];"+(args==="$data"?"with($data||{})":"")+"{__.push('"+templateStr+"');}return __.join('');",
+            fn=new Function(args,str);
 
-        result.template=result.T=fn;
+        result.html=result.T=fn;
         return result;
     };
 

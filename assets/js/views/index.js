@@ -22,6 +22,7 @@
         events: {
             'tap': function() {
                 // this.$('.main,.scroll').iScroll('refresh');
+                this.forward('index1.html');
             },
 
             'tap .js_buy': function() { },

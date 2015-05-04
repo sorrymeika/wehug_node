@@ -1,4 +1,4 @@
-﻿define(['$','util','bridge','./activity','./view','./tween','./animations'],function(require,exports,module) {
+﻿define(['$','util','bridge','./activity','./view','./tween','./animations','./touch'],function(require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -8,6 +8,7 @@
         tween=require('./tween'),
         LinkList=require('./linklist'),
         animations=require('./animations'),
+        Touch=require('./touch'),
         Activity=require('./activity');
 
     var noop=util.noop,
@@ -94,106 +95,76 @@
             },
             'focus input': function(e) {
                 this.activeInput=e.target;
-            },
-            'touchstart': function(e) {
-                var that=this,
-                    point=e.touches[0];
+            }
+        },
 
-                that.pointX=that.startX=point.pageX;
-                that.pointY=that.startY=point.pageY;
+        touchstart: function() {
+            var that=this,
+                currentActivity,
+                action,
+                isSwipeLeft,
+                isOpen,
+                deltaX=that.touch.dx;
 
-                that.isTouchStop=false;
-                that.isTouchStart=false;
-                that.isTouchMoved=false;
-                that.width=window.innerWidth;
-            },
-            'touchmove': function(e) {
-                if(this.isTouchStop) return;
+            if(that.isDirectionY) {
+                that.stop();
+                return;
+            }
+            that.width=window.innerWidth;
 
-                var that=this,
-                    minDelta=12,
-                    point=e.touches[0],
-                    deltaX=point.pageX-that.startX,
-                    deltaY=point.pageY-that.startY,
-                    currentActivity,
-                    per,
-                    action,
-                    isSwipeLeft,
-                    isOpen;
+            currentActivity=that._currentActivity;
 
-                if(!that.isTouchStart) {
-                    var isDirectionX=Math.abs(deltaX)>=minDelta,
-                        isDirectionY=Math.abs(deltaY)>=minDelta;
+            isSwipeLeft=that.isSwipeLeft=deltaX>0;
+            that.swiper=null;
 
-                    if(isDirectionY) {
-                        that.isTouchStop=true;
-                        return;
-                    } else if(isDirectionX) {
-                        that.isTouchStart=true;
-                        currentActivity=that._currentActivity;
-
-                        isSwipeLeft=that.isSwipeLeft=deltaX<0;
-                        that.swiper=null;
-
-                        action=isSwipeLeft?(currentActivity.swipeLeftForwardAction?(isOpen=true,currentActivity.swipeLeftForwardAction):(isOpen=false,currentActivity.swipeLeftBackAction))
+            action=isSwipeLeft?(currentActivity.swipeLeftForwardAction?(isOpen=true,currentActivity.swipeLeftForwardAction):(isOpen=false,currentActivity.swipeLeftBackAction))
                         :(currentActivity.swipeRightForwardAction?(isOpen=true,currentActivity.swipeRightForwardAction):(isOpen=false,currentActivity.swipeRightBackAction));
 
-                        if(!action) {
-                            if(isSwipeLeft&&currentActivity.referrerDir=="Left") {
-                                action=currentActivity.referrer;
-                            } else if(!isSwipeLeft&&currentActivity.referrerDir!="Left") {
-                                action=currentActivity.referrer;
-                            }
-                            isOpen=false;
-                        }
-                        //console.log(isOpen,action,isSwipeLeft)
-
-                        if(action) {
-                            that.mask.show();
-                            that._getActivity(action,function(activity) {
-                                prepareActivity(currentActivity,activity);
-
-                                that.isSwipeOpen=isOpen;
-
-                                that.swiper=tween.prepare(getAcitivityAnimation(isOpen,currentActivity,activity));
-                                that.swipeActivity=activity;
-                            });
-                        }
-
-                    } else {
-                        return;
-                    }
+            if(!action) {
+                if(isSwipeLeft&&currentActivity.referrerDir=="Left") {
+                    action=currentActivity.referrer;
+                } else if(!isSwipeLeft&&currentActivity.referrerDir!="Left") {
+                    action=currentActivity.referrer;
                 }
+                isOpen=false;
+            }
+            //console.log(isOpen,action,isSwipeLeft)
 
-                if(!that.swiper) return;
+            if(action) {
+                that.mask.show();
+                that._getActivity(action,function(activity) {
+                    prepareActivity(currentActivity,activity);
 
-                if(that.isSwipeLeft&&deltaX>0||!that.isSwipeLeft&&deltaX<0) {
-                    that.swiper.step(0);
-                    return;
-                }
+                    that.isSwipeOpen=isOpen;
 
-                per=Math.abs(deltaX)*100/that.width;
+                    that.swiper=tween.prepare(getAcitivityAnimation(isOpen,currentActivity,activity));
+                    that.swipeActivity=activity;
+                });
+            }
+        },
 
-                that.swiper.step(per);
+        touchmove: function(e) {
+            var that=this,
+                per,
+                deltaX=that.touch.dx;
 
-                that.isTouchMoved=true;
+            if(!that.swiper) return;
 
-                that.isMoveLeft=that.pointX-point.pageX>0?true:false;
+            if(that.isSwipeLeft&&deltaX<0||!that.isSwipeLeft&&deltaX>0) {
+                that.swiper.step(0);
+                return;
+            }
 
-                that.pointX=point.pageX;
-                that.pointY=point.pageY;
-            },
-            'touchend': function(e) {
-                var that=this;
+            per=Math.abs(deltaX)*100/that.width;
 
-                if(!that.isTouchMoved) return;
-                that.isTouchMoved=false;
+            that.swiper.step(per);
+        },
 
-                if(that.isTouchStop) return;
-                that.isTouchStop=true;
+        touchend: function() {
+            var that=this,
+                isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
 
-                var isCancelSwipe=that.isMoveLeft!==that.isSwipeLeft;
-
+            if(that.swiper) {
                 that.queue(that.swiper,that.swiper.animate,[200,isCancelSwipe?0:100,function() {
                     var activity=that.swipeActivity,
                         currentActivity=that._currentActivity;
@@ -219,7 +190,6 @@
                     }
                     that.turning();
                 } ]);
-                return false;
             }
         },
 
@@ -311,6 +281,11 @@
 
             that.el=that.$el[1];
             that.canvas=that.$el[2];
+
+            that.touch=new Touch(that.$el,{})
+                .on('start',that.touchstart,that)
+                .on('move',that.touchmove,that)
+                .on('stop',that.touchend,that);
         },
 
         skip: 0,
@@ -541,8 +516,9 @@
                 currentActivity=that._currentActivity,
                 route=that.matchRoute(url);
 
-            if(url!=hashToUrl(location.hash)&&that._queue.length==1&&that._queue.args&&hashToUrl(that._queue.args[0])===url) {
-                that.navigate(url);
+            if(url!=hashToUrl(location.hash)&&that._queue.length==1) {
+                var args=that._queue.first().args;
+                if(args&&hashToUrl(args[0])===url) that.navigate(url);
             }
 
             if(currentActivity.path==route.path) {

@@ -1,6 +1,6 @@
-﻿define(['$','util','./../base','./../view','./../razor'],function(require,exports,module) {
+﻿define(['$','util','./../base','./../view'],function(require,exports,module) {
     var $=require('$'),
-        razor=require('./../razor'),
+        util=require('util'),
         Scroll=require('./scroll');
 
     var util=require('util');
@@ -67,7 +67,7 @@
 
         el: '<div class="selector"><div class="selectorcon"><ul></ul></div></div>',
 
-        template: razor.create('<li>@text</li>').T,
+        template: util.template('<li><%=text%></li>'),
 
         init: function() {
             var that=this;

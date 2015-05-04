@@ -16,8 +16,7 @@
             vScroll: true
         },options)
 
-        var that=this,
-            touch;
+        var that=this;
 
         that.options=options;
 
@@ -27,9 +26,8 @@
         that.$scroller=addScroller(that.$el);
         that.scroller=that.$scroller[0];
 
-        touch=that.touch=new Touch(that.$el,options);
-
-        touch.on('init',that.init,that)
+        that.touch=new Touch(that.$el,options)
+            .on('init',that.init,that)
             .on('start',that.start,that)
             .on('starttimereset',that.resetStartTime,that)
             .on('move',that.move,that)
@@ -54,11 +52,6 @@
             var that=this,
                 touch=that.touch;
 
-            if(!that.options.hScroll&&touch.isDirectionX||!that.options.vScroll&&touch.isDirectionY) {
-                touch.stop();
-                return;
-            }
-
             that.wrapperW=that.el.clientWidth;
             that.scrollW=that.scroller.offsetWidth;
             that.maxX=Math.max(that.scrollW-that.wrapperW,0);
@@ -68,6 +61,11 @@
             that.scrollH=that.scroller.offsetHeight;
             that.maxY=Math.max(that.scrollH-that.wrapperH,0);
             that._startTop=that.startTop=that.y;
+
+            if((!that.options.hScroll||that.wrapperW>=that.scrollW)&&touch.isDirectionX||(!that.options.vScroll||that.wrapperH>=that.scrollH)&&touch.isDirectionY) {
+                touch.stop();
+                return;
+            }
         },
         resetStartTime: function() {
             if(this.options.hScroll) {
