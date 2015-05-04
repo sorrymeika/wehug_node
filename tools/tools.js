@@ -160,24 +160,27 @@ Tools.prototype={
 
     compress: function (fileList) {
 
-        var that=this;
+        var self=this;
 
         fileList.forEach(fileList,function (fileName,i) {
+            if(/\.css$/.test(fileName)) {
 
-            if(ext==='.js') {
-                var id=url.replace(/\.js$/,'');
-                url="js/"+url;
-                $.get(url+'?'+new Date().getTime(),function (res) {
-                    res=parse(replaceDefine(id,res));
+                fs.readFile(path.join(self.baseDir,fileName),{
+                    encoding: 'utf-8'
+
+                },function (err,text) {
+                    that.save(path.join(that.destDir,fileName),compressCss(text));
                 });
-            } else if(ext==='.css') {
-                $.get(url+'?'+new Date().getTime(),function (res) {
-                    res=res.replace(/\s*([;|\:|,|\{|\}])\s*/img,'$1').replace(/[\r\n]/mg,'')
-                                .replace(/;}/mg,'}');
-                    that.save(url,res);
+
+            } else {
+
+                fs.readFile(path.join(self.baseDir,'js/'+fileName+'.js'),{
+                    encoding: 'utf-8'
+                },function (err,text) {
+                    text=compressJs(replaceDefine(fileName,text));
+                    that.save(path.join(that.destDir,'js/'+fileName+'.js'),text);
                 });
             }
-
         });
 
         return this;
@@ -203,38 +206,25 @@ Tools.prototype={
     save: function (savePath,data,isCopy) {
         var dir=path.dirname(savePath);
 
-        var promise=new Promise(function () {
-            console.log(savePath)
+        var promise=new Promise();
 
-            var self=this;
-            fs.exists(dir,function (exists) {
-                console.log(exists)
-                if(!exists) {
-                    fs.mkdir(dir,function () {
-                        self.resolve(null,data);
-                    });
-                } else {
-                    self.resolve(null,data);
-                }
-            });
-            return self;
+        fs.exists(dir,function (exists) {
+            if(!exists) {
+                fs.mkdir(dir,function () {
+                    promise.resolve(null,data);
+                });
+            } else {
+                promise.resolve(null,data);
+            }
         });
 
         if(isCopy) {
             promise.then([data],fs.readFile,fs);
         }
 
-        promise.then(function (err,data) {
-            var self=this;
+        promise.then([savePath,'$1'],fs.writeFile);
 
-            fs.writeFile(savePath,data,function (err) {
-                self.resolve(err);
-            });
-
-            return self;
-        });
-
-        this.promise.then(promise);
+        return promise;
     },
 
     copy: function (sourcePath,destPath) {
