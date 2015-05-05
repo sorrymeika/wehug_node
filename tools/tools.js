@@ -1,6 +1,6 @@
 ﻿var UglifyJS=require('uglify-js');
 
-var compressCss=function (res) {
+var compressCss=function(res) {
     return res.replace(/\s*([;|\:|,|\{|\}])\s*/img,'$1').replace(/[\r\n]/mg,'').replace(/;}/mg,'}');
 }
 
@@ -26,7 +26,7 @@ var compressor=UglifyJS.Compressor({
     global_defs: {}
 });
 
-var compressJs=function (code) {
+var compressJs=function(code) {
     code=code.replace(/\/\/<--debug[\s\S]+?\/\/debug-->/img,'');
 
     var ast=UglifyJS.parse(code);
@@ -39,8 +39,8 @@ var compressJs=function (code) {
     return code;
 };
 
-var replaceDefine=function (id,code) {
-    return code.replace(/^\s*define\(([^\(]+?,){0,1}function/,function (r0,p) {
+var replaceDefine=function(id,code) {
+    return code.replace(/^\s*define\(([^\(]+?,){0,1}function/,function(r0,p) {
 
         p=eval('['+(p||'')+']');
         typeof p[0]==='string'?(p[0]=id):p.splice(0,0,id);
@@ -49,9 +49,9 @@ var replaceDefine=function (id,code) {
     })
 };
 
-var compressHTML=function (html) {
+var compressHTML=function(html) {
     return html.replace(/\s*(<(\/{0,1}[a-zA-Z]+)(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(\/){0,1}\s*>)\s*/img,'$1')
-        .replace(/<script(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/script>/img,function (r0,r1) {
+        .replace(/<script(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/script>/img,function(r0,r1) {
             return /^\s*$/.test(r1)?r0:('<script>'+compressJs(r1)+'</script>');
         });
 }
@@ -61,9 +61,9 @@ var fs=require('fs');
 var fse=require('fs-extra');
 var Promise=require('./../core/promise');
 
-var Tools=function (baseDir,destDir) {
-    this.baseDir=path.join(__dirname,baseDir);
-    this.destDir=path.join(__dirname,destDir);
+var Tools=function(baseDir,destDir) {
+    this.baseDir=baseDir;
+    this.destDir=destDir;
 
     this.promise=new Promise().resolve();
 }
@@ -76,9 +76,8 @@ Tools.prototype={
 
     compressJs: compressJs,
 
-    combine: function (pathDict) {
-        var that=this,
-            async=require('async');
+    combine: function(pathDict) {
+        var self=this;
 
         for(var destPath in pathDict) {
             var fileList=[],
@@ -86,44 +85,49 @@ Tools.prototype={
                 isCss=/\.css$/.test(destPath);
 
             for(var i=0,n=ids.length;i<n;i++) {
-                fileList[i]=path.join(that.baseDir,isCss?ids[i]:('js/'+ids[i]));
+                fileList[i]=path.join(self.baseDir,isCss?ids[i]:('js/'+ids[i]+'.js'));
             }
 
-            (function (ids,isCss,destPath) {
+            (function(fileList,ids,isCss,destPath) {
+                var promise=new Promise();
 
-                async.mapSeries(fileList,fs.readFile.bind(fs),function (err,result) {
-                    if(err) {
-                        console.log(err)
-                        return;
-                    }
+                promise.map(fileList,fs.readFile,fs)
+                    .then(function(err,result) {
+                        if(err) {
+                            console.log(err)
+                            return;
+                        }
 
-                    var text='';
+                        var text='';
 
-                    result.forEach(function (data,i) {
-                        data=data.toString('utf-8');
-                        text+=isCss?compressCss(data):compressJs(replaceDefine(ids[i],data));
+                        result.forEach(function(data,i) {
+                            data=data.toString('utf-8');
+                            text+=isCss?compressCss(data):compressJs(replaceDefine(ids[i],data));
+                        });
+
+                        return self.save(destPath,text);
                     });
 
-                    that.save(destPath,text);
-                });
+                self.promise.then(promise);
 
-            })(ids,isCss,path.join(that.destDir,isCss?destPath:('js/'+destPath+'.js')));
+            })(fileList,ids,isCss,path.join(self.destDir,isCss?destPath:('js/'+destPath+'.js')));
         }
 
         return this;
     },
 
-    html: function (fileList,api,combinedPathDict) {
+    html: function(fileList,api,combinedPathDict) {
 
         api='<meta name="api-base-url" content="'+api+'" />';
         if(!(fileList instanceof Array)) fileList=[fileList];
 
-        var that=this,
+        var self=this,
             now=new Date().getTime();
 
-        fileList.forEach(function (fileName) {
+        fileList.forEach(function(fileName) {
+            var promise=new Promise();
 
-            fs.readFile(path.join(that.baseDir,fileName),{ encoding: 'utf-8' },function (err,html) {
+            fs.readFile(path.join(self.baseDir,fileName),{ encoding: 'utf-8' },function(err,html) {
 
                 html=html.replace(/<script[^>]+debug[^>]*>[\S\s]*?<\/script>/img,'')
                     .replace(/<link[^>]+debug[^>]*\/*\s*>/img,'')
@@ -138,79 +142,122 @@ Tools.prototype={
                             :('<script src="js/'+destCombinePath+'.js?v='+now+'"></script>');
                     }
 
-                    combinedFiles+='<script data-template="razor" src="js/razor.text.js"></script>';
+                    combinedFiles+='<script data-template="razor" src="'+self.razorUri+'"></script>';
 
                     html=html.replace(/<\/head>/i,combinedFiles+'</head>');
                 }
 
                 html=compressHTML(html);
 
-                that.save(path.join(that.destDir,fileName),html);
+                self.save(path.join(self.destDir,fileName),html,promise.resolveSelf);
             });
+
+            self.promise.then(promise);
         });
 
         return this;
     },
 
-    resource: function (resourceDir) {
-        var promise=this.promise;
+    resource: function(resourceDir) {
 
-        promise.then(new Promise([path.join(that.destDir,resourceDir),path.join(that.destDir,destPath)],fse.copy,fse));
+        var self=this;
+        var promise=new Promise();
+        var pathArr=[];
+
+        resourceDir.forEach(function(dir,i) {
+            pathArr.push([path.join(self.baseDir,dir),path.join(self.destDir,dir)]);
+        });
+
+        promise.map(pathArr,fse.copy,fse);
+
+        this.promise.then(promise);
     },
 
-    compress: function (fileList) {
+    compress: function(fileList) {
 
         var self=this;
 
-        fileList.forEach(fileList,function (fileName,i) {
+        fileList.forEach(function(fileName,i) {
+            var promise=new Promise();
+
             if(/\.css$/.test(fileName)) {
 
                 fs.readFile(path.join(self.baseDir,fileName),{
                     encoding: 'utf-8'
 
-                },function (err,text) {
-                    that.save(path.join(that.destDir,fileName),compressCss(text));
+                },function(err,text) {
+                    self.save(path.join(self.destDir,fileName),compressCss(text),promise.resolveSelf);
                 });
 
             } else {
+                var jsFileName='js/'+fileName+'.js';
 
-                fs.readFile(path.join(self.baseDir,'js/'+fileName+'.js'),{
+                fs.readFile(path.join(self.baseDir,jsFileName),{
                     encoding: 'utf-8'
-                },function (err,text) {
+                },function(err,text) {
                     text=compressJs(replaceDefine(fileName,text));
-                    that.save(path.join(that.destDir,'js/'+fileName+'.js'),text);
+
+                    self.save(path.join(self.destDir,jsFileName),text,promise.resolveSelf);
                 });
             }
+
+            self.promise.then(promise);
         });
 
         return this;
     },
 
-    razor: function (razor) {
-        var that=this;
+    razorUri: 'js/razor.text.js',
 
-        this.ajax('tools.cshtml?action=razor',{
-            razor: razor.join(',')
-        });
+    razor: function(fileList) {
+        var self=this;
+
+        var razor=require('./../core/razor');
+        var promise=new Promise().resolve();
+        var result='';
+
+        fileList.forEach(promise.bind(function(fileName,i) {
+
+            fs.readFile(path.join(self.baseDir,fileName+'.tpl'),{
+                encoding: 'utf-8'
+
+            },function(err,text) {
+                text=compressJs(replaceDefine(fileName,razor.web(text)));
+
+                result+=text;
+
+                self.save(path.join(self.destDir,'js/'+fileName+'.js'),text,promise.resolveSelf);
+            });
+        }));
+
+        self.promise.then(promise)
+            .then(function() {
+                return self.save(path.join(self.destDir,self.razorUri),result);
+            });
+
+        return this;
     },
 
-    build: function (options) {
+    build: function(options) {
         options.combine&&this.combine(options.combine);
         options.html&&this.html(options.html,options.api,options.combine);
         options.resource&&this.resource(options.resource);
         options.compress&&this.compress(options.compress);
-        options.template&&this.template(options.template);
         options.razor&&this.razor(options.razor);
+
+        this.promise.then(function() {
+            console.log('finish')
+        });
     },
 
-    save: function (savePath,data,isCopy) {
-        var dir=path.dirname(savePath);
+    _save: function(savePath,data,isCopy,callback) {
 
         var promise=new Promise();
+        var dir=path.dirname(savePath);
 
-        fs.exists(dir,function (exists) {
+        fs.exists(dir,function(exists) {
             if(!exists) {
-                fs.mkdir(dir,function () {
+                fs.mkdir(dir,function() {
                     promise.resolve(null,data);
                 });
             } else {
@@ -222,21 +269,23 @@ Tools.prototype={
             promise.then([data],fs.readFile,fs);
         }
 
-        promise.then([savePath,'$1'],fs.writeFile);
+        promise.then([savePath,'$1'],fs.writeFile)
+            .then(function() {
+                console.log('save',savePath)
+            });
+
+        if(callback) promise.then(callback);
 
         return promise;
     },
 
-    copy: function (sourcePath,destPath) {
-        this.save(sourcePath,destPath,true)
+    save: function(savePath,data,callback) {
+        return this._save(savePath,data,false,callback);
+    },
+
+    copy: function(sourcePath,destPath,callback) {
+        return this._save(sourcePath,destPath,true,callback)
     }
 };
 
 module.exports=Tools;
-
-var tools=new Tools('./../assets','./../assets/dest');
-
-tools.html("index.html",'',{
-    'style.css': ['style.css','views.css'],
-    'sl': ['zepto.js']
-});

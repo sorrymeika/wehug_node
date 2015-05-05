@@ -2,7 +2,20 @@
 var slice=Array.prototype.slice;
 var rparam=/^\$(\d+)$/;
 
-var Promise=function (args,callback,ctx) {
+var getCallbackParams=function(args,parameters,fn) {
+    var newArgs=[];
+
+    for(var i=0,n=args.length,arg;i<n;i++) {
+        arg=args[i];
+        newArgs.push(typeof arg==='string'?(rparam.test(arg)?parameters[parseInt(arg.match(rparam)[1])]:arg.replace(/^\$\$/,'$')):arg);
+    }
+
+    newArgs.push(fn);
+
+    return newArgs;
+}
+
+var Promise=function(args,callback,ctx) {
     if(!(this instanceof Promise))
         return new Promise(args,callback,ctx);
 
@@ -10,7 +23,7 @@ var Promise=function (args,callback,ctx) {
 
     this.queue=new LinkList();
     this.state=2;
-    this.resolver=function () {
+    this.resolveSelf=function() {
         self.resolve.apply(self,arguments);
     };
 
@@ -21,10 +34,11 @@ var Promise=function (args,callback,ctx) {
 }
 
 Promise.prototype={
-    reject: function (reason) {
+    reject: function(reason) {
         this.resolve(reason||'unknow error',null);
     },
-    resolve: function () {
+
+    resolve: function() {
         var that=this,
             args=slice.call(arguments),
             then=that.queue.shift(),
@@ -38,14 +52,14 @@ Promise.prototype={
             ctx=then[1];
 
             if(next instanceof Promise) {
-                next.then(that.resolver);
+                next.then(that.resolveSelf);
 
             } else if(typeof next=='function') {
                 promise=next.apply(ctx,args);
 
                 if(promise instanceof Promise) {
                     if(promise!==that) {
-                        promise.then(that.resolver);
+                        promise.then(that.resolveSelf);
                     }
 
                 } else
@@ -57,15 +71,15 @@ Promise.prototype={
                     count=0;
 
                 for(var i=0,n=next.length;i<n;i++) {
-                    (function (fn,i,n) {
+                    (function(fn,i,n) {
 
-                        if(typeof fn=='function'&&!(fn instanceof Promise)) {
+                        if(typeof fn=='function') {
                             fn=fn.apply(ctx,args);
                         }
 
                         if(fn instanceof Promise) {
 
-                            fn.then(function (err,obj) {
+                            fn.then(function(err,obj) {
                                 if(err) errors[i]=err;
 
                                 count++;
@@ -73,7 +87,6 @@ Promise.prototype={
 
                                 if(count>=n) that.resolve(errors,result);
                             });
-
 
                         } else {
                             count++;
@@ -95,11 +108,11 @@ Promise.prototype={
 
         return that;
     },
-    when: function (args,ctx) {
-        if(!(args instanceof Array))
-            args=[args];
+    when: function(fns,ctx) {
+        if(!(fns instanceof Array))
+            fns=[fns];
 
-        this.queue.append([args,ctx||this]);
+        this.queue.append([fns,ctx||this]);
 
         if(this.state!=1) {
             this.resolve();
@@ -107,7 +120,54 @@ Promise.prototype={
 
         return this;
     },
-    then: function (args,callback,ctx) {
+
+    map: function(argsList,callback,ctx) {
+        var self=this,
+            fn=callback,
+            count=argsList.length,
+            errors=[],
+            result=[],
+
+            fn=function() {
+                var parameters=arguments;
+
+                argsList.forEach(function(args,j) {
+                    if(!(args instanceof Array)) args=[args];
+
+                    callback.apply(this,getCallbackParams(args,parameters,function(err,res) {
+                        if(err)
+                            errors[j]=err;
+
+                        result[j]=res;
+
+                        count--;
+                        if(count<=0) {
+                            self.resolve(errors.length?errors:null,result);
+                        }
+                    }));
+                });
+
+                return self;
+            };
+
+        self.queue.append([fn,ctx||this]);
+
+        if(self.state!=1) {
+            self.resolve();
+        }
+
+        return self;
+    },
+
+    bind: function(fn,ctx) {
+        var self=this;
+
+        return function() {
+            self.then(slice.call(arguments),fn,this);
+        }
+    },
+
+    then: function(args,callback,ctx) {
         var self=this,
             fn;
 
@@ -118,16 +178,8 @@ Promise.prototype={
 
         } else {
             fn=callback;
-            callback=function () {
-                var newArgs=[];
-
-                for(var i=0,n=args.length,arg;i<n;i++) {
-                    arg=args[i];
-                    newArgs.push(typeof arg==='string'?(rparam.test(arg)?arguments[parseInt(arg.match(rparam)[1])]:arg.replace(/^\$\$/,'$')):arg);
-                }
-                newArgs.push(self.resolver);
-
-                fn.apply(this,newArgs);
+            callback=function() {
+                fn.apply(this,getCallbackParams(args,arguments,self.resolveSelf));
                 return self;
             };
         }
