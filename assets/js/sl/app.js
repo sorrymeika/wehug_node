@@ -14,17 +14,16 @@
     var noop=util.noop,
         lastIndexOf=util.lastIndexOf,
         slice=Array.prototype.slice,
-        getUrlPath=util.getUrlPath,
-        hashToUrl=function(hash) {
-            return (hash.replace(/^#/,'')||'/').toLowerCase();
+        getUrlPath=util.getPath,
+        parseHash=function(hash) {
+            return (hash.replace(/^#+/,'')||'/').toLowerCase();
+        },
+        checkQueryString=function(activity,route) {
+            if(activity.route.url!=route.url) {
+                activity._setRoute(route);
+                activity.trigger('QueryChange');
+            }
         };
-
-    var checkQueryString=function(activity,route) {
-        if(activity.route.url!=route.url) {
-            activity._setRoute(route);
-            activity.trigger('QueryChange');
-        }
-    };
 
     var getAcitivityAnimation=function(isOpen,currentActivity,activity,animationName) {
         if(!animationName) animationName=(isOpen?activity:currentActivity).animationName;
@@ -98,7 +97,7 @@
             }
         },
 
-        touchstart: function() {
+        onTouchStart: function() {
             var that=this,
                 currentActivity,
                 action,
@@ -143,7 +142,7 @@
             }
         },
 
-        touchmove: function(e) {
+        onTouchMove: function(e) {
             var that=this,
                 per,
                 deltaX=that.touch.dx;
@@ -160,7 +159,7 @@
             that.swiper.step(per);
         },
 
-        touchend: function() {
+        onTouchEnd: function() {
             var that=this,
                 isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
 
@@ -228,7 +227,7 @@
         matchRoute: function(url) {
             var result=null,
                 queries={},
-                hash=hashToUrl(url);
+                hash=parseHash(url);
 
             url=hash;
 
@@ -283,9 +282,9 @@
             that.canvas=that.$el[2];
 
             that.touch=new Touch(that.$el,{})
-                .on('start',that.touchstart,that)
-                .on('move',that.touchmove,that)
-                .on('stop',that.touchend,that);
+                .on('start',that.onTouchStart,that)
+                .on('move',that.onTouchMove,that)
+                .on('stop',that.onTouchEnd,that);
         },
 
         skip: 0,
@@ -333,7 +332,7 @@
             that.$el=$(that.el);
 
             if(!location.hash) location.hash='/';
-            that.hash=hash=hashToUrl(location.hash);
+            that.hash=hash=parseHash(location.hash);
 
             that.queue(that,that._getActivity,[hash,function(activity) {
                 that._currentActivity=activity;
@@ -348,7 +347,7 @@
                 });
 
                 $win.on('hashchange',function() {
-                    hash=that.hash=hashToUrl(location.hash);
+                    hash=that.hash=parseHash(location.hash);
 
                     var index=lastIndexOf(that._history,hash),
                         isForward=(that._skipRecordHistory||index== -1)&&!that.isHistoryBack;
@@ -387,7 +386,7 @@
         },
 
         _navigate: function(url,skip) {
-            url=hashToUrl(url);
+            url=parseHash(url);
 
             var that=this,
                 index=lastIndexOf(that._history,url);
@@ -510,15 +509,15 @@
 
         _animationTo: function(url,duration,animationName,type,callback) {
             if(!duration) duration=400;
-            url=hashToUrl(url);
+            url=parseHash(url);
 
             var that=this,
                 currentActivity=that._currentActivity,
                 route=that.matchRoute(url);
 
-            if(url!=hashToUrl(location.hash)&&that._queue.length==1) {
+            if(url!=parseHash(location.hash)&&that._queue.length==1) {
                 var args=that._queue.first().args;
-                if(args&&hashToUrl(args[0])===url) that.navigate(url);
+                if(args&&parseHash(args[0])===url) that.navigate(url);
             }
 
             if(currentActivity.path==route.path) {

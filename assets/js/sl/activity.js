@@ -14,10 +14,7 @@
     var noop=util.noop,
         indexOf=util.indexOf,
         slice=Array.prototype.slice,
-        getUrlPath=util.getUrlPath,
-        hashToUrl=function(hash) {
-            return (hash.replace(/^#/,'')||'/').toLowerCase();
-        };
+        getUrlPath=util.getPath;
 
     var Activity=view.extend({
         options: {

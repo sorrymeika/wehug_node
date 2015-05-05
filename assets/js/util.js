@@ -1,6 +1,5 @@
 ﻿define(function() {
     var ArrayProto=Array.prototype,
-        push=ArrayProto.push,
         slice=ArrayProto.slice,
         concat=ArrayProto.concat,
         ua=navigator.userAgent,
@@ -20,25 +19,40 @@
         guid: function() {
             return ++guid;
         },
+
         indexOf: function(arr,val) {
-            var fn=typeof val==='function'?val:function(item) { return item==val; }
-            for(var i=0,n=arr.length;i<n;i++) {
-                if(fn(arr[i],i)) return i;
+            var isFn=typeof val==='function',
+                length=arr.length;
+
+            for(var i=0;i<length;i++) {
+                if(isFn?val(arr[i],i):(arr[i]==val)) return i;
             }
             return -1;
         },
 
         lastIndexOf: function(arr,val) {
-            var fn=typeof val==='function'?val:function(item) { return item==val; }
+            var isFn=typeof val==='function';
             for(var i=arr.length-1;i>=0;i--) {
-                if(fn(arr[i],i)) return i;
+                if(isFn?val(arr[i],i):(arr[i]==val)) return i;
             }
             return -1;
         },
 
-        where: function(arr,fn) {
-            var result=[];
+        first: function(arr,fn) {
             var item;
+
+            for(var i=0,len=arr.length;i<len;i++) {
+                item=arr[i];
+
+                if(fn(item,i)) return item;
+            }
+            return null;
+        },
+
+        find: function(arr,fn) {
+            var result=[],
+                item;
+
             for(var i=0,n=arr.length;i<n;i++) {
                 item=arr[i];
 
@@ -49,8 +63,10 @@
         },
 
         select: function(arr,fn) {
-            var result=[];
-            for(var i=0,n=arr.length;i<n;i++)
+            var result=[],
+                length=arr.length;
+
+            for(var i=0;i<length;i++)
                 result.push(fn(arr[i],i));
 
             return result;
@@ -73,9 +89,7 @@
             }
             return result;
         },
-        s2i: function(s) {
-            return parseInt(s.replace(/^0+/,'')||0);
-        },
+
         pad: function(num,n) {
             var a='0000000000000000'+num;
             return a.substr(a.length-(n||2));
@@ -103,6 +117,7 @@
                     return mill.substr(0,w.length)
                 })
         },
+
         style: function(css) {
             var doc=document,style=doc.createElement("style");
             style.type="text/css";
@@ -139,15 +154,11 @@
         },
 
         encodeHTML: function(text) {
-            return (""+text).split("<").join("&lt;").split(">").join("&gt;").split('"').join("&#34;").split("'").join("&#39;");
+            return (""+text).replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&#34;").split("'").join("&#39;");
         },
 
-        getUrlPath: function(url) {
-            var index=url.indexOf('?');
-            if(index!= -1) {
-                url=url.substr(0,index);
-            }
-            return url.toLowerCase();
+        getPath: function(url) {
+            return url.replace(/^http\:\/\/[^\/]+|\?.*$/g,'').toLowerCase();
         },
 
         cookie: function(a,b,c,p) {

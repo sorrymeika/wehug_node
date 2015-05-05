@@ -1,7 +1,6 @@
-﻿define(['$','util','./../razor','./scrollview'],function(require,exports,module) {
+﻿define(['$','util','./scrollview'],function(require,exports,module) {
     var $=require('$'),
         _=require('util'),
-        razor=require('./../razor'),
         ScrollView=require('./scrollview');
 
     var Slider=function(el,options) {
@@ -21,7 +20,7 @@
             item,
             $slider;
 
-        if(typeof that.itemTemplate==='string') that.itemTemplate=razor.create(that.itemTemplate).T;
+        if(typeof that.itemTemplate==='string') that.itemTemplate=_.template(that.itemTemplate);
         if(typeof that.width=='string') that.width=parseInt(that.width.replace('%',''));
 
         if(!$.isArray(data)) data=[data];
@@ -91,7 +90,7 @@
         start: function() {
             var that=this,
                 touch=that.touch,
-                index=this.getIndex();
+                index=this._getIndex();
 
 
             if(!that.options.hScroll&&touch.isDirectionX||!that.options.vScroll&&touch.isDirectionY) {
@@ -121,7 +120,7 @@
             x=index*this.wrapperW;
             //if(x!=this.x) this.animate(x,0,200);
         },
-        getIndex: function() {
+        _getIndex: function() {
             return Math.round(this.x/this.wrapperW);
         },
         data: function(index) {
@@ -146,15 +145,15 @@
         render: function(dataItem) {
             return this.renderItem(this.itemTemplate(dataItem));
         },
-        renderItem: razor.create('<li class="js_slide_item slider-item">@html($data)</li>').T,
-        itemTemplate: '@html(TypeName)',
-        navTemplate: razor.create('<ol class="js_slide_navs slider-nav">@each(items,i,item){<li class="slide-nav-item@(current) slide-nav-item"></li>}</ol>').T,
-        template: razor.create('<div class="slider"><ul class="js_slider slider-con">@html(items)</ul>@html(navs)</div>').T,
+        renderItem: _.template('<li class="js_slide_item slider-item">$data</li>'),
+        itemTemplate: '<%= %>',
+        navTemplate: _.template('<ol class="js_slide_navs slider-nav"><%for(var i=0,len=items.length;i<len;i++){%><li class="slide-nav-item <%=current%> slide-nav-item"></li><%}%></ol>'),
+        template: _.template('<div class="slider"><ul class="js_slider slider-con"><%=items%></ul><%=navs%></div>'),
         stop: function() {
             var that=this;
             var x=that.x;
 
-            var index=this.getIndex();
+            var index=this._getIndex();
 
             that.index(index);
         },
@@ -197,16 +196,6 @@
             that.divisorX=that.wrapperW;
 
             children.css({ width: 100/length+'%' });
-        },
-
-        _start: function(e) {
-            var that=this;
-
-            if(/js_pre|js_next/.test(e.target.className)) {
-                return;
-            }
-
-            Scroll.prototype._start.call(this,e);
         },
 
         _change: function() {

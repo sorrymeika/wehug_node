@@ -61,6 +61,7 @@
             }
         },
         bridge={
+            isInApp: /SLApp$/.test(ua),
             isAndroid: isAndroid,
             android: isAndroid,
             ios: ios,
