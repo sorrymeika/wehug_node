@@ -1,7 +1,7 @@
 ﻿var UglifyJS=require('uglify-js');
 
 var compressCss=function(res) {
-    return res.replace(/\s*([;|\:|,|\{|\}])\s*/img,'$1').replace(/[\r\n]/mg,'').replace(/;}/mg,'}');
+    return res.replace(/\s*([;|\:|,|\{|\}])\s*/img,'$1').replace(/[\r\n]/mg,'').replace(/;}/mg,'}').replace(/\s*\/\*.*?\*\/\s*/mg,'');
 }
 
 var compressor=UglifyJS.Compressor({
@@ -53,6 +53,8 @@ var compressHTML=function(html) {
     return html.replace(/\s*(<(\/{0,1}[a-zA-Z]+)(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(\/){0,1}\s*>)\s*/img,'$1')
         .replace(/<script(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/script>/img,function(r0,r1) {
             return /^\s*$/.test(r1)?r0:('<script>'+compressJs(r1)+'</script>');
+        }).replace(/<style(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/style>/img,function(r0,r1) {
+            return /^\s*$/.test(r1)?r0:('<style>'+compressCss(r1)+'</style>');
         });
 }
 
