@@ -1,7 +1,7 @@
-﻿define(['$','util','../base'],function(require) {
+﻿define(['$','util','../core/base'],function(require) {
     var $=require('$');
     var util=require('util');
-    var sl=require('../base');
+    var sl=require('../core/base');
     var slice=Array.prototype.slice;
 
     var Tip=function(text) {

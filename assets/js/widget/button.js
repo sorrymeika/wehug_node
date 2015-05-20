@@ -1,8 +1,8 @@
-﻿define(['$','util','bridge','../base','./tip'],function(require) {
+﻿define(['$','util','bridge','../core/base','./tip'],function(require) {
     var $=require('$');
     var bridge=require('bridge');
     var util=require('util');
-    var sl=require('../base');
+    var sl=require('../core/base');
     var tip=require('./tip');
 
     var Button=function($cont,options) {

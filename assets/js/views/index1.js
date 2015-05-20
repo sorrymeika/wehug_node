@@ -15,7 +15,6 @@
 
     var ScrollView=require('sl/widget/scrollview');
 
-
     return Activity.extend({
         template: 'views/index1.html',
 

@@ -21,13 +21,12 @@
             base: './js',
             alias: {
                 "$": "zepto",
-                "tween": "sl/tween"
+                'animation': 'core/animation',
+                'activity': 'core/activity'
             }
         });
 
-        seajs.use(['$','sl/app','bridge'],function($,Application,bridge,views) {
-            //$(document).on('touchmove',function() { return false });
-
+        seajs.use(['$','core/app'],function($,Application) {
             var app=new Application();
 
             app.mapRoute({
@@ -57,10 +56,6 @@
             });
 
             app.start();
-
-            //            bridge.isAndroid&&setTimeout(function() {
-            //                bridge.exitLauncher(function() { });
-            //            },1500);
         });
     </script>
 </body>

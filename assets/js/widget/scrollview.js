@@ -1,8 +1,8 @@
-﻿define(['$','./../tween','./../touch','./../event'],function(require,exports,module) {
+﻿define(['$','animation','./../core/touch','./../core/event'],function(require,exports,module) {
     var $=require('$'),
-        event=require('./../event'),
-        tween=require('./../tween'),
-        Touch=require('./../touch');
+        event=require('./../core/event'),
+        animation=require('animation'),
+        Touch=require('./../core/touch');
 
     var addScroller=function($el) {
         return $('<div class="sl_scroller" style="width:100%;-webkit-transform: translate(0px,0px) translateZ(0);"></div>').append($el.children()).appendTo($el.html('').css({ overflow: 'hidden' }));

@@ -1,15 +1,15 @@
-﻿define(['$','util','bridge','./view','./widget/scroll','./widget/tip','./widget/dialog','./razor'],function(require,exports,module) {
+﻿define(['$','util','bridge','./view','../widget/scroll','../widget/tip','../widget/dialog','./razor'],function(require,exports,module) {
 
-    require('./widget/tip');
+    require('../widget/tip');
 
     var $=require('$'),
         util=require('util'),
         app=require('bridge'),
         sl=require('./base'),
         view=require('./view'),
-        Scroll=require('./widget/scroll'),
         razor=require('./razor'),
-        Dialog=require('./widget/dialog');
+        Scroll=require('../widget/scroll'),
+        Dialog=require('../widget/dialog');
 
     var noop=util.noop,
         indexOf=util.indexOf,
@@ -53,7 +53,7 @@
                 dfd=$.Deferred();
 
             seajs.use(this.template,function(r) {
-                that.$el.html(r.T())
+                that.$el.html(r.html())
 
                 that.razor=r;
 

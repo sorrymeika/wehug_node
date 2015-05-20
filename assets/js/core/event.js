@@ -1,191 +1,188 @@
-﻿define(function (require,exports,module) {
-	var sl=require('core/sl'),
-		$=sl.$;
+﻿define(function(require,exports,module) {
+    var $=require('$'),
+        sl=require('./base');
 
-	var slice=[].slice,
+    var slice=[].slice,
         separator=/\s+/,
 
-        returnFalse=function () {
-        	return false;
+        returnFalse=function() {
+            return false;
         },
 
-        returnTrue=function () {
-        	return true;
+        returnTrue=function() {
+            return true;
         };
 
-	function eachEvent(events,callback,iterator) {
+    function eachEvent(events,callback,iterator) {
 
-		(events||'').split(separator).forEach(function (type) {
-			iterator(type,callback);
-		});
-	}
+        (events||'').split(separator).forEach(function(type) {
+            iterator(type,callback);
+        });
+    }
 
-	function matcherFor(ns) {
-		return new RegExp('(?:^| )'+ns.replace(' ',' .* ?')+'(?: |$)');
-	}
+    function matcherFor(ns) {
+        return new RegExp('(?:^| )'+ns.replace(' ',' .* ?')+'(?: |$)');
+    }
 
-	function parse(name) {
-		var parts=(''+name).split('.');
+    function parse(name) {
+        var parts=(''+name).split('.');
 
-		return {
-			e: parts[0],
-			ns: parts.slice(1).sort().join(' ')
-		};
-	}
+        return {
+            e: parts[0],
+            ns: parts.slice(1).sort().join(' ')
+        };
+    }
 
-	function findHandlers(arr,name,callback,context) {
-		var matcher,
+    function findHandlers(arr,name,callback,context) {
+        var matcher,
             obj;
 
-		obj=parse(name);
-		obj.ns&&(matcher=matcherFor(obj.ns));
-		return arr.filter(function (handler) {
-			return handler&&
+        obj=parse(name);
+        obj.ns&&(matcher=matcherFor(obj.ns));
+        return arr.filter(function(handler) {
+            return handler&&
                     (!obj.e||handler.e===obj.e)&&
                     (!obj.ns||matcher.test(handler.ns))&&
                     (!callback||handler.cb===callback||
                     handler.cb._cb===callback)&&
                     (!context||handler.ctx===context);
-		});
-	}
+        });
+    }
 
-	function Event(type,props) {
-		if(!(this instanceof Event)) {
-			return new Event(type,props);
-		}
+    function Event(type,props) {
+        if(!(this instanceof Event)) {
+            return new Event(type,props);
+        }
 
-		props&&$.extend(this,props);
-		this.type=type;
+        props&&$.extend(this,props);
+        this.type=type;
 
-		return this;
-	}
+        return this;
+    }
 
-	Event.prototype={
+    Event.prototype={
 
+        isDefaultPrevented: returnFalse,
 
-		isDefaultPrevented: returnFalse,
-
-
-		isPropagationStopped: returnFalse,
+        isPropagationStopped: returnFalse,
 
 
-		preventDefault: function () {
-			this.isDefaultPrevented=returnTrue;
-		},
+        preventDefault: function() {
+            this.isDefaultPrevented=returnTrue;
+        },
 
+        stopPropagation: function() {
+            this.isPropagationStopped=returnTrue;
+        }
+    };
 
-		stopPropagation: function () {
-			this.isPropagationStopped=returnTrue;
-		}
-	};
+    sl.event={
+        createEvent: Event,
 
-
-	sl.event={
-
-		on: function (name,callback,context) {
-			var me=this,
+        on: function(name,callback,context) {
+            var me=this,
                 set;
 
-			if(!callback) {
-				return this;
-			}
+            if(!callback) {
+                return this;
+            }
 
-			set=this._events||(this._events=[]);
+            set=this._events||(this._events=[]);
 
-			eachEvent(name,callback,function (name,callback) {
-				var handler=parse(name);
+            eachEvent(name,callback,function(name,callback) {
+                var handler=parse(name);
 
-				handler.cb=callback;
-				handler.ctx=context;
-				handler.ctx2=context||me;
-				handler.id=set.length;
-				set.push(handler);
-			});
+                handler.cb=callback;
+                handler.ctx=context;
+                handler.ctx2=context||me;
+                handler.id=set.length;
+                set.push(handler);
+            });
 
-			return this;
-		},
+            return this;
+        },
 
+        one: function(name,callback,context) {
+            var me=this;
 
-		one: function (name,callback,context) {
-			var me=this;
+            if(!callback) {
+                return this;
+            }
 
-			if(!callback) {
-				return this;
-			}
+            eachEvent(name,callback,function(name,callback) {
+                var once=function() {
+                    me.off(name,once);
+                    return callback.apply(context||me,arguments);
+                };
 
-			eachEvent(name,callback,function (name,callback) {
-				var once=function () {
-					me.off(name,once);
-					return callback.apply(context||me,arguments);
-				};
+                once._cb=callback;
+                me.on(name,once,context);
+            });
 
-				once._cb=callback;
-				me.on(name,once,context);
-			});
+            return this;
+        },
 
-			return this;
-		},
+        off: function(name,callback,context) {
+            var events=this._events;
 
-		off: function (name,callback,context) {
-			var events=this._events;
+            if(!events) {
+                return this;
+            }
 
-			if(!events) {
-				return this;
-			}
+            if(!name&&!callback&&!context) {
+                this._events=[];
+                return this;
+            }
 
-			if(!name&&!callback&&!context) {
-				this._events=[];
-				return this;
-			}
-
-			eachEvent(name,callback,function (name,callback) {
-				findHandlers(events,name,callback,context)
-                        .forEach(function (handler) {
-                        	delete events[handler.id];
+            eachEvent(name,callback,function(name,callback) {
+                findHandlers(events,name,callback,context)
+                        .forEach(function(handler) {
+                            delete events[handler.id];
                         });
-			});
+            });
 
-			return this;
-		},
-		trigger: function (evt) {
-			var i= -1,
+            return this;
+        },
+
+        trigger: function(evt) {
+            var i= -1,
                 args,
                 events,
                 stoped,
                 len,
                 ev;
 
-			if(!this._events||!evt) {
-				return this;
-			}
+            if(!this._events||!evt) {
+                return this;
+            }
 
-			typeof evt==='string'&&(evt=new Event(evt));
+            typeof evt==='string'&&(evt=new Event(evt));
 
-			args=slice.call(arguments,1);
-			evt.args=args;
-			args.unshift(evt);
+            args=slice.call(arguments,1);
+            evt.args=args;
+            args.unshift(evt);
 
-			events=findHandlers(this._events,evt.type);
+            events=findHandlers(this._events,evt.type);
 
-			if(events) {
-				len=events.length;
+            if(events) {
+                len=events.length;
 
-				while(++i<len) {
-					if((stoped=evt.isPropagationStopped())||false===
+                while(++i<len) {
+                    if((stoped=evt.isPropagationStopped())||false===
                             (ev=events[i]).cb.apply(ev.ctx2,args)
                             ) {
 
-						stoped||(evt.stopPropagation(),evt.preventDefault());
-						break;
-					}
-				}
-			}
+                        stoped||(evt.stopPropagation(),evt.preventDefault());
+                        break;
+                    }
+                }
+            }
 
-			return this;
-		}
-	};
+            return this;
+        }
+    };
 
-	sl.Event=Event;
+    sl.Event=Event;
 
-	exports=Event;
+    return sl.event;
 });

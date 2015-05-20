@@ -1,7 +1,7 @@
-﻿define(['$','./event','./tween'],function(require,exports,module) {
+﻿define(['$','./event','animation'],function(require,exports,module) {
     var $=require('$'),
         event=require('./event'),
-        tween=require('./tween');
+        animation=require('animation');
 
     var slice=Array.prototype.slice;
 
@@ -167,7 +167,7 @@
                 that.momentumOptions=[];
                 that.trigger('beforemomentum',duration);
 
-                that.momentum=tween.momentum(that.momentumOptions,that.options.maxDuration,that._momentum,that.options.ease||'ease',that._stop,that);
+                that.momentum=animation.momentum(that.momentumOptions,that.options.maxDuration,that._momentum,that.options.ease||'ease',that._stop,that);
 
             } else {
                 that.momentum.finish();

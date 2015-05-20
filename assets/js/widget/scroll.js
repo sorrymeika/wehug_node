@@ -1,7 +1,7 @@
-﻿define(['$','util','./../tween','./scrollview'],function(require,exports,module) {
+﻿define(['$','util','animation','./scrollview'],function(require,exports,module) {
     var $=require('$'),
         util=require('util'),
-        tween=require('./../tween'),
+        animation=require('animation'),
         ScrollView=require('./scrollview');
 
     function _start(e) {
@@ -42,7 +42,7 @@
 
             this._isRefreshStart=false;
 
-            tween.animate(function(d) {
+            animation.animate(function(d) {
                 y=from+(end-from)*d;
 
                 $this.css({ '-webkit-transform': 'translate(0px,'+y+'px) translateZ(0)' });

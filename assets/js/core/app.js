@@ -1,14 +1,14 @@
-﻿define(['$','util','bridge','./activity','./view','./tween','./animations','./touch'],function(require,exports,module) {
+﻿define(['$','util','bridge','./activity','./view','./animation','./touch'],function(require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
         bridge=require('bridge'),
         sl=require('./base'),
         view=require('./view'),
-        tween=require('./tween'),
+        animation=require('./animation'),
         LinkList=require('./linklist'),
-        animations=require('./animations'),
         Touch=require('./touch'),
+        Promise=require('./promise'),
         Activity=require('./activity');
 
     var noop=util.noop,
@@ -23,12 +23,38 @@
                 activity._setRoute(route);
                 activity.trigger('QueryChange');
             }
+        },
+        defAnim={
+            openEnterAnimationFrom: {
+                translate: '100%,0'
+            },
+            openEnterAnimationTo: {
+                translate: '0,0'
+            },
+            openExitAnimationFrom: {
+                translate: '0,0'
+            },
+            openExitAnimationTo: {
+                translate: '-50%,0'
+            },
+            closeEnterAnimationTo: {
+                translate: '0,0'
+            },
+            closeEnterAnimationFrom: {
+                translate: '-50%,0'
+            },
+            closeExitAnimationFrom: {
+                translate: '0,0'
+            },
+            closeExitAnimationTo: {
+                translate: '100%,0'
+            }
         };
 
     var getAcitivityAnimation=function(isOpen,currentActivity,activity,animationName) {
         if(!animationName) animationName=(isOpen?activity:currentActivity).animationName;
 
-        var anim=animations[animationName],
+        var anim=defAnim,
             type=isOpen?"open":"close",
             ease=isOpen?'ease-out':'ease-out',
             enterFrom=Object.create(anim[type+'EnterAnimationFrom']),
@@ -136,7 +162,7 @@
 
                     that.isSwipeOpen=isOpen;
 
-                    that.swiper=tween.prepare(getAcitivityAnimation(isOpen,currentActivity,activity));
+                    that.swiper=animation.prepare(getAcitivityAnimation(isOpen,currentActivity,activity));
                     that.swipeActivity=activity;
                 });
             }
@@ -339,7 +365,7 @@
                 that._history.push(activity.url);
                 that._historyCursor++;
 
-                activity.$el.transform(animations[activity.animationName].openEnterAnimationTo);
+                activity.$el.transform(defAnim.openEnterAnimationTo);
                 activity.then(function() {
                     activity.trigger('Resume');
                     activity.trigger('Show');
@@ -564,7 +590,7 @@
                     //console.log(that._history);
                 }
 
-                tween.parallel(anims);
+                animation.parallel(anims);
             });
         }
 
