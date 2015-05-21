@@ -144,7 +144,7 @@ Tools.prototype={
                             :('<script src="js/'+destCombinePath+'.js?v='+now+'"></script>');
                     }
 
-                    combinedFiles+='<script data-template="razor" src="'+self.razorUri+'"></script>';
+                    combinedFiles+='<script data-template="razor" src="'+self.razorUri+'?v='+now+'"></script>';
 
                     html=html.replace(/<\/head>/i,combinedFiles+'</head>');
                 }
