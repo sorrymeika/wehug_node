@@ -27,6 +27,7 @@
 
         seajs.use(['$','core/app'],function($,Application) {
             var app=new Application();
+            $(document).on('touchmove',function(e) { e.stopPropagation(); })
 
             app.mapRoute({
                 '': 'index',

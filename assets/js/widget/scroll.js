@@ -93,14 +93,15 @@
         that.__isMoved=false;
         that.__isStart=false;
 
-        if(this._scrollTop!==this.scrollTop) {
-            this._scrollTop=this.scrollTop;
-            this._isTouchStop=true;
-            $(this).trigger('stopscroll');
-
-        } else {
-            this._isTouchStop=false;
-        }
+        setTimeout(function() {
+            if(that._scrollTop!=that.scrollTop) {
+                that._scrollTop=that.scrollTop;
+                that._isTouchStop=true;
+                $(that).trigger('stopscroll');
+            } else {
+                that._isTouchStop=false;
+            }
+        },0);
     };
 
     var touchMove=function(e) {
@@ -126,7 +127,7 @@
             $el=$(that),
             pointY=e.changedTouches[0].pageY;
 
-        if(Math.abs(that.__oPointY-pointY)<5) {
+        if(util.ios&&Math.abs(that.__oPointY-pointY)<5) {
             that._isTouchStop=false;
             scrollStop(that);
             that._isMomentum=false;
@@ -143,6 +144,7 @@
     var scrollStop=function(that) {
         if(that._stm) clearTimeout(that._stm);
         that._stm=setTimeout(function() {
+            //util.log('scrollStop'+that.scrollTop+","+that._scrollTop)
             that._scrollTop=that.scrollTop;
             $(that).trigger('scrollStop',[0,that.scrollTop]);
         },100);
