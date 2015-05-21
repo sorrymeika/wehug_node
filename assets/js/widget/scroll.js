@@ -96,6 +96,7 @@
         if(this._scrollTop!==this.scrollTop) {
             this._scrollTop=this.scrollTop;
             this._isTouchStop=true;
+            $(this).trigger('stopscroll');
 
         } else {
             this._isTouchStop=false;
@@ -109,15 +110,15 @@
             deltaY=point.pageY-that.__sy,
             deltaX=point.pageX-that.__sx;
 
+        that.__oPointY=that.__pointY;
+        that.__pointY=pointY;
+
         if(!that.__isStart) {
             that.__isStart=true;
             if(!that.options.hScroll&&Math.abs(deltaX)>Math.abs(deltaY)) {
                 return false;
             }
         }
-
-        that.__oPointY=that.__pointY;
-        that.__pointY=pointY;
     };
 
     var touchEnd=function(e) {
