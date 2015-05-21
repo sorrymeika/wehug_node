@@ -1,4 +1,4 @@
-﻿define(['$','util','bridge','./activity','./view','./animation','./touch'],function(require,exports,module) {
+﻿define(function(require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -7,8 +7,8 @@
         view=require('./view'),
         animation=require('./animation'),
         LinkList=require('./linklist'),
-        Touch=require('./touch'),
         Promise=require('./promise'),
+        Touch=require('./touch'),
         Activity=require('./activity');
 
     var noop=util.noop,
@@ -123,7 +123,7 @@
             }
         },
 
-        onTouchStart: function() {
+        _touchStart: function() {
             var that=this,
                 currentActivity,
                 action,
@@ -131,8 +131,8 @@
                 isOpen,
                 deltaX=that.touch.dx;
 
-            if(that.isDirectionY) {
-                that.stop();
+            if(that.touch.isDirectionY) {
+                that.touch.stop();
                 return;
             }
             that.width=window.innerWidth;
@@ -153,9 +153,10 @@
                 }
                 isOpen=false;
             }
-            //console.log(isOpen,action,isSwipeLeft)
 
             if(action) {
+                that.swiperPromise=new Promise();
+
                 that.mask.show();
                 that._getActivity(action,function(activity) {
                     prepareActivity(currentActivity,activity);
@@ -164,61 +165,74 @@
 
                     that.swiper=animation.prepare(getAcitivityAnimation(isOpen,currentActivity,activity));
                     that.swipeActivity=activity;
+
+                    that.swiperPromise.resolve();
                 });
+
+            } else {
+                that.swiperPromise=null;
             }
         },
 
-        onTouchMove: function(e) {
+        _touchMove: function(e) {
             var that=this,
                 per,
                 deltaX=that.touch.dx;
 
-            if(!that.swiper) return;
+            if(!that.swiperPromise) return;
 
-            if(that.isSwipeLeft&&deltaX<0||!that.isSwipeLeft&&deltaX>0) {
-                that.swiper.step(0);
-                return;
-            }
+            that.swiperPromise.then(function() {
+                if(that.isSwipeLeft&&deltaX<0||!that.isSwipeLeft&&deltaX>0) {
+                    that.swiper.step(0);
+                    return;
+                }
 
-            per=Math.abs(deltaX)*100/that.width;
+                per=Math.abs(deltaX)*100/that.width;
 
-            that.swiper.step(per);
+                that.swiper.step(per);
+            },that);
         },
 
-        onTouchEnd: function() {
+        _swiperAnimEnd: function() {
             var that=this,
-                isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
+                activity=that.swipeActivity,
+                currentActivity=that._currentActivity;
 
-            if(that.swiper) {
-                that.queue(that.swiper,that.swiper.animate,[200,isCancelSwipe?0:100,function() {
-                    var activity=that.swipeActivity,
-                        currentActivity=that._currentActivity;
+            if(that.isCancelSwipe) {
+                currentActivity.isPrepareExitAnimation=false;
+                activity.$el.remove();
+                that.mask.hide();
+            } else {
+                //var swipeAction='swipe'+(that.isSwipeLeft?'Right':'Left')+(that.isSwipeOpen?'BackAction':'ForwardAction');
 
-                    if(isCancelSwipe) {
-                        currentActivity.isPrepareExitAnimation=false;
-                        that.mask.hide();
-                    } else {
-                        //var swipeAction='swipe'+(that.isSwipeLeft?'Right':'Left')+(that.isSwipeOpen?'BackAction':'ForwardAction');
+                that._currentActivity=that.swipeActivity;
+                that.navigate(activity.url);
 
-                        that._currentActivity=that.swipeActivity;
-                        that.navigate(activity.url);
+                activity.finishEnterAnimation();
 
-                        activity.finishEnterAnimation();
-
-                        if(that.isSwipeOpen) {
-                            activity.referrer=currentActivity.url;
-                            activity.referrerDir=that.isSwipeLeft?"Right":"Left";
-                            currentActivity.trigger('Pause');
-                        } else {
-                            currentActivity.destory();
-                        }
-                    }
-                    that.turning();
-                } ]);
+                if(that.isSwipeOpen) {
+                    activity.referrer=currentActivity.url;
+                    activity.referrerDir=that.isSwipeLeft?"Right":"Left";
+                    currentActivity.trigger('Pause');
+                } else {
+                    currentActivity.destory();
+                }
             }
+            that.turning();
         },
 
-        el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div><canvas class="imagecanvas"></canvas>',
+        _touchEnd: function() {
+            var that=this;
+
+            that.isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
+
+            if(that.swiperPromise) {
+                that.swiperPromise.then(function() {
+                    that.queue([200,that.isCancelSwipe?0:100,that._swiperAnimEnd.bind(that)],that.swiper.animate,that.swiper);
+                });
+                that.swiperPromise=null;
+            }
+        },
 
         routes: [],
         mapRoute: function(options) {
@@ -295,6 +309,12 @@
             return result;
         },
 
+        skip: 0,
+        _history: [],
+        _historyCursor: -1,
+
+        el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div><canvas class="imagecanvas"></canvas>',
+
         initialize: function() {
             var that=this;
 
@@ -308,39 +328,9 @@
             that.canvas=that.$el[2];
 
             that.touch=new Touch(that.$el,{})
-                .on('start',that.onTouchStart,that)
-                .on('move',that.onTouchMove,that)
-                .on('stop',that.onTouchEnd,that);
-        },
-
-        skip: 0,
-        _history: [],
-        _historyCursor: -1,
-        _currentActivity: null,
-
-        _queue: null,
-
-        queue: function(context,fn,args) {
-            var queue=this._queue;
-            queue.append({
-                context: context,
-                fn: fn,
-                args: args
-            });
-
-            if(queue.length==1)
-                fn.apply(context,args);
-        },
-
-        turning: function() {
-            var queue=this._queue;
-
-            if(queue.length) {
-                queue.shift();
-                if(queue.length) {
-                    queue.fn.apply(queue.context,queue.args);
-                }
-            }
+                .on('start',that._touchStart,that)
+                .on('move',that._touchMove,that)
+                .on('stop',that._touchEnd,that);
         },
 
         start: function() {
@@ -348,11 +338,11 @@
         },
 
         _start: function() {
-            sl.app=this;
-
             var that=this,
                 hash,
                 $win=$(window);
+
+            sl.app=this;
 
             that.$el.appendTo(document.body);
             that.$el=$(that.el);
@@ -360,7 +350,7 @@
             if(!location.hash) location.hash='/';
             that.hash=hash=parseHash(location.hash);
 
-            that.queue(that,that._getActivity,[hash,function(activity) {
+            that.queue([hash,function(activity) {
                 that._currentActivity=activity;
                 that._history.push(activity.url);
                 that._historyCursor++;
@@ -399,51 +389,36 @@
                     that.isHistoryBack=false;
                 });
 
-            } ]);
+            } ],that._getActivity,that);
         },
 
-        _to: function(url) {
-            this._navigate(url);
-            this.turning();
+        _queue: null,
+
+        queue: function(args,fn,context) {
+            var queue=this._queue;
+            queue.append({
+                context: context,
+                fn: fn,
+                args: args
+            });
+
+            if(queue.length==1)
+                fn.apply(context,args);
         },
 
-        to: function(url) {
-            this.queue(this,this._to,[url]);
-        },
+        turning: function() {
+            var queue=this._queue;
 
-        _navigate: function(url,skip) {
-            url=parseHash(url);
-
-            var that=this,
-                index=lastIndexOf(that._history,url);
-
-            if(skip===true) {
-                that.skip++;
-            }
-
-            if(index== -1) {
-                that._history.splice(that._historyCursor+1,0,url);
-                that._history.length=that._historyCursor+2;
-                that._historyCursor++;
-                that._skipRecordHistory=true;
-
-                location.hash=url;
-
-            } else {
-                if(index!=that._historyCursor) {
-                    history.go(index-that._historyCursor);
-                }
-                if(skip===true) {
-                    that._history.length=index+1;
-                    that._historyCursor=index;
+            if(queue.length) {
+                queue.shift();
+                if(queue.length) {
+                    queue.fn.apply(queue.context,queue.args);
                 }
             }
         },
 
-        navigate: function(url) {
-            this._navigate(url,true);
-        },
-
+        viewPath: 'views/',
+        _currentActivity: null,
         _activities: {},
 
         get: function(url) {
@@ -456,47 +431,6 @@
 
         remove: function(url) {
             this._activities[getUrlPath(url)]=void 0;
-        },
-
-        viewPath: 'views/',
-
-        _forward: function(url,duration,animationName) {
-            var currentActivity=this._currentActivity;
-
-            this._animationTo(url,duration,animationName,'open',function() {
-                currentActivity.trigger('Pause');
-            });
-        },
-
-        forward: function(url,duration,animationName) {
-            this.queue(this,this._forward,[url,duration,animationName]);
-        },
-
-        isHistoryBack: false,
-
-        _back: function(url,duration,animationName) {
-            var that=this,
-                currentActivity=that._currentActivity;
-
-            if(typeof url!=='string') {
-                currentActivity.prepareExitAnimation();
-                that.isHistoryBack=true;
-                history.back();
-                that.turning();
-
-            } else {
-                if(typeof duration==='string') {
-                    animationName=duration;
-                    duration=null;
-                }
-                that._animationTo(url,duration,animationName,'close',function() {
-                    currentActivity.destory();
-                });
-            }
-        },
-
-        back: function(url,duration,animationName) {
-            this.queue(this,this._back,[url,duration,animationName]);
         },
 
         _getActivity: function(url,callback) {
@@ -524,7 +458,7 @@
                     } else {
                         that.skip++;
                         that._currentActivity.finishEnterAnimation();
-                        history.back();
+                        location.hash=that._currentActivity.url;
                     }
                 });
 
@@ -592,8 +526,88 @@
 
                 animation.parallel(anims);
             });
-        }
+        },
 
+        _to: function(url) {
+            this._navigate(url);
+            this.turning();
+        },
+
+        to: function(url) {
+            this.queue([url],this._to,this);
+        },
+
+        _navigate: function(url,skip) {
+            url=parseHash(url);
+
+            var that=this,
+                index=lastIndexOf(that._history,url);
+
+            if(skip===true) {
+                that.skip++;
+            }
+
+            if(index== -1) {
+                that._history.splice(that._historyCursor+1,0,url);
+                that._history.length=that._historyCursor+2;
+                that._historyCursor++;
+                that._skipRecordHistory=true;
+
+                location.hash=url;
+
+            } else {
+                if(index!=that._historyCursor) {
+                    history.go(index-that._historyCursor);
+                }
+                if(skip===true) {
+                    that._history.length=index+1;
+                    that._historyCursor=index;
+                }
+            }
+        },
+
+        navigate: function(url) {
+            this._navigate(url,true);
+        },
+
+        _forward: function(url,duration,animationName) {
+            var currentActivity=this._currentActivity;
+
+            this._animationTo(url,duration,animationName,'open',function() {
+                currentActivity.trigger('Pause');
+            });
+        },
+
+        forward: function(url,duration,animationName) {
+            this.queue([url,duration,animationName],this._forward,this);
+        },
+
+        isHistoryBack: false,
+
+        _back: function(url,duration,animationName) {
+            var that=this,
+                currentActivity=that._currentActivity;
+
+            if(typeof url!=='string') {
+                currentActivity.prepareExitAnimation();
+                that.isHistoryBack=true;
+                history.back();
+                that.turning();
+
+            } else {
+                if(typeof duration==='string') {
+                    animationName=duration;
+                    duration=null;
+                }
+                that._animationTo(url,duration,animationName,'close',function() {
+                    currentActivity.destory();
+                });
+            }
+        },
+
+        back: function(url,duration,animationName) {
+            this.queue([url,duration,animationName],this._back,this);
+        }
     });
 
     sl.Application=Application;

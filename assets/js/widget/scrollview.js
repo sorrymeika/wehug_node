@@ -5,7 +5,7 @@
         Touch=require('./../core/touch');
 
     var addScroller=function($el) {
-        return $('<div class="sl_scroller" style="width:100%;-webkit-transform: translate(0px,0px) translateZ(0);"></div>').append($el.children()).appendTo($el.html('').css({ overflow: 'hidden' }));
+        return $('<div class="sl_scroller" style="width:100%;-webkit-transform: translate(0px,0px) translateZ(0);"></div>').append($el.children()).appendTo($el.html(''));
     };
 
     var ScrollView=function(el,options) {
@@ -20,7 +20,7 @@
 
         that.options=options;
 
-        that.$el=$(el);
+        that.$el=$(el).css({ overflow: 'hidden' });
         that.el=that.$el[0];
 
         that.$scroller=addScroller(that.$el);
@@ -29,6 +29,7 @@
         that.touch=new Touch(that.$el,options)
             .on('init',that.init,that)
             .on('start',that.start,that)
+            .on('stop',that.stop,that)
             .on('starttimereset',that.resetStartTime,that)
             .on('move',that.move,that)
             .on('beforemomentum',that.beforeMomentum,that)
@@ -67,6 +68,9 @@
                 return;
             }
         },
+        stop: function() {
+            this.$el.triggerHandler('scrollStop',[0,this.y]);
+        },
         resetStartTime: function() {
             if(this.options.hScroll) {
                 this.startLeft=this.startLeft+this.touch.deltaX;
@@ -77,7 +81,6 @@
                 this.startTop=this.startTop+this.touch.deltaY;
                 this._startTop=this.y;
             }
-
         },
         move: function() {
             if(this.options.hScroll) {

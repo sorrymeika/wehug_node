@@ -1,6 +1,7 @@
-﻿define(['$','./event','animation'],function(require,exports,module) {
+﻿define(function(require,exports,module) {
     var $=require('$'),
         event=require('./event'),
+        util=require('util'),
         animation=require('animation');
 
     var slice=Array.prototype.slice;
@@ -15,7 +16,11 @@
 
         $el.on('touchstart',$.proxy(that._start,that))
             .on('touchmove',$.proxy(that._move,that))
-            .on('touchend',$.proxy(that._end,that));
+            .on('touchend',$.proxy(that._end,that))
+            .on('stopscroll',function() {
+                that.isStopScroll=true;
+                that.isTouchStop=true;
+            });
     }
 
     Touch.prototype={
@@ -36,6 +41,11 @@
             var that=this,
                 point=e.touches[0];
 
+            if(that.isStopScroll) {
+                that.isStopScroll=false;
+                return;
+            }
+
             that.pointX=that.startX=that.sx=point.pageX;
             that.pointY=that.startY=that.sy=point.pageY;
 
@@ -51,17 +61,24 @@
             if(this.isTouchStop) return;
 
             var that=this,
-                minDelta=12,
+                minDelta=0,
                 point=e.touches[0],
                 deltaX=that.startX-point.pageX,
                 deltaY=that.startY-point.pageY,
                 timestamp=e.timeStamp||Date.now();
 
+            that.deltaX=deltaX;
+            that.deltaY=deltaY;
+
+            that.dx=that.sx-point.pageX;
+            that.dy=that.sy-point.pageY;
+
             if(!that.isTouchStart) {
                 var isDirectionX=Math.abs(deltaX)>=minDelta&&Math.abs(deltaX)>Math.abs(deltaY),
-                    isDirectionY=Math.abs(deltaY)>=minDelta&&Math.abs(deltaY)>Math.abs(deltaX);
+                    isDirectionY=!isDirectionX;
 
                 if(isDirectionY||isDirectionX) {
+
                     that.isTouchStart=true;
                     that.isDirectionY=isDirectionY;
                     that.isDirectionX=isDirectionX;
@@ -75,25 +92,12 @@
                     that.trigger('start');
 
                     if(that.isTouchStop) {
-                        /*
-                        if(that._isClickStopAni) {
-                        that.momentum.finish();
-                        that._isClickStopAni=false;
-                        }
-                        */
                         return;
                     }
-
                 } else {
                     return false;
                 }
             }
-
-            that.deltaX=deltaX;
-            that.deltaY=deltaY;
-
-            that.dx=that.sx-point.pageX;
-            that.dy=that.sy-point.pageY;
 
             var moveEvent=event.createEvent('move');
 
@@ -101,8 +105,8 @@
 
             that.isTouchMoved=true;
 
-            that.isMoveLeft=that.pointX-point.pageX>0?true:false;
-            that.isMoveTop=that.pointY-point.pageY>0?true:false;
+            that.isMoveLeft=that.pointX-point.pageX>0?true:that.pointX==point.pageX?that.isMoveLeft:(false);
+            that.isMoveTop=that.pointY-point.pageY>0?true:that.pointY==point.pageY?that.isMoveTop:false;
 
             that.pointX=point.pageX;
             that.pointY=point.pageY;
@@ -114,6 +118,7 @@
 
                 that.trigger('starttimereset');
             }
+
             return false;
         },
 

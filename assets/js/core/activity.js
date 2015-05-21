@@ -1,4 +1,4 @@
-﻿define(['$','util','bridge','./view','../widget/scroll','../widget/tip','../widget/dialog','./razor'],function(require,exports,module) {
+﻿define(['$','util','bridge','./promise','./view','../widget/scroll','../widget/tip','../widget/dialog'],function(require,exports,module) {
 
     require('../widget/tip');
 
@@ -7,7 +7,7 @@
         app=require('bridge'),
         sl=require('./base'),
         view=require('./view'),
-        razor=require('./razor'),
+        Promise=require('./promise'),
         Scroll=require('../widget/scroll'),
         Dialog=require('../widget/dialog');
 
@@ -49,23 +49,25 @@
         template: 'views/home.html',
 
         loadTemplate: function() {
-            var that=this,
-                dfd=$.Deferred();
+            var that=this;
 
-            seajs.use(this.template,function(r) {
-                that.$el.html(r.html())
+            seajs.use(that.template,function(razor) {
+                that.$el.html(razor.html())
+                that.$el.appendTo(that.application.$el);
 
-                that.razor=r;
+                that.razor=razor;
 
-                dfd.resolveWith(that,[r]);
+                that.promise.resolve(razor);
             });
 
-            return dfd.promise();
+            return that.promise;
         },
 
         initialize: function() {
-            var that=this;
+            var that=this,
+                promise=Promise.resolve();
 
+            that.promise=promise;
             that.className=that.el.className;
 
             that._setRoute(that.options.route);
@@ -73,7 +75,6 @@
             that.$el.data('url',that.url).data('path',that.path);
 
             that.application=that.options.application;
-            that.$el.appendTo(that.application.$el);
 
             that.on('Start',that.onStart);
             that.on('Resume',that.onResume);
@@ -82,7 +83,7 @@
             that.on('QueryChange',that.onQueryChange);
             that.on('QueryChange',that.checkQuery);
 
-            that._dfd=$.when(that.loadTemplate())
+            promise.then(that.loadTemplate,that)
                 .then(function() {
                     if(!that.swipeRightBackAction) {
                         var $btnBack=that.$('header [data-back]');
@@ -90,9 +91,9 @@
                             that.swipeRightBackAction=$btnBack.attr('data-back')||'/';
                         }
                     }
-                    that._scrolls=Scroll.bind(that.$('.main,.scroll'));
+                    that._scrolls=Scroll.bind(that.$('.scrollview'));
                 })
-                .then($.proxy(that.onCreate,that))
+                .then(that.onCreate,that)
                 .then(function() {
                     that.trigger('Start');
                     that.checkQuery();
@@ -115,18 +116,8 @@
         onQueryChange: noop,
 
         then: function(fn) {
-            this._dfd=this._dfd.then($.proxy(fn,this));
+            this.promise.then(fn,this);
             return this;
-        },
-
-        wait: function() {
-            var dfd=$.Deferred();
-
-            this._dfd=this._dfd.then(function() {
-                return dfd;
-            });
-
-            return dfd;
         },
 
         _queryActions: {},

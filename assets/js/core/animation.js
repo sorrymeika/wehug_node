@@ -364,7 +364,6 @@
         return first;
     };
 
-
     var momentum={
         momentums: null,
         momentumStep: $.noop,

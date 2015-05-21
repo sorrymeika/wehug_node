@@ -23,7 +23,7 @@ app.get('/js/template/*.js',function(req,res) {
 
 app.use(express.static(__dirname));
 
-app.listen(port,"127.0.0.1");
+app.listen(port);
 
 //require('./build');
 

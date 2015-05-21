@@ -41,11 +41,11 @@
 
         resolve: function() {
             var that=this,
-            args=slice.call(arguments),
-            then=that.queue.shift(),
-            next,
-            ctx,
-            promise;
+                args=slice.call(arguments),
+                then=that.queue.shift(),
+                next,
+                ctx,
+                promise;
 
             if(then) {
                 that.state=1;

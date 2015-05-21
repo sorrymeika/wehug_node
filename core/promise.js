@@ -194,6 +194,10 @@ Promise.prototype={
     }
 };
 
+Promise.resolve=function() {
+    return new Promise().resolve();
+}
+
 module.exports=Promise;
 
 /*

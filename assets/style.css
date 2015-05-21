@@ -18,7 +18,7 @@ footer { position: absolute; bottom: 0px; left: 0px; width: 100%; z-index: 200; 
 
 .imagecanvas { z-index: 2; pointer-events: none; background: rgba(0,0,0,0); position: absolute; }
 
-.scroll { overflow: hidden; -webkit-transform: translate(0px,0px) translateZ(0); }
+.scrollview { overflow: hidden; -webkit-transform: translate(0px,0px) translateZ(0); }
 
 .main { position: absolute; bottom: 0px; right: 0px; left: 0px; top: 0px; overflow: hidden; overflow-y: auto; -webkit-transform: translate(0px,0px) translateZ(0); z-index: 1; }
 .content { width: 100%; padding: 10px 3%; border-top: 2px solid #d31145; margin-top: 5px; background: #fff; }
@@ -50,8 +50,10 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 .dropdown_bd > li:last-child { border-right: 0; border-bottom: 0; }
 .dropdown_bd > li.curr { color: #f3e210; font-weight: bold; }
 
-
 .dataloading { top: 50%; left: 50%; margin: -20px 0 0 -20px; position: absolute; width: 40px; height: 40px; text-indent: -10000px; background: url('images/dataloading.png') 0 0 no-repeat; background-size: 100% 100%; -webkit-animation-name: ui-loading-anim; -webkit-animation-duration: 1s; -webkit-animation-iteration-count: infinite; -webkit-animation-timing-function: step-start; }
+.refresh { position: relative; }
+.refresh .dataloading { margin: -15px 0 0 -15px; width: 30px; height: 30px; }
+
 .server_error { top: 50%; left: 0; margin: -20px 0 0 0; position: absolute; width: 100%; height: 40px; text-align: center; font-family: 微软雅黑; }
 .server_error .ico_reload { display: inline-block; background: url('images/reload.png') 0 0 no-repeat; background-size: 100% 100%; width: 40px; height: 40px; vertical-align: top; }
 .server_error i.msg { display: inline-block; height: 40px; overflow: hidden; line-height: 40px; padding-right: 6px; }

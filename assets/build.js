@@ -16,7 +16,6 @@ tools.build({
         sl: [
             'zepto',
             'extend/touch',
-            'extend/deferred',
             'extend/fx',
             'extend/matchMedia',
             'extend/ortchange',
@@ -26,6 +25,7 @@ tools.build({
             'graphics/matrix2d',
             'graphics/tween',
             'core/base',
+            'core/promise',
             'core/linklist',
             'core/event',
             'core/view',
@@ -43,9 +43,9 @@ tools.build({
             'widget/slider',
             'widget/dropdown'
         ],
-        views: ['views/index']
+        views: ['views/index','views/test']
     },
     html: ['index.html'],
-    razor: ['template/index'],
+    razor: ['template/index','template/test'],
     resource: ['images']
 });

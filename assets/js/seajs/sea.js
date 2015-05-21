@@ -298,24 +298,6 @@ var isOldWebKit = +navigator.userAgent
 
 
 function request(url, callback, charset, crossorigin) {
-//<--debug
-if (/\.html(?:\?|$)/.test(url)){
-    var xhr=new XMLHttpRequest();
-    xhr.open("GET",url.replace(/\/js(?=\/)/,''),true);
-    xhr.onload=function(res){
-        eval("define(['sl/razor'],function(R){ var r=R('sl/razor');return r.create(\""
-            +xhr.responseText.replace(/\\/g,'\\\\')
-            .replace(/"/g,"\\\"")
-            .replace(/\r/g,'\\r')
-            .replace(/\n/g,'\\n')
-            .replace(/\t/g,'\\t')
-            +"\")});");
-        callback();
-    }
-    xhr.send();
-    return;
-}
-//debug-->
   var isCSS = IS_CSS_RE.test(url)
   var node = doc.createElement(isCSS ? "link" : "script")
 
@@ -337,6 +319,9 @@ if (/\.html(?:\?|$)/.test(url)){
   }
   else {
     node.async = true
+    //<--debug
+    url+='?v'+Date.now();
+    //debug-->
     node.src = url
   }
 
