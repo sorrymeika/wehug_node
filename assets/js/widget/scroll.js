@@ -56,9 +56,6 @@
                 }
             }
             return false;
-        } else if(this._st>0) {
-            this._st=Math.max(this._st+deltaY,0);
-            $this.css({ '-webkit-transform': 'translate(0px,'+this._st+'px) translateZ(0)' });
         }
     }
 
@@ -78,7 +75,7 @@
                 end=0;
             }
 
-            self.animation=animation.animate(function(d) {
+            animation.animate(function(d) {
                 y=from+(end-from)*d;
 
                 $this.css({
@@ -87,7 +84,6 @@
 
             },300,'ease',function() {
                 self._refreshAgain=false;
-                self.animation=null;
                 if(!self._isLoading) {
                     self._isLoading=self._isDataLoading=true;
                     self.$refresh.html('<div class="dataloading"></div>');
@@ -170,7 +166,7 @@
     exports.bind=function(selector,options) {
         //<--debug
         options={
-            useScroll: false,
+            useScroll: true,
             refresh: function(resolve,reject) {
                 setTimeout(function() {
                     reject('出错啦');
@@ -244,15 +240,21 @@
                                 self._isDataLoading=false;
                                 if(self._refreshAgain) return;
 
-                                var scrollView=self.parentNode.__scrollView;
+                                var scrollView=self.parentNode.__scrollView,
+                                    from=$(self).matrix().ty,
+                                    end=Math.max(from-50,0);
 
-                                if(!scrollView&&$(self).matrix().ty!=0) {
-                                    $this.animate({
-                                        '-webkit-transform': 'translate(0px,0px)'
-                                    },200,'cubic-bezier(.3,.78,.43,.95)',function() {
-                                        self.$refresh.html('下拉刷新');
+                                self.animation=animation.animate(function(d) {
+                                    var y=from+(end-from)*d;
+
+                                    $this.css({
+                                        '-webkit-transform': 'translate(0px,'+y+'px) translateZ(0)'
                                     });
-                                }
+
+                                },200,'ease',function() {
+                                    self.animation=null;
+                                    self.$refresh.html('下拉刷新');
+                                });
                             };
 
                         options.refresh(complete,function(error) {
