@@ -4,29 +4,28 @@
         animation=require('animation'),
         ScrollView=require('./scrollview');
 
-    function _start(e) {
+    var _start=function(e) {
         var point=e.touches[0],
-            $this=$(this),
-            matrix=$this.matrix();
+            matrix=$(this).matrix();
 
-        this._isTouchStart=false;
-        this._isTouchStop=false;
+        this._isStart=false;
+        this._isStop=false;
         this._sy=point.pageY;
         this._sx=point.pageX;
         this._st=this.parentNode.scrollTop-matrix.ty;
     }
 
-    function _move(e) {
-        if(this._isTouchStop) return;
+    var _move=function(e) {
+        if(this._isStop) return;
 
         var point=e.touches[0],
             deltaY=point.pageY-this._sy,
             deltaX=point.pageX-this._sx;
 
-        if(!this._isTouchStart) {
-            this._isTouchStart=true;
+        if(!this._isStart) {
+            this._isStart=true;
             if(Math.abs(deltaX)>Math.abs(deltaY)) {
-                this._isTouchStop=true;
+                this._isStop=true;
                 return;
             }
         }
@@ -36,13 +35,13 @@
             scrollTop=this.parentNode.scrollTop-matrix.ty;
 
         if((this.parentNode.scrollTop==0)&&deltaY>0) {
-            this.__refreshAgain=true;
-            this._isRefreshStart=true;
-            this._rY= -(this._st-deltaY*.5);
-            $this.css({ '-webkit-transform': 'translate(0px,'+this._rY+'px) translateZ(0)' });
+            this._refreshAgain=true;
+            this._isLoading=true;
+            this._ty= -(this._st-deltaY*.5);
+            $this.css({ '-webkit-transform': 'translate(0px,'+this._ty+'px) translateZ(0)' });
 
-            if(this._rY>70) {
-                this.$refresh.html('松手刷新');
+            if(this._ty>70) {
+                this.$refresh.html('释放刷新');
             } else {
                 this.$refresh.html('下拉刷新');
             }
@@ -50,17 +49,17 @@
         }
     }
 
-    function _end(e) {
+    var _end=function(e) {
         var self=this;
 
-        if(this._isRefreshStart) {
+        if(this._isLoading) {
             var point=e.changedTouches[0],
                 $this=$(this),
-                from=this._rY,
+                from=this._ty,
                 end=from>70?50:0,
                 y;
 
-            this._isRefreshStart=false;
+            this._isLoading=false;
 
             animation.animate(function(d) {
                 y=from+(end-from)*d;
@@ -69,7 +68,7 @@
                     '-webkit-transform': 'translate(0px,'+y+'px) translateZ(0)'
                 });
             },300,'ease',function() {
-                self.__refreshAgain=false;
+                self._refreshAgain=false;
                 if(!self.__refreshing) {
                     self.__refreshing=true;
 
@@ -84,77 +83,72 @@
     }
 
     var touchStart=function(e) {
-        var that=this,
-            point=e.touches[0];
+        var el=this,
+            point=e.touches[0],
+            now= +new Date;
 
-        that.__sy=that.__pointY=that.__startY=point.pageY;
-        that.__sx=point.pageX;
-        that._isMomentum=false;
-        that.__isMoved=false;
-        that.__isStart=false;
-
-        setTimeout(function() {
-            if(that._scrollTop!=that.scrollTop) {
-                that._scrollTop=that.scrollTop;
-                that._isTouchStop=true;
-                $(that).trigger('stopscroll');
-            } else {
-                that._isTouchStop=false;
-            }
-        },0);
+        el.__sy=el.__pointY=el.__startY=point.pageY;
+        el.__sx=point.pageX;
+        el._isMomentum=false;
+        el.__isMoved=false;
+        el.__isStart=false;
+        el.__isScroll=now-el.__timestamp<=16;
     };
 
     var touchMove=function(e) {
-        var that=this,
+        var el=this,
             point=e.touches[0],
             pointY=point.pageY,
-            deltaY=point.pageY-that.__sy,
-            deltaX=point.pageX-that.__sx;
+            deltaY=point.pageY-el.__sy,
+            deltaX=point.pageX-el.__sx;
 
-        that.__oPointY=that.__pointY;
-        that.__pointY=pointY;
+        el.__oPointY=el.__pointY;
+        el.__pointY=pointY;
+        el.__isMoved=true;
 
-        if(!that.__isStart) {
-            that.__isStart=true;
-            if(!that.options.hScroll&&Math.abs(deltaX)>Math.abs(deltaY)) {
+        if(!el.__isStart) {
+            el.__isStart=true;
+            if(!el.options.hScroll&&util.android&&Math.abs(deltaX)>Math.abs(deltaY)) {
                 return false;
             }
         }
     };
 
-    var touchEnd=function(e) {
-        var that=this,
-            $el=$(that),
-            pointY=e.changedTouches[0].pageY;
-
-        if(util.ios&&Math.abs(that.__oPointY-pointY)<5) {
-            that._isTouchStop=false;
-            scrollStop(that);
-            that._isMomentum=false;
-
-        } else
-            that._isMomentum=true;
-
-        if(this._isTouchStop) {
-            this._isTouchStop=false;
-            return false;
-        }
-    };
-
-    var scrollStop=function(that) {
-        if(that._stm) clearTimeout(that._stm);
-        that._stm=setTimeout(function() {
-            //util.log('scrollStop'+that.scrollTop+","+that._scrollTop)
-            that._scrollTop=that.scrollTop;
-            $(that).trigger('scrollStop',[0,that.scrollTop]);
-        },100);
+    var scrollStop=function(el) {
+        if(el._stm) clearTimeout(el._stm);
+        el._stm=setTimeout(function() {
+            el._stm=null;
+            $(el).trigger('scrollStop',[0,el.scrollTop]);
+        },80);
     }
 
     var scroll=function() {
-        if(this._isMomentum||util.android) {
-            scrollStop(this);
+        var el=this;
+
+        el.__isScroll=true;
+        el.__timestamp= +new Date;
+
+        if(el._isMomentum||util.android) {
+            scrollStop(el);
         }
     };
+
+    var touchEnd=function(e) {
+        var el=this,
+            $el=$(el),
+            pointY=e.changedTouches[0].pageY;
+
+        if(util.ios&&Math.abs(el.__oPointY-pointY)<5) {
+            el._isStop=false;
+            scrollStop(el);
+            el._isMomentum=false;
+
+        } else
+            el._isMomentum=true;
+
+        e.cancelTap=el.__isScroll;
+    };
+
 
     exports.bind=function(selector,options) {
         //<--debug
@@ -217,6 +211,7 @@
 
             var scroller=$scroller[0];
             scroller.$refresh=$refresh;
+            scroller.__timestamp=0;
 
             $scroller.css({ marginTop: -50 })
                 .prepend($refresh)
@@ -228,7 +223,7 @@
                         $this=$(self),
                         complete=function() {
                             self.__refreshing=false;
-                            if(self.__refreshAgain) return;
+                            if(self._refreshAgain) return;
                             $this.animate({
                                 '-webkit-transform': 'translate(0px,0px)'
                             },450,'cubic-bezier(.3,.78,.43,.95)');

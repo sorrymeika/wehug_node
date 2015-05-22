@@ -80,7 +80,8 @@
     var prepareActivity=function(currentActivity,activity) {
         currentActivity.prepareExitAnimation();
         currentActivity.$el.siblings(':not([data-path="'+activity.path+'"])').hide();
-        activity.el.parentNode===null&&activity.$el.appendTo(currentActivity.$el.parent());
+
+        if(activity.el.parentNode===null) activity.$el.appendTo(currentActivity.application.el);
     }
 
     var Application=view.extend({
@@ -351,6 +352,7 @@
             that.hash=hash=parseHash(location.hash);
 
             that.queue([hash,function(activity) {
+                activity.$el.appendTo(that.el);
                 that._currentActivity=activity;
                 that._history.push(activity.url);
                 that._historyCursor++;

@@ -52,11 +52,8 @@
             var that=this;
 
             seajs.use(that.template,function(razor) {
-                that.$el.html(razor.html())
-                that.$el.appendTo(that.application.$el);
-
+                that.$el.html(razor.html());
                 that.razor=razor;
-
                 that.promise.resolve(razor);
             });
 
