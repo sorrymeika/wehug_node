@@ -1,9 +1,7 @@
-﻿define(['$','util','./../base','./../view'],function(require,exports,module) {
+﻿define(function(require,exports,module) {
     var $=require('$'),
         util=require('util'),
         Scroll=require('./scroll');
-
-    var util=require('util');
 
     var selector=Scroll.extend({
         options: {

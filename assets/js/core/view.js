@@ -1,4 +1,4 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -6,7 +6,7 @@
         Event=require('./event'),
         slice=Array.prototype.slice;
 
-    var View=sl.Class.extend(function () {
+    var View=sl.Class.extend(function() {
         var that=this,
             options,
             args=slice.call(arguments),
@@ -17,9 +17,9 @@
         $.isPlainObject(selector)?(options=selector,selector=null):(options=args.shift());
 
         if(options&&options.override) {
-            $.each(options.override,function (key,fn) {
-                that[key]=fn;
-            });
+            for(var key in options.override) {
+                that[key]=options.override[key];
+            }
             delete options.override;
         }
         that.options=$.extend({},that.options,options);
@@ -39,62 +39,64 @@
 
     },{
         options: {},
-        setElement: function (element,delegate) {
-            if(this.$el) this.undelegateEvents();
-            this.$el=$(element);
-            this.el=this.$el[0];
-            if(this.className) this.$el.addClass(this.className);
-            if(delegate!==false) this.delegateEvents();
+        setElement: function(element,delegate) {
+            if(element) {
+                if(this.$el) this.undelegateEvents();
+                this.$el=$(element);
+                this.el=this.$el[0];
+                if(this.className) this.$el.addClass(this.className);
+                if(delegate!==false) this.delegateEvents();
+            }
             return this;
         },
 
-        undelegateEvents: function () {
+        undelegateEvents: function() {
             this.$el.off('.delegateEvents'+this.cid);
             return this;
         },
 
-        delegateEvents: function () {
+        delegateEvents: function() {
             this.listen(this.events);
             this.listen(this.options.events);
             return this;
         },
 
-        listen: function (options,fn) {
+        listen: function(events,fn) {
             var that=this;
 
             if(!fn) {
-                for(var k in options) {
-                    that.listen(k,options[k]);
+                for(var k in events) {
+                    that.listen(k,events[k]);
                 }
             } else {
-                var els=options.split(' '),
-                    events=els.shift().replace(/,/g,'.delegateEvents'+that.cid+' ');
+                var els=events.split(' '),
+                    event=els.shift().replace(/,/g,'.delegateEvents'+that.cid+' ');
 
                 fn=$.proxy($.isFunction(fn)?fn:that[fn],that);
 
                 if(els.length>0&&els[0]!=='') {
-                    that.$el.on(events,els.join(' '),fn);
+                    that.$el.on(event,els.join(' '),fn);
                 } else {
-                    that.$el.on(events,fn);
+                    that.$el.on(event,fn);
                 }
             }
 
             return that;
         },
 
-        listenTo: function (target) {
+        listenTo: function(target) {
 
             var args=slice.apply(arguments),
                 fn=args[args.length-1];
 
+            if(typeof target.on!=='function') target=$(target);
+
+            args[0]=target;
             args[args.length-1]=$.proxy(fn,this);
 
-            typeof target.on!=='function'&&(target=$(target));
-
             this._bindListenTo.push(slice.apply(args));
-            args.shift();
 
-            target.on.apply(target,args);
+            args.shift().on.apply(target,args);
 
             return this;
         },
@@ -104,24 +106,20 @@
         off: Event.off,
         trigger: Event.trigger,
 
-        $: function (selector) {
-            if(typeof selector==="string"&&selector[0]=='#') {
-                selector='[id="'+selector.substr(1)+'"]';
-            }
-            return $(selector,this.$el);
+        $: function(selector) {
+            return this.$el.find(selector);
         },
 
-        initialize: function () {
-        },
+        initialize: util.noop,
 
-        onDestory: function () { },
+        onDestory: util.noop,
 
-        destory: function () {
+        destory: function() {
             var $el=this.$el,
                 that=this,
                 target;
 
-            $.each(this._bindListenTo,function (i,attrs) {
+            $.each(this._bindListenTo,function(i,attrs) {
                 target=attrs.shift();
                 target.off.apply(target,attrs);
             });
@@ -133,12 +131,12 @@
         }
     });
 
-    View.extend=function (childClass,prop) {
+    View.extend=function(childClass,prop) {
         var that=this;
 
         childClass=sl.Class.extend.call(that,childClass,prop);
 
-        childClass.events=$.extend({},childClass.superClass.events,childClass.prototype.events);
+        childClass.prototype.events=$.extend({},childClass.superClass.events,childClass.prototype.events);
 
         childClass.extend=arguments.callee;
 

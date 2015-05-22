@@ -16,11 +16,7 @@
 
         $el.on('touchstart',$.proxy(that._start,that))
             .on('touchmove',$.proxy(that._move,that))
-            .on('touchend',$.proxy(that._end,that))
-            .on('stopscroll',function() {
-                that.isStopScroll=true;
-                that.isTouchStop=true;
-            });
+            .on('touchend',$.proxy(that._end,that));
     }
 
     Touch.prototype={
@@ -40,11 +36,6 @@
         _start: function(e) {
             var that=this,
                 point=e.touches[0];
-
-            if(that.isStopScroll) {
-                that.isStopScroll=false;
-                return;
-            }
 
             that.pointX=that.startX=that.sx=point.pageX;
             that.pointY=that.startY=that.sy=point.pageY;

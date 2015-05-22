@@ -1,4 +1,4 @@
-﻿define(['$',"./linklist","graphics/matrix2d","graphics/tween"],function(require,exports) {
+﻿define(function(require,exports) {
     var $=require("$");
     var LinkList=require("./linklist");
     var Matrix2D=require("graphics/matrix2d");

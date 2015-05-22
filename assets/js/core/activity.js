@@ -1,4 +1,4 @@
-﻿define(['$','util','bridge','./promise','./view','../widget/scroll','../widget/tip','../widget/dialog'],function(require,exports,module) {
+﻿define(function(require,exports,module) {
 
     require('../widget/tip');
 

@@ -1,11 +1,13 @@
 ﻿define(function(require,exports) {
-    if(!Object.create) {
-        Object.create=function(o) {
-            var F=function() { };
-            F.prototype=o;
-            return new F();
-        };
-    }
+    if(!Object.create) Object.create=function(o) {
+        var F=function() { };
+        F.prototype=o;
+        return new F();
+    };
+
+    if(!Date.now) Date.now=function() {
+        return +new Date;
+    };
 
     var Class=function() {
         var that=this,
@@ -57,7 +59,6 @@
     };
 
     exports.Class=Class;
-
 
     window.sl=exports;
 });

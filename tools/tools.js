@@ -40,12 +40,8 @@ var compressJs=function(code) {
 };
 
 var replaceDefine=function(id,code) {
-    return code.replace(/^\s*define\(([^\(]+?,){0,1}function/,function(r0,p) {
-
-        p=eval('['+(p||'')+']');
-        typeof p[0]==='string'?(p[0]=id):p.splice(0,0,id);
-
-        return 'define('+JSON.stringify(p).replace(/(^\[)|(\]$)/g,'')+',function';
+    return code.replace(/\bdefine\((\s*|\s*\[[^\]]*\]\s*,\s*)function/mg,function(r0,p) {
+        return 'define('+'"'+id+'",'+p+'function';
     })
 };
 

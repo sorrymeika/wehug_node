@@ -5,7 +5,7 @@
         view=require('./../view');
 
     var Dropdown=view.extend({
-        el: '<div class="dropdown hide"><ul class="dropdown_bd js_dropdown"><%for(var i=0,n=data.length,item;i<n;i++) {%><li><%=item.text%></li><%}%></ul></div>',
+        template: util.template('<div class="dropdown hide"><ul class="dropdown_bd js_dropdown"><%for(var i=0,n=data.length,item;i<n;i++) {%><li><%=item.text%></li><%}%></ul></div>'),
         events: {
             'tap .js_dropdown>li': function(e) {
                 var $target=$(e.currentTarget);
@@ -26,43 +26,38 @@
         initialize: function() {
             var that=this;
 
-            that.on('Destory',function() {
-                this.mask.off('tap').remove();
-            });
+            that.setElement(that.template(that.options))
+
+            if(that.options.isFixed) that.$el.css({ position: 'fixed' });
+            that.$el.on($.fx.transitionEnd,function() {
+                if(that.$el.hasClass('hide')) that.$el.hide();
+            })
+            .appendTo(document.body);
+
             that.on('Hide',function() {
                 this.$el.removeClass('visible');
             });
 
-            that.$bd=that.$('.js_dropdown');
-            that._template=util.template(that.$bd.html());
-            that.$bd.html(that._template(that.options));
-
+            that.$list=that.$('.js_dropdown');
             that.$attacher=$(that.options.attacher);
-            that.listenTo(that.$attacher,'tap',function() {
-                that.$attacher.addClass('visible');
-                that.show();
-            });
 
-            that.$('.js_dropdown>li').eq(that.index).addClass('curr');
+            that.$list.children('li').eq(that.index).addClass('curr');
 
             that.mask=$('<div class="winheight" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div>').on('tap click touchend touchmove touchstart',function(e) {
                 e.preventDefault();
             })
             .appendTo(document.body);
 
-            that.mask.tap(function() {
-                that.hide();
+            that.listenTo(that.$attacher,'tap',function() {
+                this.$attacher.addClass('visible');
+                this.show();
+            }).listenTo(that.mask,'tap',function() {
+                this.hide();
             });
 
-            that.options.isFixed&&that.$el.css({ position: 'fixed' });
-            that.$el.appendTo(document.body);
-
-            that.$el.on($.fx.transitionEnd,function() {
-                if(that.$el.hasClass('hide')) that.$el.hide();
-            });
-
-            that.options.onChange&&that.on('Change',that.options.onChange);
+            if(that.options.onChange) that.on('Change',that.options.onChange);
         },
+
         show: function() {
             var that=this,
                 pos=that.$attacher.offset();
@@ -73,6 +68,7 @@
             that.mask.show();
             that.pos(pos.left+(that.$attacher.width()-that.$el.width())/2,pos.top+that.$attacher.height());
         },
+
         hide: function() {
             var that=this;
 
@@ -80,8 +76,10 @@
             that.mask.hide();
             that.trigger('Hide');
         },
+
         render: function() {
         },
+
         pos: function(x,y) {
             var that=this;
 

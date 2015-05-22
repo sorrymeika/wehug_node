@@ -54,7 +54,7 @@
     var getAcitivityAnimation=function(isOpen,currentActivity,activity,animationName) {
         if(!animationName) animationName=(isOpen?activity:currentActivity).animationName;
 
-        var anim=defAnim,
+        var anim=require('anim/'+animationName)||defAnim,
             type=isOpen?"open":"close",
             ease=isOpen?'ease-out':'ease-out',
             enterFrom=Object.create(anim[type+'EnterAnimationFrom']),

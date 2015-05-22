@@ -19,7 +19,6 @@ tools.build({
             'extend/fx',
             'extend/matchMedia',
             'extend/ortchange',
-            'extend/throttle',
             'util',
             'bridge',
             'graphics/matrix2d',
@@ -41,7 +40,8 @@ tools.build({
             'widget/selector',
             'widget/loading',
             'widget/slider',
-            'widget/dropdown'
+            'widget/dropdown',
+            'anim/default'
         ],
         views: ['views/index','views/test']
     },

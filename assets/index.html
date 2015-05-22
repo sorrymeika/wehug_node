@@ -13,6 +13,7 @@
     <script debug src="js/extend/fx.js"></script>
     <script debug src="js/extend/matchMedia.js"></script>
     <script debug src="js/extend/ortchange.js"></script>
+    <script debug src="js/anim/default.js"></script>
 </head>
 <body>
     <script>
@@ -27,7 +28,6 @@
 
         seajs.use(['$','core/app'],function($,Application) {
             var app=new Application();
-            $(document).on('touchmove',function(e) { e.stopPropagation(); })
 
             app.mapRoute({
                 '': 'index',
