@@ -1,10 +1,10 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
     var $=require('$'),
         util=require('util'),
         animation=require('animation'),
         ScrollView=require('./scrollview');
 
-    var _start=function(e) {
+    var _start=function (e) {
         var self=this,
             point=e.touches[0],
             matrix=$(self).matrix();
@@ -18,54 +18,54 @@
         self._isLoading=this._isDataLoading;
     }
 
-    var _move=function(e) {
+    var _move=function (e) {
         var self=this;
 
         if(self._isStop) return;
 
         var point=e.touches[0],
-            deltaY=point.pageY-this._sy,
-            deltaX=point.pageX-this._sx,
-            $this=$(this);
+            deltaY=point.pageY-self._sy,
+            deltaX=point.pageX-self._sx,
+            $this=$(self);
 
-        if(!this._isStart) {
-            this._isStart=true;
+        if(!self._isStart) {
+            self._isStart=true;
             if(Math.abs(deltaX)>Math.abs(deltaY)) {
-                this._isStop=true;
+                self._isStop=true;
                 return;
             }
         }
 
-        var scrollView=this.parentNode.__scrollView;
+        var scrollView=self.parentNode.__scrollView;
 
-        if((scrollView?scrollView.y<=0:this.parentNode.scrollTop<=0)&&deltaY>0) {
+        if((scrollView?scrollView.y<=0:self.parentNode.scrollTop<=0)&&deltaY>0) {
 
-            if(this.timer) clearTimeout(this.timer),this.timer=null;
+            if(self.timer) clearTimeout(self.timer),self.timer=null;
 
-            this._isMoved=true;
-            this._refreshAgain=true;
-            this._ty=this._st+deltaY*.5;
+            self._isMoved=true;
+            self._refreshAgain=true;
+            self._ty=self._st+deltaY*.5;
 
-            $this.css({ '-webkit-transform': 'translate(0px,'+this._ty+'px) translateZ(0)' });
+            $this.css({ '-webkit-transform': 'translate(0px,'+self._ty+'px) translateZ(0)' });
 
             if(!this._isLoading) {
-                if(this._ty>70) {
-                    this.$refresh.html('释放刷新');
+                if(self._ty>70) {
+                    self.$refresh.html('释放刷新');
                 } else {
-                    this.$refresh.html('下拉刷新');
+                    self.$refresh.html('下拉刷新');
                 }
             }
             return false;
         }
     }
 
-    var _end=function(e) {
+    var _end=function (e) {
         var self=this;
 
-        if(this._isMoved) {
+        if(self._isMoved) {
             var point=e.changedTouches[0],
-                $this=$(this),
-                from=this._ty,
+                $this=$(self),
+                from=self._ty,
                 end=from>70?50:0,
                 y;
 
@@ -75,16 +75,16 @@
                 end=0;
             }
 
-            animation.animate(function(d) {
+            animation.animate(function (d) {
                 y=from+(end-from)*d;
 
                 $this.css({
                     '-webkit-transform': 'translate(0px,'+y+'px) translateZ(0)'
                 });
 
-            },300,'ease',function() {
+            },300,'ease',function () {
                 self._refreshAgain=false;
-                if(!self._isLoading) {
+                if(!self._isLoading&&end!=0) {
                     self._isLoading=self._isDataLoading=true;
                     self.$refresh.html('<div class="dataloading"></div>');
                     $this.triggerHandler('refresh');
@@ -95,7 +95,7 @@
         }
     }
 
-    var touchStart=function(e) {
+    var touchStart=function (e) {
         var el=this,
             point=e.touches[0],
             now= +new Date;
@@ -108,7 +108,7 @@
         el.__isScroll=now-el.__timestamp<=16;
     };
 
-    var touchMove=function(e) {
+    var touchMove=function (e) {
         var el=this,
             point=e.touches[0],
             pointY=point.pageY,
@@ -121,21 +121,21 @@
 
         if(!el.__isStart) {
             el.__isStart=true;
-            if(!el.options.hScroll&&util.android&&Math.abs(deltaX)>Math.abs(deltaY)) {
+            if(util.android&&!el.options.hScroll&&Math.abs(deltaX)>Math.abs(deltaY)) {
                 return false;
             }
         }
     };
 
-    var scrollStop=function(el) {
+    var scrollStop=function (el) {
         if(el._stm) clearTimeout(el._stm);
-        el._stm=setTimeout(function() {
+        el._stm=setTimeout(function () {
             el._stm=null;
             $(el).trigger('scrollStop',[0,el.scrollTop]);
         },80);
     }
 
-    var scroll=function() {
+    var scroll=function () {
         var el=this;
 
         el.__isScroll=true;
@@ -146,7 +146,7 @@
         }
     };
 
-    var touchEnd=function(e) {
+    var touchEnd=function (e) {
         var el=this,
             $el=$(el),
             pointY=e.changedTouches[0].pageY;
@@ -163,12 +163,12 @@
     };
 
 
-    exports.bind=function(selector,options) {
+    exports.bind=function (selector,options) {
         //<--debug
         options={
-            useScroll: true,
-            refresh: function(resolve,reject) {
-                setTimeout(function() {
+            useScroll: false,
+            refresh: function (resolve,reject) {
+                setTimeout(function () {
                     reject('出错啦');
                 },1000);
             }
@@ -178,7 +178,7 @@
 
         var result=[];
 
-        (typeof selector==='string'?$(selector):selector).each(function() {
+        (typeof selector==='string'?$(selector):selector).each(function () {
             var $el=$(this);
 
             if(options&&options.useScroll||util.android&&parseFloat(util.osVersion<=2.3)) {
@@ -201,14 +201,14 @@
                     .on('touchstart',touchStart)
                     .on('touchmove',touchMove)
                     .on('touchend',touchEnd)
-                    .each(function() {
+                    .each(function () {
                         this._scrollTop=0;
                         this.options=$.extend({
                             hScroll: false
                         },options);
                     }),
                     result.push({
-                        destory: function() {
+                        destory: function () {
                             $el.off('touchstart',touchStart)
                                 .off('touchmove',touchMove)
                                 .off('touchend',touchEnd)
@@ -233,38 +233,29 @@
                     .on('touchstart',_start)
                     .on('touchmove',_move)
                     .on('touchend',_end)
-                    .on('refresh',function() {
+                    .on('refresh',function () {
                         var self=this,
                             $this=$(self),
-                            complete=function() {
+                            complete=function () {
                                 self._isDataLoading=false;
                                 if(self._refreshAgain) return;
 
-                                var scrollView=self.parentNode.__scrollView,
-                                    from=$(self).matrix().ty,
+                                var from=$(self).matrix().ty,
                                     end=Math.max(from-50,0);
 
-                                self.animation=animation.animate(function(d) {
-                                    var y=from+(end-from)*d;
-
+                                animation.animate(function (d) {
                                     $this.css({
-                                        '-webkit-transform': 'translate(0px,'+y+'px) translateZ(0)'
+                                        '-webkit-transform': 'translate(0px,'+(from+(end-from)*d)+'px) translateZ(0)'
                                     });
 
-                                },200,'ease',function() {
-                                    self.animation=null;
+                                },200,'ease',function () {
                                     self.$refresh.html('下拉刷新');
                                 });
                             };
 
-                        options.refresh(complete,function(error) {
-                            self._isDataLoading=false;
-                            self.$refresh.html(error);
-
-                            self.timer=setTimeout(function() {
-                                self.timer=null;
-                                complete();
-                            },1000);
+                        options.refresh(complete,function (error) {
+                            sl.tip(error);
+                            complete();
                         });
                     });
             }
