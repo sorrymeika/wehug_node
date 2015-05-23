@@ -237,6 +237,7 @@
                         var self=this,
                             $this=$(self),
                             complete=function () {
+                                self.$refresh.html('下拉刷新');
                                 self._isDataLoading=false;
                                 if(self._refreshAgain) return;
 
@@ -249,7 +250,6 @@
                                     });
 
                                 },200,'ease',function () {
-                                    self.$refresh.html('下拉刷新');
                                 });
                             };
 
