@@ -80,9 +80,7 @@
         that._adjustWidth();
     }
 
-    var fn=ScrollView.prototype;
-
-    Slider.prototype=Object.create(fn);
+    Slider.prototype=Object.create(ScrollView.prototype);
 
     $.extend(Slider.prototype,{
         loop: false,

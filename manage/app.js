@@ -21,4 +21,4 @@ app.get('/',function(req,res) {
     res.send('hello world1');
 });
 
-app.listen(port,"127.0.0.1");
+app.listen(port);
