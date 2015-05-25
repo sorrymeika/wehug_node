@@ -173,7 +173,7 @@
                 },1000);
             }
         }
-        //options.refresh=false;
+        options.refresh=false;
         //debug-->
 
         var result=[];

@@ -20,6 +20,14 @@
             return ++guid;
         },
 
+        random: function(min,max) {
+            if(max==null) {
+                max=min;
+                min=0;
+            }
+            return min+Math.floor(Math.random()*(max-min+1));
+        },
+
         log: function(msg) {
             if(!this.$log) {
                 this.$log=$('<div style="height:40px;position:fixed;top:0;left:0;right:0;z-index:100000"></div>').appendTo('body');
