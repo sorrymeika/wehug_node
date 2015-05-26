@@ -10,10 +10,10 @@ var tools=new Tools(path.join(__dirname,'./'),path.join(__dirname,'./dest'));
 var razor=require('./../core/razor');
 var fs=require('fs');
 
-app.get('/js/template/*.js',function(req,res) {
+app.get('/js/template/*.js',function (req,res) {
     fs.readFile('./template/'+req.params[0]+'.tpl',{
         encoding: 'utf-8'
-    },function(err,text) {
+    },function (err,text) {
 
         text=tools.compressJs(razor.web(text));
         res.set('Content-Type','text/javascript');
@@ -22,7 +22,7 @@ app.get('/js/template/*.js',function(req,res) {
 });
 
 
-app.get('/test',function(req,res) {
+app.get('/test',function (req,res) {
 
     var Canvas=require('canvas'),
         height=50,
@@ -80,8 +80,15 @@ app.get('/test',function(req,res) {
     ctx.lineTo(100,random?to:from);
     ctx.stroke();
 
-    res.set('Content-Type','text/html');
-    res.end('<img src="'+canvas.toDataURL()+'" />'+result)
+    var stream=canvas.createJPEGStream({
+        bufsize: 2048,
+        quality: 80
+    });
+
+    stream.pipe(res);
+
+    //res.set('Content-Type','text/html');
+    //res.end('<img src="'+canvas.toDataURL()+'" />'+result)
 })
 
 app.use(express.static(__dirname));
