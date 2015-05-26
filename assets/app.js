@@ -80,15 +80,17 @@ app.get('/test',function (req,res) {
     ctx.lineTo(100,random?to:from);
     ctx.stroke();
 
+    /*
     var stream=canvas.createJPEGStream({
         bufsize: 2048,
         quality: 80
     });
 
     stream.pipe(res);
+    */
 
-    //res.set('Content-Type','text/html');
-    //res.end('<img src="'+canvas.toDataURL()+'" />'+result)
+    res.set('Content-Type','text/html');
+    res.end('<img src="'+canvas.toDataURL()+'" />'+result)
 })
 
 app.use(express.static(__dirname));
