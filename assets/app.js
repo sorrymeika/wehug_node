@@ -27,48 +27,61 @@ app.get('/test',function(req,res) {
     var Canvas=require('canvas'),
         height=50,
         Image=Canvas.Image,
-        canvas=new Canvas(300,500),
+        canvas=new Canvas(100,50),
         ctx=canvas.getContext('2d');
 
     var util=require('./../core/util');
 
     var font=['Impact','Arial'];
-    var fontSize=util.random(25,40);
-    var fontFamily=util.random(0,1);
-    var rotate=.01*util.random(-20,20);
+    var words=["A","B","C","D","E","F","G","H","J","K","L","M","N","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","m","n","p","q","r","s","t","u","v","w","x","y","z","2","3","4","5","6","7","8","9"];
 
-    ctx.rotate(rotate);
-    ctx.font=fontSize+'px '+font[fontFamily];
-    ctx.fillText("A",10,30);
-    ctx.save();
+    var result='';
+    var gradient=ctx.createLinearGradient(0,0,50,0);
+    gradient.addColorStop(0,"magenta");
+    gradient.addColorStop(0.5,"blue");
+    gradient.addColorStop(1.0,"red");
 
-    rotate=rotate* -1+.01*util.random(10,20);
-    ctx.rotate(rotate);
-    ctx.font='25px Arial';
-    ctx.fillText("B",30,25);
-    ctx.save();
+    for(var i=0;i<4;i++) {
+        var fontSize=util.random(35,40);
+        var fontFamily=util.random(0,1);
+        var rotate=.01*util.random(-45,45);
 
-    rotate=rotate* -1+.01*util.random(10,30);
-    ctx.rotate(rotate);
-    ctx.font='25px Arial';
-    ctx.fillText("C",40,20);
-    ctx.save();
+        var wordCanvas=new Canvas(50,50),
+        wordCtx=wordCanvas.getContext('2d');
 
-    rotate=.01*util.random(-30,30);
-    console.log(rotate)
-    ctx.font='25px Arial';
-    ctx.rotate(rotate);
-    ctx.fillText("D",50,10);
-    ctx.save();
+        wordCtx.rotate(rotate);
+        wordCtx.font=fontSize+'px '+font[fontFamily];
+        var c=words[util.random(55)];
+        result+=c;
 
-    ctx.strokeStyle='rgba(0,0,0,0.5)';
+        // 用渐变进行填充
+        wordCtx.strokeStyle=gradient;
+
+        wordCtx.strokeText(c,rotate>0.15?rotate*50:5,40);
+
+        var img=new Image;
+        img.src=wordCanvas.toBuffer();
+
+        ctx.drawImage(img,i*20,0,50,50)
+    }
+
+    gradient=ctx.createLinearGradient(0,0,canvas.width,0);
+    gradient.addColorStop(0,"magenta");
+    gradient.addColorStop(0.5,"blue");
+    gradient.addColorStop(1.0,"red")
+
+    var random=util.random(0,1);
+    var from=util.random(0,10);
+    var to=util.random(40,50);
+
+    ctx.strokeStyle=gradient;
     ctx.beginPath();
-    ctx.lineTo(30,20);
-    ctx.lineTo(50,30);
+    ctx.lineTo(0,random?from:to);
+    ctx.lineTo(100,random?to:from);
     ctx.stroke();
 
     res.set('Content-Type','text/html');
-    res.end('<img src="'+canvas.toDataURL()+'" />')
+    res.end('<img src="'+canvas.toDataURL()+'" />'+result)
 })
 
 app.use(express.static(__dirname));
