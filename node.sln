@@ -21,13 +21,38 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "node", ".", "{A9DC7BCD-99EE
 		VWDPort = "19208"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "app", "app\app.csproj", "{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Release|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Release|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A9DC7BCD-99EE-4006-8149-52F0CD9A8605}.Release|x86.ActiveCfg = Debug|Any CPU
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Debug|x86.ActiveCfg = Debug|x86
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Debug|x86.Build.0 = Debug|x86
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Release|Any CPU.ActiveCfg = Release|x86
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Release|Mixed Platforms.Build.0 = Release|x86
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Release|x86.ActiveCfg = Release|x86
+		{93F76AB5-164C-4782-A7C6-B1BC0AEC18C5}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

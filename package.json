@@ -16,7 +16,8 @@
     "async": "",
     "uglify-js": "",
     "fs-extra": "",
-    "canvas": ""
+    "canvas": "",
+    "gm": ""
   },
   "author": "SL",
   "license": "ISC"

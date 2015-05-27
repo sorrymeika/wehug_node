@@ -2,3 +2,5 @@
 /assets/dest
 /*.suo
 /assets/js/template
+/app/obj
+/app/bin
