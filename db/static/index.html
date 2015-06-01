@@ -8,9 +8,9 @@
     <link debug href="anim.css" rel="stylesheet" type="text/css" />
     <link debug href="style.css" rel="stylesheet" type="text/css" />
     <script src="js/seajs/sea.js"></script>
-    <script debug src="webresource/js/zepto.js"></script>
+    <script debug src="js/zepto.js"></script>
     <script debug src="js/extend/touch.js"></script>
-    <script debug src="webresource/js/extend/fx.js"></script>
+    <script debug src="js/extend/fx.js"></script>
     <script debug src="js/extend/matchMedia.js"></script>
     <script debug src="js/extend/ortchange.js"></script>
     <script debug src="js/anim/default.js"></script>
@@ -26,7 +26,7 @@
             }
         });
 
-        seajs.use(['$','core/app'],function ($,Application) {
+        seajs.use(['$','core/app'],function($,Application) {
             var app=new Application();
 
             app.mapRoute({

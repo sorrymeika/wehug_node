@@ -6,7 +6,7 @@ var url='mongodb://sa:12345Qwert@'+host+':27017/admin';
 var MongoClient=require('mongodb').MongoClient;
 var mysql=require('mysql');
 
-var DbVersionController=function (dbname) {
+var DbController=function (dbname) {
     var self=this;
 
     this.dbname=dbname;
@@ -23,7 +23,7 @@ var DbVersionController=function (dbname) {
                 console.log('Collection db.version',dbname,collections);
 
                 if(!collections) {
-                    self.dbInitialize(newDb,function () {
+                    self.initialize(newDb,function () {
 
                         newDb.createCollection('db.version',function (err,obj) {
                             console.log("mongodb:create db.version collection",dbname);
@@ -41,8 +41,9 @@ var DbVersionController=function (dbname) {
     });
 }
 
-DbVersionController.prototype={
-    dbInitialize: function (db,resolve) {
+DbController.prototype={
+    initialize: function (db,resolve) {
+        var self=this;
 
         db.addUser('sa','12345Qwert',function (err,result) {
             console.log('Create sa',err,result)
@@ -62,8 +63,8 @@ DbVersionController.prototype={
                         return;
                     }
 
-                    connection.query("create database domestic",function (err,result) {
-                        console.log("mysql:create database domestic",err);
+                    connection.query("create database "+self.dbname,function (err,result) {
+                        console.log("mysql:create database",self.dbname,err);
 
                         connection.release();
                         resolve(null,result);
@@ -129,7 +130,7 @@ DbVersionController.prototype={
     }
 };
 
-var dbController=new DbVersionController("domestic");
+var dbController=new DbController("domestic");
 
 dbController.execute('2015-04-29',function (db) {
     var pool=require('./data/mysql');
