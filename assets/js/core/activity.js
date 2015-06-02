@@ -270,7 +270,7 @@
                 scroll.destory();
             });
             this.application.remove(this.url);
-            view.fn.destory.apply(this,slice.apply(arguments));
+            view.prototype.destory.apply(this,slice.apply(arguments));
         }
     });
 
