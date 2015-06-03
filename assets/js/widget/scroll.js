@@ -206,7 +206,7 @@
     exports.bind=function(selector,options) {
         //<--debug
         options={
-            useScroll: true,
+            useScroll: false,
             refresh: function(resolve,reject) {
                 setTimeout(function() {
                     reject('出错啦');
