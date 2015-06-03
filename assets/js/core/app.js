@@ -293,6 +293,8 @@
                 activity.then(function() {
                     activity.trigger('Resume');
                     activity.trigger('Show');
+
+                    that.trigger('start');
                     that.turning();
                 });
 
