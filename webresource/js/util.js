@@ -134,14 +134,16 @@
         },
 
         style: function(css) {
-            var doc=document,style=doc.createElement("style");
+            var doc=document,
+                head=doc.getElementsByTagName("head")[0],
+                style=doc.createElement("style");
+
             style.type="text/css";
             try {
                 style.appendChild(doc.createTextNode(css));
             } catch(ex) {
                 style.styleSheet.cssText=css;
             }
-            var head=doc.getElementsByTagName("head")[0];
             head.appendChild(style);
 
             return style;

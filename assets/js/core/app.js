@@ -15,10 +15,8 @@
     var noop=util.noop,
         lastIndexOf=util.lastIndexOf,
         slice=Array.prototype.slice,
-        getUrlPath=util.getPath,
-        parseHash=function(hash) {
-            return (hash.replace(/^#+/,'')||'/').toLowerCase();
-        },
+        getPath=util.getPath,
+        parseHash=Route.standardizeHash,
         checkQueryString=function(activity,route) {
             if(activity.route.url!=route.url) {
                 activity._setRoute(route);
@@ -160,7 +158,7 @@
                 that.swiperPromise=new Promise();
 
                 that.mask.show();
-                that._getActivity(action,function(activity) {
+                that.get(action,function(activity) {
                     prepareActivity(currentActivity,activity);
 
                     that.isSwipeOpen=isOpen;
@@ -325,7 +323,7 @@
                     that.isHistoryBack=false;
                 });
 
-            } ],that._getActivity,that);
+            } ],that.get,that);
         },
 
         _queue: null,
@@ -357,25 +355,17 @@
         _currentActivity: null,
         _activities: {},
 
-        get: function(url) {
-            return this._activities[getUrlPath(url)];
-        },
-
         set: function(url,activity) {
-            this._activities[getUrlPath(url)]=activity;
+            this._activities[getPath(url)]=activity;
         },
 
-        remove: function(url) {
-            this._activities[getUrlPath(url)]=void 0;
-        },
-
-        _getActivity: function(url,callback) {
+        get: function(url,callback) {
             var that=this,
                 route=typeof url==='string'?that.route.match(url):url;
 
             if(!route) return;
 
-            var activity=that.get(route.path);
+            var activity=this._activities[route.path];
 
             if(activity==null) {
                 seajs.use(that.viewPath+route.view,function(ActivityClass) {
@@ -403,6 +393,10 @@
             }
         },
 
+        remove: function(url) {
+            this._activities[getPath(url)]=void 0;
+        },
+
         _animationTo: function(url,duration,animationName,type,callback) {
             if(!duration) duration=400;
             url=parseHash(url);
@@ -422,7 +416,7 @@
                 return;
             }
 
-            that._getActivity(route,function(activity) {
+            that.get(route,function(activity) {
                 if(activity.path==currentActivity.path) {
                     checkQueryString(activity,route);
                     that.turning();

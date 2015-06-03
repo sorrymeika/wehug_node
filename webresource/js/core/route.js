@@ -1,19 +1,19 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
-        standardizeHash=function(hash) {
+        standardizeHash=function (hash) {
             return (hash.replace(/^#+/,'')||'/').toLowerCase();
         };
 
-    var Route=function(options) {
+    var Route=function (options) {
         var routes=[];
 
         for(var key in options) {
             var option=options[key],
                 parts=[],
                 namedParam,
-                regex='^(?:\/{0,1})'+key.replace(/(\/|^|\?)\{((?:.+?\{[^\}]+\}){0,}[^\}]*)\}/g,function(match,first,param) {
+                regex='^(?:\/{0,1})'+key.replace(/(\/|^|\?)\{((?:.+?\{[^\}]+\}){0,}[^\}]*)\}/g,function (match,first,param) {
                     namedParam=param.split(':');
 
                     if(namedParam.length>1) {
@@ -34,7 +34,7 @@
         this.routes=routes;
     };
 
-    Route.prototype.match=function(url) {
+    Route.prototype.match=function (url) {
         var result=null,
             queries={},
             hash=url=standardizeHash(url),
@@ -49,7 +49,7 @@
 
             url=url.substr(0,index);
 
-            query.replace(/(?:^|&)([^=&]+)=([^&]*)/g,function(r0,r1,r2) {
+            query.replace(/(?:^|&)([^=&]+)=([^&]*)/g,function (r0,r1,r2) {
                 queries[r1]=decodeURIComponent(r2);
                 return '';
             })
@@ -82,6 +82,8 @@
 
         return result;
     }
+
+    Route.standardizeHash=standardizeHash;
 
     module.exports=Route;
 });

@@ -62,7 +62,7 @@
             var that=this,
                 application=that.application;
 
-            application._getActivity(url,function(activity,route) {
+            application.get(url,function(activity,route) {
                 activity.el.className=activity.className+' active';
                 application.$el.append(activity.$el);
                 application._currentActivity=activity;
