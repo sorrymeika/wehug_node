@@ -1,7 +1,6 @@
 ﻿define(['$','util','./../core/base','./../core/view'],function(require,exports,module) {
     var $=require('$'),
         util=require('util'),
-        sl=require('./../core/base'),
         view=require('./../core/view');
 
     var mask=null;

@@ -3,12 +3,13 @@
     var $=require('$'),
         util=require('util'),
         bridge=require('bridge'),
-        sl=require('./base'),
+        Base=require('./base'),
         view=require('./view'),
         animation=require('./animation'),
         LinkList=require('./linklist'),
         Promise=require('./promise'),
         Touch=require('./touch'),
+        Route=require('./route'),
         Activity=require('./activity');
 
     var noop=util.noop,
@@ -51,7 +52,7 @@
             }
         };
 
-    var getAcitivityAnimation=function(isOpen,currentActivity,activity,animationName) {
+    var getToggleAnimation=function(isOpen,currentActivity,activity,animationName) {
         if(!animationName) animationName=(isOpen?activity:currentActivity).animationName;
 
         var anim=require('anim/'+animationName)||defAnim,
@@ -164,7 +165,7 @@
 
                     that.isSwipeOpen=isOpen;
 
-                    that.swiper=animation.prepare(getAcitivityAnimation(isOpen,currentActivity,activity));
+                    that.swiper=new animation.Animation(getToggleAnimation(isOpen,currentActivity,activity));
                     that.swipeActivity=activity;
 
                     that.swiperPromise.resolve();
@@ -216,7 +217,7 @@
                     activity.referrerDir=that.isSwipeLeft?"Right":"Left";
                     currentActivity.trigger('Pause');
                 } else {
-                    currentActivity.destory();
+                    currentActivity.destroy();
                 }
             }
             that.turning();
@@ -233,81 +234,6 @@
                 });
                 that.swiperPromise=null;
             }
-        },
-
-        routes: [],
-        mapRoute: function(options) {
-            var routes=this.routes;
-            $.each(options,function(k,opt) {
-                var parts=[],
-                    routeOpt={};
-
-                var reg='^(?:\/{0,1})'+k.replace(/(\/|^|\?)\{([^\{\}]+?\{[^\}]*\}[^\{\}]*|[^\}]*)\}/g,function(r0,r1,r2) {
-                    var ra=r2.split(':');
-
-                    if(ra.length>1) {
-                        parts.push(ra.shift());
-                        r2=ra.join(':');
-                    }
-
-                    return r1+'('+r2+')';
-                })+'$';
-
-                routeOpt={
-                    reg: new RegExp(reg),
-                    parts: parts
-                };
-                if(typeof opt==='string') {
-                    routeOpt.view=opt;
-                } else {
-                    routeOpt.view=opt.view;
-                }
-                routes.push(routeOpt);
-            });
-        },
-        matchRoute: function(url) {
-            var result=null,
-                queries={},
-                hash=parseHash(url);
-
-            url=hash;
-
-            var index=url.indexOf('?');
-            var query;
-            if(index!= -1) {
-                query=url.substr(index+1);
-
-                url=url.substr(0,index);
-
-                query.replace(/(?:^|&)([^=&]+)=([^&]*)/g,function(r0,r1,r2) {
-                    queries[r1]=decodeURIComponent(r2);
-                    return '';
-                })
-            } else {
-                query='';
-            }
-
-            $.each(this.routes,function(i,route) {
-                var m=route.reg?url.match(route.reg):null;
-
-                if(m) {
-                    result={
-                        path: m[0],
-                        url: hash,
-                        hash: '#'+hash,
-                        view: route.view,
-                        data: {},
-                        queryString: query,
-                        queries: queries
-                    };
-                    $.each(route.parts,function(i,name) {
-                        result.data[name]=m[i+1];
-                    });
-                    return false;
-                }
-            });
-
-            return result;
         },
 
         skip: 0,
@@ -328,10 +254,16 @@
             that.el=that.$el[1];
             that.canvas=that.$el[2];
 
-            that.touch=new Touch(that.$el,{})
-                .on('start',that._touchStart,that)
-                .on('move',that._touchMove,that)
-                .on('stop',that._touchEnd,that);
+            that.touch=new Touch(that.$el,{
+                start: that._touchStart,
+                move: that._touchMove,
+                stop: that._touchEnd
+            },that);
+        },
+
+        mapRoute: function(routes) {
+            this.route=new Route(routes);
+            return this;
         },
 
         start: function() {
@@ -437,7 +369,7 @@
 
         _getActivity: function(url,callback) {
             var that=this,
-                route=typeof url==='string'?that.matchRoute(url):url;
+                route=typeof url==='string'?that.route.match(url):url;
 
             if(!route) return;
 
@@ -475,7 +407,7 @@
 
             var that=this,
                 currentActivity=that._currentActivity,
-                route=that.matchRoute(url);
+                route=that.route.match(url);
 
             if(url!=parseHash(location.hash)&&that._queue.length==1) {
                 var args=that._queue.first().args;
@@ -504,7 +436,7 @@
 
                 var isOpen=type=='open',
                     ease=type=='open'?'ease-out':'ease-out',
-                    anims=getAcitivityAnimation(isOpen,currentActivity,activity,animationName),
+                    anims=getToggleAnimation(isOpen,currentActivity,activity,animationName),
                     anim;
 
                 if(isOpen) {
@@ -602,7 +534,7 @@
                     duration=null;
                 }
                 that._animationTo(url,duration,animationName,'close',function() {
-                    currentActivity.destory();
+                    currentActivity.destroy();
                 });
             }
         },

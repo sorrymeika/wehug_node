@@ -1,7 +1,6 @@
 ﻿define(['$','./../view','util'],function(require,exports,module) {
     var $=require('$'),
         util=require('util'),
-        sl=require('./../base'),
         view=require('./../view');
 
     var Dropdown=view.extend({

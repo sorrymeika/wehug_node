@@ -1,18 +1,18 @@
 ﻿define(function(require,exports,module) {
     var $=require('$'),
-        event=require('./event'),
         util=require('util'),
         animation=require('animation');
 
     var slice=Array.prototype.slice;
 
-    var Touch=function(el,options) {
+    var Touch=function(el,options,ctx) {
         var that=this,
             $el=$(el);
 
         that.$el=$el;
         that.el=$el[0];
-        that.options=options;
+        that.options=options||{};
+        that.ctx=ctx||that;
 
         $el.on('touchstart',$.proxy(that._start,that))
             .on('touchmove',$.proxy(that._move,that))
@@ -20,8 +20,7 @@
     }
 
     Touch.prototype={
-        on: event.on,
-        trigger: event.trigger,
+        minDelta: 0,
 
         _stopMomentum: function() {
             if(this.momentum) {
@@ -52,7 +51,6 @@
             if(this.isTouchStop) return;
 
             var that=this,
-                minDelta=0,
                 point=e.touches[0],
                 deltaX=that.startX-point.pageX,
                 deltaY=that.startY-point.pageY,
@@ -65,7 +63,7 @@
             that.dy=that.sy-point.pageY;
 
             if(!that.isTouchStart) {
-                var isDirectionX=Math.abs(deltaX)>=minDelta&&Math.abs(deltaX)>Math.abs(deltaY),
+                var isDirectionX=Math.abs(deltaX)>=that.minDelta&&Math.abs(deltaX)>Math.abs(deltaY),
                     isDirectionY=!isDirectionX;
 
                 if(isDirectionY||isDirectionX) {
@@ -76,11 +74,11 @@
                     that.dir=isDirectionX;
 
                     if(!that.isInit) {
-                        that.trigger('init');
+                        if(that.options.init) that.options.init.call(that.ctx);
                         that.isInit=true;
                     }
 
-                    that.trigger('start');
+                    that.options.start.call(that.ctx);
 
                     if(that.isTouchStop) {
                         return;
@@ -90,9 +88,7 @@
                 }
             }
 
-            var moveEvent=event.createEvent('move');
-
-            that.trigger(moveEvent,deltaX,deltaY);
+            that.options.move.call(that.ctx,deltaX,deltaY);
 
             that.isTouchMoved=true;
 
@@ -107,7 +103,7 @@
                 that.startX=point.pageX;
                 that.startY=point.pageY;
 
-                that.trigger('starttimereset');
+                if(that.options.resetStartTime) that.options.resetStartTime.call(that.ctx);
             }
 
             return false;
@@ -123,15 +119,13 @@
         },
 
         _momentum: function() {
-            var args=slice.call(arguments);
-            args.splice(0,0,'momentum');
-            event.trigger.apply(this,args);
+            if(this.options.momentum) this.options.momentum.apply(this.ctx,arguments);
         },
 
         _stop: function() {
             this.momentum=null;
             this._isClickStopAni=false;
-            this.trigger('stop');
+            this.options.stop.call(this.ctx);
         },
 
         _end: function(e) {
@@ -161,14 +155,13 @@
             if(duration<300||!that.momentum) {
 
                 that.momentumOptions=[];
-                that.trigger('beforemomentum',duration);
+                if(that.options.beforeMomentum) that.options.beforeMomentum.call(that.ctx,duration);
 
                 that.momentum=animation.momentum(that.momentumOptions,that.options.maxDuration,that._momentum,that.options.ease||'ease',that._stop,that);
 
             } else {
                 that.momentum.finish();
             }
-
             return false;
         },
 

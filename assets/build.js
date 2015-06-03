@@ -7,8 +7,8 @@ var tools=new Tools(path.join(__dirname,'./'),path.join(__dirname,'./dest'));
 tools.build({
     api: 'http://www.abs.cn',
     compress: [
-'seajs/sea'
-],
+        'seajs/sea'
+    ],
     combine: {
         'style.css': [
         'anim.css',
@@ -29,14 +29,16 @@ tools.build({
             'core/linklist': '../webresource/js/core/linklist',
             'core/event': '../webresource/js/core/event',
             'core/view': '../webresource/js/core/view',
-            'core/animation': '',
+            'core/page': '../webresource/js/core/page',
+            'core/route': '../webresource/js/core/route',
+            'core/animation': '../webresource/js/core/animation',
             'core/app': '',
             'core/activity': '',
             'core/touch': '',
             'widget/scrollview': '',
             'widget/scroll': '',
-            'widget/dialog': '',
-            'widget/tip': '',
+            'widget/tip': '../webresource/js/widget/tip',
+            'widget/dialog': '../webresource/js/widget/dialog',
             'widget/button': '',
             'widget/selector': '',
             'widget/loading': '',

@@ -26,14 +26,7 @@
         that.$scroller=addScroller(that.$el);
         that.scroller=that.$scroller[0];
 
-        that.touch=new Touch(that.$el,options)
-            .on('init',that.init,that)
-            .on('start',that.start,that)
-            .on('stop',that.stop,that)
-            .on('starttimereset',that.resetStartTime,that)
-            .on('move',that.move,that)
-            .on('beforemomentum',that.beforeMomentum,that)
-            .on('momentum',that.momentum,that);
+        that.touch=new Touch(that.$el,that,that);
     }
 
     ScrollView.prototype={
@@ -107,7 +100,7 @@
             this.touch.addMomentumOptions(this._startLeft,this.x,this.minX,this.maxX,this.wrapperW,this.divisorX)
                 .addMomentumOptions(this._startTop,this.y,this.minY,this.maxY,this.wrapperH);
         },
-        momentum: function(e,a,b) {
+        momentum: function(a,b) {
 
             this.x=a.current;
             this.y=b.current;

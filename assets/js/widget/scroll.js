@@ -206,7 +206,7 @@
     exports.bind=function(selector,options) {
         //<--debug
         options={
-            useScroll: false,
+            useScroll: true,
             refresh: function(resolve,reject) {
                 setTimeout(function() {
                     reject('出错啦');
@@ -221,7 +221,6 @@
         (typeof selector==='string'?$(selector):selector).each(function() {
             var $el=$(this),
                 scrollView;
-
 
             if(options&&options.useScroll||util.android&&parseFloat(util.osVersion<=2.3)) {
                 scrollView=new ScrollView(this,options);

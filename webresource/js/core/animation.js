@@ -2,7 +2,7 @@
     var $=require("$");
     var LinkList=require("./linklist");
     var Matrix2D=require("graphics/matrix2d");
-    var Tween=require("graphics/tween");
+    var tween=require("graphics/tween");
 
     var vendors=['webkit'/*,'moz','o','ms'*/];
 
@@ -25,7 +25,7 @@
 
     var list=new LinkList();
     var animationStop=true;
-    var TRANSFORM='-webkit-transform',
+    var TRANSFORM=$.fx.cssPrefix+'transform',
         defaultStyle={
             opacity: 1
         },
@@ -37,13 +37,13 @@
         matrixEndReg=/matrix\([^\)]+\)\s*$/;
 
     var getEase=function(ease) {
-        if(!ease) ease=[Tween.easeOut];
+        if(!ease) ease=[tween.easeOut];
         else {
             if(!(ease instanceof Array)) ease=[ease];
 
             for(var i=0,n=ease.length;i<n;i++) {
                 if(typeof ease[i]=="string")
-                    ease[i]=Tween[ease[i].replace(/\-([a-z])/g,function($0,$1) {
+                    ease[i]=tween[ease[i].replace(/\-([a-z])/g,function($0,$1) {
                         return $1.toUpperCase();
                     })];
             }
@@ -163,7 +163,6 @@
         }
     };
 
-
     var init=function(item) {
         item.startTime=Date.now();
         item.ease=getEase(item.ease);
@@ -185,42 +184,7 @@
         if(animationStop) run();
     }
 
-    var prepareElement=function(el,css) {
-        el.each(function() {
-            var that=this,
-                animationStyle={},
-                originStyle={},
-                style=getComputedStyle(that,null);
-
-            $.each(css,function(key,val) {
-                if(typeof val==='string') {
-                    if(key==TRANSFORM) {
-                        val=val.replace(translatePercentReg,function($0,$1,$2) {
-                            return 'translate('+($1.indexOf('%')!== -1?that.offsetWidth*parseFloat($1)/100:parseFloat($1))+'px,'+($2.indexOf('%')!== -1?that.offsetHeight*parseFloat($2)/100:parseFloat($2))+'px)';
-                        });
-                        //console.log(val)
-                    } else if(/^(top|margin(-t|T)op)$/.test(key)) {
-                        val=val.replace(percentReg,function($0) {
-                            return that.parentNode.offsetHeight*parseFloat($0)/100+"px";
-                        });
-                    } else if(/^(left|margin(-l|L)eft|padding(-l|L)eft|padding(-t|T)op)$/.test(key)) {
-                        val=val.replace(percentReg,function($0) {
-                            return that.parentNode.offsetWidth*parseFloat($0)/100+"px";
-                        });
-                    }
-                }
-
-                originStyle[key]=style[key];
-                animationStyle[key]=val;
-            });
-
-            this._animationStyle=animationStyle;
-            this._originStyle=originStyle;
-            //console.log('new',animationStyle,'original',originStyle);
-        });
-    }
-
-    var animationStep=function(d) {
+    var eachStep=function(d) {
         var style,
             originStyle,
             originVal,
@@ -254,7 +218,7 @@
                         newStyle[key]=m2d.toString();
 
                     } else if(!isNaN(parseFloat(val))) {
-                        originVal=isNaN(parseFloat(originVal))?(defaultStyle[key]||0):parseFloat(originVal);
+                        originVal=isNaN(parseFloat(originVal))?defaultStyle[key]||0:parseFloat(originVal);
                         newStyle[key]=getCurrent(originVal,val,d);
                     } else {
                         newStyle[key]=val;
@@ -271,103 +235,165 @@
         this._step&&this._step(d);
     }
 
-    var animationFinish=function(per) {
-        //console.log('end',this.css)
+    var animationEnd=function(per) {
         if(per==1) this.el.css(this.css);
-
-        this._finish&&this._finish(per);
+        this._finish(per);
     }
 
     var prepare=function(animations) {
-        var anims=[],
-            anim,
+        var item,
+            $el,
             el,
             css,
             m2d,
             origTransform;
 
-        for(var i=0,n=animations.length,item;i<n;i++) {
-            anim=animations[i];
+        for(var i=0,n=animations.length;i<n;i++) {
+            item=animations[i];
 
-            if(anim.css) {
-                css=toTransform(anim.css);
-                anim.matrix=css.matrix;
-                css=anim.css=css.css;
+            if(item.css) {
+                css=toTransform(item.css);
+                item.matrix=css.matrix;
+                item.css=css.css;
 
-                anim.selector=anim.el;
-                el=anim.el=$(anim.el);
+                $el=item.el=$(item.el);
 
-                if(typeof anim.start==='object') {
-                    el.transform(anim.start);
+                if(typeof item.start==='object') {
+                    $el.transform(item.start);
                 }
 
-                prepareElement(el,css);
+                $el.each(function() {
+                    var el=this,
+                        animationStyle={},
+                        originStyle={},
+                        style=getComputedStyle(el,null);
 
-                anim._step=anim.step;
-                anim.step=animationStep;
+                    $.each(item.css,function(key,val) {
+                        if(typeof val==='string') {
+                            if(key==TRANSFORM) {
+                                val=val.replace(translatePercentReg,function($0,$1,$2) {
+                                    return 'translate('+($1.indexOf('%')!== -1?el.offsetWidth*parseFloat($1)/100:parseFloat($1))+'px,'+($2.indexOf('%')!== -1?el.offsetHeight*parseFloat($2)/100:parseFloat($2))+'px)';
+                                });
+                                //console.log(val)
 
-                anim._finish=anim.finish;
-                anim.finish=animationFinish;
+                            } else if(/^(top|margin(-t|T)op)$/.test(key)) {
+                                val=val.replace(percentReg,function($0) {
+                                    return el.parentNode.offsetHeight*parseFloat($0)/100+"px";
+                                });
+
+                            } else if(/^(left|margin(-l|L)eft|padding(-l|L)eft|padding(-t|T)op)$/.test(key)) {
+                                val=val.replace(percentReg,function($0) {
+                                    return el.parentNode.offsetWidth*parseFloat($0)/100+"px";
+                                });
+                            }
+                        }
+
+                        originStyle[key]=style[key];
+                        animationStyle[key]=val;
+                    });
+
+                    el._animationStyle=animationStyle;
+                    el._originStyle=originStyle;
+                    //console.log('new',animationStyle,'original',originStyle);
+                });
+
+                item._step=item.step;
+                item.step=eachStep;
+
+                item._finish=item.finish;
+                item.finish=animationEnd;
             }
         }
 
         return animations;
     }
 
-    var parallelAnimation=function(animations) {
-        parallel(prepare(animations));
-    }
-
-    exports.prepare=function(animations) {
+    var Animation=function(animations) {
         if(!$.isArray(animations)) animations=[animations];
-        var ret={
-            step: function(per) {
-                for(var i=0,anim,n=animations.length;i<n;i++) {
-                    anim=animations[i];
-                    anim.from=per;
-                    anim.step(per/100);
-                }
-                return this;
-            },
-            animate: function(duration,per,callback) {
-                var anim;
-                for(var i=0,n=animations.length;i<n;i++) {
-                    anim=animations[i];
-                    anim.duration=duration;
-                    anim.to=per;
-                    anim.finish=null;
-                    anim.start=void 0;
-                }
-                anim.finish=callback;
-                parallel(animations);
-
-                return this;
-            }
-        };
 
         prepare(animations);
 
-        return ret;
+        this.list=animations;
+    }
+
+    Animation.prototype.step=function(percent) {
+        var item,
+            list=this.list;
+
+        for(var i=0,length=list.length;i<length;i++) {
+            item=list[i];
+            item.from=percent;
+            item.step(percent/100);
+        }
+        return this;
+    }
+
+    Animation.prototype.animate=function(duration,percent,callback) {
+        var item,
+            animations=this.list;
+
+        for(var i=0,length=animations.length;i<length;i++) {
+            item=animations[i];
+            item.duration=duration;
+            item.to=percent;
+            item.finish=item.start=void 0;
+        }
+
+        item.finish=callback;
+
+        parallel(animations);
+
+        return this;
+    }
+
+    exports.Animation=Animation;
+
+    exports.parallel=function(animations) {
+        parallel(prepare(animations));
     };
 
-    exports.parallel=parallelAnimation;
-
-    exports.animate=function(step,duration,ease,finish) {
-        var first={
-            step: step,
+    exports.animate=function(el,step,duration,ease,finish) {
+        var item={
             duration: duration,
             ease: ease,
             finish: finish
         };
-        parallel([first]);
+
+        if(typeof el==='function') {
+            item
+
+        } else {
+            item.el=el;
+        }
+
+        parallel([item]);
 
         return first;
     };
 
+    exports.animate=function() {
+        var args=Array.prototype.slice.call(arguments),
+            item={},
+            i=0,
+            el=args[i++];
+
+        if(typeof el==='function') {
+            item.step=el;
+
+        } else {
+            item.el=el;
+            item.css=args[i++];
+        }
+        item.duration=args[i++];
+        item.ease=args[i++];
+        item.finish=args[i];
+
+        parallel([item]);
+
+        return item;
+    };
+
     var momentum={
-        momentums: null,
-        momentumStep: $.noop,
-        end: $.noop,
         step: function(d) {
             for(var i=0,n=this.momentums.length,m;i<n;i++) {
                 m=this.momentums[i];
@@ -410,46 +436,7 @@
         }
     };
 
-    exports.momentum=function(options,maxDuration,step,ease,end,context) {
-        var momentums=[],
-            anim={},
-            newDuration=0;
-
-        if(typeof options[0]==='number') options=[options];
-        else if(!options.length) { end.call(context);return; }
-
-        for(var i=0,n=options.length,m;i<n;i++) {
-            m=this._momentum.apply(this,options[i]);
-
-            if(m.dist!=0) newDuration=Math.max(newDuration,m.time);
-            momentums.push(m);
-        }
-
-        for(var i=0,n=momentums.length,m;i<n;i++) {
-            m=momentums[i];
-            if(m.outside!=0) m.result=m.result-m.outside+m.outside*400/newDuration;
-        }
-
-        $.extend(anim,momentum,{
-            ctx: context||anim,
-            momentums: momentums,
-            momentumStep: step,
-            duration: newDuration,
-            ease: ease,
-            end: end
-        });
-
-        if(newDuration!=0) {
-            if(maxDuration&&anim.duration>maxDuration) anim.duration=maxDuration;
-            parallel([anim]);
-        } else {
-            anim.bounce();
-        }
-
-        return anim;
-    };
-
-    exports._momentum=function(start,current,time,min,max,size,divisor) {
+    var _momentum=function(start,current,time,min,max,size,divisor) {
         var dist=current-start,
             maxDistUpper=max-current,
             maxDistLower=current-min,
@@ -502,4 +489,43 @@
 
         return { dist: newDist,time: Math.round(newTime),outside: outsideDist,result: result,current: current,start: current,max: max,min: min,divisor: divisor };
     }
+
+    exports.momentum=function(options,maxDuration,step,ease,end,context) {
+        var momentums=[],
+            anim={},
+            newDuration=0;
+
+        if(typeof options[0]==='number') options=[options];
+        else if(!options.length) { end.call(context);return; }
+
+        for(var i=0,n=options.length,m;i<n;i++) {
+            m=_momentum.apply(this,options[i]);
+
+            if(m.dist!=0) newDuration=Math.max(newDuration,m.time);
+            momentums.push(m);
+        }
+
+        for(var i=0,n=momentums.length,m;i<n;i++) {
+            m=momentums[i];
+            if(m.outside!=0) m.result=m.result-m.outside+m.outside*400/newDuration;
+        }
+
+        $.extend(anim,momentum,{
+            ctx: context||anim,
+            momentums: momentums,
+            momentumStep: step,
+            duration: newDuration,
+            ease: ease,
+            end: end
+        });
+
+        if(newDuration!=0) {
+            if(maxDuration&&anim.duration>maxDuration) anim.duration=maxDuration;
+            parallel([anim]);
+        } else {
+            anim.bounce();
+        }
+
+        return anim;
+    };
 });

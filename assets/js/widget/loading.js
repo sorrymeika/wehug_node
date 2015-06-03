@@ -1,7 +1,6 @@
 ﻿define(['$','util','bridge','./../core/view'],function(require,exports,module) {
     var $=require('$'),
         _=require('util'),
-        sl=require('./../base'),
         view=require('./../core/view'),
         app=require('bridge');
 
