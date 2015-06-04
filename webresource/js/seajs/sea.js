@@ -672,6 +672,7 @@ Module.prototype.fetch = function(requestCache) {
 Module.prototype.exec = function () {
   var mod = this
 
+
   // When module is executed, DO NOT execute it again. When module
   // is being executed, just return `module.exports` too, for avoiding
   // circularly calling
@@ -769,7 +770,7 @@ Module.define = function (id, deps, factory) {
     var script = getCurrentScript()
 
     if (script) {
-      meta.uri = script.src
+      meta.uri = script.src.replace(/\?.*/g,'')
     }
 
     // NOTE: If the id-deriving methods above is failed, then falls back

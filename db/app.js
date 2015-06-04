@@ -11,10 +11,10 @@ var fs=require('fs');
 
 app.get('/captcha',require('./../util/captcha'));
 
-app.get('/js/template/*.js',function (req,res) {
+app.get('/js/template/*.js',function(req,res) {
     fs.readFile('./template/'+req.params[0]+'.tpl',{
         encoding: 'utf-8'
-    },function (err,text) {
+    },function(err,text) {
 
         text=Tools.compressJs(razor.web(text));
         res.set('Content-Type','text/javascript');
@@ -24,7 +24,7 @@ app.get('/js/template/*.js',function (req,res) {
 
 app.use(express.static(path.join(__dirname,'./static')));
 
-app.use('/js',express.static(path.join(__dirname,'../webresource/js')));
+app.use(express.static(path.join(__dirname,'../webresource')));
 app.use('/webresource',express.static(path.join(__dirname,'../webresource')));
 
 app.listen(port);

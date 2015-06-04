@@ -71,7 +71,6 @@
 
             that.application=that.options.application;
 
-            that.on('Create',that.onCreate);
             that.on('Start',that.onStart);
             that.on('Resume',that.onResume);
             that.on('Show',that.onShow);

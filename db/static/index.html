@@ -5,7 +5,8 @@
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <title></title>
-    <link debug href="css/style.css" rel="stylesheet" type="text/css" />
+    <link debug href="images/reset.css" rel="stylesheet" type="text/css" />
+    <link debug href="images/manage.css" rel="stylesheet" type="text/css" />
     <script src="js/seajs/sea.js"></script>
     <script debug src="js/zepto.js"></script>
     <script debug src="js/extend/fx.js"></script>
@@ -21,7 +22,7 @@
             }
         });
 
-        seajs.use(['$','core/navigation'],function ($,Navigation) {
+        seajs.use(['$','core/navigation'],function($,Navigation) {
             new Navigation().mapRoute({
                 '': 'index'
             })

@@ -4,6 +4,7 @@
         concat=ArrayProto.concat,
         ua=navigator.userAgent,
         ios=ua.match(/(iPhone|iPad|iPod).*OS\s([\d_]+)/i),
+        ie=ua.match(/MSIE (\d+)/i),
         android=ua.match(/(Android);?[\s\/]+([\d.]+)?/),
         isAndroid=!!android,
         guid=0,
@@ -11,9 +12,11 @@
 
     if(ios) osVersion=ios[2].split('_');
     else if(android) osVersion=android[2].split('.');
+    else if(ie) osVersion=ie[1].split('.');
 
     var util={
         ios: !!ios,
+        ie: !!ie,
         android: isAndroid,
         osVersion: osVersion?parseFloat(osVersion[0]+'.'+osVersion[1]):0,
         guid: function() {
