@@ -1,23 +1,10 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
     var $=require('$'),
         util=require('util'),
-        view=require('../core/view'),
+        events=require('../core/view').prototype,
         Page=require('./page'),
         isIE6=util.ie&&util.osVersion==6,
-        tpl="<div class='grid'><div class='grid_border_r'><div class='grid_header_cont'><ol class='grid_header'></ol></div><div class='grid_body'></div></div></div>",
-        sum=function (array,key) {
-            var total=0;
-            if(key)
-                $.each(array,function (i,item) {
-                    total+=parseInt(item[key]);
-                });
-            else
-                $.each(array,function (i,item) {
-                    total+=parseInt(item);
-                });
-            return total;
-        },
-        compareData=function (v1,v2,asc) {
+        compareData=function(v1,v2,asc) {
             var flag;
             if(typeof v1=='number') {
                 flag=asc?v1-v2:(v2-v1);
@@ -25,20 +12,185 @@
                 flag=(v1+"").localeCompare(v2+"")*(asc?1:-1);
             }
             return flag;
-        };
+        },
+        fold=isIE6?function($el) {
+            $el.css({ height: 0,marginTop: -1 })
+        } :function() {
+            $el.hide();
+        },
+        spread=isIE6?function($el,height) {
+            $el.css({ height: height,marginTop: '' });
 
+        } :function() {
+            el.show();
+        },
+        ajaxOptions=['url','beforeSend','success','error','type'];
 
-    var Row=function (container,options) {
-        this.$el=$(this.el).css({ height: options.height });
+    var Cell=function(row,options) {
+        var self=this,
+            settings=row.grid.options;
+
+        this.$el=$(this.el).css($.extend({
+            width: options.curWidth,
+            height: options.height,
+            'text-align': options.align||'',
+            'float': options.curWidth=='auto'?'none':''
+
+        },options.style));
+
+        this.options=options;
+
+        this.el=this.$el[0];
+        this.row=row;
+        this.$body=options.index==0&&settings.type!="tree"&&settings.children?$('<div class="grid_spread" data-rowindex="'+row.index+'"></div>').appendTo(this.$el):this.$el;
+
+        if(options.index==0) {
+            if(settings.type=="tree") {
+
+                var treeSpaces=[];
+                for(var j=0;j<treeDeep;j++) {
+                    treeSpaces.push('<i class="grid_tree_space"></i>');
+                }
+
+                this.$el.prepend(treeSpaces.join(''));
+
+                var children=row.data[settings.subKey];
+
+                if(children&&children.length) {
+
+                    $('<i class="grid_tree" data-treeid="'+row.treeId+'"></i>').appendTo(this.$el);
+
+                    row.$el.addClass("grid_tree_fold");
+
+                    $.each(children,function(i,item) {
+                        row.grid.append(item,row.treeDeep+1,row.treeId);
+                    });
+
+                } else
+                    $("<i class='grid_tree_nochild'></i>").appendTo(this.$el);
+
+            }
+        }
+        var val=row.data[options.bind]||options.defaultVal;
+
+        if(options.render) {
+            options.render.call(self,row.data,row.grid._data);
+
+        } else if(options.type=="textbox") {
+
+            var $textbox=$('<textarea class="grid_cell_textbox" data-row="'+row.index+'" data-cell="'+self.index+'"></textarea>')
+                            .css({ height: settings.rowHeight })
+                            .val(val);
+
+            self.$textbox=$textbox;
+            self.$body.append($textbox);
+
+            self.on('change',function(e,a) {
+                this.$textbox.val(a);
+                this.validate();
+            });
+
+            self.validate=function() {
+                var error=false;
+
+                if(options.emptyAble===false&&this.$textbox.val()=="")
+                    error=this.options.emptyText||(this.options.text+"不可为空！");
+                else if(column.regex&&!column.regex.test(textbox.value))
+                    error=this.options.regexText||(this.options.text+"格式错误！");
+
+                if(!!error)
+                    this.$el.addClass("grid_cell_err").title=error;
+                else
+                    this.$el.removeClass("grid_cell_err").title="";
+
+                return !error;
+            };
+
+        } else if(options.type=="selector") {
+            var selector=$('<input class="grid_selector" data-row="'+row.index+'" type="'+(settings.multiselect?"checkbox":"radio")+'" name="__gs_'+row.grid.cid+"'>").prop({ "checked": false });
+
+            self.$body.append(selector);
+            self.$selector=row.$selector=selector;
+
+        } else if(options.valign=="center") {
+            self.$body=$('<table style="height:100%;width:100%;"><tr><td></td></tr></table>').appendTo(self.$body).find('td').html(val);
+        } else
+            self.cellItem(val);
+
+        row.$el.append(self.$el);
+    }
+
+    Cell.prototype={
+        trigger: events.trigger,
+        on: events.on,
+        el: '<li class="grid_cell"></li>',
+
+        $: function(a) {
+            return this.$el.find(a);
+        },
+
+        cellItem: function(html) {
+            if(!this.$body.hasClass('grid_cell_item'))
+                this.$body=$("<div class='grid_cell_item'>"+html+"</div>").appendTo(this.$body);
+            else
+                this.$body.html(html);
+        },
+
+        append: function(el) {
+            this.$el.append(el);
+            return this;
+        },
+
+        html: function(html) {
+            if(typeof html==="undefined")
+                return this.$body.html();
+
+            this.$body.html(html);
+            return this;
+        },
+
+        val: function(val) {
+            if(typeof a=="undefined")
+                return this.value;
+
+            if(typeof val=="string"&&/^\/Date\(\d+\)\/$/.test(val)) {
+                val=util.formatDate(val);
+            }
+
+            this.value=val;
+
+            if(this.options.bind) row.data[this.options.bind]=val;
+
+            if(this.$textbox) {
+                this.$textbox.val(val);
+
+            } else if(this.options.render) {
+                options.render.call(self,row.data,row.grid._data);
+            } else {
+                this.html(val);
+            }
+
+            this.trigger('change',val);
+            return this;
+        }
+    }
+
+    var Row=function(grid,options) {
+        this.grid=grid;
+
+        this.$el=$(this.el).css({ height: options.height }).data('index',options.index);
         this.el=this.$el[0];
         this.data=options.data;
+        this.index=options.index;
+        this.cells=[];
     }
 
     Row.prototype={
         el: '<ul class="grid_row"></ul>',
         data: null,
         selected: false,
-        select: function () {
+
+        select: function() {
             if(this.selected) return;
 
             this.selected=true;
@@ -46,11 +198,12 @@
             if(this.selector)
                 this.selector.prop({ checked: true });
 
-            this.grid.selectedRows.push(row);
-            this.grid.selectedRow=row;
-            this.grid.trigger('SelectRow',row);
+            this.grid.selectedRows.push(this);
+            this.grid.selectedRow=this;
+            this.grid.trigger('SelectRow',this);
         },
-        cancel: function () {
+
+        cancelSelect: function() {
             if(!this.selected) return;
             this.selected=false;
             this.$el.removeClass("grid_row_cur");
@@ -60,23 +213,42 @@
                 selectedRows=grid.selectedRows;
 
             for(var i=0,length=selectedRows.length;i<length;i++) {
-                if(selectedRows[n]==row) {
-                    selectedRows.splice(n,1);
+                if(selectedRows[i]==this) {
+                    selectedRows.splice(i,1);
                     break;
                 }
             }
 
-            if(grid.selectedRow==row) {
+            if(grid.selectedRow==this) {
                 grid.selectedRow=selectedRows.length!=0?selectedRows[selectedRows.length-1]:null;
             }
         },
-        cells: []
+
+        cell: function(i,column) {
+            if(column===undefined) return this.cells[i];
+
+            this.cells[i]=new Cell(this,column);
+            return this;
+        },
+
+        append: function(column) {
+            this.cells.push(new Cell(this,column));
+            return this;
+        },
+
+        spread: function() {
+            this.$el.find('.grid_spread').removeClass('grid_spread').addClass("grid_fold");
+            this.childContainer.removeClass('grid_child_non').addClass("grid_child_con");
+        },
+
+        fold: function() {
+            this.$el.find('.grid_fold').removeClass('grid_fold').addClass("grid_spread");
+            this.childContainer.removeClass('grid_child_con').addClass("grid_child_non");
+        }
     };
 
 
-
-
-    var Grid=function (container,options) {
+    var Grid=function(container,options) {
         var self=this;
 
         self.options=options=$.extend(true,{
@@ -97,7 +269,7 @@
 
         },options);
 
-        $.each(options.columns,function (i,option) {
+        $.each(options.columns,function(i,option) {
             options.columns[i]=$.extend({
                 text: "",
                 bind: "",
@@ -112,8 +284,11 @@
             },option);
         });
 
+        self.$container=$(container);
+
         self.$el=$(self.el);
         self.el=self.$el[0];
+
 
         self.$header=self.$el.find('.grid_header');
         self.$body=self.$el.find('.grid_body');
@@ -121,59 +296,89 @@
         self.cid=util.guid();
         self.listen(self.events);
 
+        if(options.type=="tree")
+            self.treeDeepRecord=[];
+
+        self.rows=[];
+        self.selectedRows=[];
+
         self.adjustWidth();
+
         self.createHead();
+        self.createSearch();
+
+        if(options.pageEnabled)
+            self.page=new Page({
+                id: $("<DIV class='page'>共0条数据</DIV>").appendTo(self.$el),
+                page: 1,
+                pageSize: 10,
+                total: 0,
+                onChange: function(page) {
+                    self.ajaxSettings.data.page=page;
+                    self.load();
+                }
+            });
+
+        self.$el.appendTo(self.$container);
     }
 
+
     Grid.prototype={
+
         events: {
-            'click .grid_header .sortable': function (e) {
+            'click .grid_header .sortable': function(e) {
                 var self=this,
                     $target=$(e.currentTarget),
                     ajaxData=self.ajaxSettings.data,
                     bind=$target.data('bind');
 
-                ajaxData.page=1;
-                ajaxData.sort=column.bind;
+                ajaxData.sort=bind;
 
-                if(settings.currentSort!=this) {
-                    $(settings.currentSort).removeClass("sort_desc sort_asc");
-                    settings.currentSort=this;
+                if(self.currentSort!=e.currentTarget) {
+                    $target.removeClass("sort_desc sort_asc");
+                    self.currentSort=e.currentTarget;
                 }
                 var asc=!$target.hasClass("sort_asc");
                 if(asc) {
-                    $target.removeClass("sort_asc").addClass("sort_desc");
-                } else {
                     $target.removeClass("sort_desc").addClass("sort_asc");
+                } else {
+                    $target.removeClass("sort_asc").addClass("sort_desc");
                 }
                 ajaxData.asc=asc;
 
-                if(self.options.pageEnabled) self.load(settings);
+                if(self.options.pageEnabled) {
+                    ajaxData.page=1;
+                    self.load();
+                }
                 else {
-                    self.data.sort(function (a,b) {
+                    self._data.sort(function(a,b) {
                         return compareData(a[bind],b[bind],asc);
                     });
-                    self.rows.sort(function (a,b) {
+
+                    self.rows.sort(function(a,b) {
                         var flag=compareData(a.data[bind],b.data[bind],asc);
-                        if(flag) {
-                            a.$el.before(b.$el);
+                        if(flag>0) {
+                            b.$el.insertBefore(a.$el);
+                        } else if(flag<0) {
+                            a.$el.insertBefore(b.$el);
                         }
                         return flag;
                     });
                 }
                 return false;
             },
-            'click .grid_header .grid_spread,.grid_fold': function (e) {
+
+            'click .grid_header .grid_spread,.grid_fold': function(e) {
                 var $target=$(e.currentTarget);
 
                 if($target.hasClass("grid_spread")) {
                     $target.removeClass("grid_spread").addClass("grid_fold");
-                    $.each(this.rows,function (i,row) {
+                    $.each(this.rows,function(i,row) {
                         row.spread();
                     });
                 } else {
                     $target.removeClass("grid_fold").addClass("grid_spread");
-                    $.each(this.rows,function (i,row) {
+                    $.each(this.rows,function(i,row) {
                         row.fold();
                     });
                 }
@@ -181,50 +386,120 @@
                 return false;
             },
 
-            'click .js_grid_selector': function (e) {
+            'click .grid_body .grid_spread,.grid_fold': function(e) {
                 var $target=$(e.currentTarget);
 
-                this.$el.find("input[name='__gs_"+$target.data('cid')+"']")
-                    .prop({ checked: this.checked });
-
-                var fn=this.checked?"select":"unselect";
-                settings.selectedRows.length=0;
-                settings.selectedRow=false;
-                $.each(this.rows,function (i,item) {
-                    item[fn]();
-                });
-                if(settings.selectedRows.length==0)
-                    settings.selectedRow=null;
-                else {
-                    var row=settings.selectedRows[0];
-                    settings.selectedRow=row;
-                    if($.isFunction(settings.onRowSelect)) settings.onRowSelect(row,row.data);
+                if($target.hasClass("grid_spread")) {
+                    this.rows[$target.data('rowindex')].spread();
+                } else {
+                    this.rows[$target.data('rowindex')].fold();
                 }
 
                 return false;
             },
 
-            'click .grid_row': function (e) {
-                if(settings.multiselect) {
-                    if(e.target.name!="__gs_"+guid)
-                        row[row.selected?"unselect":"select"]();
-                } else if(settings.selectedRow!=row) {
-                    if(settings.selectedRow)
-                        settings.selectedRow.unselect();
+            'click .js_grid_selector': function(e) {
+                var $target=$(e.currentTarget);
+
+                this.$el.find("input[name='__gs_"+this.cid+"']")
+                    .prop({ checked: this.checked });
+
+                var fn=this.checked?"select":"cancelSelect";
+                this.selectedRows.length=0;
+                this.selectedRow=false;
+                $.each(this.rows,function(i,item) {
+                    item[fn]();
+                });
+
+                if(this.selectedRows.length==0)
+                    this.selectedRow=null;
+
+                else {
+                    var row=this.selectedRows[0];
+                    if(row!=this.selectedRow) {
+                        this.selectedRow=row;
+                    }
+                }
+
+                return false;
+            },
+
+            'click .grid_row': function(e) {
+                var row=this.rows[$(e.currentTarget).data('index')];
+
+                if(this.options.multiselect) {
+                    if(e.target.name!="__gs_"+this.cid)
+                        row[row.selected?"cancelSelect":"select"]();
+
+                } else if(this.selectedRow!=row) {
+                    if(this.selectedRow)
+                        this.selectedRow.cancelSelect();
                     row.select();
                 }
                 return false;
-            }
+            },
+
+            'click .grid_tree': function(e) {
+                var self=this,
+                    $row=$(e.currentTarget).closest('.grid_row'),
+                    treeid=$row.data('treeid'),
+                    $show=this.$el.find("[parenttree^='"+treeid+"_']");
+
+                if($row.hasClass("grid_tree_fold")) {
+                    $row.removeClass("grid_tree_fold").addClass("grid_tree_spread");
+
+                    fold($show);
+
+                } else {
+                    $row.removeClass("grid_tree_spread").addClass("grid_tree_fold");
+                    $show.each(function(i,item) {
+                        item=$(item);
+
+                        if(self.$body.find('[data-treeid="'+item.data('treeid').replace(/_\d+$/,'')+'"]').hasClass('grid_tree_fold')) {
+                            spread(item,self.options.rowHeight);
+                        }
+                    });
+                }
+
+                return false;
+            },
+
+            'blur .grid_cell_textbox': function(e) {
+                var $target=$(e.currentTarget);
+
+                this.cell($target.data('row'),$target.data('cell')).validate();
+                return false;
+            },
+
+            'click .grid_selector': function(e) {
+
+                if(this.options.multiselect) {
+                    var target=e.currentTarget,
+                        row=this.rows[$(target).data('row')];
+
+                    if(target.checked) row.select();
+                    else row.cancelSelect();
+                }
+            },
+
+            'click .grid_search': 'search'
         },
 
-        listen: view.prototype.listen,
+        on: events.on,
+        trigger: events.trigger,
+        listen: events.listen,
+
+        cell: function(row,column) {
+            return this.rows[row].cells[column];
+        },
+
         ajaxSettings: {},
 
-        el: '<div class="grid"><div class="grid_border_r"><div class="grid_header_cont"><ol class="grid_header"></ol></div><div class="grid_body"></div></div></div>',
-        load: function () {
+        el: '<div class="grid_cont"><div class="grid"><div class="grid_border_r"><div class="grid_header_cont"><ol class="grid_header"></ol></div><div class="grid_body"></div></div></div></div>',
+        load: function() {
         },
 
-        adjustWidth: function () {
+        adjustWidth: function() {
             var options=this.options,
                 length=options.columns.length-1,
                 percent=0,
@@ -234,7 +509,7 @@
                 width,
                 widths=[];
 
-            $.each(options.columns,function (i,column) {
+            $.each(options.columns,function(i,column) {
                 column.width=parseInt(column.width);
                 if(!column.hide) total+=column.width;
             });
@@ -250,17 +525,16 @@
             this.columnWidths=widths;
         },
 
-        createHead: function () {
+        createHead: function() {
             var self=this,
                 options=self.options,
                 columnWidths=self.columnWidths,
                 columnWidth;
 
-            $.each(settings.columns,function (i,column) {
+            $.each(options.columns,function(i,column) {
                 var columnWidth=typeof columnWidths[i]=="number"?columnWidths[i]+'%':columnWidths[i],
                     headCell=$("<li></li>"),
-                    text,
-                    css;
+                    text;
 
                 column.index=i;
 
@@ -272,7 +546,7 @@
                     text=$("<a>"+column.text+"</a>");
 
                     if(i==0) {
-                        if(settings.children) {
+                        if(options.children) {
                             $("<div class='grid_spread'></div>").append(text).appendTo(cell);
                             column.align="left";
                         }
@@ -283,948 +557,263 @@
                 }
 
                 column.curWidth=columnWidth;
-                css={
+
+                headCell.append(text).css({
                     textAlign: column.align,
-                    width: columnWidth
-                }
-                if(columnWidth=='auto') css['float']='none';
+                    width: columnWidth,
+                    'float': columnWidth=='auto'?'none':''
 
-                headCell.append(text).css(css).appendTo(this.$header);
+                }).appendTo(self.$header);
             });
-
         },
 
-        msg: function (msg) {
-            this.$body.html('<div style="padding:10px;border-bottom: 1px solid #cdcdcd;height:100px;">'+msg+'</div>');
+        msg: function(msg) {
+            var height=this.$body[0].offsetHeight||100;
+
+            this.$body.html('<div style="border-bottom: 1px solid #cdcdcd;height:'+height+'px;line-height:'+height+'px;text-align:center">'+msg+'</div>');
         },
 
-        loadData: function () {
-            if(!settings.data||!settings.data.length) {
-                showMsg("暂无数据");
+        data: function(data) {
+            var self=this;
+
+            if(data===undefined) return self._data;
+
+            self._data=data;
+
+            if(null==data||!data.length) {
+                self.msg("暂无数据");
                 return;
             }
 
-            settings.body.html("");
-            var select=!$.isFunction(settings.onRowSelect)?
-                function (row) {
-                    settings.selectedRow=row;
-                } :
-                function (row) {
-                    settings.selectedRow=row;
-                    if(row) settings.onRowSelect(row,row.data);
-                },
-                treeRowNumber=[],
-                dataForEach=function (item,treeDeep,parentTree) {
-                    var rowEl=$("<ul class='grid_row'></ul>")
-                            .css({ height: settings.rowHeight })
-                            .click(function (e) {
-                                if(settings.multiselect) {
-                                    if(e.target.name!="__gs_"+guid)
-                                        row[row.selected?"unselect":"select"]();
-                                } else if(settings.selectedRow!=row) {
-                                    if(settings.selectedRow)
-                                        settings.selectedRow.unselect();
-                                    row.select();
-                                }
-                            })
-                            .appendTo(settings.body),
-                        row={
-                            el: rowEl,
-                            data: item,
-                            selected: false,
-                            select: function () {
-                                row.selected=true;
-                                rowEl.addClass("grid_row_cur");
-                                if(row.selector) row.selector.prop({ checked: true });
-                                settings.selectedRows.push(row);
-                                if(settings.selectedRow!==false) {
-                                    settings.selectedRow=row;
-                                    select(row);
-                                }
-                            },
-                            unselect: function () {
-                                row.selected=false;
-                                rowEl.removeClass("grid_row_cur");
-                                if(row.selector) row.selector.prop({ checked: false });
-                                for(var n=0;n<settings.selectedRows.length;n++) {
-                                    if(settings.selectedRows[n]==row) {
-                                        settings.selectedRows.splice(n,1);
-                                        break;
-                                    }
-                                }
-                                if(settings.selectedRow==row) {
-                                    if(settings.selectedRows.length!=0)
-                                        select(settings.selectedRows[settings.selectedRows.length-1]);
-                                    else
-                                        settings.selectedRow=null;
-                                }
-                            },
-                            cells: []
-                        };
-                    settings.rows.push(row);
+            self.$body.html("");
 
-                    if(settings.type!="tree"&&settings.children) {
-                        var childGrid,
-                            childContainer=$('<div class="grid_child_non"></div>').appendTo(settings.body);
-                        row.childContainer=childContainer;
-                        row.children=[];
-
-                        $.each(settings.children,function (ci,childOpt) {
-                            if(typeof childOpt.render==="function") {
-                                row.children.push(childOpt.render(childContainer,item,row));
-                            } else {
-                                if(settings.subKey)
-                                    childOpt.data=item[settings.subKey];
-                                childGrid=$("<div></div>").appendTo(childContainer).grid(childOpt);
-                                childGrid.parentRow=row;
-                                row.children.push(childGrid);
-                            }
-                        });
-                    } else if(settings.type=="tree") {
-                        treeDeep=treeDeep||0;
-                        treeRowNumber[treeDeep]=treeRowNumber[treeDeep]?treeRowNumber[treeDeep]+1:1;
-                    }
-
-                    $.each(settings.columns,function (j,column) {
-                        var css={
-                            width: column.curWidth,
-                            height: settings.rowHeight
-                        };
-                        if(column.curWidth=='auto'&&util.ie)
-                            css['float']='none';
-                        var cellEl=$("<li class='grid_cell'></li>").css(css),
-                            cellContent=cellEl,
-                            val=column.bind?(item[column.bind]||(item[column.bind]===0?0:column.defaultVal)):"",
-                            cell={
-                                data: val,
-                                row: row,
-                                append: function (a) {
-                                    cellContent.append(a);
-                                },
-                                html: function (a) {
-                                    if(typeof a==="undefined")
-                                        return cellContent.html();
-                                    cellContent.html(a);
-                                },
-                                val: function (a) {
-                                    if(typeof a=="undefined")
-                                        return val;
-
-                                    row.data[column.bind]=val=a;
-                                    if(typeof cell.onChange=="function") cell.onChange(a);
-                                },
-                                find: function (a) {
-                                    return cellEl.find(a);
-                                }
-                            };
-
-                        if(typeof val=="string"&&/^\/Date\(\d+\)\/$/.test(val)) {
-                            val=util.formatDate(val);
-                        }
-
-                        row.cells.push(cell);
-                        if(j==0) {
-                            if(settings.type=="tree") {
-                                //if(treeDeep!=0) rowEl.hide();
-                                parentTree=parentTree||0;
-                                var childTree=parentTree+'_'+treeRowNumber[treeDeep];
-                                rowEl.attr({ parenttree: childTree });
-
-                                for(var i=0;i<treeDeep;i++) {
-                                    $("<i class='grid_tree_space'></i>").appendTo(cellEl);
-                                }
-
-                                var children=item[settings.subKey];
-                                if(children&&children.length) {
-                                    var $body=settings.body;
-                                    $("<i class='grid_tree'></i>")
-                                        .click(function () {
-                                            var $show=$body.find("[parenttree^='"+childTree+"_']");
-                                            if(rowEl.hasClass("grid_tree_fold")) {
-                                                rowEl.removeClass("grid_tree_fold").addClass("grid_tree_spread");
-                                                if(isIE6) $show.css({ height: 0,marginTop: -1 });
-                                                else $show.hide();
-                                            } else {
-                                                rowEl.removeClass("grid_tree_spread").addClass("grid_tree_fold");
-                                                $show.each(function (i,$s) {
-                                                    $s=$($s);
-                                                    if($body.find("[parenttree='"+$s.attr('parenttree').replace(/_\d+$/,'')+"']").hasClass('grid_tree_fold')) {
-                                                        $s.show();
-                                                        if(isIE6) $s.css({ height: settings.rowHeight,marginTop: '' });
-                                                    }
-                                                });
-                                            }
-                                        })
-                                        .appendTo(cellEl);
-                                    rowEl.addClass("grid_tree_fold");
-                                    $.each(children,function (i,item) {
-                                        dataForEach(item,treeDeep+1,childTree);
-                                    });
-                                } else
-                                    $("<i class='grid_tree_nochild'></i>").appendTo(cellEl);
-
-                            } else if(settings.children) {
-                                cellContent=$('<div class="grid_spread"></div>')
-                                    .appendTo(cellEl)
-                                    .on("click",function (e) {
-                                        if(e.target==this) {
-                                            if(this.minus) {
-                                                $(this).removeClass("grid_fold").addClass("grid_spread");
-                                                row.childContainer.removeClass('grid_child_con').addClass("grid_child_non");
-
-                                            } else {
-                                                $(this).removeClass("grid_spread").addClass("grid_fold");
-                                                row.childContainer.removeClass('grid_child_non').addClass("grid_child_con");
-                                            }
-                                            this.minus=!this.minus;
-                                        }
-                                    }).prop("minus",false);
-                                row.spread=function () {
-                                    if(!cellContent.prop('minus'))
-                                        cellContent.trigger("click");
-                                };
-                                row.fold=function () {
-                                    if(cellContent.prop('minus'))
-                                        cellContent.trigger("click");
-                                };
-                            }
-                        }
-
-                        if(column.style) cellEl.css(column.style);
-                        if(column.align) cellEl.css({ "text-align": column.align });
-                        if(column.render) {
-                            column.render(cell,row.data,settings.data);
-                        } else if(column.type=="textbox") {
-                            var textbox=$("<textarea class='grid_cell_textbox'></textarea>")
-                                .css({ height: settings.rowHeight })
-                                .blur(function () {
-                                    cell.validate();
-                                })
-                                .val(val);
-                            cell.textbox=textbox;
-                            cell.append(textbox);
-                            cell.onChange=function (a) {
-                                textbox.value=a;
-                                textbox.validate();
-                            };
-                            cell.validate=function () {
-                                var error=false;
-
-                                if(column.emptyAble===false&&textbox.value=="")
-                                    error=column.emptyText||(column.text+"不可为空！");
-                                else if(column.regex&&!column.regex.test(textbox.value))
-                                    error=column.regexText||(column.text+"格式错误！");
-
-                                if(!!error)
-                                    cellEl.addClass("grid_cell_err").title=error;
-                                else
-                                    cellEl.removeClass("grid_cell_err").title="";
-
-                                return !error;
-                            };
-                        } else if(column.type=="selector") {
-                            var selector=$("<input type='"+(settings.multiselect?"checkbox":"radio")+"' name='__gs_"+guid+"'>").prop({ "isselector": true,"checked": false });
-                            cell.append(selector);
-                            cell.selector=row.selector=selector;
-
-                            if(settings.multiselect)
-                                selector.click(function () {
-                                    if(this.checked) row.select();
-                                    else row.unselect();
-                                });
-
-                        } else if(column.valign=="center") {
-                            cell.append('<table style="height:100%;width:100%;"><tr><td>'+val+'</td></tr></table>');
-                        } else
-                            cell.append("<i class='grid_cell_item'>"+val+"</i>");
-                        cellEl.appendTo(rowEl);
-                    });
-                };
-            $.each(settings.data,function (i,item) {
-                dataForEach(item);
+            $.each(data,function(i,item) {
+                self.append(item);
             });
-        }
-    };
+        },
 
-
-    var GridGuid=0,
-        Grid=function (container,options) {
-            GridGuid++;
-
-            var me=this,
-                container=$(container).eq(0),
-                settings=$.extend(true,{
-                    type: "grid",//grid:普通列表;tree:树形列表
-                    pageEnabled: false,
-                    rowHeight: 20,
-                    multiselect: false,
-                    //树形列表的子数据的key
-                    subKey: "children",
-                    rows: [],
-                    //默认数据
-                    data: [],
-                    columns: [],
-                    children: null,
-                    ajaxSettings: {},
-                    search: null,
-                    height: 'auto'
-                },options),
-                columnsOpt=settings.columns;
-
-            $.each(columnsOpt,function (i,columnOpt) {
-                columnsOpt[i]=$.extend({
-                    text: "",
-                    bind: "",
-                    render: null,
-                    width: 10,
-                    align: "left",
-                    valign: "top",
-                    type: "normal",
-                    style: {},
-                    css: "",
-                    defaultVal: ""
-                },columnOpt);
-            });
-
-            me._settings=settings;
-
-            var guid=GridGuid,
-            getColumnWidths=function (settings) {
-                var length=settings.columns.length-1,
-                    percent=0,
-                    totalPercent=0,
-                    total=0,
-                    column,
-                    width,
-                    widths=new Array(length);
-
-                $.each(settings.columns,function (i,item) {
-                    if(!item.hide) total+=parseInt(item.width);
+        append: function(item,treeDeep,parentTreeId) {
+            var self=this,
+                options=self.options,
+                row=new Row(self,{
+                    data: item,
+                    index: self.rows.length
                 });
 
-                for(var i=0;i<length;i++) {
-                    column=settings.columns[i];
-                    percent=Math.round(100*column.width/total);
-                    widths[i]=percent;
-                    totalPercent+=percent;
-                }
-                widths[length]=util.ie?"auto":(100-totalPercent);
+            self.rows.push(row);
 
-                return widths;
-            },
-            createColumns=function () {
+            if(options.type!="tree"&&options.children) {
+                var childGrid,
+                    childContainer=$('<div class="grid_child_non"></div>').appendTo(self.$body);
 
-                var columnWidths=getColumnWidths(settings),
-                    columnWidth;
+                row.childContainer=childContainer;
+                row.children=[];
 
-                $.each(settings.columns,function (i,column) {
-                    columnWidth=columnWidths[i];
-                    if(typeof columnWidth=="number") columnWidth+="%";
-                    column.index=i;
-                    var cell=$("<li></li>"),
-                        text;
-                    if(column.type=="selector"&&settings.multiselect) {
-                        text=$("<input type='checkbox'/>")
-                          .prop({ checked: false })
-                          .click(function () {
-                              settings.body.find("input[name='__gs_"+guid+"']").prop({ checked: this.checked });
-                              var f=this.checked?"select":"unselect";
-                              settings.selectedRows.length=0;
-                              settings.selectedRow=false;
-                              $.each(settings.rows,function (i,item) {
-                                  item[f]();
-                              });
-                              if(settings.selectedRows.length==0)
-                                  settings.selectedRow=null;
-                              else {
-                                  var row=settings.selectedRows[0];
-                                  settings.selectedRow=row;
-                                  if($.isFunction(settings.onRowSelect)) settings.onRowSelect(row,row.data);
-                              }
-                          });
-                        column.align="center";
-                        columnWidth=50;
+                $.each(options.children,function(i,child) {
+                    if(typeof child.render==="function") {
+                        row.children.push(child.render(childContainer,item,row));
                     } else {
-                        text=$("<a>"+column.text+"</a>").appendTo(cell);
+                        if(options.subKey)
+                            child.data=item[options.subKey];
 
-                        if(i==0) {
-                            if(settings.children) {
-                                $("<div class='grid_spread'></div>")
-                                    .click(function () {
-                                        if($(this).hasClass("grid_spread")) {
-                                            $(this).removeClass("grid_spread").addClass("grid_fold");
-                                            $.each(settings.rows,function (ri,row) {
-                                                row.spread();
-                                            });
-                                        } else {
-                                            $(this).removeClass("grid_fold").addClass("grid_spread");
-                                            $.each(settings.rows,function (ri,row) {
-                                                row.fold();
-                                            });
-                                        }
-                                    })
-                                    .appendTo(cell)
-                                    .append(text);
-                                column.align="left";
-                            }
-                        }
-                        var bind=column.bind;
-                        if((column.sortAble||column.sortable)&&bind) {
-                            text
-                                .addClass("sortable")
-                                .click(function () {
-                                    var ajaxData=settings.ajaxSettings.data;
-                                    ajaxData.page=1;
-                                    ajaxData.sort=column.bind;
-
-                                    if(settings.currentSort!=this) {
-                                        $(settings.currentSort).removeClass("sort_desc sort_asc");
-                                        settings.currentSort=this;
-                                    }
-                                    var asc;
-                                    if($(this).hasClass("sort_asc")) {
-                                        asc=false;
-                                        $(this).removeClass("sort_asc").addClass("sort_desc");
-                                    } else {
-                                        asc=true;
-                                        $(this).removeClass("sort_desc").addClass("sort_asc");
-                                    }
-                                    ajaxData.asc=asc;
-
-                                    if(settings.pageEnabled) load(settings);
-                                    else {
-                                        settings.data.sort(function (a,b) {
-                                            return compareData(a[bind],b[bind],asc);
-                                        });
-                                        settings.rows.sort(function (a,b) {
-                                            var flag=compareData(a.data[bind],b.data[bind],asc);
-                                            if(flag) {
-                                                a.el.before(b.el);
-                                            }
-                                            return flag;
-                                        });
-                                    }
-                                });
-                        }
-                    }
-
-                    column.curWidth=columnWidth;
-                    var css={
-                        "text-align": column.align,
-                        width: columnWidth
-                    }
-                    if(columnWidth=='auto'&&util.ie)
-                        css['float']='none';
-
-                    cell.css(css)
-                        .appendTo(settings.header);
-                });
-            },
-            showMsg=function (msg) {
-                settings.body.html('<div style="padding:10px;border-bottom: 1px solid #cdcdcd;">'+msg+'</div>');
-            },
-            loadData=function () {
-                if(!settings.data||!settings.data.length) {
-                    showMsg("暂无数据");
-                    return;
-                }
-
-                settings.body.html("");
-                var select=!$.isFunction(settings.onRowSelect)?
-                function (row) {
-                    settings.selectedRow=row;
-                } :
-                function (row) {
-                    settings.selectedRow=row;
-                    if(row) settings.onRowSelect(row,row.data);
-                },
-                treeRowNumber=[],
-                dataForEach=function (item,treeDeep,parentTree) {
-                    var rowEl=$("<ul class='grid_row'></ul>")
-                            .css({ height: settings.rowHeight })
-                            .click(function (e) {
-                                if(settings.multiselect) {
-                                    if(e.target.name!="__gs_"+guid)
-                                        row[row.selected?"unselect":"select"]();
-                                } else if(settings.selectedRow!=row) {
-                                    if(settings.selectedRow)
-                                        settings.selectedRow.unselect();
-                                    row.select();
-                                }
-                            })
-                            .appendTo(settings.body),
-                        row={
-                            el: rowEl,
-                            data: item,
-                            selected: false,
-                            select: function () {
-                                row.selected=true;
-                                rowEl.addClass("grid_row_cur");
-                                if(row.selector) row.selector.prop({ checked: true });
-                                settings.selectedRows.push(row);
-                                if(settings.selectedRow!==false) {
-                                    settings.selectedRow=row;
-                                    select(row);
-                                }
-                            },
-                            unselect: function () {
-                                row.selected=false;
-                                rowEl.removeClass("grid_row_cur");
-                                if(row.selector) row.selector.prop({ checked: false });
-                                for(var n=0;n<settings.selectedRows.length;n++) {
-                                    if(settings.selectedRows[n]==row) {
-                                        settings.selectedRows.splice(n,1);
-                                        break;
-                                    }
-                                }
-                                if(settings.selectedRow==row) {
-                                    if(settings.selectedRows.length!=0)
-                                        select(settings.selectedRows[settings.selectedRows.length-1]);
-                                    else
-                                        settings.selectedRow=null;
-                                }
-                            },
-                            cells: []
-                        };
-                    settings.rows.push(row);
-
-                    if(settings.type!="tree"&&settings.children) {
-                        var childGrid,
-                            childContainer=$('<div class="grid_child_non"></div>').appendTo(settings.body);
-                        row.childContainer=childContainer;
-                        row.children=[];
-
-                        $.each(settings.children,function (ci,childOpt) {
-                            if(typeof childOpt.render==="function") {
-                                row.children.push(childOpt.render(childContainer,item,row));
-                            } else {
-                                if(settings.subKey)
-                                    childOpt.data=item[settings.subKey];
-                                childGrid=$("<div></div>").appendTo(childContainer).grid(childOpt);
-                                childGrid.parentRow=row;
-                                row.children.push(childGrid);
-                            }
-                        });
-                    } else if(settings.type=="tree") {
-                        treeDeep=treeDeep||0;
-                        treeRowNumber[treeDeep]=treeRowNumber[treeDeep]?treeRowNumber[treeDeep]+1:1;
-                    }
-
-                    $.each(settings.columns,function (j,column) {
-                        var css={
-                            width: column.curWidth,
-                            height: settings.rowHeight
-                        };
-                        if(column.curWidth=='auto'&&util.ie)
-                            css['float']='none';
-                        var cellEl=$("<li class='grid_cell'></li>").css(css),
-                            cellContent=cellEl,
-                            val=column.bind?(item[column.bind]||(item[column.bind]===0?0:column.defaultVal)):"",
-                            cell={
-                                data: val,
-                                row: row,
-                                append: function (a) {
-                                    cellContent.append(a);
-                                },
-                                html: function (a) {
-                                    if(typeof a==="undefined")
-                                        return cellContent.html();
-                                    cellContent.html(a);
-                                },
-                                val: function (a) {
-                                    if(typeof a=="undefined")
-                                        return val;
-
-                                    row.data[column.bind]=val=a;
-                                    if(typeof cell.onChange=="function") cell.onChange(a);
-                                },
-                                find: function (a) {
-                                    return cellEl.find(a);
-                                }
-                            };
-
-                        if(typeof val=="string"&&/^\/Date\(\d+\)\/$/.test(val)) {
-                            val=util.formatDate(val);
-                        }
-
-                        row.cells.push(cell);
-                        if(j==0) {
-                            if(settings.type=="tree") {
-                                //if(treeDeep!=0) rowEl.hide();
-                                parentTree=parentTree||0;
-                                var childTree=parentTree+'_'+treeRowNumber[treeDeep];
-                                rowEl.attr({ parenttree: childTree });
-
-                                for(var i=0;i<treeDeep;i++) {
-                                    $("<i class='grid_tree_space'></i>").appendTo(cellEl);
-                                }
-
-                                var children=item[settings.subKey];
-                                if(children&&children.length) {
-                                    var $body=settings.body;
-                                    $("<i class='grid_tree'></i>")
-                                        .click(function () {
-                                            var $show=$body.find("[parenttree^='"+childTree+"_']");
-                                            if(rowEl.hasClass("grid_tree_fold")) {
-                                                rowEl.removeClass("grid_tree_fold").addClass("grid_tree_spread");
-                                                if(isIE6) $show.css({ height: 0,marginTop: -1 });
-                                                else $show.hide();
-                                            } else {
-                                                rowEl.removeClass("grid_tree_spread").addClass("grid_tree_fold");
-                                                $show.each(function (i,$s) {
-                                                    $s=$($s);
-                                                    if($body.find("[parenttree='"+$s.attr('parenttree').replace(/_\d+$/,'')+"']").hasClass('grid_tree_fold')) {
-                                                        $s.show();
-                                                        if(isIE6) $s.css({ height: settings.rowHeight,marginTop: '' });
-                                                    }
-                                                });
-                                            }
-                                        })
-                                        .appendTo(cellEl);
-                                    rowEl.addClass("grid_tree_fold");
-                                    $.each(children,function (i,item) {
-                                        dataForEach(item,treeDeep+1,childTree);
-                                    });
-                                } else
-                                    $("<i class='grid_tree_nochild'></i>").appendTo(cellEl);
-
-                            } else if(settings.children) {
-                                cellContent=$('<div class="grid_spread"></div>')
-                                    .appendTo(cellEl)
-                                    .on("click",function (e) {
-                                        if(e.target==this) {
-                                            if(this.minus) {
-                                                $(this).removeClass("grid_fold").addClass("grid_spread");
-                                                row.childContainer.removeClass('grid_child_con').addClass("grid_child_non");
-
-                                            } else {
-                                                $(this).removeClass("grid_spread").addClass("grid_fold");
-                                                row.childContainer.removeClass('grid_child_non').addClass("grid_child_con");
-                                            }
-                                            this.minus=!this.minus;
-                                        }
-                                    }).prop("minus",false);
-                                row.spread=function () {
-                                    if(!cellContent.prop('minus'))
-                                        cellContent.trigger("click");
-                                };
-                                row.fold=function () {
-                                    if(cellContent.prop('minus'))
-                                        cellContent.trigger("click");
-                                };
-                            }
-                        }
-
-                        if(column.style) cellEl.css(column.style);
-                        if(column.align) cellEl.css({ "text-align": column.align });
-                        if(column.render) {
-                            column.render(cell,row.data,settings.data);
-                        } else if(column.type=="textbox") {
-                            var textbox=$("<textarea class='grid_cell_textbox'></textarea>")
-                                .css({ height: settings.rowHeight })
-                                .blur(function () {
-                                    cell.validate();
-                                })
-                                .val(val);
-                            cell.textbox=textbox;
-                            cell.append(textbox);
-                            cell.onChange=function (a) {
-                                textbox.value=a;
-                                textbox.validate();
-                            };
-                            cell.validate=function () {
-                                var error=false;
-
-                                if(column.emptyAble===false&&textbox.value=="")
-                                    error=column.emptyText||(column.text+"不可为空！");
-                                else if(column.regex&&!column.regex.test(textbox.value))
-                                    error=column.regexText||(column.text+"格式错误！");
-
-                                if(!!error)
-                                    cellEl.addClass("grid_cell_err").title=error;
-                                else
-                                    cellEl.removeClass("grid_cell_err").title="";
-
-                                return !error;
-                            };
-                        } else if(column.type=="selector") {
-                            var selector=$("<input type='"+(settings.multiselect?"checkbox":"radio")+"' name='__gs_"+guid+"'>").prop({ "isselector": true,"checked": false });
-                            cell.append(selector);
-                            cell.selector=row.selector=selector;
-
-                            if(settings.multiselect)
-                                selector.click(function () {
-                                    if(this.checked) row.select();
-                                    else row.unselect();
-                                });
-
-                        } else if(column.valign=="center") {
-                            cell.append('<table style="height:100%;width:100%;"><tr><td>'+val+'</td></tr></table>');
-                        } else
-                            cell.append("<i class='grid_cell_item'>"+val+"</i>");
-                        cellEl.appendTo(rowEl);
-                    });
-                };
-                $.each(settings.data,function (i,item) {
-                    dataForEach(item);
-                });
-            },
-            load=function () {
-                showMsg("正在载入...");
-                if(settings.page) settings.page.clear();
-
-                var ajaxSettings=settings.ajaxSettings,
-                    ajaxData=ajaxSettings.data;
-
-                $.ajax({
-                    url: ajaxSettings.url,
-                    type: ajaxSettings.type||'POST',
-                    beforeSend: ajaxSettings.beforeSend,
-                    data: ajaxData,
-                    dataType: 'json',
-                    cache: false,
-                    success: function (res) {
-                        if(res.success) {
-                            settings.data=$.extend([],res.data);
-                            loadData();
-
-                            if(settings.pageEnabled) {
-                                settings.page.change({
-                                    page: ajaxData.page,
-                                    pageSize: ajaxData.pageSize,
-                                    total: res.total
-                                });
-                                settings.onPageChange&&settings.onPageChange(ajaxData.page);
-                            }
-
-                            if(ajaxSettings.success) ajaxSettings.success.call(me,res.data);
-                        } else
-                            showMsg(res.msg);
-                    },
-                    error: function (xhr) {
-                        if(ajaxSettings.error) ajaxSettings.error.call(me,xhr);
+                        childGrid=new Grid($("<div></div>").appendTo(childContainer),child);
+                        childGrid.parentRow=row;
+                        row.children.push(childGrid);
                     }
                 });
-            };
 
-            me._load=load;
-            me._loadData=loadData;
+            } else if(options.type=="tree") {
+                treeDeep=treeDeep||0;
+                self.treeDeepRecord[treeDeep]=self.treeDeepRecord[treeDeep]?self.treeDeepRecord[treeDeep]+1:1;
+                row.treeDeep=treeDeep;
+                parentTreeId=parentTreeId||0;
 
-            var searchOpt=settings.search;
-            if(!searchOpt) {
-                me._search=me.load;
-
-            } else {
-                var controls=[],
-                    searchControls={},
-                    searchData=searchOpt.data;
-
-                if(searchData) {
-                    $.each(searchData,function (controlName,controlOpt) {
-                        if($.isPlainObject(controlOpt)) {
-                            searchControls[controlName]=controlOpt;
-                            searchData[controlName]="";
-                        }
-                    });
-                }
-
-                me._search=function () {
-                    settings.ajaxSettings=$.extend(true,{},searchOpt,settings.ajaxSettings);
-                    var ajaxSettings=settings.ajaxSettings;
-
-                    searchData=ajaxSettings.data||(ajaxSettings.data={});
-                    if(settings.pageEnabled) searchData.page=1;
-
-                    if(ajaxSettings.beforeSend) ajaxSettings.beforeSend.call(me,searchData);
-                    delete ajaxSettings.beforeSend;
-
-                    $.each(controls,function (j,item) {
-                        searchData[item.name]=item.control.val();
-                    });
-
-                    me._load();
-                };
-
-                me.searchCurrentPage=function () {
-                    settings.ajaxSettings=$.extend(true,{},searchOpt,settings.ajaxSettings);
-                    var ajaxSettings=settings.ajaxSettings;
-
-                    searchData=ajaxSettings.data||(ajaxSettings.data={});
-
-                    if(ajaxSettings.beforeSend) ajaxSettings.beforeSend.call(me);
-                    delete ajaxSettings.beforeSend;
-
-                    $.each(controls,function (j,item) {
-                        searchData[item.name]=item.control.val();
-                    });
-
-                    me._load();
-                };
-
-                if(searchControls&&!$.isEmptyObject(searchControls)) {
-
-                    var searchEl=$('<div class="search"></div>').appendTo(container),
-                        searchVisible=false;
-                    me._searchEl=searchEl;
-
-                    $.each(searchControls,function (j,inputopt) {
-
-                        var opt=$.extend({
-                            label: '',
-                            name: ''||j,
-                            type: 'text',
-                            value: '',
-                            render: null,
-                            width: null,
-                            options: null,
-                            newLine: false
-                        },inputopt);
-
-                        if(inputopt.newLine) {
-                            searchEl.append('<br>')
-                        }
-
-                        opt.label&&$('<i>'+opt.label+'</i>').appendTo(searchEl)||searchEl.append(' ');
-
-                        var name=opt.name,
-                            control={
-                                name: name,
-                                type: opt.type
-                            };
-
-                        if($.isFunction(opt.render)) {
-                            var input=opt.render.call(me,searchEl);
-                            if(typeof input=="string")
-                                searchEl.append(input);
-
-                            control.type='render';
-                            control.control=earchEl.find('[name="'+name+'"]');
-                        } else {
-
-                            if(opt.type=="calendar") {
-                                input=$('<input name="'+name+'" class="text" type="text"/>');
-                                seajs.use(['lib/jquery.datepicker','lib/jquery.datepicker.css'],function () {
-                                    input.datePicker($.extend(opt.options,{
-                                        clickInput: true
-                                    }));
-                                });
-                            } else if(opt.type=="select") {
-                                input=$('<select name="'+name+'"></select>');
-                                if($.isArray(opt.options)) {
-                                    $.each(opt.options,function (j,selopt) {
-                                        input.each(function () {
-                                            this.options.add(new Option(selopt.text,selopt.value));
-                                        });
-                                    });
-                                }
-                                if(opt.change) input.change(opt.change);
-                            } else {
-                                input=$('<input type="'+opt.type+'" name="'+name+'" class="text"/>');
-                            }
-                            input.appendTo(searchEl).val(opt.value);
-
-                            control.control=input;
-
-                            if(opt.width) input.css({ width: width });
-                        }
-                        controls.push(control);
-
-                        if(control.type!='hidden')
-                            searchVisible=true;
-                    });
-
-                    delete searchOpt.controls;
-
-                    if(searchVisible) {
-                        me._searchBtn=$('<button class="button">搜索</button>')
-                        .appendTo(searchEl)
-                        .click($.proxy(me._search,me));
-                    } else
-                        searchEl.hide();
-                }
+                row.parentTreeId=parentTreeId;
+                row.treeId=parentTreeId+'_'+self.treeDeepRecord[treeDeep];
+                row.$el.attr({ 'data-treeid': subtree });
             }
-            container.append(tpl);
 
-            settings.selectedRows=[];
+            $.each(options.columns,function(i,column) {
+                row.append(column);
+            });
 
-            settings.header=container.find(".grid_header");
-            settings.body=container.find(".grid_body");
-            if(settings.pageEnabled)
-                settings.page=new Page({
-                    id: $("<DIV class='page'>共0条数据</DIV>")
-                        .appendTo(container.find(".grid")),
-                    page: 1,
-                    pageSize: 10,
-                    total: 0,
-                    onChange: function (page) {
-                        settings.ajaxSettings.data.page=page;
-                        load();
-                    }
+            self.$body.append(row.$el);
+        },
+
+        load: function() {
+            var self=this,
+                ajaxSettings=self.ajaxSettings,
+                param=ajaxSettings.data;
+
+            self.msg("正在载入...");
+
+            if(self.page)
+                self.page.clear();
+
+            if(ajaxSettings.beforeSend) ajaxSettings.beforeSend.call(self,param);
+
+            $.ajax({
+                url: ajaxSettings.url,
+                type: ajaxSettings.type||'POST',
+                data: param,
+                dataType: 'json',
+                cache: false,
+                success: function(res) {
+                    if(res.success) {
+                        self.data(res.data);
+
+                        if(self.options.pageEnabled) {
+                            self.page.change({
+                                page: param.page,
+                                pageSize: param.pageSize,
+                                total: res.total
+                            });
+
+                            self.trigger('PageChange',param.page);
+                        }
+
+                        if(ajaxSettings.success) ajaxSettings.success.call(self,res.data);
+                    } else
+                        self.msg(typeof res.msg==='string'?res.msg:JSON.stringify(res.msg));
+                },
+                error: function(xhr) {
+                    if(ajaxSettings.error) ajaxSettings.error.call(self,xhr);
+                    else self.msg(xhr.responseText)
+                }
+            });
+        },
+
+        search: function(options) {
+            var self=this,
+                ajaxSettings=$.extend(true,{},self.ajaxSettings,!options||options.target?{}:options);
+
+            self.ajaxSettings=ajaxSettings;
+
+            var param=ajaxSettings.data||(ajaxSettings.data={});
+
+            if(self.options.pageEnabled) param.page=1;
+
+            if(self.controls)
+                $.each(self.controls,function(key,item) {
+                    param[key]=item.$el.val();
                 });
 
-            createColumns();
-            loadData();
-        };
+            self.load();
+        },
 
-    Grid.prototype={
-        search: function () {
-            var me=this;
-            me._search&&me._search();
-            return me;
-        },
-        searchInput: function (name) {
-            var me=this;
-            return me._searchEl?me._searchEl.find('[name="'+name+'"]'):$('');
-        },
-        selectedRow: function () {
-            return this._settings.selectedRow;
-        },
-        row: function (i) {
-            return this._settings.rows[i];
-        },
-        cell: function (rowIndex,columnIndex) {
-            return this._settings.rows[rowIndex].cells[columnIndex];
-        },
-        acceptChanges: function () {
-        },
-        loadData: function (data) {
-            var me=this,
-                settings=me._settings;
-            settings.data=$.extend([],data);
-            me._loadData();
-        },
-        prepareAjax: function (url,data,fn) {
-            var me=this,
-                args=arguments,
-                i=0,
-                ajaxSettings=url&&typeof url=="object"?$.extend({},url):function () {
-                    if($.isFunction(data)) {
-                        fn=data;
-                        data=fn;
+        createSearch: function() {
+            var self=this,
+                options=this.options.search;
+
+            self.ajaxSettings.data={};
+
+            if(!options) return;
+
+            $.extend(self.ajaxSettings,util.pick(options,ajaxOptions));
+
+            var controls={},
+                data=options.data;
+
+            if(data) {
+                $.each(data,function(key,item) {
+                    if($.isPlainObject(item)) {
+                        controls[key]=item;
+                        data[key]="";
+                    } else {
+                        self.ajaxSettings.data[key]=item;
                     }
-                    return {
-                        url: url,
-                        success: fn,
-                        data: data
+                });
+            }
+
+            if(!controls||$.isEmptyObject(controls)) return;
+
+            self.controls=controls;
+
+            var $search=$('<div class="search"></div>'),
+                visible=false;
+
+            $.each(controls,function(key,option) {
+
+                option=$.extend({
+                    label: '',
+                    name: ''||key,
+                    className: 'text',
+                    type: 'text',
+                    value: '',
+                    render: null,
+                    width: null,
+                    options: null,
+                    newLine: false
+
+                },option);
+
+                if(option.newLine)
+                    $search.append('<br>')
+
+                option.label?$('<i>'+option.label+'</i>').appendTo($search):$search.append(' ');
+
+                var name=option.name,
+                    control={
+                        name: name,
+                        type: option.type
+                    };
+
+                if($.isFunction(option.render)) {
+                    var input=option.render.call(self,$search);
+
+                    if(typeof input=="string")
+                        $search.append(input);
+
+                    control.type='render';
+                    control.$el=$search.find('[name="'+name+'"]');
+
+                } else {
+
+                    if(option.type=="calendar") {
+                        input=$('<input name="'+name+'" class="'+option.className+'" type="text"/>');
+                        seajs.use(['./components/jquery.datepicker','./components/jquery.datepicker.css'],function() {
+                            input.datePicker($.extend(option.options,{
+                                clickInput: true
+                            }));
+                        });
+
+                    } else if(option.type=="select") {
+                        input=$('<select name="'+name+'"></select>');
+                        if($.isArray(opt.options)) {
+                            $.each(opt.options,function(j,item) {
+                                input.each(function() {
+                                    this.options.add(new Option(item.text,item.value));
+                                });
+                            });
+                        }
+                        if(option.change) input.on('change',option.change);
+
+                    } else {
+                        input=$('<input type="'+option.type+'" name="'+name+'" class="'+option.className+'"/>');
                     }
-                } ();
+                    if(option.width) input.css({ width: width });
+                    input.appendTo($search).val(option.value);
 
-            var settings=me._settings;
-            ajaxSettings.data=$.extend(settings.pageEnabled?{ page: 1,pageSize: 10}:{},ajaxSettings.data);
-            settings.ajaxSettings=ajaxSettings;
+                    control.$el=input;
+                }
 
-            return me;
-        },
-        load: function () {
-            var me=this;
-            if(arguments.length) me.prepareAjax.apply(me,arguments);
-            me._load();
+                if(control.type!='hidden')
+                    visible=true;
+
+                controls[key]=control;
+            });
+
+            if(visible) {
+                self.$searchBtn=$('<button class="grid_search button">搜索</button>')
+                    .appendTo($search);
+            } else
+                $search.hide();
+
+            self.$search=$search;
+
+            self.$el.prepend($search);
         }
     };
-
-    Grid.cellItem=function (html) {
-        return '<i class="grid_cell_item">'+html+'</i>';
-    }
 
     module.exports=Grid;
 });

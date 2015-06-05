@@ -3,15 +3,18 @@
 var app=express.Router();
 var connect=require('./connect');
 
-app.get('/',function (req,res) {
+app.get('/',function(req,res) {
 
-    connect(function (err,db) {
+    connect(function(err,db) {
         if(err) {
-            res.send(err);
+            res.json({
+                success: false,
+                msg: err
+            });
             return;
         }
 
-        db.admin().listDatabases(function (err,dbs) {
+        db.admin().listDatabases(function(err,dbs) {
 
             res.json(err?{
                 success: false,

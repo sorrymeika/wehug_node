@@ -1,4 +1,4 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -10,28 +10,35 @@
 
         events: {},
 
-        onCreate: function () {
+        onCreate: function() {
 
             this.grid=new Grid(this.$el,{
                 search: {
                     url: '/mongo',
                     type: 'GET',
-                    beforeSend: function () {
+                    beforeSend: function() {
                     },
-                    data: {}
+                    data: {
+                        keywords: {
+                            label: '关键字',
+                            type: 'text'
+                        }
+                    }
                 },
-                onSelectRow: function () {
+                onSelectRow: function() {
                 },
                 columns: [{
                     text: "数据库",
                     bind: "name",
-                    width: 10
+                    width: 10,
+                    sortable: true
                 },{
                     text: "大小",
                     bind: "sizeOnDisk",
                     width: 10,
-                    render: function (cell,data) {
-                        cell.append(Grid.cellItem(Math.round(data.sizeOnDisk/(1000*1000))/1000+'GB'));
+                    render: function(data) {
+                        console.log(data)
+                        this.cellItem(Math.round(data.sizeOnDisk/(1000*1000))/1000+'GB');
                     }
                 }]
 
@@ -40,10 +47,10 @@
 
         },
 
-        onShow: function () {
+        onShow: function() {
         },
 
-        onDestory: function () {
+        onDestory: function() {
         }
     });
 });
