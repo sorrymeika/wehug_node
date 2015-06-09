@@ -204,6 +204,7 @@
     };
 
     exports.bind=function(selector,options) {
+        //<--debug
         options={
             useScroll: false,
             refresh: function(resolve,reject) {
@@ -213,7 +214,6 @@
             }
         }
         //options.refresh=false;
-        //<--debug
         //debug-->
 
         var result=[];
