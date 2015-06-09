@@ -6,13 +6,13 @@ var tools=new Tools(path.join(__dirname,'./'),path.join(__dirname,'./dest'));
 
 tools.build({
     api: 'http://www.abs.cn',
-    compress: [
-        'seajs/sea'
-    ],
+    compress: {
+        'seajs/sea': '../webresource/js/seajs/sea'
+    },
     combine: {
         'style.css': [
-        'anim.css',
-        'style.css'
+            'anim.css',
+            'style.css'
         ],
         sl: {
             'zepto': '../webresource/js/zepto',

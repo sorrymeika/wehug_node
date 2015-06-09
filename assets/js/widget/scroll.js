@@ -196,15 +196,14 @@
             el.__hasMomentum=true;
 
         e.cancelTap=el.__isScroll;
-
         if(el.isRefresh) {
+            el.isRefresh=false;
             el.$refresh.html('<div class="dataloading"></div>');
             el.$scroller.css({ '-webkit-transform': 'translate(0px,50px) translateZ(0)' }).triggerHandler('refresh');
         }
     };
 
     exports.bind=function(selector,options) {
-        //<--debug
         options={
             useScroll: false,
             refresh: function(resolve,reject) {
@@ -214,6 +213,7 @@
             }
         }
         //options.refresh=false;
+        //<--debug
         //debug-->
 
         var result=[];
@@ -273,7 +273,7 @@
                 scroller.$=$scroller;
                 scroller.options=options;
 
-                if(scrollView) scroller._scrollView=scrollView;
+                if(scrollView) scroller.scrollView=scrollView;
 
                 $scroller.css({ marginTop: -50 })
                     .prepend($refresh)

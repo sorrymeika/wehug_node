@@ -35,6 +35,7 @@
             var that=this;
 
             var a=Date.now();
+            /*
 
             var rsa=new RSA();
 
@@ -56,6 +57,7 @@ f3ca4807cbf260d6c0f277fb115f01186df261907cd9a4ec4cb9c115c8444367\
 
             console.log(base64.encode(res));
             console.log(base64.decode(base64.encode(res)));
+            */
         },
 
         onShow: function () {

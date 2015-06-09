@@ -131,7 +131,7 @@
                 isOpen,
                 deltaX=that.touch.dx;
 
-            if(that.touch.isDirectionY) {
+            if(that.touch.isDirectionY||that.swiperPromise) {
                 that.touch.stop();
                 return;
             }
@@ -229,8 +229,8 @@
             if(that.swiperPromise) {
                 that.swiperPromise.then(function() {
                     that.queue([200,that.isCancelSwipe?0:100,that._swiperAnimEnd.bind(that)],that.swiper.animate,that.swiper);
+                    that.swiperPromise=null;
                 });
-                that.swiperPromise=null;
             }
         },
 

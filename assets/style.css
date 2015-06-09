@@ -20,7 +20,7 @@ footer { position: absolute; bottom: 0px; left: 0px; width: 100%; z-index: 200; 
 
 .scrollview { overflow: hidden; -webkit-transform: translate(0px,0px) translateZ(0); }
 
-.main { position: absolute; bottom: 0px; right: 0px; left: 0px; top: 0px; overflow: hidden; overflow-y: auto; -webkit-transform: translate(0px,0px) translateZ(0); z-index: 1; }
+.main { position: absolute; bottom: 0px; right: 0px; left: 0px; top: 43px; overflow: hidden; overflow-y: auto; -webkit-transform: translate(0px,0px) translateZ(0); z-index: 1; }
 .content { width: 100%; padding: 10px 3%; border-top: 2px solid #d31145; margin-top: 5px; background: #fff; }
 
 .clearfix:after { height: 0px; display: block; font-size: 0px; content: ''; clear: both; }

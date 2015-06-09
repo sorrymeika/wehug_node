@@ -237,7 +237,7 @@
 
     var animationEnd=function(per) {
         if(per==1) this.el.css(this.css);
-        this._finish(per);
+        this._finish&&this._finish(per);
     }
 
     var prepare=function(animations) {
