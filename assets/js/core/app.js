@@ -346,6 +346,7 @@
             if(queue.length) {
                 queue.shift();
                 if(queue.length) {
+                    queue=queue.first();
                     queue.fn.apply(queue.context,queue.args);
                 }
             }
@@ -450,7 +451,6 @@
                     callback&&callback(activity);
                     activity.finishEnterAnimation();
                     that.turning();
-
                     //console.log(that._history);
                 }
 
