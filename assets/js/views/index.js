@@ -17,7 +17,7 @@
         template: 'template/index',
 
         events: {
-            'tap': function() {
+            'tap dd': function() {
                 this.forward('/test');
             },
 

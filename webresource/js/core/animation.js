@@ -480,11 +480,14 @@
         if((current<min&&result<min)||(current>max&&result>max))
             newDist=0,newTime=0,outside=0,result=current;
 
-        else if(divisor&&outsideDist==0) {
-            result=result%divisor==0?result:(result%divisor<divisor/2)?result-result%divisor:(result-result%divisor+divisor);
-            result=result>max?max:result<min?min:result;
-            if(newTime<300||newTime>400) newTime=300;
-            newDist=result-current;
+        else {
+            if(divisor&&outsideDist==0) {
+                result=result%divisor==0?result:(result%divisor<divisor/2)?result-result%divisor:(result-result%divisor+divisor);
+                result=result>max?max:result<min?min:result;
+                if(newTime<300) newTime=300;
+                newDist=result-current;
+            }
+            if(divisor&&newTime>400) newTime=400;
         }
 
         return { dist: newDist,time: Math.round(newTime),outside: outsideDist,result: result,current: current,start: current,max: max,min: min,divisor: divisor };
