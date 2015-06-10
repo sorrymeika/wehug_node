@@ -49,7 +49,7 @@
             var that=this;
 
             seajs.use(that.template,function(razor) {
-                that.$el.html(razor.html());
+                that.$el.html(razor.html()).appendTo(that.application.$el);
                 that.razor=razor;
                 that.trigger("Create");
                 that.promise.resolve(razor);

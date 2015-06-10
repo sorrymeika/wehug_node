@@ -1,7 +1,8 @@
 ﻿define(function(require,exports,module) {
     var $=require('$'),
         util=require('util'),
-        animation=require('animation');
+        animation=require('animation'),
+        events=require('./event');
 
     var slice=Array.prototype.slice;
 
@@ -21,6 +22,9 @@
 
     Touch.prototype={
         minDelta: 0,
+
+        on: events.on,
+        trigger: events.trigger,
 
         _stopMomentum: function() {
             if(this.momentum) {
@@ -126,6 +130,7 @@
             this.momentum=null;
             this._isClickStopAni=false;
             this.options.stop.call(this.ctx);
+            this.trigger('stop');
         },
 
         _end: function(e) {

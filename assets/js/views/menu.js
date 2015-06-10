@@ -10,17 +10,21 @@
         ScrollView=require('../widget/scrollview');
 
     return Activity.extend({
-        template: 'template/test',
+        template: 'template/menu',
+
+        animationName: 'menu',
+        className: 'transparent',
 
         events: {
             'tap': function() {
-                this.forward('/test1');
+                this.back('/');
             }
         },
 
+        swipeLeftBackAction: '/',
+
         onCreate: function() {
             var that=this;
-
         },
 
         onShow: function() {

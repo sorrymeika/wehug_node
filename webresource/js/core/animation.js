@@ -483,7 +483,7 @@
         else if(divisor&&outsideDist==0) {
             result=result%divisor==0?result:(result%divisor<divisor/2)?result-result%divisor:(result-result%divisor+divisor);
             result=result>max?max:result<min?min:result;
-            if(newTime<300) newTime=300;
+            if(newTime<300||newTime>400) newTime=300;
             newDist=result-current;
         }
 

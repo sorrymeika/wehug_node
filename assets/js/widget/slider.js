@@ -143,7 +143,7 @@
         render: function(dataItem) {
             return this.renderItem(this.itemTemplate(dataItem));
         },
-        renderItem: _.template('<li class="js_slide_item slider-item">$data</li>'),
+        renderItem: _.template('<li class="js_slide_item slider-item"><%=$data%></li>'),
         itemTemplate: '<%= %>',
         navTemplate: _.template('<ol class="js_slide_navs slider-nav"><%for(var i=0,len=items.length;i<len;i++){%><li class="slide-nav-item <%=current%> slide-nav-item"></li><%}%></ol>'),
         template: _.template('<div class="slider"><ul class="js_slider slider-con"><%=items%></ul><%=navs%></div>'),

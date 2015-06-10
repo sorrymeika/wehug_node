@@ -10,13 +10,9 @@
         ScrollView=require('../widget/scrollview');
 
     return Activity.extend({
-        template: 'template/test',
+        template: 'template/test1',
 
-        events: {
-            'tap': function() {
-                this.forward('/test1');
-            }
-        },
+        events: {},
 
         onCreate: function() {
             var that=this;

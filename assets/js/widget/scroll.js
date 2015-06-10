@@ -204,7 +204,6 @@
     };
 
     exports.bind=function(selector,options) {
-        //<--debug
         options={
             useScroll: false,
             refresh: function(resolve,reject) {
@@ -213,6 +212,7 @@
                 },1000);
             }
         }
+        //<--debug
         //options.refresh=false;
         //debug-->
 

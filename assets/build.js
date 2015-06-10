@@ -46,9 +46,9 @@ tools.build({
             'widget/dropdown': '',
             'anim/default': ''
         },
-        views: ['views/index','views/test']
+        views: ['views/index','views/test','views/test1','views/menu']
     },
     html: ['index.html'],
-    razor: ['template/index','template/test'],
+    razor: ['template/index','template/test','template/test1','template/menu'],
     resource: ['images']
 });
