@@ -241,18 +241,17 @@
         el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div><canvas class="imagecanvas"></canvas>',
 
         initialize: function() {
-            var that=this;
+            var that=this,
+                preventEvents='tap click touchend touchmove touchstart';
 
             that._queue=new LinkList();
 
-            that.mask=$(that.$el[0]).on('tap click touchend touchmove touchstart',function(e) {
-                return false;
-            });
+            that.mask=$(that.$el[0]).off(preventEvents).on(preventEvents,false);
 
             that.el=that.$el[1];
             that.canvas=that.$el[2];
 
-            that.touch=new Touch(that.$el,{
+            that.touch=new Touch(that.el,{
                 start: that._touchStart,
                 move: that._touchMove,
                 stop: that._touchEnd

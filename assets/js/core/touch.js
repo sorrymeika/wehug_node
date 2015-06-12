@@ -18,6 +18,8 @@
         $el.on('touchstart',$.proxy(that._start,that))
             .on('touchmove',$.proxy(that._move,that))
             .on('touchend',$.proxy(that._end,that));
+
+        if(that.options.stop) that.on('stop',that.options.stop,that.ctx)
     }
 
     Touch.prototype={
@@ -96,7 +98,7 @@
 
             that.isTouchMoved=true;
 
-            that.isMoveLeft=that.pointX-point.pageX>0?true:that.pointX==point.pageX?that.isMoveLeft:(false);
+            that.isMoveLeft=that.pointX-point.pageX>0?true:that.pointX==point.pageX?that.isMoveLeft:false;
             that.isMoveTop=that.pointY-point.pageY>0?true:that.pointY==point.pageY?that.isMoveTop:false;
 
             that.pointX=point.pageX;
@@ -129,7 +131,6 @@
         _stop: function() {
             this.momentum=null;
             this._isClickStopAni=false;
-            this.options.stop.call(this.ctx);
             this.trigger('stop');
         },
 
