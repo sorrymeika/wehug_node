@@ -17,7 +17,8 @@
     "uglify-js": "",
     "fs-extra": "",
     "canvas": "",
-    "gm": ""
+    "gm": "",
+    "gitweb": ""
   },
   "author": "SL",
   "license": "ISC"
