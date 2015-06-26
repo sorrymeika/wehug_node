@@ -3,7 +3,7 @@
         concat=ArrayProto.concat,
         guid=0;
 
-var util={
+var Util={
     guid: function() {
         return ++guid;
     },
@@ -153,4 +153,4 @@ var util={
     }
 };
 
-module.exports=util;
+module.exports=Util;

@@ -9,6 +9,10 @@
         var item=js[i];
     <script src="@item"></script>
     }
+    @for(var i=0;i<css.length;i++){
+        var item=css[i];
+    <link href="@item" rel="stylesheet" type="text/css"/>
+    }
 </head>
 <body>
     <script>
@@ -22,7 +26,7 @@
         });
 
         seajs.use(['$','core/navigation'],function($,Navigation) {
-            new Navigation().mapRoute(@(route)).start();
+            new Navigation().mapRoute(@html(JSON.stringify(route))).start();
         });
     </script>
 </body>

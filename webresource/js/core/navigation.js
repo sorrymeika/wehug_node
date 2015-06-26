@@ -1,4 +1,4 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -11,17 +11,16 @@
         slice=Array.prototype.slice,
         getPath=util.getPath,
         standardizeHash=Route.standardizeHash,
-        checkQueryString=function(activity,route) {
+        checkQueryString=function (activity,route) {
             if(activity.route.url!=route.url) {
                 activity._setRoute(route);
                 activity.trigger('QueryChange');
             }
         };
 
-
     var Navigation=view.extend({
         events: {
-            'click a[href]:not(.js-link-default)': function(e) {
+            'click a[href]:not(.js-link-default)': function (e) {
                 var that=this,
                     target=$(e.currentTarget);
 
@@ -40,7 +39,7 @@
             }
         },
         el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div>',
-        initialize: function() {
+        initialize: function () {
             var that=this;
 
             that.$mask=$(that.$el[0]).on('click',false);
@@ -48,12 +47,12 @@
             that.promise=Promise.resolve();
         },
 
-        mapRoute: function(routes) {
+        mapRoute: function (routes) {
             this.route=new Route(routes);
             return this;
         },
 
-        start: function() {
+        start: function () {
             var that=this,
                 hash,
                 $win=$(window);
@@ -66,12 +65,12 @@
             if(!location.hash) location.hash='/';
             that.hash=hash=standardizeHash(location.hash);
 
-            that.promise.then(function() {
-                that.get(hash,function(activity) {
+            that.promise.then(function () {
+                that.get(hash,function (activity) {
                     activity.$el.appendTo(that.el);
                     that._currentActivity=activity;
 
-                    activity.then(function() {
+                    activity.then(function () {
                         activity.trigger('Resume');
                         activity.trigger('Show');
 
@@ -80,33 +79,33 @@
                     });
                 });
 
-                $win.on('hashchange',function() {
-                    hash=that.hash=parseHash(location.hash);
+                $win.on('hashchange',function () {
+                    hash=that.hash=standardizeHash(location.hash);
 
                     if(that.skip==0) {
+
                         that.to(hash);
 
                     } else if(that.skip>0)
                         that.skip--;
                     else
                         that.skip=0;
-
-                    that.isHistoryBack=false;
                 });
 
                 return that.promise;
             });
         },
+        skip: 0,
 
         viewPath: 'views/',
         _currentActivity: null,
         _activities: {},
 
-        set: function(url,activity) {
+        set: function (url,activity) {
             this._activities[getPath(url)]=activity;
         },
 
-        get: function(url,callback) {
+        get: function (url,callback) {
             var that=this,
                 route=typeof url==='string'?that.route.match(url):url;
 
@@ -115,7 +114,7 @@
             var activity=this._activities[getPath(route.path)];
 
             if(activity==null) {
-                seajs.use(that.viewPath+route.view,function(ActivityClass) {
+                seajs.use(that.viewPath+route.view,function (ActivityClass) {
 
                     if(ActivityClass!=null) {
                         activity=new ActivityClass({
@@ -124,7 +123,7 @@
                         });
                         that.set(route.path,activity);
 
-                        activity.then(function() {
+                        activity.then(function () {
                             callback.call(that,activity,route);
                         });
 
@@ -139,23 +138,23 @@
             }
         },
 
-        remove: function(url) {
+        remove: function (url) {
             this._activities[getPath(url)]=void 0;
         },
 
-        navigate: function(url) {
+        navigate: function (url) {
             url=standardizeHash(url);
             this.skip++;
             location.hash=url;
         },
 
-        to: function(url) {
+        to: function (url) {
             url=standardizeHash(url);
 
             var that=this,
                 promise=that.promise;
 
-            promise.then(function() {
+            promise.then(function () {
                 var currentActivity=that._currentActivity,
                     route=that.route.match(url);
 
@@ -169,7 +168,7 @@
                     return;
                 }
 
-                that.get(route,function(activity) {
+                that.get(route,function (activity) {
                     if(activity.path==currentActivity.path) {
                         checkQueryString(activity,route);
 
@@ -180,7 +179,7 @@
 
                         activity.$el.show().siblings().hide();
 
-                        activity.then(function() {
+                        activity.then(function () {
                             activity.trigger('Resume');
                         });
                     }

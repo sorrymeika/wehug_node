@@ -1,4 +1,4 @@
-﻿var matchPair=function(input,left,right,from) {
+﻿var matchPair=function (input,left,right,from) {
     var i=from||0,
         len=input.length,
         count=0,
@@ -60,7 +60,7 @@ function XRegExp(str) {
 
 XRegExp.prototype={
 
-    exec: function(input) {
+    exec: function (input) {
         var result=[],
             start=0,
             part=this.parts;
@@ -105,16 +105,16 @@ var rcmd=/^(for|if|(function|helper)\s+([a-zA-Z_$][a-zA-Z_$1-9]*))\s*\(([^\)]*)\
 var rparam=/^(html|)([\w]+(?:\[(?:\"[^\"]+\"|\w+?)\]|\.[\w]+|\([^\)]*\))*|\((?:.+?\((?:\"[^\"]+\"|[^\)]+?)\)|.+?)\))/m;
 
 var rif=new XRegExp('^if\\s*\\(([^\\)]*)\\)\\s*{...}');
-var relse=new XRegExp('^\\s*(else\\s+if\s*\\(([^\\)]*)\\)|else)\\s*{...}');
+var relse=new XRegExp('^\\s*(?:else\\s+if\\s*\\(([^\\)]*)\\)|else)\\s*{...}');
 var rcode=new XRegExp('{...}');
 
 var rdom=/<(\/{0,1}[a-zA-Z]+)(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(\/){0,1}\s*>/m;
 
-var isEmpty=function(c) {
+var isEmpty=function (c) {
     return c==' '||c=='\t'||c=='\n'||c=='\r';
 };
 
-var matchDom=function(input) {
+var matchDom=function (input) {
     if(!input) return '';
 
     var m=rdom.exec(input),
@@ -172,7 +172,7 @@ var matchDom=function(input) {
     return str+input;
 }
 
-var parse=function(templateStr) {
+var parse=function (templateStr) {
 
     var functions={},
         helpers={},
@@ -205,6 +205,7 @@ var parse=function(templateStr) {
 
                     if(m) {
                         name=m[2];
+
                         if('if'==m[1]) {
                             code=rif.exec(codeStr);
                             str+="';"
@@ -212,6 +213,7 @@ var parse=function(templateStr) {
                             do {
                                 str+=code[0]+matchDom(code[2])+"}"
                                 i+=code.match.length;
+
                                 code=relse.exec(templateStr.substr(i));
                             }
                             while(code);
@@ -227,10 +229,10 @@ var parse=function(templateStr) {
                                 str+="';"+m[0]+"{"+matchDom(code[1])+"}"+"__+='";
 
                             } else if('function'==m[2]) {
-                                functions[name]='function('+m[4]+'){'+code[1]+'}';
+                                functions[m[3]]='function('+m[4]+'){'+code[1]+'}';
 
                             } else if('helper'==m[2]) {
-                                helpers[name]='function('+m[4]+'){'+razor.parse(code[1],m[4]).code+'}';
+                                helpers[m[3]]='function('+m[4]+'){'+razor.parse(code[1],m[4]).code+'}';
                             }
 
                             i+=code.match.length;
@@ -239,7 +241,7 @@ var parse=function(templateStr) {
                     } else {
                         m=rparam.exec(codeStr);
 
-                        str+="'+"+(m[1]=="html"?m[2]:"this.encodeHTML("+m[2]+")")+"+'";
+                        str+="'+"+(m[1]=="html"?m[2]:"util.encodeHTML("+m[2]+")")+"+'";
                         i+=m[0].length;
                     }
                 }
@@ -267,10 +269,10 @@ var parse=function(templateStr) {
 
 var razor={};
 
-razor.create=function(templateStr) {
-    var str='',result;
+razor.create=function (templateStr) {
+    var str='var util=require("util");',result;
 
-    templateStr=templateStr.replace(ruse,function(match,qt,id,name) {
+    templateStr=templateStr.replace(ruse,function (match,qt,id,name) {
         str+='var '+name+'=require("'+id+'");';
 
         return '';
@@ -278,7 +280,7 @@ razor.create=function(templateStr) {
 
     result=razor.parse(templateStr);
 
-    str+='var T={encodeHTML:function(a){return (""+a).replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&#34;").replace(/\'/g,"&#39;")},html:function($data){'+result.code+'},helpers:{';
+    str+='var T={html:function($data){'+result.code+'},helpers:{';
 
     if(result.helpers) {
         var helpers=[];
@@ -300,7 +302,7 @@ razor.create=function(templateStr) {
     return str;
 }
 
-razor.parse=function(templateStr,args) {
+razor.parse=function (templateStr,args) {
     if(typeof args!=='string') args="$data";
 
     var str="var __='';"+(args==="$data"?"with($data||{})":"")+"{",
@@ -315,11 +317,11 @@ razor.parse=function(templateStr,args) {
     return res;
 };
 
-razor.web=function(templateStr) {
-    return 'define(function(){'+razor.create(templateStr)+' return T;});';
+razor.web=function (templateStr) {
+    return 'define(function(require){'+razor.create(templateStr)+' return T;});';
 };
 
-razor.node=function(templateStr) {
+razor.node=function (templateStr) {
     return razor.create(templateStr)+"module.exports=T;";
 };
 

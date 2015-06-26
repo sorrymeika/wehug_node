@@ -883,7 +883,7 @@ var BASE_RE = /^(.+?\/)(\?\?)?(seajs\/)+/
 // The root path to use for id2uri parsing
 // If loaderUri is `http://test.com/libs/seajs/[??][seajs/1.2.3/]sea.js`, the
 // baseUri should be `http://test.com/libs/`
-data.base = (loaderDir.match(BASE_RE) || ["", loaderDir])[1]
+data.base = (loaderDir.match(BASE_RE) || [loaderDir,location.protocol+'//'+location.host+'/'])[1]
 
 // The loader directory
 data.dir = loaderDir
