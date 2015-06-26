@@ -123,27 +123,19 @@ Promise.prototype={
 
     map: function(argsList,callback,ctx) {
         var self=this,
-            fn=callback,
-            count=argsList.length,
-            errors=[],
-            result=[],
 
             fn=function() {
                 var parameters=arguments;
+
+                self._count=argsList.length;
+                self.result=[];
+                self.errors=[];
 
                 argsList.forEach(function(args,j) {
                     if(!(args instanceof Array)) args=[args];
 
                     callback.apply(this,getCallbackParams(args,parameters,function(err,res) {
-                        if(err)
-                            errors[j]=err;
-
-                        result[j]=res;
-
-                        count--;
-                        if(count<=0) {
-                            self.resolve(errors.length?errors:null,result);
-                        }
+                        self.next(j,err,res);
                     }));
                 });
 
@@ -152,14 +144,43 @@ Promise.prototype={
 
         self.queue.append([fn,ctx||this]);
 
-        if(self.state!=1) {
-            self.resolve();
-        }
+        return self;
+    },
+
+    each: function(argsList,callback,ctx) {
+
+        var self=this,
+            fn=function() {
+                self._count=argsList.length;
+                self.result=[];
+                self.errors=[];
+
+                argsList.forEach(function(args,j) {
+
+                    callback.apply(this,[j,args]);
+                });
+
+                return self;
+            };
+
+        self.queue.append([fn,ctx||this]);
 
         return self;
     },
 
-    bind: function(fn,ctx) {
+    next: function(index,err,data) {
+        this._count--;
+        if(this._count<=0) {
+            if(err)
+                this.errors[index]=err;
+
+            this.result[index]=data;
+
+            this.resolve(this.errors.length?this.errors:null,this.result);
+        }
+    },
+
+    bind: function(fn) {
         var self=this;
 
         return function() {

@@ -1,0 +1,12 @@
+{
+	root: '/demo',
+	dest: './dest',
+	webresource: './../webresource',
+	js : ['@webresource("slan.js")'],
+	css : ['@webresource("main.css")'],
+	route: {
+		'/': 'index',
+		'/test': 'test'
+	},
+	template: ['index.tpl','test.tpl']
+}

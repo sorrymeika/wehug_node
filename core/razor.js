@@ -100,6 +100,7 @@ XRegExp.prototype={
     }
 }
 
+var ruse=/(?:^|[^@])@use\s+('|")([^\r\n]+?)\1\s+as\s+([^\s]+)/mg;
 var rcmd=/^(for|if|(function|helper)\s+([a-zA-Z_$][a-zA-Z_$1-9]*))\s*\(([^\)]*)\)\s*(?={)/m;
 var rparam=/^(html|)([\w]+(?:\[(?:\"[^\"]+\"|\w+?)\]|\.[\w]+|\([^\)]*\))*|\((?:.+?\((?:\"[^\"]+\"|[^\)]+?)\)|.+?)\))/m;
 
@@ -115,6 +116,7 @@ var isEmpty=function(c) {
 
 var matchDom=function(input) {
     if(!input) return '';
+
     var m=rdom.exec(input),
         tagName,
         count=0,
@@ -266,8 +268,17 @@ var parse=function(templateStr) {
 var razor={};
 
 razor.create=function(templateStr) {
-    var result=razor.parse(templateStr);
-    var str='var T={encodeHTML:function(a){return (""+a).replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&#34;").replace(/\'/g,"&#39;")},html:function($data){'+result.code+'},helpers:{';
+    var str='',result;
+
+    templateStr=templateStr.replace(ruse,function(match,qt,id,name) {
+        str+='var '+name+'=require("'+id+'");';
+
+        return '';
+    });
+
+    result=razor.parse(templateStr);
+
+    str+='var T={encodeHTML:function(a){return (""+a).replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&#34;").replace(/\'/g,"&#39;")},html:function($data){'+result.code+'},helpers:{';
 
     if(result.helpers) {
         var helpers=[];

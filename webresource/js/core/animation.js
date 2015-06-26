@@ -352,26 +352,7 @@
         parallel(prepare(animations));
     };
 
-    exports.animate=function(el,step,duration,ease,finish) {
-        var item={
-            duration: duration,
-            ease: ease,
-            finish: finish
-        };
-
-        if(typeof el==='function') {
-            item
-
-        } else {
-            item.el=el;
-        }
-
-        parallel([item]);
-
-        return first;
-    };
-
-    exports.animate=function() {
+    exports.animate=function(/*[el,css]|step,duration,ease,finish*/) {
         var args=Array.prototype.slice.call(arguments),
             item={},
             i=0,

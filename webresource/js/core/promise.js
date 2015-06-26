@@ -124,7 +124,6 @@
 
         map: function(argsList,callback,ctx) {
             var self=this,
-            fn=callback,
             count=argsList.length,
             errors=[],
             result=[],
