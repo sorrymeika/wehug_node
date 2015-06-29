@@ -43,16 +43,43 @@
             this.application.to(this.route.path+(queries?'?'+queries:''));
         },
 
-        template: 'views/home.html',
+        template: '',
 
         loadTemplate: function() {
-            var that=this;
+            var that=this,
+                count=1,
+                callback=function() {
+                    count--;
+                    if(count==0) {
+                        that.$el.html(that.razor.html(that.model)).appendTo(that.application.$el);
+                        that.trigger("Create");
+                        that.promise.resolve(razor);
+                    }
+                };
+
+            if(that.api) {
+                that.api=that.api.replace(/\{([^\}]+?)\}/g,function(match,key) {
+                    return that.route.data[key];
+                });
+
+                count++;
+                $.ajax({
+                    url: that.api,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(res) {
+                        that.model=res;
+                        callback(res);
+                    },
+                    error: function(xhr) {
+                        callback({ success: false,content: xhr.responseText });
+                    }
+                });
+            }
 
             seajs.use(that.template,function(razor) {
-                that.$el.html(razor.html()).appendTo(that.application.$el);
                 that.razor=razor;
-                that.trigger("Create");
-                that.promise.resolve(razor);
+                callback();
             });
 
             return that.promise;

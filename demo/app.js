@@ -19,20 +19,24 @@ var fs=require('fs');
 
 Util.encodeHTML=util.encodeHTML;
 
-var promise=new Promise(function () {
-    fs.readFile('./index.tpl',{ encoding: 'utf-8' },function (err,data) {
+var promise=new Promise(function() {
+    var pms=this;
+    fs.readFile('./index.tpl',{ encoding: 'utf-8' },function(err,data) {
         data=Tools.compressJs(razor.node(data))
 
-        fs.writeFile('./index.js',data,function (err,res) {
-            promise.resolve();
+        fs.writeFile('./index.js',data,function(err,res) {
+            pms.resolve();
         });
     });
-    return promise;
+    return pms;
 });
 
-promise.each(config.projects,function (i,project) {
+var routes={},
+    configList=[];
 
-    fs.readFile(path.join(__dirname,project+'config.json'),{ encoding: 'utf-8' },function (err,data) {
+promise.each(config.projects,function(i,project) {
+
+    fs.readFile(path.join(__dirname,project+'config.json'),{ encoding: 'utf-8' },function(err,data) {
 
         if(err) {
             console.log(err);
@@ -40,45 +44,43 @@ promise.each(config.projects,function (i,project) {
             return;
         }
 
-        data=data.replace(/@webresource\(('|")(.+?)\1\)/img,function (match,qt,url) {
+        data=data.replace(/@webresource\(('|")(.+?)\1\)/img,function(match,qt,url) {
 
             return config.webresource+'/'+url.replace(/^\//,'');
         });
 
         data=eval('['+data+'][0]');
 
-        var root=data.root.replace(/\/$/,'');
+        configList.push(data);
+
+        var root=data.root=data.root.replace(/\/$/,'');
 
         if(root) {
             var viewPath=root.replace(/^\//,'');
-            for(var i=0,length=data.route.length;i<length;i++) {
-                data.route[i]=viewPath+'/'+data.route[i];
+            for(var key in data.route) {
+                routes[key]=data.route[key]=viewPath+'/'+data.route[key];
             }
             root="/"+viewPath;
+        } else {
+            for(var key in data.route) {
+                routes[key]=data.route[key];
+            }
         }
 
-        app.get(root+'/',function (req,res) {
-            res.set('Content-Type','text/html');
-
-            var t=require('./index');
-
-            res.send(Tools.compressHTML(t.html(data)));
-        });
-
-        app.get('/views'+root+'/*.js',function (req,res) {
+        app.get('/views'+root+'/*.js',function(req,res) {
             res.set('Content-Type','text/javascript');
 
-            fs.readFile('.'+root+'/views/'+req.params[0]+'.js',{ encoding: 'utf-8' },function (err,text) {
+            fs.readFile('.'+root+'/views/'+req.params[0]+'.js',{ encoding: 'utf-8' },function(err,text) {
                 res.send(text);
             });
         });
 
-        app.get(root+'/template/*.js',function (req,res) {
+        app.get(root+'/template/*.js',function(req,res) {
             res.set('Content-Type','text/javascript');
 
             fs.readFile('.'+root+'/template/'+req.params[0]+'.tpl',{
                 encoding: 'utf-8'
-            },function (err,text) {
+            },function(err,text) {
 
                 text=Tools.compressJs(razor.web(text));
                 res.send(text);
@@ -88,7 +90,21 @@ promise.each(config.projects,function (i,project) {
         promise.next(i);
     });
 })
-.then(function () {
+.then(function() {
+    var t=require('./index');
+
+    configList.forEach(function(cfg) {
+
+        cfg.routes=routes;
+
+        var html=Tools.compressHTML(t.html(cfg))
+
+        app.get(cfg.root+'/',function(req,res) {
+            res.set('Content-Type','text/html');
+
+            res.send(html);
+        });
+    });
 
     app.use(express.static(path.join(__dirname,'../webresource')));
     app.use('/webresource',express.static(path.join(__dirname,'../webresource')));
