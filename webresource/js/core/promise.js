@@ -1,9 +1,9 @@
-﻿define(['./linklist'],function(require,exports,module) {
+﻿define(['./linklist'],function (require,exports,module) {
     var LinkList=require('./linklist');
     var slice=Array.prototype.slice;
     var rparam=/^\$(\d+)$/;
 
-    var getCallbackParams=function(args,parameters,fn) {
+    var getCallbackParams=function (args,parameters,fn) {
         var newArgs=[];
 
         for(var i=0,n=args.length,arg;i<n;i++) {
@@ -16,7 +16,7 @@
         return newArgs;
     }
 
-    var Promise=function(args,callback,ctx) {
+    var Promise=function (args,callback,ctx) {
         if(!(this instanceof Promise))
             return new Promise(args,callback,ctx);
 
@@ -24,7 +24,7 @@
 
         this.queue=new LinkList();
         this.state=2;
-        this.resolveSelf=function() {
+        this.resolveSelf=function () {
             self.resolve.apply(self,arguments);
         };
 
@@ -35,17 +35,17 @@
     }
 
     Promise.prototype={
-        reject: function(reason) {
+        reject: function (reason) {
             this.resolve(reason||'unknow error',null);
         },
 
-        resolve: function() {
+        resolve: function () {
             var that=this,
-                args=slice.call(arguments),
-                then=that.queue.shift(),
-                next,
-                ctx,
-                promise;
+            args=slice.call(arguments),
+            then=that.queue.shift(),
+            next,
+            ctx,
+            promise;
 
             if(then) {
                 that.state=1;
@@ -72,7 +72,7 @@
                     count=0;
 
                     for(var i=0,n=next.length;i<n;i++) {
-                        (function(fn,i,n) {
+                        (function (fn,i,n) {
 
                             if(typeof fn=='function') {
                                 fn=fn.apply(ctx,args);
@@ -80,7 +80,7 @@
 
                             if(fn instanceof Promise) {
 
-                                fn.then(function(err,obj) {
+                                fn.then(function (err,obj) {
                                     if(err) errors[i]=err;
 
                                     count++;
@@ -109,7 +109,7 @@
 
             return that;
         },
-        when: function(fns,ctx) {
+        when: function (fns,ctx) {
             if(!(fns instanceof Array))
                 fns=[fns];
 
@@ -122,28 +122,21 @@
             return this;
         },
 
-        map: function(argsList,callback,ctx) {
+        map: function (argsList,callback,ctx) {
             var self=this,
-            count=argsList.length,
-            errors=[],
-            result=[],
 
-            fn=function() {
+            fn=function () {
                 var parameters=arguments;
 
-                argsList.forEach(function(args,j) {
+                self._count=argsList.length;
+                self.result=[];
+                self.errors=[];
+
+                argsList.forEach(function (args,j) {
                     if(!(args instanceof Array)) args=[args];
 
-                    callback.apply(this,getCallbackParams(args,parameters,function(err,res) {
-                        if(err)
-                            errors[j]=err;
-
-                        result[j]=res;
-
-                        count--;
-                        if(count<=0) {
-                            self.resolve(errors.length?errors:null,result);
-                        }
+                    callback.apply(this,getCallbackParams(args,parameters,function (err,res) {
+                        self.next(j,err,res);
                     }));
                 });
 
@@ -152,22 +145,52 @@
 
             self.queue.append([fn,ctx||this]);
 
-            if(self.state!=1) {
-                self.resolve();
-            }
+            return self;
+        },
+
+        each: function (argsList,callback,ctx) {
+
+            var self=this,
+            fn=function () {
+                self._count=argsList.length;
+                self.result=[];
+                self.errors=[];
+
+                argsList.forEach(function (args,j) {
+
+                    callback.apply(this,[j,args]);
+                });
+
+                return self;
+            };
+
+            self.queue.append([fn,ctx||this]);
 
             return self;
         },
 
-        bind: function(fn,ctx) {
+        next: function (index,err,data) {
+            this._count--;
+
+            if(err)
+                this.errors[index]=err;
+
+            this.result[index]=data;
+
+            if(this._count<=0) {
+                this.resolve(this.errors.length?this.errors:null,this.result);
+            }
+        },
+
+        bind: function (fn) {
             var self=this;
 
-            return function() {
+            return function () {
                 self.then(slice.call(arguments),fn,this);
             }
         },
 
-        then: function(args,callback,ctx) {
+        then: function (args,callback,ctx) {
             var self=this,
             fn;
 
@@ -178,7 +201,7 @@
 
             } else {
                 fn=callback;
-                callback=function() {
+                callback=function () {
                     fn.apply(this,getCallbackParams(args,arguments,self.resolveSelf));
                     return self;
                 };
@@ -194,7 +217,7 @@
         }
     };
 
-    Promise.resolve=function() {
+    Promise.resolve=function () {
         return new Promise().resolve();
     }
 
