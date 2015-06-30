@@ -1,0 +1,12 @@
+{
+	root: '/',
+	debug: true,
+	webresource: "/webresource",
+	js : [],
+	css : ['@webresource("images/global.css")'],
+	route: {
+		'/': { controller: 'index', template: 'index', api: '' },
+		'/test/{id:\\d+}': { controller: 'test', api: '/api/test/{id}' }
+	},
+	template: []
+}

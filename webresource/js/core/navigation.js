@@ -55,12 +55,14 @@
         start: function() {
             var that=this,
                 hash,
-                $win=$(window);
+                $win=$(window),
+                $body=$(document.body),
+                $views=$body.find('.view');
 
-            sl.app=this;
-
-            that.$el.appendTo(document.body);
+            that.$el.appendTo($body);
             that.$el=$(that.el);
+
+            if($views.length) that.$el.append($views);
 
             if(!location.hash) location.hash='/';
             that.hash=hash=standardizeHash(location.hash);
@@ -97,7 +99,6 @@
         },
         skip: 0,
 
-        viewPath: 'views/',
         _currentActivity: null,
         _activities: {},
 
@@ -109,19 +110,29 @@
             var that=this,
                 route=typeof url==='string'?that.route.match(url):url;
 
-            if(!route) return;
+            if(!route) {
+                return;
+            }
 
-            var activity=this._activities[getPath(route.path)];
+            var path=getPath(route.path);
+            var activity=this._activities[path];
 
             if(activity==null) {
-                seajs.use(that.viewPath+route.view,function(ActivityClass) {
+                seajs.use(route.view,function(ActivityClass) {
+                    var options={
+                        application: that,
+                        route: route
+                    },
+                    $el;
 
-                    if(ActivityClass!=null) {
-                        activity=new ActivityClass({
-                            application: that,
-                            route: route
-                        });
-                        that.set(route.path,activity);
+                    if(null!=ActivityClass) {
+                        $el=that.$el.find('[data-path="'+route.path+'"]');
+                        if($el.length) {
+                            options.el=$el;
+                        }
+
+                        activity=new ActivityClass(options);
+                        that.set(path,activity);
 
                         activity.then(function() {
                             callback.call(that,activity,route);

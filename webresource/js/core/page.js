@@ -43,8 +43,6 @@
             this.application.to(this.route.path+(queries?'?'+queries:''));
         },
 
-        template: '',
-
         loadTemplate: function() {
             var that=this,
                 count=1,
@@ -53,18 +51,14 @@
                     if(count==0) {
                         that.$el.html(that.razor.html(that.model)).appendTo(that.application.$el);
                         that.trigger("Create");
-                        that.promise.resolve(razor);
+                        that.promise.resolve();
                     }
                 };
 
-            if(that.api) {
-                that.api=that.api.replace(/\{([^\}]+?)\}/g,function(match,key) {
-                    return that.route.data[key];
-                });
-
+            if(that.route.api) {
                 count++;
                 $.ajax({
-                    url: that.api,
+                    url: that.route.api,
                     type: 'GET',
                     dataType: 'json',
                     success: function(res) {
@@ -77,7 +71,7 @@
                 });
             }
 
-            seajs.use(that.template,function(razor) {
+            seajs.use(that.route.template,function(razor) {
                 that.razor=razor;
                 callback();
             });
@@ -94,7 +88,6 @@
 
             that._setRoute(that.options.route);
 
-            that.$el.data('url',that.url).data('path',that.path);
 
             that.application=that.options.application;
 
@@ -105,8 +98,11 @@
             that.on('QueryChange',that.onQueryChange);
             that.on('QueryChange',that.checkQuery);
 
-            promise.then(that.loadTemplate,that)
-                .then(that.onCreate,that)
+            if(!that.$el.data('path')) {
+                that.$el.data('url',that.url).data('path',that.path);
+                promise.then(that.loadTemplate,that);
+            }
+            promise.then(that.onCreate,that)
                 .then(function() {
                     that.trigger('Start');
                     that.checkQuery();

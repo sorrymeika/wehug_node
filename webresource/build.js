@@ -4,7 +4,7 @@ var path=require('path');
 var tools=new Tools(path.join(__dirname,'./'),path.join(__dirname,'./dest'));
 
 tools.combine({
-    "main.css": ['./images/reset.css'],
+    "images/global.css": ['./images/global.css'],
     slan: {
         'seajs': './js/seajs/sea',
         'zepto': './js/zepto',

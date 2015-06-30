@@ -1,0 +1,1 @@
+var util=require("util"),test=require("./test"),T={html:function($data){var __="";with($data||{})__+=' <div class="main"> 测试测试<br> <a href="/test/1">超链接</a> ',console.log(test.helpers),__+=" "+util.encodeHTML(test.helpers.testHelper("测试Helper"))+" "+util.encodeHTML(test.testFn("测试function"))+" </div> ";return __},helpers:{}};T.template=T.html,module.exports=T;

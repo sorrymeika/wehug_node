@@ -1,40 +1,52 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
 
-    var $=require('$'),
-        util=require('util'),
-        standardizeHash=function (hash) {
-            return (hash.replace(/^#+/,'')||'/').toLowerCase();
-        };
+    var standardizeHash=function(hash) {
+        return (hash.replace(/^#+|\/$/,'')||'/').toLowerCase();
+    };
 
-    var Route=function (options) {
-        var routes=[];
+    var Route=function(options) {
+        var routes=[],
+            option,
+            parts,
+            root,
+            rootPath,
+            namedParam,
+            regex;
 
         for(var key in options) {
-            var option=options[key],
-                parts=[],
-                namedParam,
-                regex='^(?:\/{0,1})'+key.replace(/(\/|^|\?)\{((?:.+?\{[^\}]+\}){0,}[^\}]*)\}/g,function (match,first,param) {
-                    namedParam=param.split(':');
+            option=options[key];
+            parts=[];
 
-                    if(namedParam.length>1) {
-                        parts.push(namedParam.shift());
-                        param=namedParam.join(':');
-                    }
+            regex='^(?:\/{0,1})'+key.replace(/(\/|^|\?)\{((?:.+?\{[^\}]+\}){0,}[^\}]*)\}/g,function(match,first,param) {
+                namedParam=param.split(':');
 
-                    return first+'('+param+')';
-                })+'$';
+                if(namedParam.length>1) {
+                    parts.push(namedParam.shift());
+                    param=namedParam.join(':');
+                }
+
+                return first+'('+param+')';
+            })+'$';
+
+            if(typeof option==='string')
+                throw new Error('Route options error');
+
+            root=option.root||'/';
+            rootPath=(root!='/'?root.replace(/^\//,'')+'/':'');
 
             routes.push({
-                reg: new RegExp(regex),
+                regex: new RegExp(regex),
                 parts: parts,
-                view: typeof option==='string'?option:option.view
+                template: rootPath+option.template,
+                view: rootPath+option.controller,
+                root: root
             });
         }
 
         this.routes=routes;
     };
 
-    Route.prototype.match=function (url) {
+    Route.prototype.match=function(url) {
         var result=null,
             queries={},
             hash=url=standardizeHash(url),
@@ -42,14 +54,14 @@
             query,
             routes=this.routes,
             route,
-            m;
+            match;
 
         if(index!= -1) {
             query=url.substr(index+1);
 
             url=url.substr(0,index);
 
-            query.replace(/(?:^|&)([^=&]+)=([^&]*)/g,function (r0,r1,r2) {
+            query.replace(/(?:^|&)([^=&]+)=([^&]*)/g,function(r0,r1,r2) {
                 queries[r1]=decodeURIComponent(r2);
                 return '';
             })
@@ -60,13 +72,15 @@
         for(var i=0,length=routes.length;i<length;i++) {
             route=routes[i];
 
-            m=route.reg?url.match(route.reg):null;
+            match=route.regex?url.match(route.regex):null;
 
-            if(m) {
+            if(match) {
                 result={
-                    path: m[0],
+                    path: match[0],
                     url: hash,
                     hash: '#'+hash,
+                    root: route.root,
+                    template: route.template,
                     view: route.view,
                     data: {},
                     queryString: query,
@@ -74,7 +88,13 @@
                 };
 
                 for(var j=0,len=route.parts.length;j<len;j++) {
-                    result.data[route.parts[j]]=m[j+1];
+                    result.data[route.parts[j]]=match[j+1];
+                }
+
+                if(route.api) {
+                    result.api=route.api.replace(/\{([^\}]+?)\}/g,function(match,key) {
+                        return result.data[key];
+                    });
                 }
                 break;
             }

@@ -1,0 +1,12 @@
+{
+	root: '/teacher',
+	debug: true,
+	webresource: "/webresource",
+	js : [],
+	css : ['@webresource("images/global.css")'],
+	route: {
+		'/': 'index',
+		'/{id:\\d+}': 'test'
+	},
+	template: ['index.tpl','test.tpl']
+}

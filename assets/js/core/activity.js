@@ -8,6 +8,8 @@
     var Activity=Page.extend({
         animationName: 'def',
 
+        viewPath: '',
+
         onHtmlLoad: function() {
             var that=this;
 

@@ -1,6 +1,6 @@
 ﻿var UglifyJS=require('uglify-js');
 
-var compressCss=function (res) {
+var compressCss=function(res) {
     return res.replace(/\s*([;|\:|,|\{|\}])\s*/img,'$1').replace(/[\r\n]/mg,'').replace(/;}/mg,'}').replace(/\s*\/\*.*?\*\/\s*/mg,'');
 }
 
@@ -26,7 +26,7 @@ var compressor=UglifyJS.Compressor({
     global_defs: {}
 });
 
-var compressJs=function (code) {
+var compressJs=function(code) {
     code=code.replace(/\/\/<--debug[\s\S]+?\/\/debug-->/img,'');
 
     var ast=UglifyJS.parse(code);
@@ -39,17 +39,17 @@ var compressJs=function (code) {
     return code;
 };
 
-var replaceDefine=function (id,code) {
-    return code.replace(/\bdefine\((\s*|\s*\[[^\]]*\]\s*,\s*)function/mg,function (r0,p) {
-        return 'define('+'"'+id+'",'+p+'function';
+var replaceDefine=function(id,code,append) {
+    return code.replace(/\bdefine\((\s*|\s*\[[^\]]*\]\s*,\s*)function(.*?){/mg,function(match,param,fn) {
+        return 'define('+'"'+id+'",'+param+'function'+fn+'{'+(append||'');
     })
-};
+}
 
-var compressHTML=function (html) {
+var compressHTML=function(html) {
     return html.replace(/\s*(<(\/{0,1}[a-zA-Z]+)(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(\/){0,1}\s*>)\s*/img,'$1')
-        .replace(/<script(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/script>/img,function (r0,r1) {
+        .replace(/<script(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/script>/img,function(r0,r1) {
             return /^\s*$/.test(r1)?r0:('<script>'+compressJs(r1)+'</script>');
-        }).replace(/<style(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/style>/img,function (r0,r1) {
+        }).replace(/<style(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/style>/img,function(r0,r1) {
             return /^\s*$/.test(r1)?r0:('<style>'+compressCss(r1)+'</style>');
         });
 }
@@ -59,20 +59,53 @@ var fs=require('fs');
 var fse=require('fs-extra');
 var Promise=require('./../core/promise');
 
-var Tools=function (baseDir,destDir) {
+var _save=function(savePath,data,isCopy,callback) {
+
+    var promise=new Promise();
+    var dir=path.dirname(savePath);
+
+    fs.exists(dir,function(exists) {
+        if(!exists) {
+            fse.mkdirs(dir,function(err,r) {
+                promise.resolve(null,data);
+            });
+        } else {
+            promise.resolve(null,data);
+        }
+    });
+
+    if(isCopy) {
+        promise.then([data],fs.readFile,fs);
+    }
+
+    promise.then([savePath,'$1'],fs.writeFile)
+            .then(function() {
+                console.log('save',savePath)
+            });
+
+    if(callback) promise.then(callback);
+
+    return promise;
+};
+
+var save=function(savePath,data,callback) {
+    return _save(savePath,data,false,callback);
+};
+
+var copy=function(sourcePath,destPath,callback) {
+    return _save(sourcePath,destPath,true,callback)
+}
+
+var Tools=function(baseDir,destDir) {
     this.baseDir=baseDir;
     this.destDir=destDir;
 
     this.promise=new Promise().resolve();
 }
 
-Tools.compressCss=compressCss;
-Tools.compressHTML=compressHTML;
-Tools.compressJs=compressJs;
-
 Tools.prototype={
 
-    combine: function (pathDict) {
+    combine: function(pathDict) {
         var self=this;
 
         for(var destPath in pathDict) {
@@ -100,11 +133,11 @@ Tools.prototype={
                 }
             }
 
-            (function (fileList,ids,isCss,destPath) {
+            (function(fileList,ids,isCss,destPath) {
                 var promise=new Promise().resolve();
 
                 promise.map(fileList,fs.readFile,fs)
-                    .then(function (err,result) {
+                    .then(function(err,result) {
                         if(err) {
                             console.log(err)
                             return;
@@ -112,7 +145,7 @@ Tools.prototype={
 
                         var text='';
 
-                        result.forEach(function (data,i) {
+                        result.forEach(function(data,i) {
                             data=data.toString('utf-8');
                             text+=isCss?compressCss(data):compressJs(replaceDefine(ids[i],data));
                         });
@@ -128,7 +161,7 @@ Tools.prototype={
         return this;
     },
 
-    html: function (fileList,api,combinedPathDict) {
+    html: function(fileList,api,combinedPathDict) {
 
         api='<meta name="api-base-url" content="'+api+'" />';
         if(!(fileList instanceof Array)) fileList=[fileList];
@@ -136,10 +169,10 @@ Tools.prototype={
         var self=this,
             now=new Date().getTime();
 
-        fileList.forEach(function (fileName) {
+        fileList.forEach(function(fileName) {
             var promise=new Promise();
 
-            fs.readFile(path.join(self.baseDir,fileName),{ encoding: 'utf-8' },function (err,html) {
+            fs.readFile(path.join(self.baseDir,fileName),{ encoding: 'utf-8' },function(err,html) {
 
                 html=html.replace(/<script[^>]+debug[^>]*>[\S\s]*?<\/script>/img,'')
                     .replace(/<link[^>]+debug[^>]*\/*\s*>/img,'')
@@ -170,13 +203,13 @@ Tools.prototype={
         return this;
     },
 
-    resource: function (resourceDir) {
+    resource: function(resourceDir) {
 
         var self=this;
         var promise=new Promise().resolve();
         var pathArr=[];
 
-        resourceDir.forEach(function (dir,i) {
+        resourceDir.forEach(function(dir,i) {
             pathArr.push([path.join(self.baseDir,dir),path.join(self.destDir,dir)]);
         });
 
@@ -185,14 +218,14 @@ Tools.prototype={
         this.promise.then(promise);
     },
 
-    compress: function (fileList) {
+    compress: function(fileList) {
 
         var self=this,
             dict;
 
         if(fileList.length) {
             dict={};
-            fileList.forEach(function (fileName,i) {
+            fileList.forEach(function(fileName,i) {
                 dict[fileName]='';
             });
 
@@ -201,7 +234,7 @@ Tools.prototype={
         }
 
         for(var key in dict) {
-            (function (fileName,readPath) {
+            (function(fileName,readPath) {
                 var promise=new Promise();
 
                 if(/\.css$/.test(fileName)) {
@@ -209,7 +242,7 @@ Tools.prototype={
                     fs.readFile(path.join(self.baseDir,readPath||fileName),{
                         encoding: 'utf-8'
 
-                    },function (err,text) {
+                    },function(err,text) {
                         self.save(path.join(self.destDir,fileName),compressCss(text),promise.resolveSelf);
                     });
 
@@ -218,7 +251,7 @@ Tools.prototype={
 
                     fs.readFile(path.join(self.baseDir,readPath?readPath+'.js':jsFileName),{
                         encoding: 'utf-8'
-                    },function (err,text) {
+                    },function(err,text) {
                         if(err) console.log(path.join(self.baseDir,readPath||jsFileName));
 
                         text=compressJs(replaceDefine(fileName,text));
@@ -238,19 +271,19 @@ Tools.prototype={
 
     razorUri: 'js/razor.text.js',
 
-    razor: function (fileList) {
+    razor: function(fileList) {
         var self=this;
 
         var razor=require('./../core/razor');
         var promise=new Promise().resolve();
         var result='';
 
-        fileList.forEach(promise.bind(function (fileName,i) {
+        fileList.forEach(promise.bind(function(fileName,i) {
 
             fs.readFile(path.join(self.baseDir,fileName+'.tpl'),{
                 encoding: 'utf-8'
 
-            },function (err,text) {
+            },function(err,text) {
                 if(err) console.log(fileName)
 
                 text=compressJs(replaceDefine(fileName,razor.web(text)));
@@ -262,61 +295,34 @@ Tools.prototype={
         }));
 
         self.promise.then(promise)
-            .then(function () {
+            .then(function() {
                 return self.save(path.join(self.destDir,self.razorUri),result);
             });
 
         return this;
     },
 
-    build: function (options) {
+    save: save,
+    copy: copy,
+
+    build: function(options) {
         options.combine&&this.combine(options.combine);
         options.html&&this.html(options.html,options.api,options.combine);
         options.resource&&this.resource(options.resource);
         options.compress&&this.compress(options.compress);
         options.razor&&this.razor(options.razor);
 
-        this.promise.then(function () {
+        this.promise.then(function() {
             console.log('finish')
         });
-    },
-
-    _save: function (savePath,data,isCopy,callback) {
-
-        var promise=new Promise();
-        var dir=path.dirname(savePath);
-
-        fs.exists(dir,function (exists) {
-            if(!exists) {
-                fse.mkdirs(dir,function (err,r) {
-                    promise.resolve(null,data);
-                });
-            } else {
-                promise.resolve(null,data);
-            }
-        });
-
-        if(isCopy) {
-            promise.then([data],fs.readFile,fs);
-        }
-
-        promise.then([savePath,'$1'],fs.writeFile)
-            .then(function () {
-                console.log('save',savePath)
-            });
-
-        if(callback) promise.then(callback);
-
-        return promise;
-    },
-
-    save: function (savePath,data,callback) {
-        return this._save(savePath,data,false,callback);
-    },
-
-    copy: function (sourcePath,destPath,callback) {
-        return this._save(sourcePath,destPath,true,callback)
     }
 };
+
+Tools.compressCss=compressCss;
+Tools.compressHTML=compressHTML;
+Tools.compressJs=compressJs;
+Tools.save=save;
+Tools.copy=copy;
+Tools.replaceDefine=replaceDefine;
 
 module.exports=Tools;
