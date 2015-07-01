@@ -47,8 +47,8 @@
             that.promise=Promise.resolve();
         },
 
-        mapRoute: function(routes) {
-            this.route=new Route(routes);
+        mapRoute: function(routes,isDebug) {
+            this.route=new Route(routes,isDebug);
             return this;
         },
 
@@ -62,14 +62,16 @@
             that.$el.appendTo($body);
             that.$el=$(that.el);
 
-            if($views.length) that.$el.append($views);
+            if($views.length) {
+                that.$el.append($views.hide());
+            }
 
             if(!location.hash) location.hash='/';
             that.hash=hash=standardizeHash(location.hash);
 
             that.promise.then(function() {
                 that.get(hash,function(activity) {
-                    activity.$el.appendTo(that.el);
+                    activity.$el.show().appendTo(that.el);
                     that._currentActivity=activity;
 
                     activity.then(function() {
@@ -118,20 +120,22 @@
             var activity=this._activities[path];
 
             if(activity==null) {
-                seajs.use(route.view,function(ActivityClass) {
+                seajs.use(route.package||route.view,function(Activity) {
                     var options={
                         application: that,
                         route: route
                     },
                     $el;
 
-                    if(null!=ActivityClass) {
+                    if(route.package) Activity=seajs.require(route.view);
+
+                    if(null!=Activity) {
                         $el=that.$el.find('[data-path="'+route.path+'"]');
                         if($el.length) {
                             options.el=$el;
                         }
 
-                        activity=new ActivityClass(options);
+                        activity=new Activity(options);
                         that.set(path,activity);
 
                         activity.then(function() {

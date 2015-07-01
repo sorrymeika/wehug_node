@@ -11,8 +11,6 @@ for(var i=2,arg,length=args.length;i<length;i++) {
     });
 }
 
-
-
 var path=require('path');
 var Tools=require('./../tools/tools');
 var tools=new Tools(path.join(__dirname,'./'),path.join(__dirname,config.dest));
@@ -27,61 +25,66 @@ _.extend(Util,util);
 
 var routes={};
 var configList=[];
+var projectsConfig=[];
 var loadConfig=function(project,callback) {
 
-    fs.readFile(path.join(__dirname,project.replace(/\/$/,'')+'/config.json'),{ encoding: 'utf-8' },function(err,data) {
+    fs.readFile(path.join(__dirname,project.replace(/\/$/,'')+'/config.json'),{ encoding: 'utf-8' },function(err,text) {
         if(err) {
             console.log(err);
             callback(err);
             return;
         }
 
-        var debug=eval(data.match(/([\'\"]|\b)debug\1\s*\:\s*(.+?)\,/)[2]),
-            webresource=data.match(/([\'\"]|\b)webresource\1\s*\:\s*([\'\"])(.+?)\2/)[3];
+        var webresource=config.webresource,//text.match(/([\'\"]|\b)webresource\1\s*\:\s*([\'\"])(.+?)\2/)[3],
+            rwebresource=/@webresource\(('|")(.+?)\1\)/img;
 
-        if(!debug) {
-            webresource+='/dest';
-        }
+        [text.replace(rwebresource,function(match,qt,url) {
+            return webresource+'/dest/'+url.replace(/^\//,'');
 
-        data=data.replace(/@webresource\(('|")(.+?)\1\)/img,function(match,qt,url) {
-
+        }),text.replace(rwebresource,function(match,qt,url) {
             return webresource+'/'+url.replace(/^\//,'');
-        });
 
-        data=eval('['+data+'][0]');
+        })].forEach(function(data,i) {
 
-        data.webresource=webresource;
-        data.root='/'+data.root.replace(/^\/|\/$/g,'')
+            data=eval('['+data+'][0]');
 
-        var root=data.root=='/'?'':data.root,
-            routeKey,
-            routeData,
-            routeOption;
+            data.root='/'+data.root.replace(/^\/|\/$/g,'')
+            data.webresource=webresource;
 
-        for(var key in data.route) {
-            routeOption=data.route[key];
-            routeData={};
+            var root=data.root=='/'?'':data.root,
+                routeKey,
+                routeData,
+                routeOption;
 
-            if(typeof routeOption=='string') {
-                routeData.template=routeData.controller=routeOption;
+            for(var key in data.route) {
+                routeOption=data.route[key];
+                routeData={};
 
-            } else {
-                routeData.controller=routeOption.controller;
-                routeData.template=routeOption.template||routeData.controller;
-                routeData.api=routeOption.api;
+                if(typeof routeOption=='string') {
+                    routeData.template=routeData.controller=routeOption;
+
+                } else {
+                    routeData.controller=routeOption.controller;
+                    routeData.template=routeOption.template||routeData.controller;
+                    routeData.api=routeOption.api;
+                }
+
+                routeKey=root+key;
+                routeData.root=data.root;
+                routeData.controller='views/'+routeData.controller;
+                routeData.template='template/'+routeData.template;
+
+                routes[routeKey=='/'?'/':routeKey.replace(/\/$/,'')]=routeData;
             }
 
-            routeKey=root+key;
-            routeData.root=data.root;
-            routeData.controller='views/'+routeData.controller;
-            routeData.template='template/'+routeData.template;
+            if(i==1) {
+                projectsConfig.push(_.extend(data,{ debug: false,webresource: webresource+'/dest' }));
 
-            routes[routeKey=='/'?'/':routeKey.replace(/\/$/,'')]=routeData;
-        }
-
-        configList.push(data);
-
-        callback(null,data);
+            } else {
+                configList.push(data);
+                callback(null,data);
+            }
+        });
     });
 };
 
@@ -93,7 +96,6 @@ var promise=new Promise(function() {
     fs.readFile('./index.tpl',{ encoding: 'utf-8' },function(err,data) {
 
         data=Tools.compressJs(razor.node(data))
-        console.log(data)
 
         fs.writeFile('./index.js',data,function(err,res) {
             pms.resolve();
@@ -110,38 +112,36 @@ promise.each(config.projects,function(i,project) {
             return;
         }
 
-        if(data.debug) {
-            var root=data.root=='/'?'':data.root,
-                visitRoot=data.debug?'/webresource/js'+root:root;
+        var root=data.root=='/'?'':data.root,
+            visitRoot='/webresource/js'+root;
 
-            app.get(visitRoot+'/views/*.js',function(req,res) {
-                res.set('Content-Type','text/javascript');
+        app.get(visitRoot+'/views/*.js',function(req,res) {
+            res.set('Content-Type','text/javascript');
 
-                fs.readFile('.'+root+'/views/'+req.params[0]+'.js',{ encoding: 'utf-8' },function(err,text) {
-                    if(err) {
-                        res.send(err);
-                        return;
-                    }
-                    res.send(text);
-                });
+            fs.readFile('.'+root+'/views/'+req.params[0]+'.js',{ encoding: 'utf-8' },function(err,text) {
+                if(err) {
+                    res.send(err);
+                    return;
+                }
+                res.send(text);
             });
+        });
 
-            app.get(visitRoot+'/template/*.js',function(req,res) {
-                res.set('Content-Type','text/javascript');
+        app.get(visitRoot+'/template/*.js',function(req,res) {
+            res.set('Content-Type','text/javascript');
 
-                fs.readFile('.'+root+'/template/'+req.params[0]+'.tpl',{
-                    encoding: 'utf-8'
+            fs.readFile('.'+root+'/template/'+req.params[0]+'.tpl',{
+                encoding: 'utf-8'
 
-                },function(err,text) {
-                    if(err) {
-                        res.send(err);
-                        return;
-                    }
-                    text=Tools.compressJs(razor.web(text));
-                    res.send(text);
-                });
+            },function(err,text) {
+                if(err) {
+                    res.send(err);
+                    return;
+                }
+                text=Tools.compressJs(razor.web(text));
+                res.send(text);
             });
-        }
+        });
 
         promise.next(i);
     });
@@ -169,22 +169,16 @@ promise.each(config.projects,function(i,project) {
         if(data) {
             res.set('Content-Type','text/html');
 
-            for(var i=0,length=configList.length;i<length;i++) {
+            for(var i=0,cfg,length=configList.length;i<length;i++) {
                 cfg=configList[i];
 
-                html=cfg.html.replace('</head>','<script>location.hash="'+data.url+'";</script>');
+                if(cfg.root==data.root) {
 
-                console.log(data.template);
+                    html=cfg.html.replace('</head>','<script>if(!location.hash)location.hash="'+data.url+'";</script>');
 
-                if(!config.debug) {
-                    var tmpl=require(config.node_dest+'/'+data.template);
-                    if(data.api) {
-                    }
-                    html=html.replace('<body>','<body><div class="view" data-url="'+util.encodeHTML(data.url)+'" data-path="'+util.encodeHTML(data.path)+'">'+tmpl.html()+'</div>');
+                    res.send(html);
+                    break;
                 }
-
-                res.send(html);
-                break;
             }
 
         } else {
@@ -196,8 +190,8 @@ promise.each(config.projects,function(i,project) {
     app.use('/webresource',express.static(path.join(__dirname,'../webresource')));
 
     if(config.build) {
+        //<--打包合并
         var tmplPromise=Promise.resolve(),
-            templates={},
             views={};
 
         tmplPromise.each(route.routes,function(i,buildConfig) {
@@ -212,48 +206,51 @@ promise.each(config.projects,function(i,project) {
                 },
                 root=buildConfig.root=='/'?'/':(buildConfig.root+'/');
 
-            if(!templates[root]) templates[root]='';
             if(!views[root]) views[root]='';
 
             fs.readFile(templatePath,{ encoding: 'utf-8' },function(err,data) {
                 var nodeCode=Tools.compressJs(razor.node(data));
                 var code=Tools.compressJs(Tools.replaceDefine(buildConfig.template,razor.web(data)));
 
-                Tools.save(config.node_dest+'/'+buildConfig.template,nodeCode);
+                Tools.save(config.node_dest+'/'+buildConfig.template+'.js',nodeCode);
 
-                templates[root]+=code;
+                views[root]+=code;
 
                 callback();
             });
 
             fs.readFile(viewPath,{ encoding: 'utf-8' },function(err,data) {
-                var code=Tools.compressJs(Tools.replaceDefine(buildConfig.view,data,'require("'+root+'razor");'));
+                var code=Tools.compressJs(Tools.replaceDefine(buildConfig.view,data));
 
                 views[root]+=code;
                 callback();
             });
-
-            console.log(root);
         })
         .then(function() {
-            for(var key in templates) {
-                Tools.save(config.dest+key+'razor.js',templates[key]);
-            }
+
             for(var key in views) {
                 Tools.save(config.dest+key+'controller.js',views[key]);
             }
+
+            Tools.save(path.join(config.node_dest,'config.js'),'module.exports='+JSON.stringify(_.extend({},config,{
+                port: 5556,
+                isDebugFramework: false,
+                debug: false,
+                build: false,
+                projects: projectsConfig,
+                routes: routes
+            })));
+
+            Tools.copy(path.join(config.node_dest,'index.js'),'./index.js');
+
             app.listen(config.port);
             console.log("start with",config.port,__dirname,process.argv);
         });
+        //打包合并-->
 
     } else {
         app.listen(config.port);
         console.log("start with",config.port,__dirname,process.argv);
     }
-
 });
-
-
-
-
 

@@ -4,14 +4,14 @@
         return (hash.replace(/^#+|\/$/,'')||'/').toLowerCase();
     };
 
-    var Route=function(options) {
+    var Route=function(options,isDebug) {
         var routes=[],
-            option,
-            parts,
-            root,
-            rootPath,
-            namedParam,
-            regex;
+        option,
+        parts,
+        root,
+        rootPath,
+        namedParam,
+        regex;
 
         for(var key in options) {
             option=options[key];
@@ -39,10 +39,12 @@
                 parts: parts,
                 template: rootPath+option.template,
                 view: rootPath+option.controller,
+                api: option.api,
                 root: root
             });
         }
 
+        this.isDebug=isDebug!==false;
         this.routes=routes;
     };
 
@@ -81,6 +83,7 @@
                     hash: '#'+hash,
                     root: route.root,
                     template: route.template,
+                    package: this.isDebug?false:(route.root=='/'?'controller':(route.root.replace(/^\//,'')+'/controller')),
                     view: route.view,
                     data: {},
                     queryString: query,

@@ -13,8 +13,6 @@
     @if(debug){
     <script src="@(webresource)/js/zepto.js"></script>
     <script src="@(webresource)/js/extend/fx.js"></script>
-    } else {
-        <script src="@(root!='/'?root+'/':'/')controller.js"></script>
     }
     @for(var i=0;i<js.length;i++){
         var item=js[i];
@@ -24,15 +22,14 @@
 <body>
     <script>
         seajs.config({
-           @html(debug?"":"base: './',")
             alias: {
-                '$': 'zepto',
+                '$': window.jQuery?'jquery':'zepto',
                 'animation': 'core/animation',
                 'page': 'core/page'
             }
         });
         seajs.use(['$','core/navigation'],function($,Navigation) {
-            new Navigation().mapRoute(@html(JSON.stringify(routes))).start();
+            new Navigation().mapRoute(@html(JSON.stringify(routes)),@debug).start();
         });
     </script>
 </body>
