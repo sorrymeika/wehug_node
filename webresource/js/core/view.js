@@ -139,7 +139,7 @@
 
         if(typeof child!=='function') {
             child=null;
-            args.splice(0,0,{});
+            args.unshift({});
 
         } else {
             args[0]={};
