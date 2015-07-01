@@ -849,7 +849,28 @@ Module.preload = function(callback) {
 
 seajs.use = function(ids, callback) {
   Module.preload(function() {
-    Module.use(ids, callback, data.cwd + "_use_" + cid())
+  /*
+    var pkgs=[];
+    if (!isArray(ids)) ids=[ids];
+
+    for (var i=0,id,len=ids.length;i<len;i++){
+        id=ids[i].split(/\s*\>\s{0,}/);
+        if (id.length==2){
+            pkgs.push({
+                i: i,
+                id: id[1]
+            });
+            ids[i]=id[0];
+        }
+    }
+    */
+    Module.use(ids,/* pkgs.length?function(){
+        for (var i=0,len=pkgs.length;i<len;i++){
+            arguments[pkgs[i].i]=seajs.require(pkgs[i].id);
+        }
+        callback.apply(this,arguments);
+
+    }: */callback, data.cwd + "_use_" + cid())
   })
   return seajs
 }

@@ -1,4 +1,4 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     require('../widget/tip');
 
@@ -21,7 +21,7 @@
         application: null,
         el: '<div class="view"></div>',
 
-        _setRoute: function(route) {
+        _setRoute: function (route) {
             this.route=route;
             this.hash=route.hash;
             this.url=route.url;
@@ -30,7 +30,7 @@
             this.queries=$.extend({},route.queries);
         },
 
-        queryString: function(key,val) {
+        queryString: function (key,val) {
             if(typeof val==='undefined')
                 return this.route.queries[key];
 
@@ -43,10 +43,10 @@
             this.application.to(this.route.path+(queries?'?'+queries:''));
         },
 
-        loadTemplate: function() {
+        loadTemplate: function () {
             var that=this,
                 count=1,
-                callback=function() {
+                callback=function () {
                     count--;
                     if(count==0) {
                         that.$el.html(that.razor.html(that.model)).appendTo(that.application.$el);
@@ -61,17 +61,17 @@
                     url: that.route.api,
                     type: 'GET',
                     dataType: 'json',
-                    success: function(res) {
+                    success: function (res) {
                         that.model=res;
                         callback(res);
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         callback({ success: false,content: xhr.responseText });
                     }
                 });
             }
 
-            seajs.use(that.route.template,function(razor) {
+            seajs.use(that.route.template,function (razor) {
                 that.razor=razor;
                 callback();
             });
@@ -79,7 +79,7 @@
             return that.promise;
         },
 
-        initialize: function() {
+        initialize: function () {
             var that=this,
                 promise=Promise.resolve();
 
@@ -103,7 +103,7 @@
                 promise.then(that.loadTemplate,that);
             }
             promise.then(that.onCreate,that)
-                .then(function() {
+                .then(function () {
                     that.trigger('Start');
                     that.checkQuery();
                 });
@@ -124,20 +124,20 @@
 
         onQueryChange: noop,
 
-        then: function(fn) {
+        then: function (fn) {
             this.promise.then(fn,this);
             return this;
         },
 
         _queryActions: {},
-        checkQuery: function() {
+        checkQuery: function () {
             var that=this;
             var queries=that.queries;
             var prevQueries=that._queries;
             var queryActions=that._queryActions;
             var action;
 
-            queryActions&&$.each(queryActions,function(i,qa) {
+            queryActions&&$.each(queryActions,function (i,qa) {
                 action=queries[i]||'';
 
                 if((action&&!prevQueries)||(prevQueries&&action!=prevQueries[i])) {
@@ -148,13 +148,13 @@
             });
         },
 
-        bindQueryAction: function(name,cls,fnMap) {
+        bindQueryAction: function (name,cls,fnMap) {
             var map={};
             var that=this;
             var newFn;
 
-            $.each(fnMap,function(i,fn) {
-                newFn=function() {
+            $.each(fnMap,function (i,fn) {
+                newFn=function () {
                     var args=slice.apply(arguments);
                     var queryFn=arguments.callee.__query_action;
                     (that.queryString(name)==i)?queryFn.apply(cls,args):(queryFn.__arguments=args,that.queryString(name,i));
@@ -170,55 +170,15 @@
             return this;
         },
 
-        prompt: function(title,val,fn,target) {
-            target=typeof fn!=='function'?fn:target;
-            fn=typeof val==='function'?val:fn;
-            val=typeof val==='function'?'':val;
-
-            !this._prompt&&(this._prompt=this.createDialog({
-                content: '<input type="text" class="prompt-text" />',
-                buttons: [{
-                    text: '取消',
-                    click: function() {
-                        this.hide();
-                    }
-                },{
-                    text: '确认',
-                    click: function() {
-                        this.hide();
-                        this.ok&&this.ok(this.$('.prompt-text').val());
-                    }
-                }]
-            }));
-
-            var prompt=this._prompt;
-
-            prompt.title(title||'请输入').show(target);
-            prompt.$('.prompt-text').val(val).focus();
-            prompt.ok=$.proxy(fn,this);
-        },
-
-        createDialog: function(options) {
-            var that=this;
-            var dialog=new Dialog(options);
-
-            that.bindQueryAction('dialog',dialog,{
-                show: 'show',
-                "": 'hide'
-            });
-
-            return dialog;
-        },
-
-        onActivityResult: function(event,fn) {
+        onActivityResult: function (event,fn) {
             this.listenTo(this.application,event,fn);
         },
 
-        setResult: function() {
+        setResult: function () {
             this.application.trigger.apply(this.application,arguments);
         },
 
-        compareUrl: function(url) {
+        compareUrl: function (url) {
             return getUrlPath(url)===this.route.path.toLowerCase();
         }
     });

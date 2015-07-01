@@ -20,6 +20,7 @@ tools.combine({
         'core/page': './js/core/page',
         'core/route': './js/core/route',
         'core/animation': './js/core/animation',
+        'core/master': './js/core/master',
         'core/navigation': './js/core/navigation',
         'widget/tip': './js/widget/tip',
         'widget/dialog': './js/widget/dialog'

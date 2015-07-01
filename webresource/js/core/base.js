@@ -1,15 +1,15 @@
-﻿define(function(require,exports,module) {
-    if(!Object.create) Object.create=function(o) {
-        var F=function() { };
+﻿define(function (require,exports,module) {
+    if(!Object.create) Object.create=function (o) {
+        var F=function () { };
         F.prototype=o;
         return new F();
     };
 
-    if(!Date.now) Date.now=function() {
+    if(!Date.now) Date.now=function () {
         return +new Date;
     };
 
-    var Class=function() {
+    var Class=function () {
         var that=this,
             args=Array.prototype.slice.call(arguments),
             options=args.shift();
@@ -24,15 +24,15 @@
     };
 
     Class.prototype.options={};
-    Class.prototype.initialize=function() { };
+    Class.prototype.initialize=function () { };
 
-    Class.extend=function(child,prop) {
+    Class.extend=function (child,prop) {
         var that=this,
             options;
 
         if(typeof child!=='function') {
             prop=child;
-            child=function() {
+            child=function () {
                 that.apply(this,arguments);
             }
         }

@@ -1,4 +1,4 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -6,7 +6,7 @@
         Event=require('./event'),
         slice=Array.prototype.slice;
 
-    var View=function() {
+    var View=function () {
         var that=this,
             options,
             args=slice.call(arguments),
@@ -41,7 +41,7 @@
 
         initialize: util.noop,
 
-        setElement: function(element,delegate) {
+        setElement: function (element,delegate) {
             if(element) {
                 if(this.$el) this.undelegateEvents();
                 this.$el=$(element);
@@ -57,18 +57,18 @@
         off: Event.off,
         trigger: Event.trigger,
 
-        undelegateEvents: function() {
+        undelegateEvents: function () {
             this.$el.off('.delegateEvents'+this.cid);
             return this;
         },
 
-        delegateEvents: function() {
+        delegateEvents: function () {
             this.listen(this.events);
             this.listen(this.options.events);
             return this;
         },
 
-        listen: function(events,fn) {
+        listen: function (events,fn) {
             var that=this;
 
             if(!fn) {
@@ -91,7 +91,7 @@
             return that;
         },
 
-        listenTo: function(target) {
+        listenTo: function (target) {
 
             var args=slice.apply(arguments),
                 fn=args[args.length-1];
@@ -108,18 +108,18 @@
             return this;
         },
 
-        $: function(selector) {
+        $: function (selector) {
             return this.$el.find(selector);
         },
 
         onDestroy: util.noop,
 
-        destroy: function() {
+        destroy: function () {
             var $el=this.$el,
                 that=this,
                 target;
 
-            $.each(this._bindListenTo,function(i,attrs) {
+            $.each(this._bindListenTo,function (i,attrs) {
                 target=attrs.shift();
                 target.off.apply(target,attrs);
             });
@@ -131,10 +131,23 @@
         }
     };
 
-    View.extend=function(child,prop) {
-        var that=this;
+    View.extend=function () {
+        var that=this,
+            args=slice.call(arguments),
+            child=args[0],
+            prop;
 
-        child=Base.extend.call(that,child,prop);
+        if(typeof child!=='function') {
+            child=null;
+            args.splice(0,0,{});
+
+        } else {
+            args[0]={};
+        }
+
+        prop=$.extend.apply($,args);
+
+        child=Base.extend.apply(that,child?[child,prop]:[prop]);
 
         child.prototype.events=$.extend({},child.superClass.events,child.prototype.events);
 

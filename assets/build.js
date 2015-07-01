@@ -32,6 +32,7 @@ tools.build({
             'core/page': '../webresource/js/core/page',
             'core/route': '../webresource/js/core/route',
             'core/animation': '../webresource/js/core/animation',
+            'core/master': '../webresource/js/core/master',
             'core/app': '',
             'core/activity': '',
             'core/touch': '',

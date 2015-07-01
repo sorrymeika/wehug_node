@@ -1,10 +1,11 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
         bridge=require('bridge'),
         Base=require('./base'),
         view=require('./view'),
+        Master=require('./master'),
         animation=require('./animation'),
         LinkList=require('./linklist'),
         Promise=require('./promise'),
@@ -17,12 +18,7 @@
         slice=Array.prototype.slice,
         getPath=util.getPath,
         parseHash=Route.standardizeHash,
-        checkQueryString=function(activity,route) {
-            if(activity.route.url!=route.url) {
-                activity._setRoute(route);
-                activity.trigger('QueryChange');
-            }
-        },
+        checkQueryString=Master.checkQueryString,
         defAnim={
             openEnterAnimationFrom: {
                 translate: '100%,0'
@@ -50,7 +46,7 @@
             }
         };
 
-    var getToggleAnimation=function(isOpen,currentActivity,activity,animationName) {
+    var getToggleAnimation=function (isOpen,currentActivity,activity,animationName) {
         if(!animationName) animationName=(isOpen?activity:currentActivity).animationName;
 
         var anim=require('anim/'+animationName)||defAnim,
@@ -76,16 +72,16 @@
         }];
     }
 
-    var prepareActivity=function(currentActivity,activity) {
+    var prepareActivity=function (currentActivity,activity) {
         currentActivity.prepareExitAnimation();
         currentActivity.$el.siblings(':not([data-path="'+activity.path+'"])').hide();
 
         if(activity.el.parentNode===null) activity.$el.appendTo(currentActivity.application.el);
     }
 
-    var Application=view.extend({
+    var Application=view.extend(Master,{
         events: {
-            'tap,click a[href]:not(.js-link-default)': function(e) {
+            'tap,click a[href]:not(.js-link-default)': function (e) {
                 var that=this,
                     target=$(e.currentTarget);
 
@@ -104,7 +100,7 @@
 
                 return false;
             },
-            'tap [data-href]': function(e) {
+            'tap [data-href]': function (e) {
                 var that=this,
                     target=$(e.currentTarget);
 
@@ -112,18 +108,18 @@
                     that.to(target.attr('data-href'));
                 }
             },
-            'tap [data-back]': function(e) {
+            'tap [data-back]': function (e) {
                 this.back($(e.currentTarget).attr('data-back'));
             },
-            'tap [data-forward]': function(e) {
+            'tap [data-forward]': function (e) {
                 this.forward($(e.currentTarget).attr('data-forward'));
             },
-            'focus input': function(e) {
+            'focus input': function (e) {
                 this.activeInput=e.target;
             }
         },
 
-        _touchStart: function() {
+        _touchStart: function () {
             var that=this,
                 currentActivity,
                 action,
@@ -158,7 +154,7 @@
                 that.swiperPromise=new Promise();
 
                 that.mask.show();
-                that.get(action,function(activity) {
+                that.get(action,function (activity) {
                     prepareActivity(currentActivity,activity);
 
                     that.isSwipeOpen=isOpen;
@@ -174,14 +170,14 @@
             }
         },
 
-        _touchMove: function(e) {
+        _touchMove: function (e) {
             var that=this,
                 per,
                 deltaX=that.touch.dx;
 
             if(!that.swiperPromise) return;
 
-            that.swiperPromise.then(function() {
+            that.swiperPromise.then(function () {
                 if(that.isSwipeLeft&&deltaX<0||!that.isSwipeLeft&&deltaX>0) {
                     that.swiper.step(0);
                     return;
@@ -193,7 +189,7 @@
             },that);
         },
 
-        _swiperAnimEnd: function() {
+        _swiperAnimEnd: function () {
             var that=this,
                 activity=that.swipeActivity,
                 currentActivity=that._currentActivity;
@@ -221,26 +217,25 @@
             that.turning();
         },
 
-        _touchEnd: function() {
+        _touchEnd: function () {
             var that=this;
 
             that.isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
 
             if(that.swiperPromise) {
-                that.swiperPromise.then(function() {
+                that.swiperPromise.then(function () {
                     that.queue([200,that.isCancelSwipe?0:100,that._swiperAnimEnd.bind(that)],that.swiper.animate,that.swiper);
                     that.swiperPromise=null;
                 });
             }
         },
 
-        skip: 0,
         _history: [],
         _historyCursor: -1,
 
         el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div><canvas class="imagecanvas"></canvas>',
 
-        initialize: function() {
+        initialize: function () {
             var that=this,
                 preventEvents='tap click touchend touchmove touchstart';
 
@@ -258,16 +253,11 @@
             },that);
         },
 
-        mapRoute: function(routes) {
-            this.route=new Route(routes);
-            return this;
-        },
-
-        start: function() {
+        start: function () {
             $(window).on('load',$.proxy(this._start,this));
         },
 
-        _start: function() {
+        _start: function () {
             var that=this,
                 hash,
                 $win=$(window);
@@ -280,14 +270,14 @@
             if(!location.hash) location.hash='/';
             that.hash=hash=parseHash(location.hash);
 
-            that.queue([hash,function(activity) {
+            that.queue([hash,function (activity) {
                 activity.$el.appendTo(that.el);
                 that._currentActivity=activity;
                 that._history.push(activity.url);
                 that._historyCursor++;
 
                 activity.$el.transform(defAnim.openEnterAnimationTo);
-                activity.then(function() {
+                activity.then(function () {
                     activity.trigger('Resume');
                     activity.trigger('Show');
 
@@ -295,7 +285,7 @@
                     that.turning();
                 });
 
-                $win.on('hashchange',function() {
+                $win.on('hashchange',function () {
                     hash=that.hash=parseHash(location.hash);
 
                     var index=lastIndexOf(that._history,hash),
@@ -327,7 +317,7 @@
 
         _queue: null,
 
-        queue: function(args,fn,context) {
+        queue: function (args,fn,context) {
             var queue=this._queue;
             queue.append({
                 context: context,
@@ -339,7 +329,7 @@
                 fn.apply(context,args);
         },
 
-        turning: function() {
+        turning: function () {
             var queue=this._queue;
 
             if(queue.length) {
@@ -351,53 +341,7 @@
             }
         },
 
-        viewPath: 'views/',
-        _currentActivity: null,
-        _activities: {},
-
-        set: function(url,activity) {
-            this._activities[getPath(url)]=activity;
-        },
-
-        get: function(url,callback) {
-            var that=this,
-                route=typeof url==='string'?that.route.match(url):url;
-
-            if(!route) return;
-
-            var activity=this._activities[route.path];
-
-            if(activity==null) {
-                seajs.use(that.viewPath+route.view,function(ActivityClass) {
-
-                    if(ActivityClass!=null) {
-                        activity=new ActivityClass({
-                            application: that,
-                            route: route
-                        });
-                        that.set(route.path,activity);
-
-                        activity.then(function() {
-                            callback.call(that,activity,route);
-                        });
-
-                    } else {
-                        that.skip++;
-                        that._currentActivity.finishEnterAnimation();
-                        location.hash=that._currentActivity.url;
-                    }
-                });
-
-            } else {
-                callback.call(that,activity,route);
-            }
-        },
-
-        remove: function(url) {
-            this._activities[getPath(url)]=void 0;
-        },
-
-        _animationTo: function(url,duration,animationName,type,callback) {
+        _animationTo: function (url,duration,animationName,type,callback) {
             if(!duration) duration=400;
             url=parseHash(url);
 
@@ -416,7 +360,7 @@
                 return;
             }
 
-            that.get(route,function(activity) {
+            that.get(route,function (activity) {
                 if(activity.path==currentActivity.path) {
                     checkQueryString(activity,route);
                     that.turning();
@@ -426,7 +370,7 @@
 
                 prepareActivity(currentActivity,activity);
 
-                activity.then(function() {
+                activity.then(function () {
                     activity.trigger('Resume');
                 });
 
@@ -446,7 +390,7 @@
                     anim.duration=duration;
                 }
 
-                anim.finish=function() {
+                anim.finish=function () {
                     callback&&callback(activity);
                     activity.finishEnterAnimation();
                     that.turning();
@@ -457,16 +401,16 @@
             });
         },
 
-        _to: function(url) {
+        _to: function (url) {
             this._navigate(url);
             this.turning();
         },
 
-        to: function(url) {
+        to: function (url) {
             this.queue([url],this._to,this);
         },
 
-        _navigate: function(url,skip) {
+        _navigate: function (url,skip) {
             url=parseHash(url);
 
             var that=this,
@@ -495,25 +439,25 @@
             }
         },
 
-        navigate: function(url) {
+        navigate: function (url) {
             this._navigate(url,true);
         },
 
-        _forward: function(url,duration,animationName) {
+        _forward: function (url,duration,animationName) {
             var currentActivity=this._currentActivity;
 
-            this._animationTo(url,duration,animationName,'open',function() {
+            this._animationTo(url,duration,animationName,'open',function () {
                 currentActivity.trigger('Pause');
             });
         },
 
-        forward: function(url,duration,animationName) {
+        forward: function (url,duration,animationName) {
             this.queue([url,duration,animationName],this._forward,this);
         },
 
         isHistoryBack: false,
 
-        _back: function(url,duration,animationName) {
+        _back: function (url,duration,animationName) {
             var that=this,
                 currentActivity=that._currentActivity;
 
@@ -528,13 +472,13 @@
                     animationName=duration;
                     duration=null;
                 }
-                that._animationTo(url,duration,animationName,'close',function() {
+                that._animationTo(url,duration,animationName,'close',function () {
                     currentActivity.destroy();
                 });
             }
         },
 
-        back: function(url,duration,animationName) {
+        back: function (url,duration,animationName) {
             this.queue([url,duration,animationName],this._back,this);
         }
     });
