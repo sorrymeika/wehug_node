@@ -5,11 +5,6 @@
         Page=require('page');
 
     return Page.extend({
-        //{id}对应route中的{id}
-        api: '/api/test/{id}',
-
-        template: 'template/test',
-
         events: {},
 
         onCreate: function () {
