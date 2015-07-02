@@ -2,7 +2,8 @@
 
     var $=require('$'),
         util=require('util'),
-        Page=require('page');
+        Page=require('page'),
+        Model=require('core/model');
 
     return Page.extend({
         events: {},

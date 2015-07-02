@@ -1,15 +1,15 @@
-﻿define(function (require,exports,module) {
-    if(!Object.create) Object.create=function (o) {
-        var F=function () { };
+﻿define(function(require,exports,module) {
+    if(!Object.create) Object.create=function(o) {
+        var F=function() { };
         F.prototype=o;
-        return new F();
+        return new F;
     };
 
-    if(!Date.now) Date.now=function () {
+    if(!Date.now) Date.now=function() {
         return +new Date;
     };
 
-    var Class=function () {
+    var Class=function() {
         var that=this,
             args=Array.prototype.slice.call(arguments),
             options=args.shift();
@@ -24,19 +24,21 @@
     };
 
     Class.prototype.options={};
-    Class.prototype.initialize=function () { };
+    Class.prototype.initialize=function() { };
 
-    Class.extend=function (child,prop) {
-        var that=this,
+    Class.extend=function(child,prop) {
+        var parent=this,
             options;
 
         if(typeof child!=='function') {
             prop=child;
-            child=function () {
-                that.apply(this,arguments);
+            child=function() {
+                parent.apply(this,arguments);
             }
         }
-        child.prototype=Object.create(that.prototype);
+        var Surrogate=function() { this.constructor=child; };
+        Surrogate.prototype=parent.prototype;
+        child.prototype=new Surrogate;
 
         options=prop.options;
         if(typeof options!=='undefined') {
@@ -50,17 +52,14 @@
             child.prototype[key]=prop[key];
         }
 
-        child.superClass=that.prototype;
-        child.prototype.constructor=child;
+        child.__super__=parent.prototype;
 
         child.extend=Class.extend;
 
         return child;
     };
 
-    window.sl={
-        Class: Class
-    };
+    window.sl=window.slan={};
 
     module.exports=Class;
 });

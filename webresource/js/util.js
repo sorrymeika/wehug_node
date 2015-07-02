@@ -23,6 +23,21 @@
             return ++guid;
         },
 
+        extend: function(proto) {
+            var parent=this;
+            var child=function() {
+                parent.apply(this,arguments);
+            };
+            child.prototype=Object.create(parent.prototype);
+
+            for(var key in proto)
+                child.prototype[key]=proto[key];
+
+            child.extend=extend;
+
+            return child;
+        },
+
         random: function(min,max) {
             if(max==null) {
                 max=min;
