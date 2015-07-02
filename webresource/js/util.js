@@ -33,7 +33,7 @@
             for(var key in proto)
                 child.prototype[key]=proto[key];
 
-            child.extend=extend;
+            child.extend=parent.extend;
 
             return child;
         },
