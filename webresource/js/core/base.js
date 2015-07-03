@@ -23,8 +23,10 @@
         that.options.initialize&&that.options.initialize.apply(that,args);
     };
 
-    Class.prototype.options={};
-    Class.prototype.initialize=function() { };
+    Class.prototype={
+        options: {},
+        initialize: function() { }
+    }
 
     Class.extend=function(child,prop) {
         var parent=this,

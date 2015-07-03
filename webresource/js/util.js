@@ -28,7 +28,10 @@
             var child=function() {
                 parent.apply(this,arguments);
             };
-            child.prototype=Object.create(parent.prototype);
+
+            var Surrogate=function() { this.constructor=child; };
+            Surrogate.prototype=parent.prototype;
+            child.prototype=new Surrogate;
 
             for(var key in proto)
                 child.prototype[key]=proto[key];
