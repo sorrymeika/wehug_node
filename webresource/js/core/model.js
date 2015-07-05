@@ -48,11 +48,11 @@
 
     var rcollection=/([a-zA-Z_1-9-]+)\s+in\s+([a-zA-Z_1-9-]+(\.[a-zA-Z_1-9-]+){0,})/g;
 
-    var Generator=function ($el) {
+    var Finder=function ($el) {
         var repeats={};
         var collection;
 
-        $el.find('[data-repeat]').each(function () {
+        $el.filter('[data-repeat]').add($el.find('[data-repeat]')).each(function () {
             var el=this;
             var repeat=this.getAttribute('data-repeat');
 
@@ -75,8 +75,11 @@
 
                 var placeHolder=createElement('<script type="text/placeholder"></script>');
                 var placeHolderName;
-                el.parentNode.insertBefore(placeHolder,el);
-                el.parentNode.removeChild(el);
+
+                if(el.parentNode) {
+                    el.parentNode.insertBefore(placeHolder,el);
+                    el.parentNode.removeChild(el);
+                }
 
                 var listItem={
                     sort: '',
@@ -114,7 +117,7 @@
         if(typeof hash==='object') parent=hash,hash=undefined;
 
         this.model=model;
-        this.data=data;
+        this.data=$.isArray(data)?{ $data: data}:data;
         this.key=hash||'';
 
         if(parent) {
@@ -126,14 +129,14 @@
                 this.key=parent.key;
 
             } else {
-                this.generator=parent;
+                this.finder=parent;
             }
         }
 
         var collection;
 
         for(var key in data) {
-            map=mapping[key];
+            map=mapping?mapping[key]:null;
             value=data[key];
 
             if((map&&map.prototype instanceof Model)||(!map&&$.isPlainObject(value))) {
@@ -142,7 +145,7 @@
             } else if((map&&map.prototype instanceof Collection)||(!map&&$.isArray(value))) {
                 model[key]=collection=new (map||Collection)(value,key,this);
 
-                this.generator&&(collection.list=this.generator[collection.key]);
+                this.finder&&(collection.list=this.finder[collection.key]);
 
             } else
                 model[key]=data[key];
@@ -156,8 +159,36 @@
         off: Event.off,
         trigger: Event.trigger,
 
-        generate: function ($el) {
-            this.generator=Generator($el);
+        template: null,
+
+        fetch: function (url,postData,success,error) {
+            var self=this;
+
+            if(typeof url==='function') error=postData,success=url,postData=null,url=this.url;
+            if(typeof postData==='function') error=success,success=postData,postData=null;
+
+            $.ajax({
+                url: url,
+                type: postData?'POST':'GET',
+                data: postData,
+                dataType: 'json',
+                success: function (data) {
+                    var $el=$(self.template.html(data));
+                    self.generate($el,data);
+                    success.call(self,$el,data);
+                },
+                error: error
+            });
+        },
+
+        generate: function ($el,data) {
+            this.finder=Finder($el);
+            this.constructor(data);
+        },
+
+        scan: function ($el) {
+            this.finder=Finder($el);
+            return this;
         },
 
         bind: function ($el,variableName) {
@@ -188,13 +219,14 @@
 
                 } else if(value instanceof Collection) {
 
-                    for(var i=0,len=value.list.length;i<len;i++) {
-                        var listItem=value.list[i];
+                    if(value.list) {
+                        for(var i=0,len=value.list.length;i<len;i++) {
+                            var listItem=value.list[i];
 
-                        if(!listItem.placeHolder)
-                            listItem.placeHolder=$el.find('[data-placeholder="'+listItem.placeHolderName+'"]')[0];
+                            if(!listItem.placeHolder)
+                                listItem.placeHolder=$el.find('[data-placeholder="'+listItem.placeHolderName+'"]')[0];
+                        }
                     }
-
                 }
             }
 
@@ -255,9 +287,6 @@
 
         },
 
-        render: function () {
-        },
-
         remove: function () {
         },
 
@@ -277,9 +306,9 @@
 
         if(parent) {
             this.parent=parent;
-            this.key=parent.key+'.'+(hash||'');
+            this.key=parent.key+'.'+(key||'');
         } else {
-            this.key=hash||'';
+            this.key=key||'';
         }
 
         for(var i=0,len=collection.length;i<len;i++) {
@@ -291,7 +320,6 @@
     Collection.prototype={
 
         model: Model,
-        url: null,
 
         forEach: function (fn) {
             var model;
@@ -307,22 +335,24 @@
             var model=new Model(data,this);
             this.models.push(model);
 
-            for(var i=0,len=this.list.length;i<len;i++) {
-                item=this.list[i];
+            if(this.list) {
+                for(var i=0,len=this.list.length;i<len;i++) {
+                    item=this.list[i];
 
-                var el=item.template.cloneNode();
-                var $el=$(el);
+                    var el=item.template.cloneNode();
+                    var $el=$(el);
 
-                this.parent&&this.parent.bind($el);
-                model.bind($el,item.modelName);
+                    this.parent&&this.parent.bind($el);
+                    model.bind($el,item.modelName);
 
-                item.elements.push(el);
+                    item.elements.push(el);
 
-                if(autoAppend===false) {
-                    item.fragment.appendChild(el);
+                    if(autoAppend===false) {
+                        item.fragment.appendChild(el);
 
-                } else {
-                    item.placeHolder.parentNode.insertBefore(el,item.placeHolder);
+                    } else {
+                        item.placeHolder.parentNode.insertBefore(el,item.placeHolder);
+                    }
                 }
             }
         },
