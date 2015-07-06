@@ -1,4 +1,4 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -9,16 +9,16 @@
 
     var Filter={
         date: util.formatDate,
-        json: function(data) {
+        json: function (data) {
             return (data instanceof Model||data instanceof Collection)?JSON.stringify(data.data):JSON.stringify(json);
         },
-        join: function(arr,split) {
+        join: function (arr,split) {
             return arr.join(split);
         },
-        lowercase: function(str) {
+        lowercase: function (str) {
             return str.toLowerCase();
         },
-        uppercase: function(str) {
+        uppercase: function (str) {
             return str.toUpperCase();
         }
     };
@@ -26,13 +26,13 @@
     var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\'))*)/g;
     var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
 
-    var filterValue=function(model,key,filters,alias,bindEvent) {
+    var filterValue=function (model,key,filters,alias,bindEvent) {
 
         var value=bindEvent?model.data[key]:key;
 
-        filters.replace(rfilter,function(match,filter,parameters) {
+        filters.replace(rfilter,function (match,filter,parameters) {
             var args=[value];
-            parameters.replace(rparams,function(match,param) {
+            parameters.replace(rparams,function (match,param) {
                 if(param[0]=='\'')
                     args.push(eval(param));
 
@@ -54,7 +54,7 @@
                     }
                     arg=eventBind.data;
 
-                    param.replace(rdatakey,function(match,proto) {
+                    param.replace(rdatakey,function (match,proto) {
                         if(start>=1) {
                             if(prev) {
                                 eventBind=eventBind.get(proto);
@@ -66,7 +66,7 @@
                     });
 
                     if(bindEvent&&eventBind) {
-                        eventBind.on('change:'+prev,function(e,val) {
+                        eventBind.on('change:'+prev,function (e,val) {
                             filterValue(model,val,filters,alias);
                         });
                     }
@@ -82,7 +82,7 @@
 
 
     var creator=document.createElement("DIV");
-    var createElement=function(html) {
+    var createElement=function (html) {
         creator.innerHTML=html;
         return creator.childNodes[0].nodeType==3?creator.childNodes[1]:creator.childNodes[0]
     }
@@ -109,15 +109,15 @@
     var rcollection=/([a-zA-Z_1-9-]+)\s+in\s+([a-zA-Z_1-9-]+(\.[a-zA-Z_1-9-]+){0,})/g;
     var rfilter=/\s*\|\s*([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9-]+|'[^'+]')/g;
 
-    var Finder=function($el) {
+    var Finder=function ($el) {
         var repeats={};
         var collection;
 
-        $el.filter('[data-repeat]').add($el.find('[data-repeat]')).each(function() {
+        $el.filter('[data-repeat]').add($el.find('[data-repeat]')).each(function () {
             var el=this;
             var repeat=this.getAttribute('data-repeat');
 
-            repeat.replace(rcollection,function(match,modelName,collectionName) {
+            repeat.replace(rcollection,function (match,modelName,collectionName) {
                 var names=collectionName.split('.');
                 var namesLength=names.length;
 
@@ -167,7 +167,7 @@
         return repeats;
     };
 
-    var setElement=function(el,prop,value) {
+    var setElement=function (el,prop,value) {
 
         switch(prop) {
             case 'text':
@@ -183,7 +183,7 @@
 
     };
 
-    var Model=function(data,hash,parent) {
+    var Model=function (data,hash,parent) {
         if(!data) return;
 
         var model={},
@@ -194,7 +194,7 @@
         if(typeof hash==='object') parent=hash,hash=undefined;
 
         this.model=model;
-        this.data=data;
+        this.data=$.isArray(data)?{ $data: data}:data;
         this.key=hash||'';
         this.root=this;
 
@@ -241,6 +241,23 @@
         }
     };
 
+    var http=function (url,method,data,success,error,ctx) {
+        if(typeof data==='function') ctx=error,error=success,success=data,data=null;
+
+        $.ajax({
+            url: url,
+            type: method,
+            data: data,
+            dataType: 'json',
+            success: function (res) {
+                success.call(ctx,res);
+            },
+            error: function (res) {
+                error.call(ctx,res);
+            }
+        });
+    };
+
     Model.prototype={
         constructor: Model,
         one: Event.one,
@@ -248,57 +265,76 @@
         off: Event.off,
         trigger: Event.trigger,
 
-        template: null,
-
-        fetch: function(url,data,success,error) {
-            var self=this;
-
-            if(typeof url==='function') error=postData,success=url,postData=null,url=this.url;
-            if(typeof postData==='function') error=success,success=postData,postData=null;
-
-            $.ajax({
-                url: url,
-                type: data?'POST':'GET',
-                data: data,
-                dataType: 'json',
-                success: function(res) {
-                    var $el;
-                    if(self.model) {
-                        self.set(res);
-
-                    } else {
-                        $el=$(self.template.html(res));
-
-                        self.generate($el,res);
-                    }
-
-                    success.call(self,res,$el);
-                },
-                error: error
-            });
+        validate: function () {
         },
 
-        bind: function($el,data) {
+        fetch: function (success,error) {
+            http(this.url,'GET',function (res) {
+                var $el;
+                if(this.model) {
+                    this.set(res);
+
+                } else {
+                    $el=$(this.template.html(res));
+
+                    this.generate($el,res);
+                }
+
+                success.call(this,res,$el);
+            },error,this);
+        },
+
+        insert: function (success,error) {
+            var data=this.toJSON();
+
+            http(this.url,'POST',data,function (res) {
+
+                if(this.parent&&this.parent instanceof Collection) {
+                    this.parent.add(data);
+                }
+
+                success.call(this,res,data);
+            },error,this);
+        },
+
+        save: function (success,error) {
+            http(this.url,'PUT',this.toJSON(),success,error,this);
+        },
+
+        remove: function (success,error) {
+            var self=this;
+
+            http(this.url,'DELETE',data,function (res) {
+
+                if(this.parent&&this.parent instanceof Collection) {
+                    this.parent.remove(data);
+                }
+
+                success.call(this,res,data);
+            },error,this);
+        },
+
+        bind: function ($el,data) {
             this.finder=Finder($el);
             this.constructor(data);
         },
 
-        scan: function($el) {
+        scan: function ($el) {
             this.finder=Finder($el);
             return this;
         },
 
-        _scanBinding: function($el,alias) {
+        _scanBinding: function ($el,alias) {
             var self=this;
 
-            $el.find('[data-binding]').each(function() {
+            $el.find('[data-binding]').each(function () {
                 var el=this;
                 var binding=this.getAttribute('data-binding');
                 var rbinding=new RegExp("\\b([a-zA-Z_1-9-]+)\\s*\\:\\s*"+(alias||'')+"((?:\\.[a-zA-Z_1-9]+)*)((?:\\s*\\|\\s*[a-zA-Z_1-9]+(?:\\s*\\:\\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)",'g');
                 var bindings={},
                     bounds;
 
-                binding.replace(rbinding,function(match,prop,key,filters) {
+                binding.replace(rbinding,function (match,prop,key,filters) {
 
                     bounds=bindings[key];
                     key=(key?key.replace(/^\./,''):'')||'$self';
@@ -345,13 +381,13 @@
             return self;
         },
 
-        get: function(key) {
+        get: function (key) {
             return this.model[key];
         },
 
         bindings: {},
 
-        _asyncView: function(key,val) {
+        _asyncView: function (key,val) {
 
             var bindings=this.bindings[key],
                 binding,
@@ -380,7 +416,7 @@
             }
         },
 
-        set: function(key,val) {
+        set: function (key,val) {
             var self=this,
                 origin,
                 changed,
@@ -422,19 +458,14 @@
 
         },
 
-        remove: function() {
-            if(this.parent&&this.parent instanceof Collection) {
-                this.parent.remove(this);
-            }
-        },
-
-        save: function() {
+        toJSON: function () {
+            return $.extend(true,{},this.data);
         }
     };
 
     Model.extend=util.extend;
 
-    var Collection=function(data,key,parent) {
+    var Collection=function (data,key,parent) {
 
         if(!data) return;
         if(typeof key==='object') parent=key,key=undefined;
@@ -474,7 +505,7 @@
 
         model: Model,
 
-        forEach: function(fn) {
+        forEach: function (fn) {
             var model;
 
             for(var i=0,len=this.models.length;i<len;i++) {
@@ -484,7 +515,7 @@
             }
         },
 
-        add: function(data,autoAppend) {
+        add: function (data,autoAppend) {
             var model=new Model(data,this);
             this.models.push(model);
 
@@ -508,9 +539,10 @@
                     }
                 }
             }
+            return model;
         },
 
-        set: function(list) {
+        set: function (list) {
             var data,
                 len=list.length,
                 length=this.models.length;
@@ -531,11 +563,11 @@
             }
         },
 
-        get: function(i) {
+        get: function (i) {
             return this.models[i];
         },
 
-        remove: function(i) {
+        remove: function (i) {
             var item,
                 el;
 
@@ -556,13 +588,7 @@
             }
         },
 
-        fetch: function() {
-        },
-
-        render: function() {
-        },
-
-        save: function() {
+        save: function () {
         }
     };
 
