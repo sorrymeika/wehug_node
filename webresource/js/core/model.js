@@ -1,4 +1,4 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -6,23 +6,83 @@
         Event=require('./event'),
         slice=Array.prototype.slice;
 
-    var setElementProp=function (el,prop,value) {
-        switch(prop) {
-            case 'text':
-                el.innerHTML=util.encodeHTML(value);
-                break;
-            case 'html':
-                el.innerHTML=value;
-                break;
-            default:
-                el[prop]=value;
-                break;
-        }
 
+    var Filter={
+        date: util.formatDate,
+        json: function(data) {
+            return (data instanceof Model||data instanceof Collection)?JSON.stringify(data.data):JSON.stringify(json);
+        },
+        join: function(arr,split) {
+            return arr.join(split);
+        },
+        lowercase: function(str) {
+            return str.toLowerCase();
+        },
+        uppercase: function(str) {
+            return str.toUpperCase();
+        }
     };
 
+    var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\'))*)/g;
+    var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
+
+    var filterValue=function(model,key,filters,alias,bindEvent) {
+
+        var value=bindEvent?model.data[key]:key;
+
+        filters.replace(rfilter,function(match,filter,parameters) {
+            var args=[value];
+            parameters.replace(rparams,function(match,param) {
+                if(param[0]=='\'')
+                    args.push(eval(param));
+
+                else if(param==alias) {
+                    args.push(model.data);
+
+                } else {
+                    var eventBind,
+                        prev,
+                        arg,
+                        start=1,
+                        rdatakey=/([a-zA-Z_1-9]+)(?=\.|$)/g;
+
+                    if(param.indexOf(alias+'.')==0) {
+                        start=0;
+                        eventBind=model;
+                    } else {
+                        eventBind=model.root;
+                    }
+                    arg=eventBind.data;
+
+                    param.replace(rdatakey,function(match,proto) {
+                        if(start>=1) {
+                            if(prev) {
+                                eventBind=eventBind.get(proto);
+                            }
+                            prev=proto;
+                            arg=arg?arg[proto]:undefined;
+                        }
+                        start++;
+                    });
+
+                    if(bindEvent&&eventBind) {
+                        eventBind.on('change:'+prev,function(e,val) {
+                            filterValue(model,val,filters,alias);
+                        });
+                    }
+
+                    args.push(arg);
+                }
+            });
+            value=Filter[filter].apply(Filter,args);
+        });
+
+        return value;
+    };
+
+
     var creator=document.createElement("DIV");
-    var createElement=function (html) {
+    var createElement=function(html) {
         creator.innerHTML=html;
         return creator.childNodes[0].nodeType==3?creator.childNodes[1]:creator.childNodes[0]
     }
@@ -42,21 +102,22 @@
     console.log(Date.now()-now);
 
     for(var i=0;i<10000;i++) {
-        el.cloneNode();
+        el.cloneNode(true);
     }
     console.log(Date.now()-now);
 
     var rcollection=/([a-zA-Z_1-9-]+)\s+in\s+([a-zA-Z_1-9-]+(\.[a-zA-Z_1-9-]+){0,})/g;
+    var rfilter=/\s*\|\s*([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9-]+|'[^'+]')/g;
 
-    var Finder=function ($el) {
+    var Finder=function($el) {
         var repeats={};
         var collection;
 
-        $el.filter('[data-repeat]').add($el.find('[data-repeat]')).each(function () {
+        $el.filter('[data-repeat]').add($el.find('[data-repeat]')).each(function() {
             var el=this;
             var repeat=this.getAttribute('data-repeat');
 
-            repeat.replace(rcollection,function (match,modelName,collectionName) {
+            repeat.replace(rcollection,function(match,modelName,collectionName) {
                 var names=collectionName.split('.');
                 var namesLength=names.length;
 
@@ -82,7 +143,7 @@
                 }
 
                 var listItem={
-                    sort: '',
+                    orderBy: '',
                     modelName: modelName,
                     template: el,
                     elements: []
@@ -106,7 +167,23 @@
         return repeats;
     };
 
-    var Model=function (data,hash,parent) {
+    var setElement=function(el,prop,value) {
+
+        switch(prop) {
+            case 'text':
+                el.innerHTML=util.encodeHTML(value);
+                break;
+            case 'html':
+                el.innerHTML=value;
+                break;
+            default:
+                el[prop]=value;
+                break;
+        }
+
+    };
+
+    var Model=function(data,hash,parent) {
         if(!data) return;
 
         var model={},
@@ -117,23 +194,27 @@
         if(typeof hash==='object') parent=hash,hash=undefined;
 
         this.model=model;
-        this.data=$.isArray(data)?{ $data: data}:data;
+        this.data=data;
         this.key=hash||'';
+        this.root=this;
 
         if(parent) {
             if(parent instanceof Model) {
                 this.parent=parent;
-                this.key=parent.key+'.'+this.key;
+                if(parent.key)
+                    this.key=parent.key+'.'+this.key;
+
+                this.root=parent.root;
+
             } else if(parent instanceof Collection) {
                 this.parent=parent;
                 this.key=parent.key;
+                this.root=parent.root;
 
             } else {
                 this.finder=parent;
             }
         }
-
-        var collection;
 
         for(var key in data) {
             map=mapping?mapping[key]:null;
@@ -143,12 +224,20 @@
                 model[key]=new (map||Model)(value,key,this);
 
             } else if((map&&map.prototype instanceof Collection)||(!map&&$.isArray(value))) {
-                model[key]=collection=new (map||Collection)(value,key,this);
-
-                this.finder&&(collection.list=this.finder[collection.key]);
+                model[key]=new (map||Collection)();
 
             } else
-                model[key]=data[key];
+                model[key]=value;
+        }
+
+        var collection;
+
+        for(var key in model) {
+            collection=model[key];
+
+            if(collection instanceof Collection) {
+                collection.constructor(data[key],key,this);
+            }
         }
     };
 
@@ -161,7 +250,7 @@
 
         template: null,
 
-        fetch: function (url,postData,success,error) {
+        fetch: function(url,data,success,error) {
             var self=this;
 
             if(typeof url==='function') error=postData,success=url,postData=null,url=this.url;
@@ -169,53 +258,76 @@
 
             $.ajax({
                 url: url,
-                type: postData?'POST':'GET',
-                data: postData,
+                type: data?'POST':'GET',
+                data: data,
                 dataType: 'json',
-                success: function (data) {
-                    var $el=$(self.template.html(data));
-                    self.generate($el,data);
-                    success.call(self,$el,data);
+                success: function(res) {
+                    var $el;
+                    if(self.model) {
+                        self.set(res);
+
+                    } else {
+                        $el=$(self.template.html(res));
+
+                        self.generate($el,res);
+                    }
+
+                    success.call(self,res,$el);
                 },
                 error: error
             });
         },
 
-        generate: function ($el,data) {
+        bind: function($el,data) {
             this.finder=Finder($el);
             this.constructor(data);
         },
 
-        scan: function ($el) {
+        scan: function($el) {
             this.finder=Finder($el);
             return this;
         },
 
-        bind: function ($el,variableName) {
+        _scanBinding: function($el,alias) {
             var self=this;
 
-            $el.find('[data-binding]').each(function () {
+            $el.find('[data-binding]').each(function() {
                 var el=this;
                 var binding=this.getAttribute('data-binding');
-                var rbinding=new RegExp('\\b([a-zA-Z_1-9-]+)\\s*\\:\\s*'+(variableName?variableName+'\\.':'')+'([a-zA-Z_1-9]+)(\s|,|$)','g');
-                var bindings;
+                var rbinding=new RegExp("\\b([a-zA-Z_1-9-]+)\\s*\\:\\s*"+(alias||'')+"((?:\\.[a-zA-Z_1-9]+)*)((?:\\s*\\|\\s*[a-zA-Z_1-9]+(?:\\s*\\:\\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)",'g');
+                var bindings={},
+                    bounds;
 
-                binding.replace(rbinding,function (match,prop,key) {
-                    if(!bindings) {
-                        bindings=[el];
+                binding.replace(rbinding,function(match,prop,key,filters) {
+
+                    bounds=bindings[key];
+                    key=(key?key.replace(/^\./,''):'')||'$self';
+                    if(!bounds) {
+                        bindings[key]=bounds=[el];
                         if(!self.bindings[key]) self.bindings[key]=[];
-                        self.bindings[key].push(bindings);
+                        self.bindings[key].push(bounds);
                     }
-                    bindings.push(prop);
 
-                    setElementProp(el,prop,self.data[key]);
+                    var value=self.data[key];
+
+                    if(filters) {
+                        prop={
+                            prop: prop,
+                            filters: filters,
+                            alias: alias
+                        };
+                        value=filterValue(self,key,filters,alias,true);
+                    }
+                    bounds.push(prop);
+
+                    setElement(el,typeof prop==='string'?prop:prop.prop,value);
                 });
             });
 
             for(var key in this.model) {
                 var value=this.model[key];
                 if(value instanceof Model) {
-                    value.bind($el);
+                    value._scanBinding($el);
 
                 } else if(value instanceof Collection) {
 
@@ -233,18 +345,19 @@
             return self;
         },
 
-        get: function (key) {
+        get: function(key) {
             return this.model[key];
         },
 
         bindings: {},
 
-        _asyncView: function (key,val) {
+        _asyncView: function(key,val) {
 
             var bindings=this.bindings[key],
                 binding,
                 el,
-                prop;
+                prop,
+                key;
 
             if(bindings) {
                 for(var i=0,len=bindings.length;i<len;i++) {
@@ -254,21 +367,38 @@
                     for(var j=1,n=binding.length;j<n;j++) {
                         prop=binding[j];
 
-                        setElementProp(el,prop,val);
-                    }
+                        console.log(prop)
 
+                        if(typeof prop!=='string') {
+                            val=filterValue(this,val,prop.filters,prop.alias);
+                            prop=prop.prop;
+                        }
+
+                        setElement(el,prop,val);
+                    }
                 }
             }
         },
 
-        set: function (key,val) {
+        set: function(key,val) {
             var self=this,
                 origin,
                 changed,
                 attrs;
 
-            if(typeof key==='object') {
+            if($.isPlainObject(key)) {
                 attrs=key;
+            } else if(typeof val=='undefined') {
+                val=key,key='';
+
+                if(this.parent) {
+                    this.parent.data[this.parent.models.indexOf(this)]=val;
+                }
+                this.data=val;
+                this.trigger('change',val);
+                this._asyncView('$self',val);
+                return;
+
             } else {
                 (attrs={})[key]=val;
             }
@@ -278,50 +408,73 @@
                 value=attrs[attr];
 
                 if(origin!==value) {
-                    this.model[attr]=value;
+                    if(origin instanceof Model||origin instanceof Collection) {
+                        origin.set(value)
+                    } else {
+                        this.model[attr]=value;
+                        this.data[attr]=value;
+                    }
+                    this._asyncView(attr,value);
 
                     this.trigger('change:'+attr,value);
-                    this._asyncView(attr,value);
                 }
             }
 
         },
 
-        remove: function () {
+        remove: function() {
+            if(this.parent&&this.parent instanceof Collection) {
+                this.parent.remove(this);
+            }
         },
 
-        save: function () {
+        save: function() {
         }
     };
 
     Model.extend=util.extend;
 
-    var Collection=function (collection,key,parent) {
+    var Collection=function(data,key,parent) {
 
-        if(!collection) return;
+        if(!data) return;
         if(typeof key==='object') parent=key,key=undefined;
 
         this.models=[];
-        this.data=collection;
+        this.data=data;
+        this.key=key||'';
 
         if(parent) {
             this.parent=parent;
-            this.key=parent.key+'.'+(key||'');
-        } else {
-            this.key=key||'';
+            if(parent.key)
+                this.key=parent.key+"."+this.key;
+
+            this.root=parent.root;
         }
 
-        for(var i=0,len=collection.length;i<len;i++) {
-            this.add(collection[i]);
+        this.root&&this.root.finder&&(this.list=this.root.finder[this.key]);
+
+        for(var i=0,len=this.list.length;i<len;i++) {
+            this.list[i].fragment=document.createDocumentFragment();
+        }
+        for(var i=0,len=data.length;i<len;i++) {
+            this.add(data[i],false);
+        }
+
+        var item;
+
+        for(var i=0,len=this.list.length;i<len;i++) {
+            item=this.list[i];
+            item.placeHolder.parentNode.insertBefore(item.fragment,item.placeHolder);
         }
         if(parent) this.parent=parent;
     };
 
     Collection.prototype={
+        constructor: Collection,
 
         model: Model,
 
-        forEach: function (fn) {
+        forEach: function(fn) {
             var model;
 
             for(var i=0,len=this.models.length;i<len;i++) {
@@ -331,7 +484,7 @@
             }
         },
 
-        add: function (data,autoAppend) {
+        add: function(data,autoAppend) {
             var model=new Model(data,this);
             this.models.push(model);
 
@@ -339,11 +492,11 @@
                 for(var i=0,len=this.list.length;i<len;i++) {
                     item=this.list[i];
 
-                    var el=item.template.cloneNode();
+                    var el=item.template.cloneNode(true);
                     var $el=$(el);
 
-                    this.parent&&this.parent.bind($el);
-                    model.bind($el,item.modelName);
+                    this.parent&&this.parent._scanBinding($el);
+                    model._scanBinding($el,item.modelName);
 
                     item.elements.push(el);
 
@@ -357,51 +510,75 @@
             }
         },
 
-        get: function (i) {
+        set: function(list) {
+            var data,
+                len=list.length,
+                length=this.models.length;
+
+            if(len>length) {
+                for(var i=length-1;i>=0;i--) {
+                    this.remove(i);
+                }
+            }
+
+            for(var i=0;i<len;i++) {
+                data=list[i];
+
+                if(i<length)
+                    this.models[i].set(data);
+                else
+                    this.add(data);
+            }
+        },
+
+        get: function(i) {
             return this.models[i];
         },
 
-        remove: function () {
+        remove: function(i) {
+            var item,
+                el;
+
+            if(typeof i!='number') {
+                i=this.models.indexOf(i);
+            }
+
+            if(this.list) {
+                for(var j=0,len=this.list.length;j<len;j++) {
+                    item=this.list[j];
+
+                    el=item.elements[i];
+                    el.prentNode.removeChild(el);
+                    item.elements.splice(i,1);
+                }
+                this.models.splice(i,1);
+                this.data.splice(i,1);
+            }
         },
 
-        sort: function () {
+        fetch: function() {
         },
 
-        fetch: function () {
+        render: function() {
         },
 
-        render: function () {
-        },
-
-        save: function () {
+        save: function() {
         }
     };
 
     Collection.extend=util.extend;
 
-    var Item=Model.extend({
+    var vm=new Model();
 
-        mapping: {
-            picture: 'xxx',
-            alt: 'zzzz',
-            content: 'asdf'
-        }
-    })
 
-    var List=Collection.extend({
+    var $el=$('<div>\
+            <div data-repeat="item in data" class="item">\
+                <img data-binding="src:item.picture|lowercase:asdf.cc:\'asdf\'|uppercase,alt:item.alt|uppercase"/>\
+                <div data-binding="data:item.content">测试<text data-binding="html:item.content"></text>一下</div>\
+            </div>\
+        </div>').appendTo('body');
 
-        model: Item
-    })
-
-    var Index=Model.extend({
-
-        mapping: {
-            success: false,
-            msg: ''
-        }
-    })
-
-    var indexModel=new Index({
+    vm.bind($el,{
         success: true,
         data: [{
             picture: 'xxx',
@@ -412,48 +589,62 @@
             alt: 'zzzz1',
             content: 'asdf1'
         }],
-        picture: 'asdf'
+        picture: 'asdf',
+        asdf: {
+            cc: "asdf"
+        }
+    });
+
+    //vm.get('data').get(0).set('picture','a');
+
+    /*
+
+    var Item=Model.extend({
+
+    mapping: {
+    picture: 'xxx',
+    alt: 'zzzz',
+    content: 'asdf'
+    }
+    })
+
+    var List=Collection.extend({
+
+    model: Item
+    })
+
+    var Index=Model.extend({
+
+    mapping: {
+    success: false,
+    msg: ''
+    }
     })
 
 
-    var $el=$('<div data-repeat="$data"><div data-collection="data" class="list">\
-            <div data-repeat="data[0]" class="item">\
-                <img data-binding="src:picture,alt:alt"/>\
-                <div data-binding="innerHTML:data[0].content">asdf</div>\
-            </div>\
-            <div data-repeat="item in data" class="item">\
-                <img data-binding="src:item.picture,alt:item.alt"/>\
-                <div data-binding="data:item.content">测试<text data-binding="html:item.content"></text>一下</div>\
-            </div>\
-        </div></div>').appendTo('body');
-
-    indexModel.bind($el,'item');
-
     var Book=Model.extend({
-        id: 'id',
+    id: 'id',
 
-        url: '/api/book/{id}',
+    url: '/api/book/{id}',
 
-        mapping: {
-            id: 0,
-            title: '',
-            author: ''
-        }
+    mapping: {
+    id: 0,
+    title: '',
+    author: ''
+    }
     });
 
     var Order=Model.extend({
-        id: 'orderid',
+    id: 'orderid',
 
-        url: '/api/order/{id}',
+    url: '/api/order/{id}',
 
-        mapping: {
-            orderid: 0,
-            code: '',
-            book: Book
-        }
+    mapping: {
+    orderid: 0,
+    code: '',
+    book: Book
+    }
     });
-
-    /*
 
     var book=new Book({
     title: 'title1',
