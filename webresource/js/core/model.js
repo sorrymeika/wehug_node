@@ -92,7 +92,6 @@
 
     var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\'))*)/g;
     var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
-    var rdatakey=/([a-zA-Z_1-9]+)(?=\.|$)/g
 
     var filterFn=function (filters,listItem) {
         var value;
@@ -136,9 +135,6 @@
 
         return new Function('Filter','model','value',code);
     };
-
-    var PropFilter=function () {
-    }
 
     var rcollection=/([a-zA-Z_1-9-]+)\s+in\s+([a-zA-Z_1-9-]+(\.[a-zA-Z_1-9-]+){0,})/g;
     var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)/g;
@@ -662,7 +658,6 @@
     });
     console.log(Date.now()-now);
 
-    return;
 
     vm.get('data').get(0).set({
         picture: 'a',
@@ -671,78 +666,9 @@
 
     console.log(vm.get('data').get(0))
 
-    /*
-
-    var Item=Model.extend({
-
-    mapping: {
-    picture: 'xxx',
-    alt: 'zzzz',
-    content: 'asdf'
-    }
-    })
-
-    var List=Collection.extend({
-
-    model: Item
-    })
-
-    var Index=Model.extend({
-
-    mapping: {
-    success: false,
-    msg: ''
-    }
-    })
-
-
-    var Book=Model.extend({
-    id: 'id',
-
-    url: '/api/book/{id}',
-
-    mapping: {
-    id: 0,
-    title: '',
-    author: ''
-    }
-    });
-
-    var Order=Model.extend({
-    id: 'orderid',
-
-    url: '/api/order/{id}',
-
-    mapping: {
-    orderid: 0,
-    code: '',
-    book: Book
-    }
-    });
-
-    var book=new Book({
-    title: 'title1',
-    author: "sl1"
-    });
-
-    var books=new Book([{
-    title: 'title',
-    author: "sl"
-    },{
-    title: 'title1',
-    author: "sl1"
-    }]);
-
-    new Order({
-    code: '123ssdsf',
-    book: {
-    title: 'title1',
-    author: "sl1"
-    }
-    });
-
-
-    */
-
     exports.Model=ViewModel;
+
+    exports.filter=exports.Filter=Filter;
+
+    exports.http=http;
 });
