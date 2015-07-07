@@ -1,4 +1,4 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -8,7 +8,7 @@
 
 
 
-    var http=function(url,method,data,success,error,ctx) {
+    var http=function (url,method,data,success,error,ctx) {
         if(typeof data==='function') ctx=error,error=success,success=data,data=null;
 
         $.ajax({
@@ -16,10 +16,10 @@
             type: method,
             data: data,
             dataType: 'json',
-            success: function(res) {
+            success: function (res) {
                 success.call(ctx,res);
             },
-            error: function(res) {
+            error: function (res) {
                 error.call(ctx,res);
             }
         });
@@ -27,8 +27,8 @@
 
     $.extend(http,{
 
-        get: function(success,error) {
-            http(this.url,'GET',function(res) {
+        get: function (success,error) {
+            http(this.url,'GET',function (res) {
                 var $el;
                 if(this.model) {
                     this.set(res);
@@ -43,10 +43,10 @@
             },error,this);
         },
 
-        post: function(success,error) {
+        post: function (success,error) {
             var data=this.toJSON();
 
-            http(this.url,'POST',data,function(res) {
+            http(this.url,'POST',data,function (res) {
 
                 if(this.parent&&this.parent instanceof Collection) {
                     this.parent.add(data);
@@ -56,14 +56,14 @@
             },error,this);
         },
 
-        put: function(success,error) {
+        put: function (success,error) {
             http(this.url,'PUT',this.toJSON(),success,error,this);
         },
 
-        'delete': function(success,error) {
+        'delete': function (success,error) {
             var self=this;
 
-            http(this.url,'DELETE',data,function(res) {
+            http(this.url,'DELETE',data,function (res) {
 
                 if(this.parent&&this.parent instanceof Collection) {
                     this.parent.remove(data);
@@ -74,19 +74,18 @@
         }
     });
 
-
     var Filter={
         date: util.formatDate,
-        json: function(data) {
+        json: function (data) {
             return (data instanceof Model||data instanceof Collection)?JSON.stringify(data.data):JSON.stringify(json);
         },
-        join: function(arr,split) {
+        join: function (arr,split) {
             return arr.join(split);
         },
-        lowercase: function(str) {
+        lowercase: function (str) {
             return str.toLowerCase();
         },
-        uppercase: function(str) {
+        uppercase: function (str) {
             return str.toUpperCase();
         }
     };
@@ -95,80 +94,80 @@
     var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
     var rdatakey=/([a-zA-Z_1-9]+)(?=\.|$)/g
 
-    var filterValue=function(model,key,filters,alias,bindEvent) {
-        var value=bindEvent?model.data[key]:key;
+    var filterFn=function (filters,listItem) {
+        var value;
+        var code='';
+        var before='';
 
-        filters.replace(rfilter,function(match,filter,parameters) {
-            var args=[value];
-            parameters.replace(rparams,function(match,param) {
+        filters.replace(rfilter,function (match,filter,parameters) {
+            code+='value=Filter.'+filter+'(value';
+
+            parameters.replace(rparams,function (match,param) {
                 if(param[0]=='\'')
-                    args.push(eval(param));
+                    code+=','+param;
 
-                else if(param==alias) {
-                    args.push(model.data);
+                else if(param==listItem.modelName) {
+                    code+=',model.data';
 
                 } else {
-                    var eventBind,
-                        prev,
-                        arg,
-                        start=1;
-
+                    var alias=listItem.modelName;
                     if(param.indexOf(alias+'.')==0) {
-                        start=0;
-                        eventBind=model;
+                        code+=',model.data'+param.substr(alias.length);
+
                     } else {
-                        eventBind=model.root;
-                    }
-                    arg=eventBind.data;
+                        var arrParam=param.split('.');
+                        alias=listItem.modelAlias[arrParam[0]];
+                        if(alias) {
+                            arrParam.shift();
+                            param=arrParam.join('.');
+                            code+=',(function(){var parent=model.parent.parent;while(parent){if(parent.key=="'+alias+'"){ return parent.data.'+param+'; } parent=parent.parent.parent; } })()';
 
-                    param.replace(rdatakey,function(match,proto) {
-                        if(start>=1) {
-                            if(prev) {
-                                eventBind=eventBind.get(proto);
-                            }
-                            prev=proto;
-                            arg=arg?arg[proto]:undefined;
+                        } else {
+                            code+=',model.root.data.'+param;
                         }
-                        start++;
-                    });
-
-                    if(bindEvent&&eventBind) {
-                        eventBind.on('change:'+prev,function(e,val) {
-                            filterValue(model,val,filters,alias);
-                        });
                     }
-
-                    args.push(arg);
                 }
             });
-            value=Filter[filter].apply(Filter,args);
+
+            code+=');';
         });
 
-        return value;
+        code+='return value;';
+
+        return new Function('Filter','model','value',code);
     };
+
+    var PropFilter=function () {
+    }
 
     var rcollection=/([a-zA-Z_1-9-]+)\s+in\s+([a-zA-Z_1-9-]+(\.[a-zA-Z_1-9-]+){0,})/g;
     var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)/g;
 
-    var Finder=function($elem) {
+    var filterBindings=function ($el) {
+        return $el.filter('[sn-binding],[sn-model]').add($el.find('[sn-binding],[sn-model]'));
+    };
+
+    var Finder=function ($elem) {
         var self=this;
         var repeats=this.repeats={};
         var bindings=this.bindings={};
         var collection;
         var $el;
 
-        var $repeats=$elem.filter('[data-repeat]').add($elem.find('[data-repeat]')).each(function() {
+        var count=0;
+
+        var $repeats=$elem.filter('[sn-repeat]').add($elem.find('[sn-repeat]')).each(function () {
             $el=$(this);
             var el=this;
-            var repeat=this.getAttribute('data-repeat');
-            var parents=$el.parents('[data-repeat-model]');
+            var repeat=this.getAttribute('sn-repeat');
+            var parents=$el.parents('[sn-repeat-model]');
             var modelAlias={};
 
-            parents.each(function() {
-                modelAlias[this.getAttribute('data-repeat-model')]=this.getAttribute('data-repeat-name');
+            parents.each(function () {
+                modelAlias[this.getAttribute('sn-repeat-model')]=this.getAttribute('sn-repeat-name');
             });
 
-            repeat.replace(rcollection,function(match,modelName,collectionName) {
+            repeat.replace(rcollection,function (match,modelName,collectionName) {
                 var names=collectionName.split('.');
                 var namesLength=names.length;
                 var varName;
@@ -184,8 +183,8 @@
                     }
                 }
 
-                el.setAttribute('data-repeat-model',modelName);
-                el.setAttribute('data-repeat-name',collectionName);
+                el.setAttribute('sn-repeat-model',modelName);
+                el.setAttribute('sn-repeat-name',collectionName);
 
                 var placeHolder=document.createElement('script');
                 placeHolder.setAttribute('type','text/placeholder');
@@ -210,7 +209,7 @@
                 }
 
                 listItem.placeHolderName=placeHolderName;
-                placeHolder.setAttribute('data-placeholder',placeHolderName);
+                placeHolder.setAttribute('sn-placeholder',placeHolderName);
 
                 el.parentNode.insertBefore(placeHolder,el);
             });
@@ -224,17 +223,17 @@
             for(var i=0,len=list.length;i<len;i++) {
                 listItem=list[i];
                 $el=$(listItem.template);
-                console.log(listItem);
 
                 var alias;
 
-                $el.filter('[data-binding]').add($el.find('[data-binding]')).each(function() {
+                filterBindings($el).each(function () {
                     var el=this;
-                    var binding=this.getAttribute('data-binding');
-                    console.log(binding);
+                    var binding=this.getAttribute('sn-binding');
+                    var model=this.getAttribute('sn-model');
 
-                    binding.replace(rbinding,function(match,prop,name,key,filters) {
-                        console.log(collectionName,name,listItem.modelName);
+                    el.setAttribute("sn-id",++count);
+
+                    binding.replace(rbinding,function (match,prop,name,key,filters) {
 
                         if(name==listItem.modelName) {
                             name=collectionName+key;
@@ -245,13 +244,11 @@
                                 name=alias+key;
                             }
                         }
-                        console.log(name,alias);
 
                         if(filters) {
                             prop={
                                 prop: prop,
-                                filters: filters,
-                                alias: alias
+                                filter: filterFn(filters,listItem)
                             };
                         }
                         var bounds=bindings[name];
@@ -261,7 +258,7 @@
                         }
 
                         bounds.push({
-                            el: listItem,
+                            el: count,
                             prop: prop
                         });
                     });
@@ -270,11 +267,12 @@
             }
         }
 
-        $elem.filter('[data-binding]').add($elem.find('[data-binding]')).each(function() {
-            var binding=this.getAttribute('data-binding');
+        filterBindings($elem).each(function () {
+            var binding=this.getAttribute('sn-binding');
+            var model=this.getAttribute('sn-model');
             var el=this;
 
-            binding.replace(rbinding,function(match,prop,name,key,filters) {
+            binding.replace(rbinding,function (match,prop,name,key,filters) {
                 name+=key;
                 if(filters) {
                     prop={
@@ -294,11 +292,9 @@
                 });
             });
         });
-
-        console.log(this.bindings);
     };
 
-    var setElement=function(el,prop,value) {
+    var setElement=function (el,prop,value) {
 
         switch(prop) {
             case 'text':
@@ -315,7 +311,7 @@
     };
 
 
-    var Model=function(data,key,parent,$el) {
+    var Model=function (data,key,parent,$el) {
         if(!data) return;
 
         var model={},
@@ -352,9 +348,8 @@
         off: Event.off,
         trigger: Event.trigger,
 
-        _asyncView: function(key,val) {
-
-            var bindings=this.bindings[key],
+        _asyncView: function (key,val) {
+            var bindings=this.root.finder.bindings[key&&this.key?this.key+'.'+key:(this.key||key)],
                 binding,
                 el,
                 prop,
@@ -363,27 +358,29 @@
             if(bindings) {
                 for(var i=0,len=bindings.length;i<len;i++) {
                     binding=bindings[i];
-                    el=binding[0];
+                    el=binding.el;
+                    prop=binding.prop;
 
-                    for(var j=1,n=binding.length;j<n;j++) {
-                        prop=binding[j];
-
-                        if(typeof prop!=='string') {
-                            val=filterValue(this,val,prop.filters,prop.alias);
-                            prop=prop.prop;
-                        }
-
+                    if(typeof prop!=='string') {
+                        val=prop.filter(Filter,this,val);
+                        prop=prop.prop;
+                    }
+                    if(typeof el==='number') {
+                        this.$el.find('[sn-id="'+el+'"]').each(function () {
+                            setElement(this,prop,val);
+                        });
+                    } else {
                         setElement(el,prop,val);
                     }
                 }
             }
         },
 
-        get: function(key) {
+        get: function (key) {
             return this.model[key];
         },
 
-        set: function(key,val) {
+        set: function (key,val) {
             var self=this,
                 origin,
                 changed,
@@ -400,7 +397,7 @@
                 }
                 this.data=val;
                 this.trigger('change',val);
-                this._asyncView('$self',val);
+                this._asyncView('',val);
                 return;
 
             } else {
@@ -452,12 +449,12 @@
             return this;
         },
 
-        toJSON: function() {
+        toJSON: function () {
             return $.extend(true,{},this.data);
         }
     };
 
-    var Collection=function(data,key,parent) {
+    var Collection=function (data,key,parent) {
         if(!data) return;
 
         this.models=[];
@@ -474,7 +471,7 @@
         var listItem;
         for(var j=0,len=this.list.length;j<len;j++) {
             listItem=this.list[j];
-            listItem.placeHolder=this.parent.$el.find('[data-placeholder="'+listItem.placeHolderName+'"]')[0];
+            listItem.placeHolder=this.parent.$el.find('[sn-placeholder="'+listItem.placeHolderName+'"]')[0];
         }
 
         parent.data[key]=this.data;
@@ -487,7 +484,7 @@
 
         model: Model,
 
-        forEach: function(fn) {
+        forEach: function (fn) {
             var model;
 
             for(var i=0,len=this.models.length;i<len;i++) {
@@ -497,7 +494,7 @@
             }
         },
 
-        add: function(data,autoAppend) {
+        add: function (data,autoAppend) {
             var $els;
 
             if(this.list) {
@@ -522,19 +519,13 @@
                     else $els=$els.add($el);
                 }
             }
-
-            if($els) {
-                var $bindings=$els.find('[data-binding]');
-            }
-
             var model=new Model(data,this.key,this,$els);
             this.models.push(model);
             this.data.push(data);
-
             return model;
         },
 
-        fragment: function(fn) {
+        fragment: function (fn) {
             for(var i=0,n=this.list.length;i<n;i++) {
                 this.list[i].fragment=document.createDocumentFragment();
             }
@@ -548,8 +539,8 @@
             }
         },
 
-        set: function(data) {
-            this.fragment(function() {
+        set: function (data) {
+            this.fragment(function () {
 
                 var item,
                     len=data.length,
@@ -564,8 +555,9 @@
                 for(var i=0;i<len;i++) {
                     item=data[i];
 
-                    if(i<length)
+                    if(i<length) {
                         this.models[i].set(item);
+                    }
                     else {
                         this.add(item,false);
                     }
@@ -574,11 +566,11 @@
             });
         },
 
-        get: function(i) {
+        get: function (i) {
             return this.models[i];
         },
 
-        remove: function(i) {
+        remove: function (i) {
             var item,
                 el;
 
@@ -600,7 +592,7 @@
         }
     };
 
-    var ViewModel=function($el,data) {
+    var ViewModel=function ($el,data) {
         this.root=this;
         this.data={};
         this.model={};
@@ -617,7 +609,7 @@
     $.extend(ViewModel.prototype,{
         constructor: ViewModel,
 
-        load: function($el) {
+        load: function ($el) {
             this.finder=new Finder($el);
             this.$el=$el;
             return this;
@@ -626,13 +618,13 @@
 
     ViewModel.extend=Model.extend=Collection.extend=util.extend;
 
-    var $el=$('<div data-binding="test:name,title:node.test,tt:node.deep.end">\
-            <div data-repeat="item in data" class="item">\
-                <img data-binding="src:item.picture|lowercase:asdf.cc:\'asdf\'|uppercase,alt:item.alt|uppercase"/>\
-                <div data-binding="data:item.content">测试<text data-binding="html:item.content"></text>一下</div>\
-                <div data-repeat="item1 in item.children" class="item1">\
-                    <img data-binding="src:item.picture,alt:item1.title|uppercase"/>\
-                    <div data-binding="data:item1.content">测试1<text data-binding="html:item1.title"></text>一下1</div>\
+    var $el=$('<div sn-binding="test:name,title:node.test,tt:node.deep.end">\
+            <div sn-repeat="item in data" class="item">\
+                <img sn-binding="src:item.picture|lowercase:asdf.cc:\'asdf\'|uppercase,alt:item.alt|uppercase"/>\
+                <div sn-binding="data:item.content">测试<text sn-binding="html:item.content"></text>一下</div>\
+                <div sn-repeat="item1 in item.children" class="item1">\
+                    <img sn-binding="src:item.picture,alt:item1.title|uppercase:item.id"/>\
+                    <div sn-binding="data:item1.content">测试1<text sn-binding="html:item1.title"></text>一下1</div>\
                 </div>\
             </div>\
         </div>').appendTo('body');
@@ -643,7 +635,7 @@
 
     var data=[];
 
-    for(var i=0;i<1;i++) {
+    for(var i=0;i<1000;i++) {
         data.push({
             picture: 'xxx',
             alt: 'zzzz',
@@ -658,6 +650,9 @@
     vm.set({
         name: 'asdf',
         data: data,
+        asdf: {
+            cc: 'as'
+        },
         node: {
             test: 'ccc',
             deep: {
