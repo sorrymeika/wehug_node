@@ -1,4 +1,4 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -7,32 +7,100 @@
         slice=Array.prototype.slice;
 
 
+
+    var http=function(url,method,data,success,error,ctx) {
+        if(typeof data==='function') ctx=error,error=success,success=data,data=null;
+
+        $.ajax({
+            url: url,
+            type: method,
+            data: data,
+            dataType: 'json',
+            success: function(res) {
+                success.call(ctx,res);
+            },
+            error: function(res) {
+                error.call(ctx,res);
+            }
+        });
+    };
+
+    $.extend(http,{
+
+        get: function(success,error) {
+            http(this.url,'GET',function(res) {
+                var $el;
+                if(this.model) {
+                    this.set(res);
+
+                } else {
+                    $el=$(this.template.html(res));
+
+                    this.generate($el,res);
+                }
+
+                success.call(this,res,$el);
+            },error,this);
+        },
+
+        post: function(success,error) {
+            var data=this.toJSON();
+
+            http(this.url,'POST',data,function(res) {
+
+                if(this.parent&&this.parent instanceof Collection) {
+                    this.parent.add(data);
+                }
+
+                success.call(this,res,data);
+            },error,this);
+        },
+
+        put: function(success,error) {
+            http(this.url,'PUT',this.toJSON(),success,error,this);
+        },
+
+        'delete': function(success,error) {
+            var self=this;
+
+            http(this.url,'DELETE',data,function(res) {
+
+                if(this.parent&&this.parent instanceof Collection) {
+                    this.parent.remove(data);
+                }
+
+                success.call(this,res,data);
+            },error,this);
+        }
+    });
+
+
     var Filter={
         date: util.formatDate,
-        json: function (data) {
+        json: function(data) {
             return (data instanceof Model||data instanceof Collection)?JSON.stringify(data.data):JSON.stringify(json);
         },
-        join: function (arr,split) {
+        join: function(arr,split) {
             return arr.join(split);
         },
-        lowercase: function (str) {
+        lowercase: function(str) {
             return str.toLowerCase();
         },
-        uppercase: function (str) {
+        uppercase: function(str) {
             return str.toUpperCase();
         }
     };
 
     var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\'))*)/g;
     var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
+    var rdatakey=/([a-zA-Z_1-9]+)(?=\.|$)/g
 
-    var filterValue=function (model,key,filters,alias,bindEvent) {
-
+    var filterValue=function(model,key,filters,alias,bindEvent) {
         var value=bindEvent?model.data[key]:key;
 
-        filters.replace(rfilter,function (match,filter,parameters) {
+        filters.replace(rfilter,function(match,filter,parameters) {
             var args=[value];
-            parameters.replace(rparams,function (match,param) {
+            parameters.replace(rparams,function(match,param) {
                 if(param[0]=='\'')
                     args.push(eval(param));
 
@@ -43,8 +111,7 @@
                     var eventBind,
                         prev,
                         arg,
-                        start=1,
-                        rdatakey=/([a-zA-Z_1-9]+)(?=\.|$)/g;
+                        start=1;
 
                     if(param.indexOf(alias+'.')==0) {
                         start=0;
@@ -54,7 +121,7 @@
                     }
                     arg=eventBind.data;
 
-                    param.replace(rdatakey,function (match,proto) {
+                    param.replace(rdatakey,function(match,proto) {
                         if(start>=1) {
                             if(prev) {
                                 eventBind=eventBind.get(proto);
@@ -66,7 +133,7 @@
                     });
 
                     if(bindEvent&&eventBind) {
-                        eventBind.on('change:'+prev,function (e,val) {
+                        eventBind.on('change:'+prev,function(e,val) {
                             filterValue(model,val,filters,alias);
                         });
                     }
@@ -80,53 +147,39 @@
         return value;
     };
 
-
-    var creator=document.createElement("DIV");
-    var createElement=function (html) {
-        creator.innerHTML=html;
-        return creator.childNodes[0].nodeType==3?creator.childNodes[1]:creator.childNodes[0]
-    }
-
-    var template='<div data-repeat="item in data" class="item">\
-                <img data-binding="src:item.picture,alt:item.alt"/>\
-                <a data-binding="href:item.href">测试<text data-binding="html:item.content"></text>一下</a>\
-            </div>';
-    var el=createElement(template);
-    var now=Date.now();
-
-    console.log(now);
-
-    for(var i=0;i<10000;i++) {
-        createElement(template)
-    }
-    console.log(Date.now()-now);
-
-    for(var i=0;i<10000;i++) {
-        el.cloneNode(true);
-    }
-    console.log(Date.now()-now);
-
     var rcollection=/([a-zA-Z_1-9-]+)\s+in\s+([a-zA-Z_1-9-]+(\.[a-zA-Z_1-9-]+){0,})/g;
-    var rfilter=/\s*\|\s*([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9-]+|'[^'+]')/g;
+    var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)/g;
 
-    var Finder=function ($el) {
-        var repeats={};
+    var Finder=function($elem) {
+        var self=this;
+        var repeats=this.repeats={};
+        var bindings=this.bindings={};
         var collection;
+        var $el;
 
-        $el.filter('[data-repeat]').add($el.find('[data-repeat]')).each(function () {
+        var $repeats=$elem.filter('[data-repeat]').add($elem.find('[data-repeat]')).each(function() {
+            $el=$(this);
             var el=this;
             var repeat=this.getAttribute('data-repeat');
+            var parents=$el.parents('[data-repeat-model]');
+            var modelAlias={};
 
-            repeat.replace(rcollection,function (match,modelName,collectionName) {
+            parents.each(function() {
+                modelAlias[this.getAttribute('data-repeat-model')]=this.getAttribute('data-repeat-name');
+            });
+
+            repeat.replace(rcollection,function(match,modelName,collectionName) {
                 var names=collectionName.split('.');
                 var namesLength=names.length;
+                var varName;
+                var alia;
 
                 if(namesLength!==1) {
-                    var varName=names[0];
-                    var closest=$(el).closest('[data-repeat-model="'+varName+'"]');
+                    varName=names[0];
+                    alia=modelAlias[varName];
 
-                    if(closest.length) {
-                        names[0]=closest.attr('data-repeat-name');
+                    if(alia) {
+                        names[0]=alia;
                         collectionName=names.join('.');
                     }
                 }
@@ -134,17 +187,14 @@
                 el.setAttribute('data-repeat-model',modelName);
                 el.setAttribute('data-repeat-name',collectionName);
 
-                var placeHolder=createElement('<script type="text/placeholder"></script>');
+                var placeHolder=document.createElement('script');
+                placeHolder.setAttribute('type','text/placeholder');
+
                 var placeHolderName;
-
-                if(el.parentNode) {
-                    el.parentNode.insertBefore(placeHolder,el);
-                    el.parentNode.removeChild(el);
-                }
-
                 var listItem={
                     orderBy: '',
                     modelName: modelName,
+                    modelAlias: modelAlias,
                     template: el,
                     elements: []
                 };
@@ -161,13 +211,94 @@
 
                 listItem.placeHolderName=placeHolderName;
                 placeHolder.setAttribute('data-placeholder',placeHolderName);
+
+                el.parentNode.insertBefore(placeHolder,el);
+            });
+
+        }).remove();
+
+        for(var collectionName in repeats) {
+            var list=repeats[collectionName];
+            var listItem;
+
+            for(var i=0,len=list.length;i<len;i++) {
+                listItem=list[i];
+                $el=$(listItem.template);
+                console.log(listItem);
+
+                var alias;
+
+                $el.filter('[data-binding]').add($el.find('[data-binding]')).each(function() {
+                    var el=this;
+                    var binding=this.getAttribute('data-binding');
+                    console.log(binding);
+
+                    binding.replace(rbinding,function(match,prop,name,key,filters) {
+                        console.log(collectionName,name,listItem.modelName);
+
+                        if(name==listItem.modelName) {
+                            name=collectionName+key;
+
+                        } else {
+                            alias=listItem.modelAlias[name];
+                            if(alias) {
+                                name=alias+key;
+                            }
+                        }
+                        console.log(name,alias);
+
+                        if(filters) {
+                            prop={
+                                prop: prop,
+                                filters: filters,
+                                alias: alias
+                            };
+                        }
+                        var bounds=bindings[name];
+
+                        if(!bounds) {
+                            bounds=bindings[name]=[];
+                        }
+
+                        bounds.push({
+                            el: listItem,
+                            prop: prop
+                        });
+                    });
+
+                });
+            }
+        }
+
+        $elem.filter('[data-binding]').add($elem.find('[data-binding]')).each(function() {
+            var binding=this.getAttribute('data-binding');
+            var el=this;
+
+            binding.replace(rbinding,function(match,prop,name,key,filters) {
+                name+=key;
+                if(filters) {
+                    prop={
+                        prop: prop,
+                        filters: filters,
+                        alias: ''
+                    };
+                }
+                var bounds=bindings[name];
+
+                if(!bounds) {
+                    bounds=bindings[name]=[];
+                }
+                bounds.push({
+                    el: el,
+                    prop: prop
+                });
             });
         });
 
-        return repeats;
+        console.log(this.bindings);
     };
 
-    var setElement=function (el,prop,value) {
+    var setElement=function(el,prop,value) {
 
         switch(prop) {
             case 'text':
@@ -183,79 +314,35 @@
 
     };
 
-    var Model=function (data,hash,parent) {
+
+    var Model=function(data,key,parent,$el) {
         if(!data) return;
 
         var model={},
-            value,
-            map,
-            mapping=this.mapping;
+            value;
 
-        if(typeof hash==='object') parent=hash,hash=undefined;
-
+        this.$el=$el;
         this.model=model;
-        this.data=$.isArray(data)?{ $data: data}:data;
-        this.key=hash||'';
+        this.bindings={};
+
+        this.key=key;
         this.root=this;
+        this.data=$.isArray(data)?{ $data: data}:data;
 
-        if(parent) {
-            if(parent instanceof Model) {
-                this.parent=parent;
-                if(parent.key)
-                    this.key=parent.key+'.'+this.key;
+        if(parent instanceof Model) {
+            this.parent=parent;
+            if(parent.key)
+                this.key=parent.key+'.'+this.key;
 
-                this.root=parent.root;
+            this.root=parent.root;
 
-            } else if(parent instanceof Collection) {
-                this.parent=parent;
-                this.key=parent.key;
-                this.root=parent.root;
-
-            } else {
-                this.finder=parent;
-            }
+        } else if(parent instanceof Collection) {
+            this.parent=parent;
+            this.key=parent.key;
+            this.root=parent.root;
         }
 
-        for(var key in data) {
-            map=mapping?mapping[key]:null;
-            value=data[key];
-
-            if((map&&map.prototype instanceof Model)||(!map&&$.isPlainObject(value))) {
-                model[key]=new (map||Model)(value,key,this);
-
-            } else if((map&&map.prototype instanceof Collection)||(!map&&$.isArray(value))) {
-                model[key]=new (map||Collection)();
-
-            } else
-                model[key]=value;
-        }
-
-        var collection;
-
-        for(var key in model) {
-            collection=model[key];
-
-            if(collection instanceof Collection) {
-                collection.constructor(data[key],key,this);
-            }
-        }
-    };
-
-    var http=function (url,method,data,success,error,ctx) {
-        if(typeof data==='function') ctx=error,error=success,success=data,data=null;
-
-        $.ajax({
-            url: url,
-            type: method,
-            data: data,
-            dataType: 'json',
-            success: function (res) {
-                success.call(ctx,res);
-            },
-            error: function (res) {
-                error.call(ctx,res);
-            }
-        });
+        this.set(data);
     };
 
     Model.prototype={
@@ -265,129 +352,7 @@
         off: Event.off,
         trigger: Event.trigger,
 
-        validate: function () {
-        },
-
-        fetch: function (success,error) {
-            http(this.url,'GET',function (res) {
-                var $el;
-                if(this.model) {
-                    this.set(res);
-
-                } else {
-                    $el=$(this.template.html(res));
-
-                    this.generate($el,res);
-                }
-
-                success.call(this,res,$el);
-            },error,this);
-        },
-
-        insert: function (success,error) {
-            var data=this.toJSON();
-
-            http(this.url,'POST',data,function (res) {
-
-                if(this.parent&&this.parent instanceof Collection) {
-                    this.parent.add(data);
-                }
-
-                success.call(this,res,data);
-            },error,this);
-        },
-
-        save: function (success,error) {
-            http(this.url,'PUT',this.toJSON(),success,error,this);
-        },
-
-        remove: function (success,error) {
-            var self=this;
-
-            http(this.url,'DELETE',data,function (res) {
-
-                if(this.parent&&this.parent instanceof Collection) {
-                    this.parent.remove(data);
-                }
-
-                success.call(this,res,data);
-            },error,this);
-        },
-
-        bind: function ($el,data) {
-            this.finder=Finder($el);
-            this.constructor(data);
-        },
-
-        scan: function ($el) {
-            this.finder=Finder($el);
-            return this;
-        },
-
-        _scanBinding: function ($el,alias) {
-            var self=this;
-
-            $el.find('[data-binding]').each(function () {
-                var el=this;
-                var binding=this.getAttribute('data-binding');
-                var rbinding=new RegExp("\\b([a-zA-Z_1-9-]+)\\s*\\:\\s*"+(alias||'')+"((?:\\.[a-zA-Z_1-9]+)*)((?:\\s*\\|\\s*[a-zA-Z_1-9]+(?:\\s*\\:\\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)",'g');
-                var bindings={},
-                    bounds;
-
-                binding.replace(rbinding,function (match,prop,key,filters) {
-
-                    bounds=bindings[key];
-                    key=(key?key.replace(/^\./,''):'')||'$self';
-                    if(!bounds) {
-                        bindings[key]=bounds=[el];
-                        if(!self.bindings[key]) self.bindings[key]=[];
-                        self.bindings[key].push(bounds);
-                    }
-
-                    var value=self.data[key];
-
-                    if(filters) {
-                        prop={
-                            prop: prop,
-                            filters: filters,
-                            alias: alias
-                        };
-                        value=filterValue(self,key,filters,alias,true);
-                    }
-                    bounds.push(prop);
-
-                    setElement(el,typeof prop==='string'?prop:prop.prop,value);
-                });
-            });
-
-            for(var key in this.model) {
-                var value=this.model[key];
-                if(value instanceof Model) {
-                    value._scanBinding($el);
-
-                } else if(value instanceof Collection) {
-
-                    if(value.list) {
-                        for(var i=0,len=value.list.length;i<len;i++) {
-                            var listItem=value.list[i];
-
-                            if(!listItem.placeHolder)
-                                listItem.placeHolder=$el.find('[data-placeholder="'+listItem.placeHolderName+'"]')[0];
-                        }
-                    }
-                }
-            }
-
-            return self;
-        },
-
-        get: function (key) {
-            return this.model[key];
-        },
-
-        bindings: {},
-
-        _asyncView: function (key,val) {
+        _asyncView: function(key,val) {
 
             var bindings=this.bindings[key],
                 binding,
@@ -403,8 +368,6 @@
                     for(var j=1,n=binding.length;j<n;j++) {
                         prop=binding[j];
 
-                        console.log(prop)
-
                         if(typeof prop!=='string') {
                             val=filterValue(this,val,prop.filters,prop.alias);
                             prop=prop.prop;
@@ -416,11 +379,16 @@
             }
         },
 
-        set: function (key,val) {
+        get: function(key) {
+            return this.model[key];
+        },
+
+        set: function(key,val) {
             var self=this,
                 origin,
                 changed,
-                attrs;
+                attrs,
+                model=this.model;
 
             if($.isPlainObject(key)) {
                 attrs=key;
@@ -439,15 +407,33 @@
                 (attrs={})[key]=val;
             }
 
+            var collections=[],
+                collection,
+                value;
+
             for(var attr in attrs) {
-                origin=this.model[key];
+                origin=model[attr];
                 value=attrs[attr];
 
                 if(origin!==value) {
-                    if(origin instanceof Model||origin instanceof Collection) {
-                        origin.set(value)
+                    if(origin==undefined) {
+                        if($.isPlainObject(value)) {
+                            model[attr]=new Model(value,attr,this,this.$el);
+
+                        } else if($.isArray(value)) {
+                            model[attr]=new Collection;
+                            collections.push(attr);
+
+                        } else
+                            model[attr]=value;
+
+                        this.data[attr]=value;
+
+                    } else if(origin instanceof Model||origin instanceof Collection) {
+                        origin.set(value);
+
                     } else {
-                        this.model[attr]=value;
+                        model[attr]=value;
                         this.data[attr]=value;
                     }
                     this._asyncView(attr,value);
@@ -456,48 +442,44 @@
                 }
             }
 
+            for(var i=0,len=collections.length;i<len;i++) {
+                key=collections[i];
+                collection=model[key];
+
+                model[key].constructor(this.data[key],key,this);
+            }
+
+            return this;
         },
 
-        toJSON: function () {
+        toJSON: function() {
             return $.extend(true,{},this.data);
         }
     };
 
-    Model.extend=util.extend;
-
-    var Collection=function (data,key,parent) {
-
+    var Collection=function(data,key,parent) {
         if(!data) return;
-        if(typeof key==='object') parent=key,key=undefined;
 
         this.models=[];
-        this.data=data;
-        this.key=key||'';
+        this.data=[];
+        this.key=key;
 
-        if(parent) {
-            this.parent=parent;
-            if(parent.key)
-                this.key=parent.key+"."+this.key;
+        this.parent=parent;
+        if(parent.key)
+            this.key=parent.key+"."+this.key;
 
-            this.root=parent.root;
+        this.root=parent.root;
+        this.root.finder&&(this.list=$.extend(true,[],this.root.finder.repeats[this.key]));
+
+        var listItem;
+        for(var j=0,len=this.list.length;j<len;j++) {
+            listItem=this.list[j];
+            listItem.placeHolder=this.parent.$el.find('[data-placeholder="'+listItem.placeHolderName+'"]')[0];
         }
 
-        this.root&&this.root.finder&&(this.list=this.root.finder[this.key]);
+        parent.data[key]=this.data;
 
-        for(var i=0,len=this.list.length;i<len;i++) {
-            this.list[i].fragment=document.createDocumentFragment();
-        }
-        for(var i=0,len=data.length;i<len;i++) {
-            this.add(data[i],false);
-        }
-
-        var item;
-
-        for(var i=0,len=this.list.length;i<len;i++) {
-            item=this.list[i];
-            item.placeHolder.parentNode.insertBefore(item.fragment,item.placeHolder);
-        }
-        if(parent) this.parent=parent;
+        this.set(data);
     };
 
     Collection.prototype={
@@ -505,7 +487,7 @@
 
         model: Model,
 
-        forEach: function (fn) {
+        forEach: function(fn) {
             var model;
 
             for(var i=0,len=this.models.length;i<len;i++) {
@@ -515,19 +497,17 @@
             }
         },
 
-        add: function (data,autoAppend) {
-            var model=new Model(data,this);
-            this.models.push(model);
+        add: function(data,autoAppend) {
+            var $els;
 
             if(this.list) {
+                var item;
+
                 for(var i=0,len=this.list.length;i<len;i++) {
                     item=this.list[i];
 
                     var el=item.template.cloneNode(true);
                     var $el=$(el);
-
-                    this.parent&&this.parent._scanBinding($el);
-                    model._scanBinding($el,item.modelName);
 
                     item.elements.push(el);
 
@@ -537,37 +517,68 @@
                     } else {
                         item.placeHolder.parentNode.insertBefore(el,item.placeHolder);
                     }
+
+                    if(!$els) $els=$el;
+                    else $els=$els.add($el);
                 }
             }
+
+            if($els) {
+                var $bindings=$els.find('[data-binding]');
+            }
+
+            var model=new Model(data,this.key,this,$els);
+            this.models.push(model);
+            this.data.push(data);
+
             return model;
         },
 
-        set: function (list) {
-            var data,
-                len=list.length,
-                length=this.models.length;
-
-            if(len>length) {
-                for(var i=length-1;i>=0;i--) {
-                    this.remove(i);
-                }
+        fragment: function(fn) {
+            for(var i=0,n=this.list.length;i<n;i++) {
+                this.list[i].fragment=document.createDocumentFragment();
             }
 
-            for(var i=0;i<len;i++) {
-                data=list[i];
+            fn.call(this);
 
-                if(i<length)
-                    this.models[i].set(data);
-                else
-                    this.add(data);
+            var item;
+            for(var i=0,n=this.list.length;i<n;i++) {
+                item=this.list[i];
+                item.placeHolder.parentNode.insertBefore(item.fragment,item.placeHolder);
             }
         },
 
-        get: function (i) {
+        set: function(data) {
+            this.fragment(function() {
+
+                var item,
+                    len=data.length,
+                    length=this.models.length;
+
+                if(len>length) {
+                    for(var i=length-1;i>=0;i--) {
+                        this.remove(i);
+                    }
+                }
+
+                for(var i=0;i<len;i++) {
+                    item=data[i];
+
+                    if(i<length)
+                        this.models[i].set(item);
+                    else {
+                        this.add(item,false);
+                    }
+                }
+
+            });
+        },
+
+        get: function(i) {
             return this.models[i];
         },
 
-        remove: function (i) {
+        remove: function(i) {
             var item,
                 el;
 
@@ -586,42 +597,84 @@
                 this.models.splice(i,1);
                 this.data.splice(i,1);
             }
-        },
-
-        save: function () {
         }
     };
 
-    Collection.extend=util.extend;
+    var ViewModel=function($el,data) {
+        this.root=this;
+        this.data={};
+        this.model={};
+        this.bindings={};
+        this.key='';
 
-    var vm=new Model();
+        this.load($el);
+        if(data)
+            this.set(data);
+    };
 
+    ViewModel.prototype=Object.create(Model.prototype);
 
-    var $el=$('<div>\
-            <div data-repeat="item in data" class="item">\
-                <img data-binding="src:item.picture|lowercase:asdf.cc:\'asdf\'|uppercase,alt:item.alt|uppercase"/>\
-                <div data-binding="data:item.content">测试<text data-binding="html:item.content"></text>一下</div>\
-            </div>\
-        </div>').appendTo('body');
+    $.extend(ViewModel.prototype,{
+        constructor: ViewModel,
 
-    vm.bind($el,{
-        success: true,
-        data: [{
-            picture: 'xxx',
-            alt: 'zzzz',
-            content: 'asdf'
-        },{
-            picture: 'xxx1',
-            alt: 'zzzz1',
-            content: 'asdf1'
-        }],
-        picture: 'asdf',
-        asdf: {
-            cc: "asdf"
+        load: function($el) {
+            this.finder=new Finder($el);
+            this.$el=$el;
+            return this;
         }
     });
 
-    //vm.get('data').get(0).set('picture','a');
+    ViewModel.extend=Model.extend=Collection.extend=util.extend;
+
+    var $el=$('<div data-binding="test:name,title:node.test,tt:node.deep.end">\
+            <div data-repeat="item in data" class="item">\
+                <img data-binding="src:item.picture|lowercase:asdf.cc:\'asdf\'|uppercase,alt:item.alt|uppercase"/>\
+                <div data-binding="data:item.content">测试<text data-binding="html:item.content"></text>一下</div>\
+                <div data-repeat="item1 in item.children" class="item1">\
+                    <img data-binding="src:item.picture,alt:item1.title|uppercase"/>\
+                    <div data-binding="data:item1.content">测试1<text data-binding="html:item1.title"></text>一下1</div>\
+                </div>\
+            </div>\
+        </div>').appendTo('body');
+
+    //new
+    now=Date.now();
+    var vm=new ViewModel($el);
+
+    var data=[];
+
+    for(var i=0;i<1;i++) {
+        data.push({
+            picture: 'xxx',
+            alt: 'zzzz',
+            content: 'asdf',
+            children: [{
+                title: 'asdf',
+                date: '2000'
+            }]
+        });
+    }
+
+    vm.set({
+        name: 'asdf',
+        data: data,
+        node: {
+            test: 'ccc',
+            deep: {
+                end: 1
+            }
+        }
+    });
+    console.log(Date.now()-now);
+
+    return;
+
+    vm.get('data').get(0).set({
+        picture: 'a',
+        alt: 'b'
+    });
+
+    console.log(vm.get('data').get(0))
 
     /*
 
@@ -696,5 +749,5 @@
 
     */
 
-    module.exports=Model;
+    exports.Model=ViewModel;
 });
