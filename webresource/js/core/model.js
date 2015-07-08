@@ -1,4 +1,4 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -6,7 +6,7 @@
         Event=require('./event')
 
 
-    var http=function(url,method,data,success,error,ctx) {
+    var http=function (url,method,data,success,error,ctx) {
         if(typeof data==='function') ctx=error,error=success,success=data,data=null;
 
         $.ajax({
@@ -14,10 +14,10 @@
             type: method,
             data: data,
             dataType: 'json',
-            success: function(res) {
+            success: function (res) {
                 success.call(ctx,res);
             },
-            error: function(res) {
+            error: function (res) {
                 error.call(ctx,res);
             }
         });
@@ -25,8 +25,8 @@
 
     $.extend(http,{
 
-        get: function(success,error) {
-            http(this.url,'GET',function(res) {
+        get: function (success,error) {
+            http(this.url,'GET',function (res) {
                 var $el;
                 if(this.model) {
                     this.set(res);
@@ -41,10 +41,10 @@
             },error,this);
         },
 
-        post: function(success,error) {
+        post: function (success,error) {
             var data=this.toJSON();
 
-            http(this.url,'POST',data,function(res) {
+            http(this.url,'POST',data,function (res) {
 
                 if(this.parent&&this.parent instanceof Collection) {
                     this.parent.add(data);
@@ -54,14 +54,14 @@
             },error,this);
         },
 
-        put: function(success,error) {
+        put: function (success,error) {
             http(this.url,'PUT',this.toJSON(),success,error,this);
         },
 
-        'delete': function(success,error) {
+        'delete': function (success,error) {
             var self=this;
 
-            http(this.url,'DELETE',data,function(res) {
+            http(this.url,'DELETE',data,function (res) {
 
                 if(this.parent&&this.parent instanceof Collection) {
                     this.parent.remove(data);
@@ -74,19 +74,19 @@
 
     var Filter={
         date: util.formatDate,
-        json: function(data) {
-            return (data instanceof Model||data instanceof Collection)?JSON.stringify(data.data):JSON.stringify(json);
+        json: function (data) {
+            return (data instanceof Model||data instanceof Collection)?JSON.stringify(data.data):JSON.stringify(data);
         },
-        join: function(arr,split) {
-            return arr.join(split);
+        join: function (arr,split) {
+            return (arr instanceof Collection)?arr.data.join(split):arr.join(split);
         },
-        lowercase: function(str) {
+        lowercase: function (str) {
             return str.toLowerCase();
         },
-        uppercase: function(str,a,b) {
+        uppercase: function (str,a,b) {
             return str.toUpperCase()+a+b;
         },
-        _listenEvent: function(parent,model,key,el,self,param,count) {
+        _listenEvent: function (parent,model,key,el,self,param,count) {
             var flag=false,
                 fkey;
 
@@ -105,7 +105,7 @@
                         param=param.split('.');
                         var attr=param.pop();
 
-                        (param.length<=0?parent:parent.get(param)).on("change"+(attr?':'+attr:''),function() {
+                        (param.length<=0?parent:parent.get(param)).on("change"+(attr?':'+attr:''),function () {
                             model._setProp(el,self.prop,self.filter(Filter,model,model.data[key]))
                         });
                     }
@@ -118,16 +118,16 @@
     var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
 
 
-    var filterFn=function(filters,listItem) {
+    var filterFn=function (filters,listItem) {
         var value;
         var code='var self=this;';
         var before='';
         var count=0;
 
-        filters.replace(rfilter,function(match,filter,parameters) {
+        filters.replace(rfilter,function (match,filter,parameters) {
             code+='value=Filter.'+filter+'(value';
 
-            parameters.replace(rparams,function(match,param) {
+            parameters.replace(rparams,function (match,param) {
                 if(param[0]=='\'') {
                     code+=','+param;
 
@@ -172,12 +172,12 @@
     var rcollection=/([a-zA-Z_1-9]+)\s+in\s+([a-zA-Z_1-9]+(?:\.[a-zA-Z_1-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}/g;
     var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)/g;
 
-    var filterBindings=function($el,withModel) {
+    var filterBindings=function ($el,withModel) {
         var selector=withModel===true?'[sn-binding],[sn-model]':'[sn-binding]';
         return $el.filter(selector).add($el.find(selector));
     };
 
-    var Finder=function($elem) {
+    var Finder=function ($elem) {
         var self=this;
         var repeats=this.repeats={};
         var bindings=this.bindings={};
@@ -187,18 +187,18 @@
 
         var count=0;
 
-        var $repeats=$elem.filter('[sn-repeat]').add($elem.find('[sn-repeat]')).each(function() {
+        var $repeats=$elem.filter('[sn-repeat]').add($elem.find('[sn-repeat]')).each(function () {
             $el=$(this);
             var el=this;
             var repeat=this.getAttribute('sn-repeat');
             var parents=$el.parents('[sn-repeat-alias]');
             var modelAlias={};
 
-            parents.each(function() {
+            parents.each(function () {
                 modelAlias[this.getAttribute('sn-repeat-alias')]=this.getAttribute('sn-repeat-name');
             });
 
-            repeat.replace(rcollection,function(match,modelName,collectionName,filter,comparator,orderBy,reverse) {
+            repeat.replace(rcollection,function (match,modelName,collectionName,filter,comparator,orderBy,reverse) {
                 var names=collectionName.split('.');
                 var namesLength=names.length;
                 var varName;
@@ -209,7 +209,7 @@
                     alia=modelAlias[varName];
 
                     if(alia) {
-                        names[0]=alia;
+                        names[0]=alia+'^child';
                         collectionName=names.join('.');
                     }
                 }
@@ -250,6 +250,7 @@
 
         }).remove();
 
+
         for(var collectionName in repeats) {
             var list=repeats[collectionName];
             var listItem;
@@ -260,7 +261,7 @@
 
                 var alias;
 
-                filterBindings($el,true).each(function() {
+                filterBindings($el,true).each(function () {
                     var el=this;
                     var binding=this.getAttribute('sn-binding');
                     var model=this.getAttribute('sn-model');
@@ -287,15 +288,15 @@
                     }
 
                     if(binding) {
-                        binding.replace(rbinding,function(match,prop,name,key,filters) {
+                        binding.replace(rbinding,function (match,prop,name,key,filters) {
 
                             if(name==listItem.alias) {
-                                name=collectionName+key;
+                                name=collectionName+'^child'+key;
 
                             } else {
                                 alias=listItem.modelAlias[name];
                                 if(alias) {
-                                    name=alias+key;
+                                    name=alias+'^child'+key;
                                 }
                             }
 
@@ -322,12 +323,12 @@
             }
         }
 
-        filterBindings($elem).each(function() {
+        filterBindings($elem).each(function () {
             var binding=this.getAttribute('sn-binding');
             var el=this;
             var bounds;
 
-            binding.replace(rbinding,function(match,prop,name,key,filters) {
+            binding.replace(rbinding,function (match,prop,name,key,filters) {
                 name+=key;
                 if(filters) {
                     prop={
@@ -346,9 +347,11 @@
                 });
             });
         });
+
+        console.log(bindings)
     };
 
-    var setElement=function(el,prop,value) {
+    var setElement=function (el,prop,value) {
 
         switch(prop) {
             case 'text':
@@ -361,11 +364,10 @@
                 el[prop]=value;
                 break;
         }
-
     };
 
 
-    var Model=function(data,key,parent,$el) {
+    var Model=function (data,key,parent,$el) {
         if(!data) return;
 
         var model={},
@@ -373,7 +375,6 @@
 
         this.$el=$el;
         this.model=model;
-        this.bindings={};
 
         this.key=key;
         this.root=this;
@@ -388,7 +389,7 @@
 
         } else if(parent instanceof Collection) {
             this.parent=parent;
-            this.key=parent.key;
+            this.key=parent.key+'^child';
             this.root=parent.root;
         }
 
@@ -402,7 +403,7 @@
         off: Event.off,
         trigger: Event.trigger,
 
-        _asyncView: function(key,val) {
+        _syncView: function (key,val) {
             var bindings=this.root.finder.bindings[key&&this.key?this.key+'.'+key:(this.key||key)],
                 binding,
                 el,
@@ -419,14 +420,23 @@
                         val=prop.filter(Filter,this,val,key,el);
                         prop=prop.prop;
                     }
+
                     this._setProp(el,prop,val);
                 }
             }
+            return this;
         },
 
-        _setProp: function(el,prop,val) {
+        _syncOwnView: function () {
+            if(this.root!=this) {
+                this._syncView('',this.data).parent._syncOwnView();
+            }
+            return this;
+        },
+
+        _setProp: function (el,prop,val) {
             if(typeof el==='number') {
-                this.$el.find('[sn-id="'+el+'"]').each(function() {
+                this.$el.find('[sn-id="'+el+'"]').each(function () {
                     setElement(this,prop,val);
                 });
             } else {
@@ -434,7 +444,7 @@
             }
         },
 
-        get: function(key) {
+        get: function (key) {
             if(typeof key!='string') {
                 var model=this.model[key[0]];
                 for(var i=1,len=key.length;i<len;i++) {
@@ -445,7 +455,7 @@
             return this.model[key];
         },
 
-        set: function(key,val) {
+        set: function (key,val) {
             var self=this,
                 origin,
                 changed,
@@ -462,7 +472,7 @@
                 }
                 this.data=val;
                 this.trigger('change',val);
-                this._asyncView('',val);
+                this._syncOwnView();
                 return;
 
             } else {
@@ -478,7 +488,8 @@
 
             var collections=[],
                 collection,
-                value;
+                value,
+                changed=false;
 
             for(var attr in attrs) {
                 origin=model[attr];
@@ -507,9 +518,11 @@
 
                         this.data[attr]=value;
                     }
-                    this._asyncView(attr,value);
+                    this._syncView(attr,value);
 
                     this.trigger('change:'+attr,value);
+
+                    if(!changed) changed=true;
                 }
             }
 
@@ -520,15 +533,21 @@
                 model[key].constructor(this.data[key],key,this);
             }
 
+            if(changed) {
+                if(this.root!=this) {
+                    this._syncOwnView();
+                }
+            }
+
             return this;
         },
 
-        toJSON: function() {
+        toJSON: function () {
             return $.extend(true,{},this.data);
         }
     };
 
-    var getValue=function(data,names) {
+    var getValue=function (data,names) {
         if(typeof names==='string') names=names.split('.');
         for(var i=0,len=names.length;i<len;i++) {
             data=data[names[i]];
@@ -536,7 +555,7 @@
         return data;
     };
 
-    var Repeat=function(options,collection) {
+    var Repeat=function (options,collection) {
         this.list=[];
         this.collection=collection;
 
@@ -547,7 +566,7 @@
     }
 
     Repeat.prototype={
-        filter: function(data) {
+        filter: function (data) {
             var filter=this.filterName;
             var comparator=this.comparator;
 
@@ -586,12 +605,12 @@
             return flag;
         },
 
-        sort: function(orderBy,reverse) {
+        sort: function (orderBy,reverse) {
             if(reverse!=this.reverse) {
             }
         },
 
-        getValue: function(name) {
+        getValue: function (name) {
             var names=name.split('.');
             var alias=this.modelAlias[names[0]];
 
@@ -602,7 +621,7 @@
             }
         },
 
-        add: function(model,el,useFragment) {
+        add: function (model,el,useFragment) {
 
             var list=this.list;
             var orderBy=this.orderBy;
@@ -629,7 +648,7 @@
 
         },
 
-        remove: function(model) {
+        remove: function (model) {
             for(var i=this.list.length-1;i>=0;i--) {
                 if(this.list[i].model==model) {
                     this.list.splice(i,1);
@@ -639,12 +658,13 @@
         }
     }
 
-    var Collection=function(data,key,parent) {
+    var Collection=function (data,key,parent) {
         if(!data) return;
 
         this.models=[];
         this.data=[];
         this.key=key;
+        this._key=key;
         this.repeats=[];
 
         this.parent=parent;
@@ -675,7 +695,7 @@
 
         model: Model,
 
-        forEach: function(fn) {
+        forEach: function (fn) {
             var model;
 
             for(var i=0,len=this.models.length;i<len;i++) {
@@ -685,7 +705,7 @@
             }
         },
 
-        add: function(data,useFragment) {
+        add: function (data,useFragment) {
             var $els;
             var model=new this.model();
 
@@ -710,10 +730,18 @@
             }
             model.constructor(data,this.key,this,$els);
 
+            if(!useFragment) {
+                this._syncOwnView();
+            }
             return model;
         },
 
-        fragment: function(fn) {
+        _syncOwnView: function () {
+            this.parent._syncView(this._key,this.data)._syncOwnView();
+            return this;
+        },
+
+        fragment: function (fn) {
             for(var i=0,n=this.repeats.length;i<n;i++) {
                 this.repeats[i].fragment=document.createDocumentFragment();
             }
@@ -728,8 +756,8 @@
             }
         },
 
-        set: function(data) {
-            this.fragment(function() {
+        set: function (data) {
+            this.fragment(function () {
 
                 var item,
                     len=data.length,
@@ -751,15 +779,15 @@
                         this.add(item,false);
                     }
                 }
-
+                this._syncOwnView();
             });
         },
 
-        get: function(i) {
+        get: function (i) {
             return this.models[i];
         },
 
-        remove: function(i) {
+        remove: function (i) {
             var item,
                 el;
 
@@ -781,11 +809,10 @@
         }
     };
 
-    var ViewModel=function($el,data) {
+    var ViewModel=function ($el,data) {
         this.root=this;
         this.data={};
         this.model={};
-        this.bindings={};
         this.key='';
 
         this.load($el);
@@ -798,10 +825,10 @@
     $.extend(ViewModel.prototype,{
         constructor: ViewModel,
 
-        load: function($el) {
+        load: function ($el) {
             var self=this;
             this.finder=new Finder($el);
-            this.$el=$el.on('input change','[sn-model]',function(e) {
+            this.$el=$el.on('input change','[sn-model]',function (e) {
                 var target=e.currentTarget;
                 var modelName=target.getAttribute('sn-model');
                 var collectionName=target.getAttribute('sn-collection');
@@ -818,7 +845,52 @@
 
     ViewModel.extend=Model.extend=Collection.extend=util.extend;
 
-    var $el=$('<div sn-binding="test:name,title:node.test,tt:node.deep.end">\
+    function testCollectionItem() {
+
+        var $el=$('<div>\
+            <input sn-model="name" />\
+            <div sn-binding="html:name"></div>\
+            <div sn-repeat="item in data" class="item">\
+                <input sn-model="item" />\
+                <div sn-binding="data:item">测试Collection的Item为非Object：<text sn-binding="html:item"></text></div>\
+                <div sn-repeat="item1 in item.children" class="item1">\
+                <div sn-binding="html:item|json"></div>\
+                <div sn-binding="html:item1|json"></div>\
+                <div sn-binding="html:data|json"></div>\
+                </div>\
+            </div>\
+        </div>').appendTo('body');
+
+        now=Date.now();
+        var vm=new ViewModel($el);
+
+        var data=[];
+
+        for(var i=0;i<1;i++) {
+            data.push({
+                test: "item"+i
+            });
+        }
+
+        vm.set({
+            name: 'asdf',
+            data: data
+        });
+
+        vm.get('data').get(0).set({
+            children: [{
+                asdf: 1
+            }]
+        })
+
+        console.log(Date.now()-now);
+    }
+
+    testCollectionItem();
+
+    function testDeepCollection() {
+
+        var $el=$('<div sn-binding="test:name,title:node.test,tt:node.deep.end">\
             <input sn-model="name" />\
             <div sn-binding="html:name"></div>\
             <div sn-repeat="item in data| filter:name| orderBy:alt:reverse" class="item">\
@@ -833,75 +905,79 @@
             </div>\
         </div>').appendTo('body');
 
-    //new
-    now=Date.now();
-    var vm=new ViewModel($el);
+        //new
+        now=Date.now();
+        var vm=new ViewModel($el);
 
-    var data=[];
+        var data=[];
 
-    for(var i=0;i<1;i++) {
-        data.push({
-            picture: 'xxx',
-            alt: 'zzzz'+i,
-            content: 'asdf',
-            children: [{
-                title: 'asdf',
-                date: '2000'
-            }]
+        for(var i=0;i<1;i++) {
+            data.push({
+                picture: 'xxx',
+                alt: 'zzzz'+i,
+                content: 'asdf',
+                children: [{
+                    title: 'asdf',
+                    date: '2000'
+                }]
+            });
+        }
+
+        vm.set({
+            reverse: true,
+            name: 'asdf',
+            data: data,
+            asdf: {
+                cc: 'as'
+            },
+            test: [{
+                ooo: 's'
+            }],
+            node: {
+                test: 'ccc',
+                deep: {
+                    end: 1
+                }
+            }
         });
+        console.log(Date.now()-now);
+
+        vm.get('data.0.children.0'.split('.')).set({
+            picture: 'a',
+            alt: 'b',
+            title: 'cctv'
+        });
+
+        console.log(vm.get('data').get(0))
     }
 
-    vm.set({
-        reverse: true,
-        name: 'asdf',
-        data: data,
-        asdf: {
-            cc: 'as'
-        },
-        test: [{
-            ooo: 's'
-        }],
-        node: {
-            test: 'ccc',
-            deep: {
-                end: 1
+
+    function test2() {
+        var b={
+            a: {
+                b: {
+                    c: {
+                        d: "end"
+                    }
+                }
             }
         }
-    });
-    console.log(Date.now()-now);
+        var a="a.b.c.d";
 
-    vm.get('data.0.children.0'.split('.')).set({
-        picture: 'a',
-        alt: 'b',
-        title: 'cctv'
-    });
+        now=Date.now();
+        for(var i=0;i<10000;i++) {
+        }
+        console.log(Date.now()-now);
 
-    console.log(vm.get('data').get(0))
+        now=Date.now();
+        for(var i=0;i<10000;i++) {
+        }
+        console.log(Date.now()-now);
+    }
 
     exports.Model=ViewModel;
 
     exports.filter=exports.Filter=Filter;
 
     exports.http=http;
-
-    var b={
-        a: {
-            b: {
-                c: {
-                    d: "end"
-                }
-            }
-        }
-    }
-    var a="a.b.c.d";
-
-    now=Date.now();
-    for(var i=0;i<10000;i++) {
-    }
-    console.log(Date.now()-now);
-
-    now=Date.now();
-    for(var i=0;i<10000;i++) {
-    }
-    console.log(Date.now()-now);
 });

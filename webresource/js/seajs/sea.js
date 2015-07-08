@@ -320,7 +320,7 @@ function request(url, callback, charset, crossorigin) {
   else {
     node.async = true
     //<--debug
-    url+='?v'+Date.now();
+    //url+='?v'+Date.now();
     //debug-->
     node.src = url
   }
