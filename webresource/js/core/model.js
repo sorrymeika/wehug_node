@@ -3,9 +3,7 @@
     var $=require('$'),
         util=require('util'),
         Base=require('./base'),
-        Event=require('./event'),
-        slice=Array.prototype.slice;
-
+        Event=require('./event')
 
 
     var http=function(url,method,data,success,error,ctx) {
@@ -85,36 +83,67 @@
         lowercase: function(str) {
             return str.toLowerCase();
         },
-        uppercase: function(str) {
-            return str.toUpperCase();
+        uppercase: function(str,a,b) {
+            return str.toUpperCase()+a+b;
+        },
+        _listenEvent: function(parent,model,key,el,self,param,count) {
+            var flag=false,
+                fkey;
+
+            if(el) {
+                if(typeof el=="number") {
+                    fkey="_bind_filter"+self.prop+el+'_'+count;
+                    if(!model[fkey]) {
+                        model[fkey]=flag=true;
+                    } else {
+                        fkey="_bind_filter"+self.prop+'_'+count;
+                        if(!el[fkey]) {
+                            el[fkey]=flag=true;
+                        }
+                    }
+                    if(flag) {
+                        param=param.split('.');
+                        var attr=param.pop();
+
+                        (param.length<=0?parent:parent.get(param)).on("change"+(attr?':'+attr:''),function() {
+                            model._setProp(el,self.prop,self.filter(Filter,model,model.data[key]))
+                        });
+                    }
+                }
+            }
         }
     };
 
     var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\'))*)/g;
     var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
 
+
     var filterFn=function(filters,listItem) {
         var value;
-        var code='';
+        var code='var self=this;';
         var before='';
+        var count=0;
 
         filters.replace(rfilter,function(match,filter,parameters) {
             code+='value=Filter.'+filter+'(value';
 
             parameters.replace(rparams,function(match,param) {
-                if(param[0]=='\'')
+                if(param[0]=='\'') {
                     code+=','+param;
 
-                else if(!listItem)
+                } else if(!listItem) {
                     code+=',model.root.data.'+param;
+                    before+='Filter._listenEvent(model.root,model,key,el,this,"'+param+'",'+(count++)+');';
 
-                else if(param==listItem.alias) {
+                } else if(param==listItem.alias) {
                     code+=',model.data';
+                    before+='Filter._listenEvent(model,model,key,el,this,"",'+(count++)+');';
 
                 } else {
                     var alias=listItem.alias;
                     if(param.indexOf(alias+'.')==0) {
                         code+=',model.data'+param.substr(alias.length);
+                        before+='Filter._listenEvent(model,model,key,el,this,"'+param.substr(alias.length+1)+'",'+(count++)+');';
 
                     } else {
                         var arrParam=param.split('.');
@@ -122,10 +151,11 @@
                         if(alias) {
                             arrParam.shift();
                             param=arrParam.join('.');
-                            code+=',(function(){var parent=model.parent.parent;while(parent){if(parent.key=="'+alias+'"){ return parent.data.'+param+'; } parent=parent.parent.parent; } })()';
+                            code+=',(function(){parent=model.parent.parent;while(parent){if( parent.key=="'+alias+'"){ Filter._listenEvent(parent,model,key,el,self,"'+param+'",'+(count++)+'); return parent.data.'+param+'; } parent=parent.parent.parent; } })()';
 
                         } else {
                             code+=',model.root.data.'+param;
+                            before+='Filter._listenEvent(model.root,model,key,el,this,"'+param+'",'+(count++)+');';
                         }
                     }
                 }
@@ -136,10 +166,10 @@
 
         code+='return value;';
 
-        return new Function('Filter','model','value',code);
+        return new Function('Filter','model','value','key','el',before+code);
     };
 
-    var rcollection=/([a-zA-Z_1-9-]+)\s+in\s+([a-zA-Z_1-9-]+(\.[a-zA-Z_1-9-]+){0,})/g;
+    var rcollection=/([a-zA-Z_1-9]+)\s+in\s+([a-zA-Z_1-9]+(?:\.[a-zA-Z_1-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}/g;
     var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)/g;
 
     var filterBindings=function($el,withModel) {
@@ -168,7 +198,7 @@
                 modelAlias[this.getAttribute('sn-repeat-alias')]=this.getAttribute('sn-repeat-name');
             });
 
-            repeat.replace(rcollection,function(match,modelName,collectionName) {
+            repeat.replace(rcollection,function(match,modelName,collectionName,filter,comparator,orderBy,reverse) {
                 var names=collectionName.split('.');
                 var namesLength=names.length;
                 var varName;
@@ -192,11 +222,14 @@
 
                 var placeHolderName;
                 var listItem={
-                    orderBy: '',
+                    orderBy: orderBy,
+                    reverse: reverse,
+                    filterName: filter,
+                    comparator: comparator,
+                    collectionName: collectionName,
                     alias: modelName,
                     modelAlias: modelAlias,
-                    template: el,
-                    elements: []
+                    template: el
                 };
 
                 if(namesLength==1) listItem.placeHolder=placeHolder;
@@ -383,17 +416,21 @@
                     prop=binding.prop;
 
                     if(typeof prop!=='string') {
-                        val=prop.filter(Filter,this,val);
+                        val=prop.filter(Filter,this,val,key,el);
                         prop=prop.prop;
                     }
-                    if(typeof el==='number') {
-                        this.$el.find('[sn-id="'+el+'"]').each(function() {
-                            setElement(this,prop,val);
-                        });
-                    } else {
-                        setElement(el,prop,val);
-                    }
+                    this._setProp(el,prop,val);
                 }
+            }
+        },
+
+        _setProp: function(el,prop,val) {
+            if(typeof el==='number') {
+                this.$el.find('[sn-id="'+el+'"]').each(function() {
+                    setElement(this,prop,val);
+                });
+            } else {
+                setElement(el,prop,val);
             }
         },
 
@@ -448,7 +485,16 @@
                 value=attrs[attr];
 
                 if(origin!==value) {
-                    if(origin==undefined) {
+                    if(origin instanceof Model) {
+                        origin.set(value);
+
+                    } else if(origin instanceof Collection) {
+                        if(!$.isArray(value)) {
+                            throw new Error('[Array to '+(typeof value)+' error]不可改变'+attr+'的数据类型');
+                        }
+                        origin.set(value);
+
+                    } else {
                         if($.isPlainObject(value)) {
                             model[attr]=new Model(value,attr,this,this.$el);
 
@@ -459,13 +505,6 @@
                         } else
                             model[attr]=value;
 
-                        this.data[attr]=value;
-
-                    } else if(origin instanceof Model||origin instanceof Collection) {
-                        origin.set(value);
-
-                    } else {
-                        model[attr]=value;
                         this.data[attr]=value;
                     }
                     this._asyncView(attr,value);
@@ -489,24 +528,141 @@
         }
     };
 
+    var getValue=function(data,names) {
+        if(typeof names==='string') names=names.split('.');
+        for(var i=0,len=names.length;i<len;i++) {
+            data=data[names[i]];
+        }
+        return data;
+    };
+
+    var Repeat=function(options,collection) {
+        this.list=[];
+        this.collection=collection;
+
+        $.extend(this,options);
+
+        if(!this.placeHolder&&collection.parent.$el)
+            this.placeHolder=collection.parent.$el.find('[sn-placeholder="'+this.placeHolderName+'"]')[0];
+    }
+
+    Repeat.prototype={
+        filter: function(data) {
+            var filter=this.filterName;
+            var comparator=this.comparator;
+
+            var flag=true;
+
+            if(filter) {
+                filter=this.getValue(filter);
+
+                if(!filter) return true;
+
+                if(comparator=='true') {
+                    comparator=true;
+                }
+
+                switch(typeof filter) {
+                    case 'function':
+                        flag=filter(data);
+                        break;
+                    case 'object':
+                        var val;
+                        for(var key in data) {
+                            val=data[key];
+
+                            if(typeof val=='string') {
+                            }
+                        }
+                        break;
+                    case 'string':
+                        break;
+                    default:
+                        flag=data;
+                        break;
+                }
+            }
+
+            return flag;
+        },
+
+        sort: function(orderBy,reverse) {
+            if(reverse!=this.reverse) {
+            }
+        },
+
+        getValue: function(name) {
+            var names=name.split('.');
+            var alias=this.modelAlias[names[0]];
+
+            if(alias) {
+
+            } else {
+                return getValue(this.collection.root.data,name);
+            }
+        },
+
+        add: function(model,el,useFragment) {
+
+            var list=this.list;
+            var orderBy=this.orderBy;
+            var reverse=this.reverse;
+            var item={
+                model: model,
+                el: el
+            };
+
+            this.list.push(item);
+
+            if(orderBy) {
+
+            }
+
+            if(this.filter(model.data)) {
+                if(this.fragment) {
+                    this.fragment.appendChild(el);
+
+                } else {
+                    this.placeHolder.parentNode.insertBefore(el,this.placeHolder);
+                }
+            }
+
+        },
+
+        remove: function(model) {
+            for(var i=this.list.length-1;i>=0;i--) {
+                if(this.list[i].model==model) {
+                    this.list.splice(i,1);
+                    break;
+                }
+            }
+        }
+    }
+
     var Collection=function(data,key,parent) {
         if(!data) return;
 
         this.models=[];
         this.data=[];
         this.key=key;
+        this.repeats=[];
 
         this.parent=parent;
         if(parent.key)
             this.key=parent.key+"."+this.key;
 
         this.root=parent.root;
-        this.root.finder&&(this.list=$.extend(true,[],this.root.finder.repeats[this.key]));
+        var repeats=this.root.finder.repeats[this.key];
 
-        var listItem;
-        for(var j=0,len=this.list.length;j<len;j++) {
-            listItem=this.list[j];
-            listItem.placeHolder=this.parent.$el.find('[sn-placeholder="'+listItem.placeHolderName+'"]')[0];
+        var item,
+            repeat;
+
+        if(repeats) {
+            for(var i=0,len=repeats.length;i<len;i++) {
+                repeat=new Repeat(repeats[i],this);
+
+                this.repeats.push(repeat);
+            }
         }
 
         parent.data[key]=this.data;
@@ -529,31 +685,24 @@
             }
         },
 
-        add: function(data,autoAppend) {
+        add: function(data,useFragment) {
             var $els;
             var model=new this.model();
 
             this.models.push(model);
             this.data.push(data);
 
-            if(this.list) {
+            if(this.repeats) {
                 var item;
 
-                for(var i=0,len=this.list.length;i<len;i++) {
-                    item=this.list[i];
+                for(var i=0,len=this.repeats.length;i<len;i++) {
+                    item=this.repeats[i];
 
                     var el=item.template.cloneNode(true);
                     var $el=$(el);
 
                     el.snModel=model;
-                    item.elements.push(el);
-
-                    if(autoAppend===false) {
-                        item.fragment.appendChild(el);
-
-                    } else {
-                        item.placeHolder.parentNode.insertBefore(el,item.placeHolder);
-                    }
+                    item.add(model,el);
 
                     if(!$els) $els=$el;
                     else $els=$els.add($el);
@@ -565,16 +714,17 @@
         },
 
         fragment: function(fn) {
-            for(var i=0,n=this.list.length;i<n;i++) {
-                this.list[i].fragment=document.createDocumentFragment();
+            for(var i=0,n=this.repeats.length;i<n;i++) {
+                this.repeats[i].fragment=document.createDocumentFragment();
             }
 
             fn.call(this);
 
             var item;
-            for(var i=0,n=this.list.length;i<n;i++) {
-                item=this.list[i];
+            for(var i=0,n=this.repeats.length;i<n;i++) {
+                item=this.repeats[i];
                 item.placeHolder.parentNode.insertBefore(item.fragment,item.placeHolder);
+                item.fragment=null;
             }
         },
 
@@ -617,9 +767,9 @@
                 i=this.models.indexOf(i);
             }
 
-            if(this.list) {
-                for(var j=0,len=this.list.length;j<len;j++) {
-                    item=this.list[j];
+            if(this.repeats) {
+                for(var j=0,len=this.repeats.length;j<len;j++) {
+                    item=this.repeats[j];
 
                     el=item.elements[i];
                     el.prentNode.removeChild(el);
@@ -671,12 +821,13 @@
     var $el=$('<div sn-binding="test:name,title:node.test,tt:node.deep.end">\
             <input sn-model="name" />\
             <div sn-binding="html:name"></div>\
-            <div sn-repeat="item in data" class="item">\
+            <div sn-repeat="item in data| filter:name| orderBy:alt:reverse" class="item">\
                 <input sn-model="item.alt" />\
+                id:<input sn-model="item.id" />\
                 <img sn-binding="src:item.picture|lowercase:asdf.cc:\'asdf\'|uppercase,alt:item.alt|uppercase"/>\
                 <div sn-binding="data:item.content">测试<text sn-binding="html:item.content"></text>一下</div>\
                 <div sn-repeat="item1 in item.children" class="item1">\
-                    <img sn-binding="src:item.picture,alt:item1.title|uppercase:item.id"/>\
+                    <img sn-binding="src:item.picture,alt:item1.title|uppercase:item.id:name"/>\
                     <div sn-binding="data:item1.content">测试1<text sn-binding="html:item1.title"></text>一下1</div>\
                 </div>\
             </div>\
@@ -688,10 +839,10 @@
 
     var data=[];
 
-    for(var i=0;i<1000;i++) {
+    for(var i=0;i<1;i++) {
         data.push({
             picture: 'xxx',
-            alt: 'zzzz',
+            alt: 'zzzz'+i,
             content: 'asdf',
             children: [{
                 title: 'asdf',
@@ -701,11 +852,15 @@
     }
 
     vm.set({
+        reverse: true,
         name: 'asdf',
         data: data,
         asdf: {
             cc: 'as'
         },
+        test: [{
+            ooo: 's'
+        }],
         node: {
             test: 'ccc',
             deep: {
