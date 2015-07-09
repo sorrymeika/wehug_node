@@ -1,0 +1,11 @@
+{
+	root: '/',
+	debug: true,
+	js : [],
+	css : [@webresource("images/views.css")],
+	include: ['widget/extend/loading.js'],
+	route: {
+		'/': { controller: 'index', template: 'index' },
+		'/test/{id:\\d+}': { controller: 'test', api: '/api/test/{id}' }
+	}
+}

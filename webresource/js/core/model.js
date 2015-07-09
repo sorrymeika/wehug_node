@@ -1,12 +1,15 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
         Base=require('./base'),
-        Event=require('./event')
+        Event=require('./event');
 
 
-    var http=function (url,method,data,success,error,ctx) {
+    var slice=Array.prototype.slice;
+
+
+    var http=function(url,method,data,success,error,ctx) {
         if(typeof data==='function') ctx=error,error=success,success=data,data=null;
 
         $.ajax({
@@ -14,10 +17,10 @@
             type: method,
             data: data,
             dataType: 'json',
-            success: function (res) {
+            success: function(res) {
                 success.call(ctx,res);
             },
-            error: function (res) {
+            error: function(res) {
                 error.call(ctx,res);
             }
         });
@@ -25,8 +28,8 @@
 
     $.extend(http,{
 
-        get: function (success,error) {
-            http(this.url,'GET',function (res) {
+        get: function(success,error) {
+            http(this.url,'GET',function(res) {
                 var $el;
                 if(this.model) {
                     this.set(res);
@@ -41,10 +44,10 @@
             },error,this);
         },
 
-        post: function (success,error) {
+        post: function(success,error) {
             var data=this.toJSON();
 
-            http(this.url,'POST',data,function (res) {
+            http(this.url,'POST',data,function(res) {
 
                 if(this.parent&&this.parent instanceof Collection) {
                     this.parent.add(data);
@@ -54,14 +57,14 @@
             },error,this);
         },
 
-        put: function (success,error) {
+        put: function(success,error) {
             http(this.url,'PUT',this.toJSON(),success,error,this);
         },
 
-        'delete': function (success,error) {
+        'delete': function(success,error) {
             var self=this;
 
-            http(this.url,'DELETE',data,function (res) {
+            http(this.url,'DELETE',data,function(res) {
 
                 if(this.parent&&this.parent instanceof Collection) {
                     this.parent.remove(data);
@@ -74,19 +77,22 @@
 
     var Filter={
         date: util.formatDate,
-        json: function (data) {
+        json: function(data) {
             return (data instanceof Model||data instanceof Collection)?JSON.stringify(data.data):JSON.stringify(data);
         },
-        join: function (arr,split) {
+        join: function(arr,split) {
             return (arr instanceof Collection)?arr.data.join(split):arr.join(split);
         },
-        lowercase: function (str) {
+        lowercase: function(str) {
             return str.toLowerCase();
         },
-        uppercase: function (str,a,b) {
+        uppercase: function(str,a,b) {
             return str.toUpperCase()+a+b;
         },
-        _listenEvent: function (parent,model,key,el,self,param,count) {
+        concat: function() {
+            return slice.call(arguments).join('');
+        },
+        _addListener: function(parent,model,key,el,self,param,count) {
             var flag=false,
                 fkey;
 
@@ -104,8 +110,7 @@
                     if(flag) {
                         param=param.split('.');
                         var attr=param.pop();
-
-                        (param.length<=0?parent:parent.get(param)).on("change"+(attr?':'+attr:''),function () {
+                        (param.length<=0?parent:parent.get(param)).on("change"+(attr?':'+attr:''),function() {
                             model._setProp(el,self.prop,self.filter(Filter,model,model.data[key]))
                         });
                     }
@@ -117,33 +122,32 @@
     var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\'))*)/g;
     var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
 
-
-    var filterFn=function (filters,listItem) {
+    var filterFn=function(filters,listItem) {
         var value;
         var code='var self=this;';
         var before='';
         var count=0;
 
-        filters.replace(rfilter,function (match,filter,parameters) {
+        filters.replace(rfilter,function(match,filter,parameters) {
             code+='value=Filter.'+filter+'(value';
 
-            parameters.replace(rparams,function (match,param) {
+            parameters.replace(rparams,function(match,param) {
                 if(param[0]=='\'') {
                     code+=','+param;
 
                 } else if(!listItem) {
                     code+=',model.root.data.'+param;
-                    before+='Filter._listenEvent(model.root,model,key,el,this,"'+param+'",'+(count++)+');';
+                    before+='if(el)Filter._addListener(model.root,model,key,el,this,"'+param+'",'+(count++)+');';
 
                 } else if(param==listItem.alias) {
                     code+=',model.data';
-                    before+='Filter._listenEvent(model,model,key,el,this,"",'+(count++)+');';
+                    before+='if(el)Filter._addListener(model.parent,model,key,el,this,model._key,'+(count++)+');';
 
                 } else {
                     var alias=listItem.alias;
                     if(param.indexOf(alias+'.')==0) {
                         code+=',model.data'+param.substr(alias.length);
-                        before+='Filter._listenEvent(model,model,key,el,this,"'+param.substr(alias.length+1)+'",'+(count++)+');';
+                        before+='if(el)Filter._addListener(model,model,key,el,this,"'+param.substr(alias.length+1)+'",'+(count++)+');';
 
                     } else {
                         var arrParam=param.split('.');
@@ -151,11 +155,11 @@
                         if(alias) {
                             arrParam.shift();
                             param=arrParam.join('.');
-                            code+=',(function(){parent=model.parent.parent;while(parent){if( parent.key=="'+alias+'"){ Filter._listenEvent(parent,model,key,el,self,"'+param+'",'+(count++)+'); return parent.data.'+param+'; } parent=parent.parent.parent; } })()';
+                            code+=',(function(){parent=model.parent.parent;while(parent){if( parent.key=="'+alias+'^child"){  if(el)Filter._addListener(parent,model,key,el,self,"'+param+'",'+(count++)+'); return parent.data.'+param+'; } parent=parent.parent.parent; } })()';
 
                         } else {
                             code+=',model.root.data.'+param;
-                            before+='Filter._listenEvent(model.root,model,key,el,this,"'+param+'",'+(count++)+');';
+                            before+='if(el)Filter._addListener(model.root,model,key,el,this,"'+param+'",'+(count++)+');';
                         }
                     }
                 }
@@ -172,12 +176,11 @@
     var rcollection=/([a-zA-Z_1-9]+)\s+in\s+([a-zA-Z_1-9]+(?:\.[a-zA-Z_1-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}/g;
     var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)/g;
 
-    var filterBindings=function ($el,withModel) {
-        var selector=withModel===true?'[sn-binding],[sn-model]':'[sn-binding]';
+    var $filterEl=function($el,selector) {
         return $el.filter(selector).add($el.find(selector));
     };
 
-    var Finder=function ($elem) {
+    var Finder=function($elem) {
         var self=this;
         var repeats=this.repeats={};
         var bindings=this.bindings={};
@@ -187,18 +190,18 @@
 
         var count=0;
 
-        var $repeats=$elem.filter('[sn-repeat]').add($elem.find('[sn-repeat]')).each(function () {
+        var $repeats=$elem.filter('[sn-repeat]').add($elem.find('[sn-repeat]')).each(function() {
             $el=$(this);
             var el=this;
             var repeat=this.getAttribute('sn-repeat');
             var parents=$el.parents('[sn-repeat-alias]');
             var modelAlias={};
 
-            parents.each(function () {
+            parents.each(function() {
                 modelAlias[this.getAttribute('sn-repeat-alias')]=this.getAttribute('sn-repeat-name');
             });
 
-            repeat.replace(rcollection,function (match,modelName,collectionName,filter,comparator,orderBy,reverse) {
+            repeat.replace(rcollection,function(match,modelName,collectionName,filter,comparator,orderBy,reverse) {
                 var names=collectionName.split('.');
                 var namesLength=names.length;
                 var varName;
@@ -261,7 +264,7 @@
 
                 var alias;
 
-                filterBindings($el,true).each(function () {
+                $filterEl($el,'[sn-binding],[sn-model]').each(function() {
                     var el=this;
                     var binding=this.getAttribute('sn-binding');
                     var model=this.getAttribute('sn-model');
@@ -288,7 +291,7 @@
                     }
 
                     if(binding) {
-                        binding.replace(rbinding,function (match,prop,name,key,filters) {
+                        binding.replace(rbinding,function(match,prop,name,key,filters) {
 
                             if(name==listItem.alias) {
                                 name=collectionName+'^child'+key;
@@ -323,12 +326,12 @@
             }
         }
 
-        filterBindings($elem).each(function () {
+        $filterEl($elem,'[sn-binding]').each(function() {
             var binding=this.getAttribute('sn-binding');
             var el=this;
             var bounds;
 
-            binding.replace(rbinding,function (match,prop,name,key,filters) {
+            binding.replace(rbinding,function(match,prop,name,key,filters) {
                 name+=key;
                 if(filters) {
                     prop={
@@ -347,11 +350,9 @@
                 });
             });
         });
-
-        console.log(bindings)
     };
 
-    var setElement=function (el,prop,value) {
+    var setElement=function(el,prop,value) {
 
         switch(prop) {
             case 'text':
@@ -361,21 +362,23 @@
                 el.innerHTML=value;
                 break;
             default:
-                el[prop]=value;
+                el.setAttribute(prop,value);
                 break;
         }
     };
 
 
-    var Model=function (data,key,parent,$el) {
+    var Model=function(data,key,parent,$el) {
         if(!data) return;
+
+        if(this.created) return;
 
         var model={},
             value;
 
         this.$el=$el;
         this.model=model;
-
+        this._key=key;
         this.key=key;
         this.root=this;
         this.data=$.isArray(data)?{ $data: data}:data;
@@ -394,6 +397,7 @@
         }
 
         this.set(data);
+        this.created=true;
     };
 
     Model.prototype={
@@ -403,7 +407,7 @@
         off: Event.off,
         trigger: Event.trigger,
 
-        _syncView: function (key,val) {
+        _syncView: function(key,val) {
             var bindings=this.root.finder.bindings[key&&this.key?this.key+'.'+key:(this.key||key)],
                 binding,
                 el,
@@ -427,16 +431,21 @@
             return this;
         },
 
-        _syncOwnView: function () {
+        _syncOwnView: function() {
             if(this.root!=this) {
-                this._syncView('',this.data).parent._syncOwnView();
+                this._syncView('',this.data);
+                if(this.created&&this.parent instanceof Model)
+                    this.parent.trigger('change:'+this._key,this.data);
+
+                if(this.parent.needUpdateView)
+                    this.parent._syncOwnView();
             }
             return this;
         },
 
-        _setProp: function (el,prop,val) {
+        _setProp: function(el,prop,val) {
             if(typeof el==='number') {
-                this.$el.find('[sn-id="'+el+'"]').each(function () {
+                $filterEl(this.$el,'[sn-id="'+el+'"]').each(function() {
                     setElement(this,prop,val);
                 });
             } else {
@@ -444,7 +453,7 @@
             }
         },
 
-        get: function (key) {
+        get: function(key) {
             if(typeof key!='string') {
                 var model=this.model[key[0]];
                 for(var i=1,len=key.length;i<len;i++) {
@@ -455,12 +464,14 @@
             return this.model[key];
         },
 
-        set: function (key,val) {
+        set: function(key,val) {
             var self=this,
                 origin,
                 changed,
                 attrs,
                 model=this.model;
+
+            self.needUpdateView=false;
 
             if($.isPlainObject(key)) {
                 attrs=key;
@@ -471,7 +482,6 @@
                     this.parent.data[this.parent.models.indexOf(this)]=val;
                 }
                 this.data=val;
-                this.trigger('change',val);
                 this._syncOwnView();
                 return;
 
@@ -506,6 +516,8 @@
                         origin.set(value);
 
                     } else {
+                        this.data[attr]=value;
+
                         if($.isPlainObject(value)) {
                             model[attr]=new Model(value,attr,this,this.$el);
 
@@ -513,14 +525,13 @@
                             model[attr]=new Collection;
                             collections.push(attr);
 
-                        } else
+                        } else {
                             model[attr]=value;
 
-                        this.data[attr]=value;
+                            this._syncView(attr,value);
+                            if(this.created) this.trigger('change:'+attr,value);
+                        }
                     }
-                    this._syncView(attr,value);
-
-                    this.trigger('change:'+attr,value);
 
                     if(!changed) changed=true;
                 }
@@ -539,15 +550,17 @@
                 }
             }
 
+            self.needUpdateView=true;
+
             return this;
         },
 
-        toJSON: function () {
+        toJSON: function() {
             return $.extend(true,{},this.data);
         }
     };
 
-    var getValue=function (data,names) {
+    var getValue=function(data,names) {
         if(typeof names==='string') names=names.split('.');
         for(var i=0,len=names.length;i<len;i++) {
             data=data[names[i]];
@@ -555,7 +568,7 @@
         return data;
     };
 
-    var Repeat=function (options,collection) {
+    var Repeat=function(options,collection) {
         this.list=[];
         this.collection=collection;
 
@@ -566,7 +579,7 @@
     }
 
     Repeat.prototype={
-        filter: function (data) {
+        filter: function(data) {
             var filter=this.filterName;
             var comparator=this.comparator;
 
@@ -605,12 +618,12 @@
             return flag;
         },
 
-        sort: function (orderBy,reverse) {
+        sort: function(orderBy,reverse) {
             if(reverse!=this.reverse) {
             }
         },
 
-        getValue: function (name) {
+        getValue: function(name) {
             var names=name.split('.');
             var alias=this.modelAlias[names[0]];
 
@@ -621,7 +634,7 @@
             }
         },
 
-        add: function (model,el,useFragment) {
+        add: function(model,el,useFragment) {
 
             var list=this.list;
             var orderBy=this.orderBy;
@@ -648,7 +661,7 @@
 
         },
 
-        remove: function (model) {
+        remove: function(model) {
             for(var i=this.list.length-1;i>=0;i--) {
                 if(this.list[i].model==model) {
                     this.list.splice(i,1);
@@ -658,7 +671,7 @@
         }
     }
 
-    var Collection=function (data,key,parent) {
+    var Collection=function(data,key,parent) {
         if(!data) return;
 
         this.models=[];
@@ -695,7 +708,7 @@
 
         model: Model,
 
-        forEach: function (fn) {
+        forEach: function(fn) {
             var model;
 
             for(var i=0,len=this.models.length;i<len;i++) {
@@ -705,7 +718,16 @@
             }
         },
 
-        add: function (data,useFragment) {
+        append: function(data) {
+            this.fragment(function() {
+                for(var i=0,len=data.length;i<len;i++) {
+                    this.add(data[i],true);
+                }
+            });
+        },
+
+        add: function(data,useFragment) {
+            this.needUpdateView=false;
             var $els;
             var model=new this.model();
 
@@ -733,15 +755,22 @@
             if(!useFragment) {
                 this._syncOwnView();
             }
+            this.needUpdateView=true;
             return model;
         },
 
-        _syncOwnView: function () {
-            this.parent._syncView(this._key,this.data)._syncOwnView();
+        _syncOwnView: function() {
+            this.parent._syncView(this._key,this.data);
+            if(this.created)
+                this.parent.trigger('change:'+this._key,this.data);
+
+            if(this.parent.needUpdateView) {
+                this.parent._syncOwnView();
+            }
             return this;
         },
 
-        fragment: function (fn) {
+        fragment: function(fn) {
             for(var i=0,n=this.repeats.length;i<n;i++) {
                 this.repeats[i].fragment=document.createDocumentFragment();
             }
@@ -754,10 +783,12 @@
                 item.placeHolder.parentNode.insertBefore(item.fragment,item.placeHolder);
                 item.fragment=null;
             }
+            this._syncOwnView();
         },
 
-        set: function (data) {
-            this.fragment(function () {
+        set: function(data) {
+            this.needUpdateView=false;
+            this.fragment(function() {
 
                 var item,
                     len=data.length,
@@ -765,7 +796,7 @@
 
                 if(len>length) {
                     for(var i=length-1;i>=0;i--) {
-                        this.remove(i);
+                        this.remove(i,true);
                     }
                 }
 
@@ -776,18 +807,18 @@
                         this.models[i].set(item);
                     }
                     else {
-                        this.add(item,false);
+                        this.add(item,true);
                     }
                 }
-                this._syncOwnView();
             });
+            this.needUpdateView=true;
         },
 
-        get: function (i) {
+        get: function(i) {
             return this.models[i];
         },
 
-        remove: function (i) {
+        remove: function(i,useFragment) {
             var item,
                 el;
 
@@ -805,11 +836,16 @@
                 }
                 this.models.splice(i,1);
                 this.data.splice(i,1);
+                if(!useFragment) {
+                    this._syncOwnView();
+                }
             }
         }
     };
 
-    var ViewModel=function ($el,data) {
+    var ViewModel=function($el,data) {
+        if(this.created) return;
+
         this.root=this;
         this.data={};
         this.model={};
@@ -818,6 +854,8 @@
         this.load($el);
         if(data)
             this.set(data);
+
+        this.created=true;
     };
 
     ViewModel.prototype=Object.create(Model.prototype);
@@ -825,10 +863,10 @@
     $.extend(ViewModel.prototype,{
         constructor: ViewModel,
 
-        load: function ($el) {
+        load: function($el) {
             var self=this;
             this.finder=new Finder($el);
-            this.$el=$el.on('input change','[sn-model]',function (e) {
+            this.$el=$el.on('input change','[sn-model]',function(e) {
                 var target=e.currentTarget;
                 var modelName=target.getAttribute('sn-model');
                 var collectionName=target.getAttribute('sn-collection');
@@ -845,137 +883,140 @@
 
     ViewModel.extend=Model.extend=Collection.extend=util.extend;
 
+    /*
     function testCollectionItem() {
 
-        var $el=$('<div>\
-            <input sn-model="name" />\
-            <div sn-binding="html:name"></div>\
-            <div sn-repeat="item in data" class="item">\
-                <input sn-model="item" />\
-                <div sn-binding="data:item">测试Collection的Item为非Object：<text sn-binding="html:item"></text></div>\
-                <div sn-repeat="item1 in item.children" class="item1">\
-                <div sn-binding="html:item|json"></div>\
-                <div sn-binding="html:item1|json"></div>\
-                <div sn-binding="html:data|json"></div>\
-                </div>\
-            </div>\
-        </div>').appendTo('body');
+    var $el=$('<div>\
+    <input sn-model="name" />\
+    <div sn-binding="html:name"></div>\
+    <div sn-repeat="item in data" class="item">\
+    <input sn-model="item" />\
+    <div sn-binding="data:item">测试Collection的Item为非Object：<text sn-binding="html:item"></text></div>\
+    <div sn-repeat="item1 in item.children" class="item1">\
+    <div sn-binding="html:item|json"></div>\
+    <div sn-binding="html:item1|json"></div>\
+    <div sn-binding="html:data|json"></div>\
+    </div>\
+    </div>\
+    </div>').appendTo('body');
 
-        now=Date.now();
-        var vm=new ViewModel($el);
+    now=Date.now();
+    var vm=new ViewModel($el);
 
-        var data=[];
+    var data=[];
 
-        for(var i=0;i<1;i++) {
-            data.push({
-                test: "item"+i
-            });
-        }
-
-        vm.set({
-            name: 'asdf',
-            data: data
-        });
-
-        vm.get('data').get(0).set({
-            children: [{
-                asdf: 1
-            }]
-        })
-
-        console.log(Date.now()-now);
+    for(var i=0;i<1000;i++) {
+    data.push({
+    test: "item"+i
+    });
     }
 
-    testCollectionItem();
+    vm.set({
+    name: 'asdf',
+    data: data
+    });
 
-    function testDeepCollection() {
+    vm.get('data').get(1).set({
+    children: [{
+    asdf: 1
+    }]
+    })
 
-        var $el=$('<div sn-binding="test:name,title:node.test,tt:node.deep.end">\
-            <input sn-model="name" />\
-            <div sn-binding="html:name"></div>\
-            <div sn-repeat="item in data| filter:name| orderBy:alt:reverse" class="item">\
-                <input sn-model="item.alt" />\
-                id:<input sn-model="item.id" />\
-                <img sn-binding="src:item.picture|lowercase:asdf.cc:\'asdf\'|uppercase,alt:item.alt|uppercase"/>\
-                <div sn-binding="data:item.content">测试<text sn-binding="html:item.content"></text>一下</div>\
-                <div sn-repeat="item1 in item.children" class="item1">\
-                    <img sn-binding="src:item.picture,alt:item1.title|uppercase:item.id:name"/>\
-                    <div sn-binding="data:item1.content">测试1<text sn-binding="html:item1.title"></text>一下1</div>\
-                </div>\
-            </div>\
-        </div>').appendTo('body');
-
-        //new
-        now=Date.now();
-        var vm=new ViewModel($el);
-
-        var data=[];
-
-        for(var i=0;i<1;i++) {
-            data.push({
-                picture: 'xxx',
-                alt: 'zzzz'+i,
-                content: 'asdf',
-                children: [{
-                    title: 'asdf',
-                    date: '2000'
-                }]
-            });
-        }
-
-        vm.set({
-            reverse: true,
-            name: 'asdf',
-            data: data,
-            asdf: {
-                cc: 'as'
-            },
-            test: [{
-                ooo: 's'
-            }],
-            node: {
-                test: 'ccc',
-                deep: {
-                    end: 1
-                }
-            }
-        });
-        console.log(Date.now()-now);
-
-        vm.get('data.0.children.0'.split('.')).set({
-            picture: 'a',
-            alt: 'b',
-            title: 'cctv'
-        });
-
-        console.log(vm.get('data').get(0))
+    console.log(Date.now()-now);
     }
 
+    //testCollectionItem();
+
+    function testFilter() {
+
+    var $el=$('<div sn-binding="test:name,title:node.test,tt:node.deep.end">\
+    <input sn-model="name" />\
+    <div sn-binding="html:name"></div>\
+    <div sn-repeat="item in data| filter:name| orderBy:alt:reverse" class="item">\
+    <input sn-model="item.alt" />\
+    id:<input sn-model="item.id" />\
+    <img sn-binding="src:item.picture|lowercase:asdf.cc:\'asdf\'|uppercase,alt:item.alt|uppercase"/>\
+    <div sn-binding="data:item.content">测试<text sn-binding="html:item.content"></text>一下</div>\
+    <div sn-repeat="item1 in item.children" class="item1">\
+    <img sn-binding="src:item.picture,alt:item1.title|uppercase:item.id:name"/>\
+    <div sn-binding="data:item1.content">测试1<text sn-binding="html:item1.title"></text>一下1</div>\
+    </div>\
+    </div>\
+    </div>').appendTo('body');
+
+    //new
+    now=Date.now();
+    var vm=new ViewModel($el);
+
+    var data=[];
+
+    for(var i=0;i<1000;i++) {
+    data.push({
+    picture: 'xxx',
+    alt: 'zzzz'+i,
+    content: 'asdf',
+    children: [{
+    title: 'asdf',
+    date: '2000'
+    }]
+    });
+    }
+
+    vm.set({
+    reverse: true,
+    name: 'asdf',
+    data: data,
+    asdf: {
+    cc: 'as'
+    },
+    test: [{
+    ooo: 's'
+    }],
+    node: {
+    test: 'ccc',
+    deep: {
+    end: 1
+    }
+    }
+    });
+    console.log(Date.now()-now);
+
+    return;
+    vm.get('data.0.children.0'.split('.')).set({
+    picture: 'a',
+    alt: 'b',
+    title: 'cctv'
+    });
+
+    console.log(vm.get('data').get(0))
+    }
+
+    //testFilter();
 
     function test2() {
-        var b={
-            a: {
-                b: {
-                    c: {
-                        d: "end"
-                    }
-                }
-            }
-        }
-        var a="a.b.c.d";
-
-        now=Date.now();
-        for(var i=0;i<10000;i++) {
-        }
-        console.log(Date.now()-now);
-
-        now=Date.now();
-        for(var i=0;i<10000;i++) {
-        }
-        console.log(Date.now()-now);
+    var b={
+    a: {
+    b: {
+    c: {
+    d: "end"
     }
+    }
+    }
+    }
+    var a="a.b.c.d";
 
-    exports.Model=ViewModel;
+    now=Date.now();
+    for(var i=0;i<10000;i++) {
+    }
+    console.log(Date.now()-now);
+
+    now=Date.now();
+    for(var i=0;i<10000;i++) {
+    }
+    console.log(Date.now()-now);
+    }
+    */
+    exports.ViewModel=ViewModel;
 
     exports.filter=exports.Filter=Filter;
 
