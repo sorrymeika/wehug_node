@@ -174,7 +174,7 @@ promise.each(config.projects,function(i,project) {
 
                 if(cfg.root==data.root) {
 
-                    html=cfg.html.replace('</head>','<script>if(!location.hash)location.hash="'+data.url+'";</script>');
+                    html=cfg.html;
 
                     res.send(html);
                     break;
@@ -214,7 +214,7 @@ promise.each(config.projects,function(i,project) {
         req.on('error',function(e) {
         });
 
-        request.on('data',function() {
+        request.on('data',function(postData) {
             req.write(postData);
         });
 

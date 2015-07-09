@@ -11,12 +11,10 @@
     return Activity.extend({
         events: {
             'tap [sn-repeat-name="data"][data-id]': function (e) {
-                this.forward('/teacher/'+e.currentTarget.getAttribute('data-id'));
+                this.forward('/teacher/'+e.currentTarget.getAttribute('data-id')+'?from='+this.route.url);
             },
             'tap .js_search': function (e) {
-                var search=this.model.data.search;
-                if(search) this.forward('/search/'+search);
-                else sl.tip('请输入搜索内容');
+                this.loading.reload();
             }
         },
 
@@ -58,11 +56,7 @@
                 }
             });
 
-            this.model=new model.ViewModel(this.$el,{
-                city: {
-                    name: '上海'
-                }
-            });
+            this.model=new model.ViewModel(this.$el);
             this.loading.load();
         },
 

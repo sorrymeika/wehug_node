@@ -1,2 +1,37 @@
-﻿header{ background:#f90; height: 47px; line-height: 47px; display: -webkit-flex; }
+﻿header { background: #f90; height: 47px; line-height: 47px; display: -webkit-flex; }
 .main { top: 47px; }
+
+.head_back { width: 50px; height: 47px; }
+.head_back:before { display: inline-block; background: url(site.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin-top: 10px; }
+
+.teacherwrap { padding-bottom: 80px; }
+
+.teacher_basic { display: -webkit-flex; }
+.teacher_photo { display: block; }
+
+.teacher_honor:before { content: '获得荣誉：'; }
+
+.teacher_data { display: -webkit-flex; text-align: center; }
+.teacher_data li { display: block; -webkit-flex: 1; }
+.teacher_data li:after { display: block; }
+.teacher_data li:nth-child(1):after,.s_data span:nth-child(1):after { content: '课时数'; }
+.teacher_data li:nth-child(2):after,.s_data span:nth-child(2):after { content: '学生数'; }
+.teacher_data li:nth-child(3):after,.s_data span:nth-child(3):after { content: '好评率'; }
+.teacher_data li:nth-child(4):after,.s_data span:nth-child(4):after { content: '续课率'; }
+
+.bottom_bar { background: #fff; }
+
+.appointment_teacher { display: -webkit-flex; }
+.appointment_teacher img { display: block; }
+.appointment_teacher ul { -webkit-flex: 1; }
+
+.login_notice { display: -webkit-flex; }
+
+.s_teacher { display: -webkit-flex; }
+.s_teacher img { display: block; width: 70px; height: 70px; border-radius: 50%; }
+.s_teacher_basic { -webkit-flex: 1; }
+.s_teacher_basic li { display: -webkit-flex; }
+.s_teacher_basic em, .s_teacher_basic span, .s_teacher_basic i { display: block; }
+
+.s_data { display: -webkit-flex; }
+.s_data span{ display: block;-webkit-flex:1; }

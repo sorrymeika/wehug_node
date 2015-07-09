@@ -1,4 +1,4 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     var $=require('$'),
         util=require('util'),
@@ -9,7 +9,7 @@
     var slice=Array.prototype.slice;
 
 
-    var http=function(url,method,data,success,error,ctx) {
+    var http=function (url,method,data,success,error,ctx) {
         if(typeof data==='function') ctx=error,error=success,success=data,data=null;
 
         $.ajax({
@@ -17,10 +17,10 @@
             type: method,
             data: data,
             dataType: 'json',
-            success: function(res) {
+            success: function (res) {
                 success.call(ctx,res);
             },
-            error: function(res) {
+            error: function (res) {
                 error.call(ctx,res);
             }
         });
@@ -28,8 +28,8 @@
 
     $.extend(http,{
 
-        get: function(success,error) {
-            http(this.url,'GET',function(res) {
+        get: function (success,error) {
+            http(this.url,'GET',function (res) {
                 var $el;
                 if(this.model) {
                     this.set(res);
@@ -44,10 +44,10 @@
             },error,this);
         },
 
-        post: function(success,error) {
+        post: function (success,error) {
             var data=this.toJSON();
 
-            http(this.url,'POST',data,function(res) {
+            http(this.url,'POST',data,function (res) {
 
                 if(this.parent&&this.parent instanceof Collection) {
                     this.parent.add(data);
@@ -57,14 +57,14 @@
             },error,this);
         },
 
-        put: function(success,error) {
+        put: function (success,error) {
             http(this.url,'PUT',this.toJSON(),success,error,this);
         },
 
-        'delete': function(success,error) {
+        'delete': function (success,error) {
             var self=this;
 
-            http(this.url,'DELETE',data,function(res) {
+            http(this.url,'DELETE',data,function (res) {
 
                 if(this.parent&&this.parent instanceof Collection) {
                     this.parent.remove(data);
@@ -77,22 +77,33 @@
 
     var Filter={
         date: util.formatDate,
-        json: function(data) {
+        json: function (data) {
             return (data instanceof Model||data instanceof Collection)?JSON.stringify(data.data):JSON.stringify(data);
         },
-        join: function(arr,split) {
+        join: function (arr,split) {
             return (arr instanceof Collection)?arr.data.join(split):arr.join(split);
         },
-        lowercase: function(str) {
+        lowercase: function (str) {
             return str.toLowerCase();
         },
-        uppercase: function(str,a,b) {
-            return str.toUpperCase()+a+b;
+        uppercase: function (str) {
+            return str.toUpperCase();
         },
-        concat: function() {
+        concat: function () {
             return slice.call(arguments).join('');
         },
-        _addListener: function(parent,model,key,el,self,param,count) {
+        round: function (number) {
+            return Math.round(number)
+        },
+        format: function (str) {
+            var args=slice.call(arguments);
+            var format=args[1];
+            args.splice(1,1);
+            return format.replace(/\{(\d+)\}/g,function (match,index) {
+                return args[index];
+            });
+        },
+        _addListener: function (parent,model,key,el,self,param,count) {
             var flag=false,
                 fkey;
 
@@ -110,7 +121,7 @@
                     if(flag) {
                         param=param.split('.');
                         var attr=param.pop();
-                        (param.length<=0?parent:parent.get(param)).on("change"+(attr?':'+attr:''),function() {
+                        (param.length<=0?parent:parent.get(param)).on("change"+(attr?':'+attr:''),function () {
                             model._setProp(el,self.prop,self.filter(Filter,model,model.data[key]))
                         });
                     }
@@ -122,16 +133,16 @@
     var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\'))*)/g;
     var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
 
-    var filterFn=function(filters,listItem) {
+    var filterFn=function (filters,listItem) {
         var value;
         var code='var self=this;';
         var before='';
         var count=0;
 
-        filters.replace(rfilter,function(match,filter,parameters) {
+        filters.replace(rfilter,function (match,filter,parameters) {
             code+='value=Filter.'+filter+'(value';
 
-            parameters.replace(rparams,function(match,param) {
+            parameters.replace(rparams,function (match,param) {
                 if(param[0]=='\'') {
                     code+=','+param;
 
@@ -176,11 +187,11 @@
     var rcollection=/([a-zA-Z_1-9]+)\s+in\s+([a-zA-Z_1-9]+(?:\.[a-zA-Z_1-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}/g;
     var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)/g;
 
-    var $filterEl=function($el,selector) {
+    var $filterEl=function ($el,selector) {
         return $el.filter(selector).add($el.find(selector));
     };
 
-    var Finder=function($elem) {
+    var Finder=function ($elem) {
         var self=this;
         var repeats=this.repeats={};
         var bindings=this.bindings={};
@@ -190,18 +201,18 @@
 
         var count=0;
 
-        var $repeats=$elem.filter('[sn-repeat]').add($elem.find('[sn-repeat]')).each(function() {
+        var $repeats=$filterEl($elem,'[sn-repeat]').each(function () {
             $el=$(this);
             var el=this;
             var repeat=this.getAttribute('sn-repeat');
             var parents=$el.parents('[sn-repeat-alias]');
             var modelAlias={};
 
-            parents.each(function() {
+            parents.each(function () {
                 modelAlias[this.getAttribute('sn-repeat-alias')]=this.getAttribute('sn-repeat-name');
             });
 
-            repeat.replace(rcollection,function(match,modelName,collectionName,filter,comparator,orderBy,reverse) {
+            repeat.replace(rcollection,function (match,modelName,collectionName,filter,comparator,orderBy,reverse) {
                 var names=collectionName.split('.');
                 var namesLength=names.length;
                 var varName;
@@ -264,7 +275,7 @@
 
                 var alias;
 
-                $filterEl($el,'[sn-binding],[sn-model]').each(function() {
+                $filterEl($el,'[sn-binding],[sn-model]').each(function () {
                     var el=this;
                     var binding=this.getAttribute('sn-binding');
                     var model=this.getAttribute('sn-model');
@@ -291,7 +302,7 @@
                     }
 
                     if(binding) {
-                        binding.replace(rbinding,function(match,prop,name,key,filters) {
+                        binding.replace(rbinding,function (match,prop,name,key,filters) {
 
                             if(name==listItem.alias) {
                                 name=collectionName+'^child'+key;
@@ -326,12 +337,12 @@
             }
         }
 
-        $filterEl($elem,'[sn-binding]').each(function() {
+        $filterEl($elem,'[sn-binding]').each(function () {
             var binding=this.getAttribute('sn-binding');
             var el=this;
             var bounds;
 
-            binding.replace(rbinding,function(match,prop,name,key,filters) {
+            binding.replace(rbinding,function (match,prop,name,key,filters) {
                 name+=key;
                 if(filters) {
                     prop={
@@ -352,7 +363,7 @@
         });
     };
 
-    var setElement=function(el,prop,value) {
+    var setElement=function (el,prop,value) {
 
         switch(prop) {
             case 'text':
@@ -361,6 +372,9 @@
             case 'html':
                 el.innerHTML=value;
                 break;
+            case 'display':
+                el.style.display=!value?'none':'';
+                break;
             default:
                 el.setAttribute(prop,value);
                 break;
@@ -368,7 +382,7 @@
     };
 
 
-    var Model=function(data,key,parent,$el) {
+    var Model=function (data,key,parent,$el) {
         if(!data) return;
 
         if(this.created) return;
@@ -407,7 +421,7 @@
         off: Event.off,
         trigger: Event.trigger,
 
-        _syncView: function(key,val) {
+        _syncView: function (key,val) {
             var bindings=this.root.finder.bindings[key&&this.key?this.key+'.'+key:(this.key||key)],
                 binding,
                 el,
@@ -431,7 +445,7 @@
             return this;
         },
 
-        _syncOwnView: function() {
+        _syncOwnView: function () {
             if(this.root!=this) {
                 this._syncView('',this.data);
                 if(this.created&&this.parent instanceof Model)
@@ -443,9 +457,9 @@
             return this;
         },
 
-        _setProp: function(el,prop,val) {
+        _setProp: function (el,prop,val) {
             if(typeof el==='number') {
-                $filterEl(this.$el,'[sn-id="'+el+'"]').each(function() {
+                $filterEl(this.$el,'[sn-id="'+el+'"]').each(function () {
                     setElement(this,prop,val);
                 });
             } else {
@@ -453,7 +467,7 @@
             }
         },
 
-        get: function(key) {
+        get: function (key) {
             if(typeof key!='string') {
                 var model=this.model[key[0]];
                 for(var i=1,len=key.length;i<len;i++) {
@@ -464,7 +478,7 @@
             return this.model[key];
         },
 
-        set: function(key,val) {
+        set: function (key,val) {
             var self=this,
                 origin,
                 changed,
@@ -555,12 +569,12 @@
             return this;
         },
 
-        toJSON: function() {
+        toJSON: function () {
             return $.extend(true,{},this.data);
         }
     };
 
-    var getValue=function(data,names) {
+    var getValue=function (data,names) {
         if(typeof names==='string') names=names.split('.');
         for(var i=0,len=names.length;i<len;i++) {
             data=data[names[i]];
@@ -568,7 +582,7 @@
         return data;
     };
 
-    var Repeat=function(options,collection) {
+    var Repeat=function (options,collection) {
         this.list=[];
         this.collection=collection;
 
@@ -579,7 +593,7 @@
     }
 
     Repeat.prototype={
-        filter: function(data) {
+        filter: function (data) {
             var filter=this.filterName;
             var comparator=this.comparator;
 
@@ -618,12 +632,12 @@
             return flag;
         },
 
-        sort: function(orderBy,reverse) {
+        sort: function (orderBy,reverse) {
             if(reverse!=this.reverse) {
             }
         },
 
-        getValue: function(name) {
+        getValue: function (name) {
             var names=name.split('.');
             var alias=this.modelAlias[names[0]];
 
@@ -634,7 +648,7 @@
             }
         },
 
-        add: function(model,el,useFragment) {
+        add: function (model,el,useFragment) {
 
             var list=this.list;
             var orderBy=this.orderBy;
@@ -661,7 +675,7 @@
 
         },
 
-        remove: function(model) {
+        remove: function (model) {
             for(var i=this.list.length-1;i>=0;i--) {
                 if(this.list[i].model==model) {
                     this.list.splice(i,1);
@@ -671,7 +685,7 @@
         }
     }
 
-    var Collection=function(data,key,parent) {
+    var Collection=function (data,key,parent) {
         if(!data) return;
 
         this.models=[];
@@ -708,7 +722,7 @@
 
         model: Model,
 
-        forEach: function(fn) {
+        forEach: function (fn) {
             var model;
 
             for(var i=0,len=this.models.length;i<len;i++) {
@@ -718,15 +732,15 @@
             }
         },
 
-        append: function(data) {
-            this.fragment(function() {
+        append: function (data) {
+            this.fragment(function () {
                 for(var i=0,len=data.length;i<len;i++) {
                     this.add(data[i],true);
                 }
             });
         },
 
-        add: function(data,useFragment) {
+        add: function (data,useFragment) {
             this.needUpdateView=false;
             var $els;
             var model=new this.model();
@@ -759,7 +773,7 @@
             return model;
         },
 
-        _syncOwnView: function() {
+        _syncOwnView: function () {
             this.parent._syncView(this._key,this.data);
             if(this.created)
                 this.parent.trigger('change:'+this._key,this.data);
@@ -770,7 +784,7 @@
             return this;
         },
 
-        fragment: function(fn) {
+        fragment: function (fn) {
             for(var i=0,n=this.repeats.length;i<n;i++) {
                 this.repeats[i].fragment=document.createDocumentFragment();
             }
@@ -786,16 +800,18 @@
             this._syncOwnView();
         },
 
-        set: function(data) {
+        set: function (data) {
             this.needUpdateView=false;
-            this.fragment(function() {
+            this.fragment(function () {
 
                 var item,
                     len=data.length,
                     length=this.models.length;
 
-                if(len>length) {
-                    for(var i=length-1;i>=0;i--) {
+                console.log(len,length)
+
+                if(length>len) {
+                    for(var i=length-1;i>=len;i--) {
                         this.remove(i,true);
                     }
                 }
@@ -814,11 +830,11 @@
             this.needUpdateView=true;
         },
 
-        get: function(i) {
+        get: function (i) {
             return this.models[i];
         },
 
-        remove: function(i,useFragment) {
+        remove: function (i,useFragment) {
             var item,
                 el;
 
@@ -830,9 +846,9 @@
                 for(var j=0,len=this.repeats.length;j<len;j++) {
                     item=this.repeats[j];
 
-                    el=item.elements[i];
-                    el.prentNode.removeChild(el);
-                    item.elements.splice(i,1);
+                    el=item.list[i].el;
+                    el.parentNode.removeChild(el);
+                    item.list.splice(i,1);
                 }
                 this.models.splice(i,1);
                 this.data.splice(i,1);
@@ -843,7 +859,7 @@
         }
     };
 
-    var ViewModel=function($el,data) {
+    var ViewModel=function ($el,data) {
         if(this.created) return;
 
         this.root=this;
@@ -863,21 +879,27 @@
     $.extend(ViewModel.prototype,{
         constructor: ViewModel,
 
-        load: function($el) {
+        load: function ($el) {
             var self=this;
             this.finder=new Finder($el);
-            this.$el=$el.on('input change','[sn-model]',function(e) {
-                var target=e.currentTarget;
-                var modelName=target.getAttribute('sn-model');
-                var collectionName=target.getAttribute('sn-collection');
-
-                if(!collectionName) {
-                    self.set(modelName,target.value);
-                } else {
-                    $(target).closest('[sn-repeat-name="'+collectionName+'"]')[0].snModel.set(modelName,target.value);
-                }
-            });
+            this.$el=$el.on('input change','[sn-model]',$.proxy(this._inputChange,this));
             return this;
+        },
+
+        _inputChange: function (e) {
+            var target=e.currentTarget;
+            var modelName=target.getAttribute('sn-model');
+            var collectionName=target.getAttribute('sn-collection');
+
+            if(!collectionName) {
+                this.set(modelName,target.value);
+            } else {
+                $(target).closest('[sn-repeat-name="'+collectionName+'"]')[0].snModel.set(modelName,target.value);
+            }
+        },
+
+        destory: function () {
+            this.$el.off('input change','[sn-model]',this._inputChange);
         }
     });
 

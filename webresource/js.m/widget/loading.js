@@ -1,4 +1,4 @@
-﻿define(['$','util','bridge','./../core/view'],function(require,exports,module) {
+﻿define(['$','util','bridge','./../core/view'],function (require,exports,module) {
     var $=require('$'),
         _=require('util'),
         view=require('./../core/view'),
@@ -6,44 +6,49 @@
 
     var records=[];
 
-    var Loading=view.extend({
-        events: {
-            'tap .js_reload': function() {
-                this.reload();
-            }
-        },
-        options: {},
+    var extend=['$el','url','method','dataType','success','complete','pageIndex','pageSize','append','$content','$scroll','checkData','check','hasData','KEY_PAGE','KEY_PAGESIZE','DATAKEY_TOTAL'];
 
-        pageIndex: 1,
-        pageSize: 10,
-        params: {},
+    var Loading=function (options) {
+        $.extend(this,_.pick(options,extend));
 
+        if(options.el)
+            this.$el=$(options.el);
+        this.el=this.$el[0];
+
+        this.params=options.params||{};
+        this.error=options.error||this.showError;
+        this.$content=options.$content||this.$el;
+        this.$scroll=options.$scroll||this.$el;
+        this.$el.on('tap','.js_reload',$.proxy(this.reload,this));
+    }
+
+    Loading.prototype={
         KEY_PAGE: 'page',
         KEY_PAGESIZE: 'pageSize',
 
         DATAKEY_TOTAL: 'total',
         DATAKEY_PAGENUM: '',
 
-        check: function(res) {
+        method: "GET",
+        dataType: 'json',
+
+        pageIndex: 1,
+        pageSize: 10,
+
+        template: '<div class="dataloading"></div>',
+        refresh: '<div class="refreshing"><p class="msg js_msg"></p><p class="loading js_loading"></p></div>',
+        error: '<div class="server_error"><i class="msg js_msg"></i><i class="ico_reload js_reload"></i></div>',
+
+        check: function (res) {
             var flag=!!(res&&res.success);
             return flag;
         },
 
-        hasData: function(res) {
+        hasData: function (res) {
             return res.data&&res.data.length;
         },
 
-        initialize: function() {
-            $.extend(this,_.pick(this.options,['check','hasData','$list','$scroll','KEY_PAGE','KEY_PAGESIZE','DATAKEY_TOTAL']));
-
-            if(!this.$list)
-                this.$list=this.$el;
-
-            if(!this.$scroll)
-                this.$scroll=this.$el;
-        },
-
-        showMsg: function(msg) {
+        showMsg: function (msg) {
             if(this.pageIndex==1) {
                 this.$loading.find('.js_msg').show().html(msg);
                 this.$loading.show().find('.js_loading').hide();
@@ -53,14 +58,16 @@
             }
         },
 
-        showError: function(msg) {
+        complete: _.noop,
+
+        showError: function (msg) {
             var that=this;
 
             if(that.isError) {
                 if(this.pageIndex==1) {
                     this.$loading.animate({
                         opacity: 0
-                    },300,'ease-out',function() {
+                    },300,'ease-out',function () {
                         that.$loading.hide().css({ opacity: '' });
                     });
 
@@ -74,11 +81,7 @@
             }
         },
 
-        template: '<div class="dataloading"></div>',
-        refresh: '<div class="refreshing"><p class="msg js_msg"></p><p class="loading js_loading"></p></div>',
-        error: '<div class="server_error"><i class="msg js_msg"></i><i class="ico_reload js_reload"></i></div>',
-
-        showLoading: function() {
+        showLoading: function () {
             var that=this,
                 $refreshing;
 
@@ -104,103 +107,99 @@
             }
         },
 
-        hideLoading: function() {
+        hideLoading: function () {
             this.$error&&this.$error.hide();
             this.$refreshing&&this.$refreshing.hide();
             this.$loading.hide();
         },
 
-        reload: function(resolve,reject,showLoading) {
-            var that=this;
+        setHeaders: function (key,val) {
+            var attrs;
+            if(!val)
+                attrs=key
+            else
+                (attrs={})[key]=val;
 
-            if(that.isLoading) {
-                resolve&&resolve();
-                return;
+            if(this.headers===undefined) this.headers={};
+
+            for(var attr in attrs) {
+                this.headers[attr]=attrs[attr];
             }
-            that.isLoading=true;
-
-            if(resolve) that.loadingOptions.success=resolve;
-            if(reject) that.loadingOptions.error=reject;
-            if(showLoading) that.loadingOptions.showLoading=showLoading;
-
-            that.pageIndex=1;
-            that.params[that.KEY_PAGE]=1;
-
-            that._load();
+            return this;
         },
 
-        load: function(options) {
+        setParam: function (key,val) {
+            var attrs;
+            if(!val)
+                attrs=key
+            else
+                (attrs={})[key]=val;
+
+            for(var attr in attrs) {
+                val=attrs[attr];
+
+                if(attr==this.KEY_PAGE)
+                    this.pageIndex=val;
+                else if(attr==this.KEY_PAGESIZE)
+                    this.pageSize=val
+                else
+                    this.params[attr]=val;
+            }
+            return this;
+        },
+
+        getParam: function (key,val) {
+            return this.params;
+        },
+
+        reload: function (options,callback) {
+            if(!this.isLoading) {
+                this.setParam(this.KEY_PAGE,1).load(options,callback);
+            }
+        },
+
+        load: function (options,callback) {
             var that=this;
 
             if(that.isLoading) return;
             that.isLoading=true;
 
-            options=$.extend({
-                url: '',
-                headers: (navigator.platform!="Win32"&&navigator.platform!="Win64")&&localStorage.authCookies?{
-                    Cookie: localStorage.authCookies
-                }:null,
-                type: 'GET',
-                data: {},
-                pageIndex: that.pageIndex,
-                pageSize: that.pageSize,
-                timeout: 15,
-                success: _.noop,
-                refresh: null,
-                error: function() {
-                    that.showError();
-                },
-                complete: _.noop
+            if(typeof options=='function') callback=options,options=null;
 
-            },options);
-
-            that.loadingOptions=options;
-
-            that.params=options.data;
-            that.pageIndex=options.pageIndex;
-            that.pageSize=options.pageSize;
-
+            that.params[that.KEY_PAGE]=that.pageIndex;
             that.params[that.KEY_PAGESIZE]=that.pageSize;
-
-            that._load();
-        },
-
-        _load: function(isShowLoading) {
-            var that=this;
 
             for(var i=records.length-1;i>=0;i--) {
                 records[i].disableAutoRefreshing();
             }
 
-            that.params[that.KEY_PAGE]=that.pageIndex;
-
-            that.abort();
-
-            if(that.loadingOptions.showLoading) that.loadingOptions.showLoading();
-            else that.showLoading();
+            if(!options||options.showLoading!==false) that.showLoading();
 
             that._xhr=$.ajax({
-                url: app.url(that.loadingOptions.url),
-                headers: that.loadingOptions.headers,
+                url: app.url(that.url),
+                headers: that.headers,
                 data: that.params,
-                type: that.loadingOptions.type,
-                dataType: that.loadingOptions.dataType||'json',
-                error: function(xhr) {
+                type: that.method,
+                dataType: that.dataType,
+                error: function (xhr) {
                     that._xhr=null;
                     that.isError=true;
                     that.isLoading=false;
-                    that.loadingOptions.error.call(that,{ msg: '网络错误' },xhr);
+                    that.error({ msg: '网络错误' },xhr);
+                    callback&&callback.call(that,{ msg: '网络错误' },null);
                 },
-                success: function(res,status,xhr) {
+                success: function (res,status,xhr) {
                     that._xhr=null;
                     that.isLoading=false;
 
-                    if(that.loadingOptions.check===false||that.check(res)) {
+                    if(!that.check||that.check(res)) {
                         that.hideLoading();
 
-                        if(that.loadingOptions.checkData===false||that.hasData(res)) {
-                            if(that.pageIndex==1||!that.loadingOptions.refresh) that.loadingOptions.success.call(that,res,status,xhr);
-                            else that.loadingOptions.refresh.call(that,res,status,xhr);
+                        if(that.checkData===false||that.hasData(res)) {
+                            if(that.pageIndex==1||!that.append) that.success(res,status,xhr);
+                            else that.append(res,status,xhr);
+
+                            callback&&callback.call(that,null,res);
 
                             that.checkAutoRefreshing(res);
                         } else {
@@ -209,31 +208,32 @@
                     } else {
                         that.isError=true;
                         that.isLoading=false;
-                        that.loadingOptions.error.call(that,res);
+                        that.error(res);
+                        callback&&callback.call(that,res,null);
                     }
                 },
-                complete: $.proxy(that.loadingOptions.complete)
+                complete: $.proxy(that.complete,that)
             });
         },
 
-        _refresh: function() {
-            this._load();
+        _refresh: function () {
+            this.abort().load();
         },
 
-        dataNotFound: function(e,res) {
+        dataNotFound: function (e,res) {
             var that=this;
 
             if(that.pageIndex==1) {
                 that.showError('暂无数据');
             } else {
-                setTimeout(function() {
+                setTimeout(function () {
                     that.$refreshing.hide()
 
                 },3000);
             }
         },
 
-        _scroll: function(e,x,y) {
+        _scroll: function (e,x,y) {
             var that=this;
 
             if(!that.isLoading
@@ -248,11 +248,11 @@
 
         _autoRefreshingEnabled: false,
 
-        checkAutoRefreshing: function(res) {
+        checkAutoRefreshing: function (res) {
             var that=this,
                 data=that.params;
 
-            if(that.loadingOptions.refresh&&((that.DATAKEY_PAGENUM&&res[that.DATAKEY_PAGENUM]&&res[that.DATAKEY_PAGENUM]>data[that.KEY_PAGE])||(that.DATAKEY_TOTAL&&res[that.DATAKEY_TOTAL]&&res[that.DATAKEY_TOTAL]>data[that.KEY_PAGE]*data[that.KEY_PAGESIZE]))) {
+            if(that.append&&((that.DATAKEY_PAGENUM&&res[that.DATAKEY_PAGENUM]&&res[that.DATAKEY_PAGENUM]>data[that.KEY_PAGE])||(that.DATAKEY_TOTAL&&res[that.DATAKEY_TOTAL]&&res[that.DATAKEY_TOTAL]>data[that.KEY_PAGE]*data[that.KEY_PAGESIZE]))) {
 
                 that.pageIndex++;
                 that.enableAutoRefreshing();
@@ -262,8 +262,8 @@
             }
         },
 
-        enableAutoRefreshing: function() {
-            var $refreshing=(this.$refreshing||(this.$refreshing=$(this.refresh)).appendTo(this.$list)).show();
+        enableAutoRefreshing: function () {
+            var $refreshing=(this.$refreshing||(this.$refreshing=$(this.refresh)).appendTo(this.$content)).show();
 
             if(this._autoRefreshingEnabled) return;
             this._autoRefreshingEnabled=true;
@@ -272,12 +272,12 @@
 
             this._scrollY=this.el.scrollTop;
 
-            if(this.el.scrollTop+this.$list.height()-this.$list.matrix().ty>=this.$refreshing.offset().top) {
+            if(this.el.scrollTop+this.$scroll.height()>=this.$refreshing[0].offsetTop) {
                 this._refresh();
             }
         },
 
-        disableAutoRefreshing: function() {
+        disableAutoRefreshing: function () {
             if(!this._autoRefreshingEnabled) return;
             this._autoRefreshingEnabled=false;
 
@@ -286,7 +286,7 @@
             this.$refreshing&&this.$refreshing.hide();
         },
 
-        abort: function() {
+        abort: function () {
             if(this._xhr) {
                 this.isLoad=false;
                 this._xhr.abort();
@@ -294,15 +294,17 @@
 
                 this.hideLoading();
             }
+            return this;
         },
 
-        destory: function() {
+        destory: function () {
             this.abort();
-
-            view.fn.destory.apply(this,arguments);
+            this.disableAutoRefreshing();
+            this.$el.off('tap','.js_reload',this.reload);
         }
+    };
 
-    });
+    Loading.extend=_.extend;
 
     module.exports=Loading;
 });
