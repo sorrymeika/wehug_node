@@ -16,7 +16,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .head_search_btn { width: 60px; }
 .head_search_btn .btn_small { margin-top: 13px; background:#fff; height: 23px;line-height: 24px; color:#f90; font-size: 14px; display: inline-block; padding: 0 6px; border-radius: 4px; }
 
-.teacherwrap { padding-bottom: 80px; }
+.teacherwrap { padding-bottom: 60px; }
 
 .head_photo { width: 68px; height: 68px; border-radius: 50%; margin-left: 6px; }
 
@@ -55,7 +55,8 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .teacher_exp dd { padding: 4px 0; color:#808080; }
 
 .teacher_cmt h3 { font-size: 16px; margin: 10px 0 10px 0; }
-.teacher_cmt .class_time { color:#f90; margin-left: 30px;}
+.teacher_cmt .class_time { color:#f90; margin-left: 30px; font-size: 12px; font-weight: normal;}
+.teacher_cmt .class_time:before {display: inline-block; background: url(site.png) no-repeat -130px -30px; content: ''; width: 16px; height: 22px; background-size: 320px auto; vertical-align: -1px;}
 .teacher_cmt h4 { margin: 6px 0; }
 .teacher_cmt h4 span { margin-left: 6px; color:#f90; }
 .teacher_cmt_item { margin: 10px 30px 0 30px; }
