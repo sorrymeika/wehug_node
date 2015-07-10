@@ -808,8 +808,6 @@
                     len=data.length,
                     length=this.models.length;
 
-                console.log(len,length)
-
                 if(length>len) {
                     for(var i=length-1;i>=len;i--) {
                         this.remove(i,true);
