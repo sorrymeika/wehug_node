@@ -1,4 +1,4 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
 
     var $=require('$');
     var util=require('util');
@@ -11,7 +11,7 @@
 
     return Activity.extend({
         events: {
-            'tap .js_bind:not(.disabled)': function () {
+            'tap .js_bind:not(.disabled)': function() {
                 var userName=this.model.get('userName');
                 var password=this.model.get('password');
 
@@ -31,7 +31,7 @@
             }
         },
 
-        onCreate: function () {
+        onCreate: function() {
             var self=this;
 
             var $main=this.$('.main');
@@ -39,7 +39,8 @@
             Scroll.bind($main);
 
             this.model=new model.ViewModel(this.$el,{
-                title: '绑定邻师账号'
+                title: '绑定邻师账号',
+                back: this.route.queries.from||'/'
             });
 
             this.loading=new Loading({
@@ -48,24 +49,24 @@
                 check: false,
                 checkData: false,
                 $el: this.$el,
-                success: function (res) {
+                success: function(res) {
                     if(res.error_msg)
                         sl.tip(res.error_msg);
                     else {
                     }
                 },
-                error: function (res) {
+                error: function(res) {
                     sl.tip(res.msg);
                 }
             });
 
         },
 
-        onShow: function () {
+        onShow: function() {
             var that=this;
         },
 
-        onDestory: function () {
+        onDestory: function() {
         }
     });
 });

@@ -7,7 +7,7 @@
 	route: {
 		'/': { controller: 'index', template: 'index' },
 		'/login': { controller: 'login', template: 'login' },
-		'/search/{id:.+}': { controller: 'search', template: 'search' },
+		'/search/{keywords:.+}': { controller: 'search', template: 'search' },
 		'/teacher/{id:\\d+}': { controller: 'teacher', template: 'teacher' },
 		'/appointment': { controller: 'appointment', template: 'appointment' }
 	}

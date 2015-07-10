@@ -1,4 +1,4 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
 
     var $=require('$');
     var util=require('util');
@@ -10,9 +10,16 @@
 
 
     return Activity.extend({
-        events: {},
+        events: {
+            'tap .tabs_nav_con li:not(.curr)': function(e) {
+                var $target=$(e.currentTarget);
 
-        onCreate: function () {
+                $target.addClass('curr').siblings('.curr').removeClass('curr');
+                this.$panels.eq($target.index()).addClass('curr').siblings('.curr').removeClass('curr');
+            }
+        },
+
+        onCreate: function() {
             var self=this;
 
             var $main=this.$('.main');
@@ -24,7 +31,7 @@
                 back: this.route.queries.from||'/'
             });
 
-            console.log(this.route.queries)
+            this.$panels=this.$('.tabs_panel');
 
             this.loading=new Loading({
                 url: '/teacher/teacher_info',
@@ -36,7 +43,7 @@
                 $el: this.$el,
                 $content: $main.children(":first-child"),
                 $scroll: $main,
-                success: function (res) {
+                success: function(res) {
                     self.model.set(res.data);
 
                     localStorage.setItem('teacher',JSON.stringify(res.data));
@@ -46,11 +53,11 @@
             this.loading.load();
         },
 
-        onShow: function () {
+        onShow: function() {
             var that=this;
         },
 
-        onDestory: function () {
+        onDestory: function() {
         }
     });
 });

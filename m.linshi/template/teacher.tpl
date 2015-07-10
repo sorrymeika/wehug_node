@@ -5,11 +5,11 @@
 <div class="main teacherwrap">
     <div class="teacher_info">
         <div class="teacher_basic"><img class="head_photo" sn-binding="src:basic_info.head_photo" />
-            <div><h1 class="teacher_name" sn-binding="html:basic_info.teacher_name"></h1>
+            <div class="tb_item"><h1 class="teacher_name" sn-binding="html:basic_info.teacher_name"></h1>
                 <div class="teacher_area" sn-binding="html:basic_info.area"></div>
             </div>
-            <div><h2 class="discipline" sn-binding="html:basic_info.discipline"></h2>
-                <div class="teaching_age" sn-binding="html:basic_info.teaching_age"></div>
+            <div class="tb_item"><h2 class="discipline" sn-binding="html:basic_info.discipline"></h2>
+                <div class="teaching_age" sn-binding="html:basic_info.teaching_age|concat:'教龄'"></div>
             </div>
         </div>
         <ul class="teacher_cert">
@@ -43,11 +43,11 @@
                 <dd sn-binding="html:item.content"></dd>
             </dl>
         </div>
-        <div class="tabs_panel teacher_exp curr">
-            <div sn-repeat="item in appraise_list"><h3><b sn-binding="html:item.student_name"></b><span class="class_time" sn-binding="html:item.class_time|format:'课时数（{0}小时）'"></span></h3>
+        <div class="tabs_panel teacher_cmt">
+            <div class="teacher_cmt_item" sn-repeat="item in appraise_list"><h3><b sn-binding="html:item.student_name"></b><span class="class_time" sn-binding="html:item.class_time|format:'课时数（{0}小时）'"></span></h3>
                 <ul>
                     <li sn-repeat="item1 in item.list"><h4><text sn-binding="html:item1.type"></text><span sn-binding="html:item1.score|round|concat:'分'"></span></h4>
-                    <div sn-binding="html:item1.comments"></div>
+                    <div class="comments" sn-binding="html:item1.comments"></div>
                     </li>
                 </ul>
             </div>

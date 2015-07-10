@@ -1,4 +1,4 @@
-﻿define(function (require,exports,module) {
+﻿define(function(require,exports,module) {
 
     var $=require('$');
     var util=require('util');
@@ -10,25 +10,30 @@
 
     return Activity.extend({
         events: {
-            'tap [sn-repeat-name="data"][data-id]': function (e) {
+            'tap [sn-repeat-name="data"][data-id]': function(e) {
                 this.forward('/teacher/'+e.currentTarget.getAttribute('data-id')+'?from='+this.route.url);
             },
-            'tap .js_search': function (e) {
-                this.loading.reload();
+            'tap .js_search': function(e) {
+                var param=this.getParam(this.model.data.keywords);
+                this.loading.setParam(param).reload();
             }
         },
 
-        onCreate: function () {
+        getParam: function(keywords) {
+            return !keywords?{ mobile: '',teacher_name: ''}:util.validateMobile(keywords)?{ mobile: keywords,teacher_name: ''}:{ mobile: '',teacher_name: keywords };
+        },
+
+        onCreate: function() {
             var self=this;
 
             var $main=this.$('.main');
 
             Scroll.bind($main,{
                 //useScroll: true,
-                refresh: function (resolve,reject) {
+                refresh: function(resolve,reject) {
                     self.loading.reload({
                         showLoading: false
-                    },function (err,data) {
+                    },function(err,data) {
                         if(err) reject(err)
                         else resolve(data);
                     });
@@ -38,16 +43,17 @@
             this.loading=new Loading({
                 url: '/teacher/teacher_list',
                 check: false,
+                params: this.getParam(this.route.data.keywords),
                 $el: this.$el,
                 $content: $main.children(":first-child"),
                 $scroll: $main,
-                success: function (res) {
+                success: function(res) {
                     if(res.data.length>=10)
                         res.total=(this.pageIndex+1)*this.pageSize;
 
                     self.model.set(res);
                 },
-                append: function (res) {
+                append: function(res) {
                     if(res.data.length>=10) {
                         res.total=(this.pageIndex+1)*this.pageSize;
                     }
@@ -60,11 +66,11 @@
             this.loading.load();
         },
 
-        onShow: function () {
+        onShow: function() {
             var that=this;
         },
 
-        onDestory: function () {
+        onDestory: function() {
         }
     });
 });
