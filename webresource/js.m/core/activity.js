@@ -1,7 +1,7 @@
 ﻿define(function (require,exports,module) {
 
-
     var Page=require('./page'),
+        util=require('util'),
         Scroll=require('../widget/scroll'),
         slice=Array.prototype.slice;
 
@@ -22,13 +22,15 @@
             that._scrolls=Scroll.bind(that.$('.scrollview'));
         },
 
+        onLoad: util.noop,
+
         initialize: function () {
             this.on('Create',this.onHtmlLoad);
+            this.one('Show',this.onLoad);
             this.on('Destroy',this._onDestroy);
 
             Page.prototype.initialize.apply(this,arguments);
         },
-
         _onDestroy: function () {
             if(this._scrolls) $.each(this._scrolls,function (i,scroll) {
                 scroll.destory();
@@ -126,8 +128,6 @@
             this.application.back.apply(this.application,arguments);
         }
     });
-
-    sl.Activity=Activity;
 
     return Activity;
 });

@@ -5,7 +5,7 @@ var args=process.argv;
 for(var i=2,arg,length=args.length;i<length;i++) {
     arg=args[i];
 
-    arg.replace(/--([^=]+)(?:=(.+)){0,1}/,function(match,key,value) {
+    arg.replace(/--([^=]+)(?:=(.+)){0,1}/,function (match,key,value) {
         config[key]=value==undefined?true:eval(value);
         return '';
     });
@@ -26,9 +26,9 @@ _.extend(Util,util);
 var routes={};
 var configList=[];
 var projectsConfig=[];
-var loadConfig=function(project,callback) {
+var loadConfig=function (project,callback) {
 
-    fs.readFile(path.join(__dirname,project.replace(/\/$/,'')+'/config.json'),{ encoding: 'utf-8' },function(err,text) {
+    fs.readFile(path.join(__dirname,project.replace(/\/$/,'')+'/config.json'),{ encoding: 'utf-8' },function (err,text) {
         if(err) {
             console.log(err);
             callback(err);
@@ -38,13 +38,13 @@ var loadConfig=function(project,callback) {
         var webresource=config.webresource.replace(/\/$/,'')+'/',//text.match(/([\'\"]|\b)webresource\1\s*\:\s*([\'\"])(.+?)\2/)[3],
             rwebresource=/@webresource\(('|")(.+?)\1\)/img;
 
-        [text.replace(rwebresource,function(match,qt,url) {
+        [text.replace(rwebresource,function (match,qt,url) {
             return '"'+webresource+'dest.m/'+url.replace(/^\//,'')+'"';
 
-        }),text.replace(rwebresource,function(match,qt,url) {
+        }),text.replace(rwebresource,function (match,qt,url) {
             return '"'+webresource+url.replace(/^\//,'')+'"';
 
-        })].forEach(function(data,i) {
+        })].forEach(function (data,i) {
 
             data=eval('['+data+'][0]');
 
@@ -91,21 +91,21 @@ var loadConfig=function(project,callback) {
 var express=require('express');
 var app=express();
 
-var promise=new Promise(function() {
+var promise=new Promise(function () {
     var pms=this;
-    fs.readFile('./index.tpl',{ encoding: 'utf-8' },function(err,data) {
+    fs.readFile('./index.tpl',{ encoding: 'utf-8' },function (err,data) {
 
         data=Tools.compressJs(razor.node(data))
 
-        fs.writeFile('./index.js',data,function(err,res) {
+        fs.writeFile('./index.js',data,function (err,res) {
             pms.resolve();
         });
     });
     return pms;
 });
-promise.each(config.projects,function(i,project) {
+promise.each(config.projects,function (i,project) {
 
-    loadConfig(project,function(err,data) {
+    loadConfig(project,function (err,data) {
 
         if(err) {
             promise.next(i,err);
@@ -115,10 +115,10 @@ promise.each(config.projects,function(i,project) {
         var root=data.root=='/'?'':data.root,
             visitRoot='/webresource/js'+root;
 
-        app.get(visitRoot+'/views/*.js',function(req,res) {
+        app.get(visitRoot+'/views/*.js',function (req,res) {
             res.set('Content-Type','text/javascript');
 
-            fs.readFile('.'+root+'/views/'+req.params[0]+'.js',{ encoding: 'utf-8' },function(err,text) {
+            fs.readFile('.'+root+'/views/'+req.params[0]+'.js',{ encoding: 'utf-8' },function (err,text) {
                 if(err) {
                     res.send(err);
                     return;
@@ -127,13 +127,13 @@ promise.each(config.projects,function(i,project) {
             });
         });
 
-        app.get(visitRoot+'/template/*.js',function(req,res) {
+        app.get(visitRoot+'/template/*.js',function (req,res) {
             res.set('Content-Type','text/javascript');
 
             fs.readFile('.'+root+'/template/'+req.params[0]+'.tpl',{
                 encoding: 'utf-8'
 
-            },function(err,text) {
+            },function (err,text) {
                 if(err) {
                     res.send(err);
                     return;
@@ -146,7 +146,7 @@ promise.each(config.projects,function(i,project) {
         promise.next(i);
     });
 })
-.then(function() {
+.then(function () {
     var t=require('./index');
     var Route=require('./../core/route');
     var route=new Route(routes);
@@ -161,7 +161,7 @@ promise.each(config.projects,function(i,project) {
         },cfg)));
     }
 
-    app.get("*",function(req,res,next) {
+    app.get("*",function (req,res,next) {
         var data=route.match(req.url),
             cfg,
             html;
@@ -187,7 +187,7 @@ promise.each(config.projects,function(i,project) {
     });
     var http=require('http');
 
-    app.all('/api/*',function(request,response) {
+    app.all('/api/*',function (request,response) {
         var url=request.url.replace(/^\/api/,'');
 
         console.log(request.url);
@@ -200,25 +200,27 @@ promise.each(config.projects,function(i,project) {
             headers: _.extend({},request.headers,{ host: 'api.linshi.biz' })
         };
 
-        var req=http.request(options,function(res) {
+        var req=http.request(options,function (res) {
             response.set(res.headers);
-            res.on('data',function(chunk) {
+            response.set('Access-Control-Allow-Credentials',true);
+            response.set('Access-Control-Allow-Origin','http://127.0.0.1:5555');
+            res.on('data',function (chunk) {
                 response.write(chunk);
             });
 
-            res.on('end',function() {
+            res.on('end',function () {
                 response.end();
             });
         });
 
-        req.on('error',function(e) {
+        req.on('error',function (e) {
         });
 
-        request.on('data',function(postData) {
+        request.on('data',function (postData) {
             req.write(postData);
         });
 
-        request.on('end',function() {
+        request.on('end',function () {
             req.end();
         });
     });
@@ -238,11 +240,11 @@ promise.each(config.projects,function(i,project) {
         var tmplPromise=Promise.resolve(),
             views={};
 
-        tmplPromise.each(route.routes,function(i,buildConfig) {
+        tmplPromise.each(route.routes,function (i,buildConfig) {
             var templatePath='./'+buildConfig.template+'.tpl',
                 viewPath='./'+buildConfig.view+'.js',
                 count=2,
-                callback=function() {
+                callback=function () {
                     count--;
                     if(count==0) {
                         tmplPromise.next(i);
@@ -252,7 +254,7 @@ promise.each(config.projects,function(i,project) {
 
             if(!views[root]) views[root]='';
 
-            fs.readFile(templatePath,{ encoding: 'utf-8' },function(err,data) {
+            fs.readFile(templatePath,{ encoding: 'utf-8' },function (err,data) {
                 var nodeCode=Tools.compressJs(razor.node(data));
                 var code=Tools.compressJs(Tools.replaceDefine(buildConfig.template,razor.web(data)));
 
@@ -263,14 +265,14 @@ promise.each(config.projects,function(i,project) {
                 callback();
             });
 
-            fs.readFile(viewPath,{ encoding: 'utf-8' },function(err,data) {
+            fs.readFile(viewPath,{ encoding: 'utf-8' },function (err,data) {
                 var code=Tools.compressJs(Tools.replaceDefine(buildConfig.view,data));
 
                 views[root]+=code;
                 callback();
             });
         })
-        .then(function() {
+        .then(function () {
 
             for(var key in views) {
                 Tools.save(config.dest+key+'controller.js',views[key]);

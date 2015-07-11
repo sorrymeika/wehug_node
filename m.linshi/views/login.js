@@ -1,4 +1,4 @@
-﻿define(function(require,exports,module) {
+﻿define(function (require,exports,module) {
 
     var $=require('$');
     var util=require('util');
@@ -11,7 +11,7 @@
 
     return Activity.extend({
         events: {
-            'tap .js_bind:not(.disabled)': function() {
+            'tap .js_bind:not(.disabled)': function () {
                 var userName=this.model.get('userName');
                 var password=this.model.get('password');
 
@@ -31,7 +31,7 @@
             }
         },
 
-        onCreate: function() {
+        onCreate: function () {
             var self=this;
 
             var $main=this.$('.main');
@@ -45,28 +45,38 @@
 
             this.loading=new Loading({
                 url: '/user/login',
+                params: {
+                    longitude: 0,
+                    latitudes: 0
+                },
                 method: 'POST',
                 check: false,
                 checkData: false,
                 $el: this.$el,
-                success: function(res) {
+                success: function (res) {
                     if(res.error_msg)
                         sl.tip(res.error_msg);
                     else {
+                        localStorage.setItem('member',JSON.stringify({
+                            mobile: self.model.data.userName,
+                            member_id: res.data.member_id,
+                            user_name: res.data.huanxin_user
+                        }));
+                        self.back(self.route.queries.success||'/');
                     }
                 },
-                error: function(res) {
+                error: function (res) {
                     sl.tip(res.msg);
                 }
             });
 
         },
 
-        onShow: function() {
+        onShow: function () {
             var that=this;
         },
 
-        onDestory: function() {
+        onDestory: function () {
         }
     });
 });

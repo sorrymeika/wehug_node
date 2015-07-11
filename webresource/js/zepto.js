@@ -1393,6 +1393,7 @@ window.$ === undefined && (window.$ = Zepto)
     if (settings.xhrFields) for (name in settings.xhrFields) xhr[name] = settings.xhrFields[name]
 
     var async = 'async' in settings ? settings.async : true
+
     xhr.open(settings.type, settings.url, async, settings.username, settings.password)
 
     for (name in headers) nativeSetHeader.apply(xhr, headers[name])
@@ -1404,7 +1405,6 @@ window.$ === undefined && (window.$ = Zepto)
       }, settings.timeout)
 
     // avoid sending empty string (#319)
-    // xhr.withCredentials=false;
     xhr.send(settings.data ? settings.data : null)
     return xhr
   }

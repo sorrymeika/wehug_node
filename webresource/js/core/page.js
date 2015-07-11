@@ -51,7 +51,7 @@
                     if(count==0) {
                         that.$el.html(that.razor.html(that.model)).appendTo(that.application.$el);
                         that.trigger("Create");
-                        that.promise.resolve();
+                        that._promise.resolve();
                     }
                 };
 
@@ -76,14 +76,14 @@
                 callback();
             });
 
-            return that.promise;
+            return that._promise;
         },
 
         initialize: function () {
             var that=this,
                 promise=Promise.resolve();
 
-            that.promise=promise;
+            that._promise=promise;
             that.className=that.el.className;
 
             that._setRoute(that.options.route);
@@ -125,7 +125,7 @@
         onQueryChange: noop,
 
         then: function (fn) {
-            this.promise.then(fn,this);
+            this._promise.then(fn,this);
             return this;
         },
 

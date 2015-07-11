@@ -1,4 +1,4 @@
-﻿define(['$','util','bridge','./../core/view'],function(require,exports,module) {
+﻿define(['$','util','bridge','./../core/view'],function (require,exports,module) {
     var $=require('$'),
         _=require('util'),
         view=require('./../core/view'),
@@ -6,9 +6,9 @@
 
     var records=[];
 
-    var extend=['$el','url','method','dataType','success','complete','pageIndex','pageSize','append','$content','$scroll','checkData','check','hasData','KEY_PAGE','KEY_PAGESIZE','DATAKEY_TOTAL'];
+    var extend=['$el','url','method','headers','dataType','xhrFields','success','complete','pageIndex','pageSize','append','$content','$scroll','checkData','check','hasData','KEY_PAGE','KEY_PAGESIZE','DATAKEY_TOTAL'];
 
-    var Loading=function(options) {
+    var Loading=function (options) {
         $.extend(this,_.pick(options,extend));
 
         if(options.el)
@@ -39,16 +39,16 @@
         refresh: '<div class="refreshing"><p class="msg js_msg"></p><p class="loading js_loading"></p></div>',
         errorTemplate: '<div class="server_error"><i class="msg js_msg"></i><i class="ico_reload js_reload"></i></div>',
 
-        check: function(res) {
+        check: function (res) {
             var flag=!!(res&&res.success);
             return flag;
         },
 
-        hasData: function(res) {
+        hasData: function (res) {
             return res.data&&res.data.length;
         },
 
-        showMsg: function(msg) {
+        showMsg: function (msg) {
             if(this.pageIndex==1) {
                 this.$loading.find('.js_msg').show().html(msg);
                 this.$loading.show().find('.js_loading').hide();
@@ -60,14 +60,14 @@
 
         complete: _.noop,
 
-        showError: function(msg) {
+        showError: function (msg) {
             var that=this;
 
             if(that.isError) {
                 if(this.pageIndex==1) {
                     this.$loading.animate({
                         opacity: 0
-                    },300,'ease-out',function() {
+                    },300,'ease-out',function () {
                         that.$loading.hide().css({ opacity: '' });
                     });
 
@@ -83,7 +83,7 @@
             }
         },
 
-        showLoading: function() {
+        showLoading: function () {
             var that=this,
                 $refreshing;
 
@@ -109,13 +109,13 @@
             }
         },
 
-        hideLoading: function() {
+        hideLoading: function () {
             this.$error&&this.$error.hide();
             this.$refreshing&&this.$refreshing.hide();
             this.$loading.hide();
         },
 
-        setHeaders: function(key,val) {
+        setHeaders: function (key,val) {
             var attrs;
             if(!val)
                 attrs=key
@@ -130,7 +130,7 @@
             return this;
         },
 
-        setParam: function(key,val) {
+        setParam: function (key,val) {
             var attrs;
             if(!val)
                 attrs=key
@@ -150,17 +150,17 @@
             return this;
         },
 
-        getParam: function(key,val) {
+        getParam: function (key,val) {
             return this.params;
         },
 
-        reload: function(options,callback) {
+        reload: function (options,callback) {
             if(!this.isLoading) {
                 this.setParam(this.KEY_PAGE,1).load(options,callback);
             }
         },
 
-        load: function(options,callback) {
+        load: function (options,callback) {
             var that=this;
 
             if(that.isLoading) return;
@@ -180,17 +180,18 @@
             that._xhr=$.ajax({
                 url: app.url(that.url),
                 headers: that.headers,
+                xhrFields: that.xhrFields,
                 data: that.params,
                 type: that.method,
                 dataType: that.dataType,
-                error: function(xhr) {
+                error: function (xhr) {
                     that._xhr=null;
                     that.isError=true;
                     that.isLoading=false;
                     that.error({ msg: '网络错误' },xhr);
                     callback&&callback.call(that,{ msg: '网络错误' },null);
                 },
-                success: function(res,status,xhr) {
+                success: function (res,status,xhr) {
                     that._xhr=null;
                     that.isLoading=false;
 
@@ -218,25 +219,25 @@
             });
         },
 
-        _refresh: function() {
+        _refresh: function () {
             this.abort().load();
         },
 
-        dataNotFound: function(e,res) {
+        dataNotFound: function (e,res) {
             var that=this;
 
             that.isError=true;
             if(that.pageIndex==1) {
                 that.showError('暂无数据');
             } else {
-                setTimeout(function() {
+                setTimeout(function () {
                     that.$refreshing.hide()
 
                 },3000);
             }
         },
 
-        _scroll: function(e,x,y) {
+        _scroll: function (e,x,y) {
             var that=this;
 
             if(!that.isLoading
@@ -251,7 +252,7 @@
 
         _autoRefreshingEnabled: false,
 
-        checkAutoRefreshing: function(res) {
+        checkAutoRefreshing: function (res) {
             var that=this,
                 data=that.params;
 
@@ -265,7 +266,7 @@
             }
         },
 
-        enableAutoRefreshing: function() {
+        enableAutoRefreshing: function () {
             var $refreshing=(this.$refreshing||(this.$refreshing=$(this.refresh)).appendTo(this.$content)).show();
 
             if(this._autoRefreshingEnabled) return;
@@ -280,7 +281,7 @@
             }
         },
 
-        disableAutoRefreshing: function() {
+        disableAutoRefreshing: function () {
             if(!this._autoRefreshingEnabled) return;
             this._autoRefreshingEnabled=false;
 
@@ -289,7 +290,7 @@
             this.$refreshing&&this.$refreshing.hide();
         },
 
-        abort: function() {
+        abort: function () {
             if(this._xhr) {
                 this.isLoad=false;
                 this._xhr.abort();
@@ -300,7 +301,7 @@
             return this;
         },
 
-        destory: function() {
+        destory: function () {
             this.abort();
             this.disableAutoRefreshing();
             this.$el.off('tap','.js_reload',this.reload);

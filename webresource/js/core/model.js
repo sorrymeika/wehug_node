@@ -5,75 +5,7 @@
         Base=require('./base'),
         Event=require('./event');
 
-
     var slice=Array.prototype.slice;
-
-
-    var http=function (url,method,data,success,error,ctx) {
-        if(typeof data==='function') ctx=error,error=success,success=data,data=null;
-
-        $.ajax({
-            url: url,
-            type: method,
-            data: data,
-            dataType: 'json',
-            success: function (res) {
-                success.call(ctx,res);
-            },
-            error: function (res) {
-                error.call(ctx,res);
-            }
-        });
-    };
-
-    $.extend(http,{
-
-        get: function (success,error) {
-            http(this.url,'GET',function (res) {
-                var $el;
-                if(this.model) {
-                    this.set(res);
-
-                } else {
-                    $el=$(this.template.html(res));
-
-                    this.generate($el,res);
-                }
-
-                success.call(this,res,$el);
-            },error,this);
-        },
-
-        post: function (success,error) {
-            var data=this.toJSON();
-
-            http(this.url,'POST',data,function (res) {
-
-                if(this.parent&&this.parent instanceof Collection) {
-                    this.parent.add(data);
-                }
-
-                success.call(this,res,data);
-            },error,this);
-        },
-
-        put: function (success,error) {
-            http(this.url,'PUT',this.toJSON(),success,error,this);
-        },
-
-        'delete': function (success,error) {
-            var self=this;
-
-            http(this.url,'DELETE',data,function (res) {
-
-                if(this.parent&&this.parent instanceof Collection) {
-                    this.parent.remove(data);
-                }
-
-                success.call(this,res,data);
-            },error,this);
-        }
-    });
 
     var Filter={
         date: util.formatDate,
@@ -373,7 +305,13 @@
                 el.innerHTML=value;
                 break;
             case 'display':
-                el.style.display=!value?'none':'';
+                el.style.display=!value?'none':value=='block'||value=='inline'||value=='inline-block'?value:'';
+                break;
+            case 'style':
+                $(el).css(value);
+                break;
+            case 'class':
+                el.className=Filter.join(value,' ');
                 break;
             default:
                 el.setAttribute(prop,value);
@@ -1039,6 +977,4 @@
     exports.ViewModel=ViewModel;
 
     exports.filter=exports.Filter=Filter;
-
-    exports.http=http;
 });

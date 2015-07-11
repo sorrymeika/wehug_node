@@ -8,13 +8,13 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .head_back:before { display: inline-block; background: url(site.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin-top: 10px; }
 .head_city { width: 50px; height: 47px;line-height: 47px; text-align: center; }
 
-.head_search { background:#ffb84d; border-radius: 4px; height: 24px; margin: 12px 0 0 20px; -webkit-flex:1; position: relative; }
-.head_search:before {display: inline-block; background: url(site.png) no-repeat 0px -30px; content: ''; width: 30px; height: 30px; background-size: 320px auto; position: absolute; left: 0; top: 0;}
-.head_search input { display: block; border: 0px; color:#fff; background:#ffb84d; border-radius: 4px; height: 24px;line-height: 22px; box-sizing: border-box; width: 100%; text-align: center; padding-left: 10px; padding-top: 2px; }
-.head_search input::-webkit-input-placeholder { color:#fff; font-size: 13px; line-height: 22px; }
+.head_search { background:#ffb84d; border-radius: 4px; height: 30px; margin: 9px 0 0 10px; -webkit-flex:1; position: relative; }
+.head_search:before {display: inline-block; background: url(site.png) no-repeat 0px -26px; content: ''; width: 30px; height: 30px; background-size: 320px auto; position: absolute; left: 3px; top: 0;}
+.head_search input { display: block; border: 0px; color:#fff; background:#ffb84d; border-radius: 4px; height: 31px; box-sizing: border-box; width: 100%; text-align: center; padding-left: 16px; padding-top: 3px; font-size: 14px; }
+.head_search input::-webkit-input-placeholder { color:#fff; font-size: 14px;  }
 
 .head_search_btn { width: 60px; }
-.head_search_btn .btn_small { margin-top: 13px; background:#fff; height: 23px;line-height: 24px; color:#f90; font-size: 14px; display: inline-block; padding: 0 6px; border-radius: 4px; }
+.head_search_btn .btn_small { background:#fff; height: 30px;line-height: 31px; color:#f90; font-size: 14px; display: block; margin: 9px 6px 0 6px; border-radius: 4px; }
 
 .teacherwrap { padding-bottom: 60px; }
 
@@ -30,7 +30,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 
 .teacher_photo { display: block; margin-left: 10px; }
 
-.teacher_cert,.teacher_honor {display: -webkit-flex; background:#fff; height: 32px; line-height: 32px; font-size: 13px; color:#666; border-bottom: 1px solid #ddd;}
+.teacher_cert,.teacher_honor {display: -webkit-flex; background:#fff; height: 32px; line-height: 32px; font-size: 14px; color:#666; border-bottom: 1px solid #ddd;}
 .teacher_cert li { margin-left: 10px;}
 .teacher_cert li:after { display: inline-block; background: url(site.png) no-repeat -30px 0px; content: ''; width: 30px; height: 30px; background-size: 320px auto; vertical-align: -9px;}
 .teacher_cert li.cert:after { }
@@ -49,8 +49,9 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .teacher_data li:nth-child(3):after, .s_data span:nth-child(3):after { content: '好评率'; }
 .teacher_data li:nth-child(4):after, .s_data span:nth-child(4):after { content: '续课率'; }
 
-.teacher_exp h4,.teacher_cmt h4 { font-size: 13px; margin-left: 15px; line-height: 20px; margin-top: 5px; }
-.teacher_exp dl { font-size: 12px;  margin-left: 30px;}
+.teacher_exp { padding-top: 10px; }
+.teacher_exp h4,.teacher_cmt h4 { font-size: 15px; margin-left: 15px; line-height: 20px; margin-top: 5px; }
+.teacher_exp dl { font-size: 14px;  margin-left: 30px; margin-top: 5px;}
 .teacher_exp dt { background:#ffc671; color:#fff; border-radius: 3px; margin: 4px 0; padding: 2px; display: inline-block; }
 .teacher_exp dd { padding: 4px 0; color:#808080; }
 
@@ -60,7 +61,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .teacher_cmt h4 { margin: 6px 0; }
 .teacher_cmt h4 span { margin-left: 6px; color:#f90; }
 .teacher_cmt_item { margin: 10px 30px 0 30px; }
-.teacher_cmt .comments {padding: 4px 0; color:#808080; font-size: 12px;}
+.teacher_cmt .comments {padding: 4px 0; color:#808080; font-size: 14px;}
 
 .tabs_nav { margin-top: 10px; }
 .tabs_content {  background: #fff; padding-bottom: 10px; }
@@ -74,9 +75,10 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .apm_teacher ul { -webkit-flex: 1; line-height: 18px; font-size: 14px; margin: 5px 0 0 20px; }
 
 .apm_member_form input, .apm_member_form .btn_large1 { display: block; width: 0px; -webkit-flex: 1;  }
+.apm_member_form input { font-size: 15px; }
 .apm_member_form :nth-child(2) { margin-left: 5px; }
-.apm_member,.apm_member_form input, .apm_member_form .btn_large1 { border: 1px solid #ccc; border-radius: 4px;line-height: 44px;text-align: center; }
-.apm_member { display: block; }
+.apm_member,.apm_member_form input, .apm_member_form .btn_large1 { border: 1px solid #ccc; border-radius: 4px;text-align: center; }
+.apm_member { display: block;line-height: 44px; }
 
 .search_list {  }
 
@@ -88,11 +90,11 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .s_teacher_basic { -webkit-flex: 1; margin-left: 10px; }
 .s_teacher_basic li { display: -webkit-flex; padding: 0; height: 20px; line-height: 19px; }
 .s_teacher_basic strong { font-size: 14px; font-weight: normal;margin-right: 10px; }
-.s_teacher_basic em, .s_teacher_basic span, .s_teacher_basic i { display: block; font-size: 13px; }
+.s_teacher_basic em, .s_teacher_basic span, .s_teacher_basic i { display: block; font-size: 14px; }
 .s_teacher_basic i { text-align: right;-webkit-flex: 1; color:#f90; margin-right: 5px; }
-.s_teacher_basic .s_area { font-size: 13px; margin-top: -5px;}
+.s_teacher_basic .s_area { font-size: 14px; margin-top: -5px;}
 .s_teacher_basic .s_area:before { display: inline-block; background: url(site.png) no-repeat -130px -1px; content: ''; width: 16px; height: 22px; background-size: 320px auto; vertical-align: -1px; }
-.s_teacher_basic .s_age {font-size: 13px;text-align: right;-webkit-flex: 1;  margin: 0 5px 0 0; }
+.s_teacher_basic .s_age {font-size: 14px;text-align: right;-webkit-flex: 1;  margin: 0 5px 0 0; }
 
 .s_teacher_basic li.s_data { display: -webkit-flex; font-size: 13px; text-align: center; height: 40px; }
 .s_data span:after { display: block; color:#333;}
@@ -100,7 +102,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .s_data span:before{ border-left: 1px solid #f1f1f1; display: block; width: 0px; height: 30px; margin-top: 5px; float: left; content:'' }
 .s_data span:first-child:before {border-left: 0px; }
 
-.s_honor,.s_cert { font-size: 12px; color:#999; background:#fafafa; line-height: 30px; padding-left: 10px; }
+.s_honor,.s_cert { font-size: 13px; color:#999; background:#fafafa; line-height: 30px; padding-left: 10px; }
 .s_honor {border-bottom: 1px solid #e6e6e6;}
 .s_cert {display: -webkit-flex; }
 .s_cert li:after { display: inline-block; background: url(site.png) no-repeat -30px -30px; content: ''; width: 28px; height: 30px; background-size: 320px auto; vertical-align: -9px; margin-right: 10px;}
@@ -112,12 +114,12 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .form li { border: 1px solid #ccc; border-bottom: 0px;width: 100%; height: 32px; background:#fff; }
 .form li:first-child{border-top-left-radius: 5px;border-top-right-radius: 5px;}
 .form li:last-child { border-bottom: 1px solid #ccc; border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;}
-.form li input { display: block; width: 100%; border: 0px; height: 100%;border-radius: 5px; padding-left: 10px; box-sizing:border-box; }
+.form li input { display: block; width: 100%; border: 0px; height: 100%;border-radius: 5px; padding-left: 10px; box-sizing:border-box; font-size: 14px; }
 
 .login_form { margin: 10px 5% 0 5%; width: 90%; }
 .login_btn { margin-top: 20px;}
-.login_btn .btn_large { -webkit-flex: 1; width: 100%; margin: 0; }
-.login_notice { display: -webkit-flex; font-size: 12px; color:#f90; margin: 20px 0 0 0; line-height: 20px; }
+.login_btn .btn_large { -webkit-flex: 1; width: 100%; margin: 0; height: 40px; line-height: 40px; font-size: 18px; }
+.login_notice { display: -webkit-flex; font-size: 14px; color:#f90; margin: 20px 0 0 0; line-height: 20px; }
 .login_notice :first-child{ padding-right: 5px; }
 
 .teacher_item { margin-top: 10px;display: -webkit-flex; }

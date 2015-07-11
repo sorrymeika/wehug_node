@@ -10,11 +10,9 @@
         </ul>
         <div class="login_btn"><b class="btn_large js_bind">绑定</b> </div>
         <div class="login_notice">
-            <div>温馨提示</div>
-            <div>
-                <p>若无邻师账号，以当前手机号和密码注册。</p>
-                <p>若已有邻师账号，请直接输入账号密码。</p>
-            </div>
+            <div>温馨提示：<br>
+                若无邻师账号，以当前手机号和密码注册。<br>
+                若已有邻师账号，请直接输入账号密码。</div>
         </div>
     </div>
 </div>

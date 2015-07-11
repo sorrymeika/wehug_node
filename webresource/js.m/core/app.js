@@ -100,14 +100,6 @@
 
                 return false;
             },
-            'tap [data-href]': function (e) {
-                var that=this,
-                    target=$(e.currentTarget);
-
-                if(!/http\:|javascript\:|mailto\:/.test(target.attr('data-href'))) {
-                    that.to(target.attr('data-href'));
-                }
-            },
             'tap [data-back]': function (e) {
                 this.back($(e.currentTarget).attr('data-back'));
             },
@@ -119,119 +111,9 @@
             }
         },
 
-        _touchStart: function () {
-            var that=this,
-                currentActivity,
-                action,
-                isSwipeLeft,
-                isOpen,
-                deltaX=that.touch.dx;
-
-            if(that.touch.isDirectionY||that.swiperPromise) {
-                that.touch.stop();
-                return;
-            }
-            that.width=window.innerWidth;
-
-            currentActivity=that._currentActivity;
-
-            isSwipeLeft=that.isSwipeLeft=deltaX>0;
-            that.swiper=null;
-
-            action=isSwipeLeft?(currentActivity.swipeLeftForwardAction?(isOpen=true,currentActivity.swipeLeftForwardAction):(isOpen=false,currentActivity.swipeLeftBackAction))
-                        :(currentActivity.swipeRightForwardAction?(isOpen=true,currentActivity.swipeRightForwardAction):(isOpen=false,currentActivity.swipeRightBackAction));
-
-            if(!action) {
-                if(isSwipeLeft&&currentActivity.referrerDir=="Left") {
-                    action=currentActivity.referrer;
-                } else if(!isSwipeLeft&&currentActivity.referrerDir!="Left") {
-                    action=currentActivity.referrer;
-                }
-                isOpen=false;
-            }
-
-            if(action) {
-                that.swiperPromise=new Promise();
-
-                that.mask.show();
-                that.get(action,function (activity) {
-                    prepareActivity(currentActivity,activity);
-
-                    that.isSwipeOpen=isOpen;
-
-                    that.swiper=new animation.Animation(getToggleAnimation(isOpen,currentActivity,activity));
-                    that.swipeActivity=activity;
-
-                    that.swiperPromise.resolve();
-                });
-
-            } else {
-                that.swiperPromise=null;
-            }
-        },
-
-        _touchMove: function (e) {
-            var that=this,
-                per,
-                deltaX=that.touch.dx;
-
-            if(!that.swiperPromise) return;
-
-            that.swiperPromise.then(function () {
-                if(that.isSwipeLeft&&deltaX<0||!that.isSwipeLeft&&deltaX>0) {
-                    that.swiper.step(0);
-                    return;
-                }
-
-                per=Math.abs(deltaX)*100/that.width;
-
-                that.swiper.step(per);
-            },that);
-        },
-
-        _swiperAnimEnd: function () {
-            var that=this,
-                activity=that.swipeActivity,
-                currentActivity=that._currentActivity;
-
-            if(that.isCancelSwipe) {
-                currentActivity.isPrepareExitAnimation=false;
-                activity.$el.remove();
-                that.mask.hide();
-            } else {
-                //var swipeAction='swipe'+(that.isSwipeLeft?'Right':'Left')+(that.isSwipeOpen?'BackAction':'ForwardAction');
-
-                that._currentActivity=that.swipeActivity;
-                that.navigate(activity.url);
-
-                activity.finishEnterAnimation();
-
-                if(that.isSwipeOpen) {
-                    activity.referrer=currentActivity.url;
-                    activity.referrerDir=that.isSwipeLeft?"Right":"Left";
-                    currentActivity.trigger('Pause');
-                } else {
-                    currentActivity.destroy();
-                }
-            }
-            that.turning();
-        },
-
-        _touchEnd: function () {
-            var that=this;
-
-            that.isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
-
-            if(that.swiperPromise) {
-                that.swiperPromise.then(function () {
-                    that.queue([200,that.isCancelSwipe?0:100,that._swiperAnimEnd.bind(that)],that.swiper.animate,that.swiper);
-                    that.swiperPromise=null;
-                });
-            }
-        },
-
         _history: [],
         _historyCursor: -1,
+        isHistoryBack: false,
 
         el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div><canvas class="imagecanvas"></canvas>',
 
@@ -246,79 +128,77 @@
             that.el=that.$el[1];
             that.canvas=that.$el[2];
 
-            that.touch=new Touch(that.el,{
-                start: that._touchStart,
-                move: that._touchMove,
-                stop: that._touchEnd
-            },that);
+            that.touch=new Touch(that.el,that.drag,that);
         },
 
         start: function () {
-            $(window).on('load',$.proxy(this._start,this));
-        },
-
-        _start: function () {
             var that=this,
-                hash,
                 $win=$(window);
 
-            sl.app=this;
+            $(window).on('load',function () {
+                var hash;
 
-            that.$el.appendTo(document.body);
-            that.$el=$(that.el);
+                that.$el.appendTo(document.body);
+                that.$el=$(that.el);
 
-            if(!location.hash) location.hash='/';
-            that.hash=hash=parseHash(location.hash);
+                if(!location.hash) location.hash='/';
+                that.hash=hash=parseHash(location.hash);
 
-            that.queue([hash,function (activity) {
-                activity.$el.appendTo(that.el);
-                that._currentActivity=activity;
-                that._history.push(activity.url);
-                that._historyCursor++;
+                that.queue([hash,function (activity) {
+                    activity.$el.appendTo(that.el);
+                    that._currentActivity=activity;
+                    that._history.push(activity.url);
+                    that._historyCursor++;
 
-                activity.$el.transform(defAnim.openEnterAnimationTo);
-                activity.then(function () {
-                    activity.trigger('Resume');
-                    activity.trigger('Show');
+                    activity.$el.transform(defAnim.openEnterAnimationTo);
+                    activity.then(function () {
+                        activity.$el.addClass('active');
+                        activity.trigger('Resume');
+                        activity.trigger('Show');
 
-                    that.trigger('start');
-                    that.turning();
-                });
+                        that.trigger('start');
+                        that.turning();
+                    });
 
-                $win.on('hashchange',function () {
-                    hash=that.hash=parseHash(location.hash);
+                    $win.on('hashchange',function () {
+                        hash=that.hash=parseHash(location.hash);
 
-                    var index=lastIndexOf(that._history,hash),
+                        var index=lastIndexOf(that._history,hash),
                         isForward=(that._skipRecordHistory||index== -1)&&!that.isHistoryBack;
 
-                    if(that._skipRecordHistory!==true) {
-                        if(index== -1) {
-                            that.isHistoryBack?that._history.splice(that._historyCursor,0,hash):(that._history.push(hash),that._historyCursor++);
-                        } else {
-                            that._history.length=index+1;
-                            that._historyCursor=index;
-                        }
-                    } else
-                        that._skipRecordHistory=false;
+                        if(that._skipRecordHistory!==true) {
+                            if(index== -1) {
+                                that.isHistoryBack?that._history.splice(that._historyCursor,0,hash):(that._history.push(hash),that._historyCursor++);
+                            } else {
+                                that._history.length=index+1;
+                                that._historyCursor=index;
+                            }
+                        } else
+                            that._skipRecordHistory=false;
 
-                    if(that.skip==0) {
-                        that[isForward?'forward':'back'](hash);
+                        if(that.skip==0) {
+                            that[isForward?'forward':'back'](hash);
 
-                    } else if(that.skip>0)
-                        that.skip--;
-                    else
-                        that.skip=0;
+                        } else if(that.skip>0)
+                            that.skip--;
+                        else
+                            that.skip=0;
 
-                    that.isHistoryBack=false;
-                });
+                        that.isHistoryBack=false;
+                    });
 
-            } ],that.get,that);
+                } ],that.get,that);
+
+            });
         },
 
         _queue: null,
 
         queue: function (args,fn,context) {
             var queue=this._queue;
+
+            if(typeof args=='function') context=fn,fn=args,args=undefined;
+
             queue.append({
                 context: context,
                 fn: fn,
@@ -345,17 +225,11 @@
 
             var that=this,
                 currentActivity=that._currentActivity,
-                route;
+                route=typeof url=="string"?that.route.match(url):url;
+
+            url=route.url;
 
             if(!duration) duration=400;
-
-            if(typeof url=="string") {
-                route=that.route.match(url)
-                url=parseHash(url);
-            } else {
-                route=url;
-                url=route.url;
-            }
 
             if(url!=parseHash(location.hash)&&that._queue.length==1) {
                 var args=that._queue.first().args;
@@ -409,13 +283,11 @@
             });
         },
 
-        _to: function (url) {
-            this._navigate(url);
-            this.turning();
-        },
-
         to: function (url) {
-            this.queue([url],this._to,this);
+            this.queue(function () {
+                this._navigate(url);
+                this.turning();
+            },this);
         },
 
         _navigate: function (url,skip) {
@@ -451,51 +323,151 @@
             this._navigate(url,true);
         },
 
-        _forward: function (url,duration,animationName) {
-            var currentActivity=this._currentActivity;
-
-            this._animationTo(url,duration,animationName,'open',function () {
-                currentActivity.trigger('Pause');
-            });
-        },
-
         forward: function (url,duration,animationName) {
             var route=this.route.match(url);
             if(route)
-                this.queue([route,duration,animationName],this._forward,this);
-        },
+                this.queue(function () {
+                    var currentActivity=this._currentActivity;
 
-        isHistoryBack: false,
-
-        _back: function (url,duration,animationName) {
-            var that=this,
-                currentActivity=that._currentActivity;
-
-            if(!url||!url.url) {
-                currentActivity.prepareExitAnimation();
-                that.isHistoryBack=true;
-                history.back();
-                that.turning();
-
-            } else {
-                if(typeof duration==='string') {
-                    animationName=duration;
-                    duration=null;
-                }
-                that._animationTo(url,duration,animationName,'close',function () {
-                    currentActivity.destroy();
-                });
-            }
+                    this._animationTo(url,duration,animationName,'open',function () {
+                        currentActivity.trigger('Pause');
+                    });
+                },this);
         },
 
         back: function (url,duration,animationName) {
             var route=this.route.match(url);
             if(route)
-                this.queue([route,duration,animationName],this._back,this);
+                this.queue(function () {
+                    var that=this,
+                        currentActivity=that._currentActivity;
+
+                    if(!route) {
+                        currentActivity.prepareExitAnimation();
+                        that.isHistoryBack=true;
+                        history.back();
+                        that.turning();
+
+                    } else {
+                        if(typeof duration==='string') {
+                            animationName=duration;
+                            duration=null;
+                        }
+                        that._animationTo(route,duration,animationName,'close',function () {
+                            currentActivity.destroy();
+                        });
+                    }
+                },this);
         }
     });
 
-    sl.Application=Application;
+    Application.prototype.drag={
+        start: function () {
+            var that=this,
+                action,
+                isOpen,
+                deltaX=that.touch.dx;
+
+            if(that.touch.isDirectionY||that.swiperPromise) {
+                that.touch.stop();
+                return;
+            }
+            that.width=window.innerWidth;
+
+            var currentActivity=that._currentActivity;
+            var isSwipeLeft=that.isSwipeLeft=deltaX>0;
+
+            that.swiper=null;
+
+            action=isSwipeLeft?(currentActivity.swipeLeftForwardAction?(isOpen=true,currentActivity.swipeLeftForwardAction):(isOpen=false,currentActivity.swipeLeftBackAction))
+                        :(currentActivity.swipeRightForwardAction?(isOpen=true,currentActivity.swipeRightForwardAction):(isOpen=false,currentActivity.swipeRightBackAction));
+
+            if(!action) {
+                if(isSwipeLeft&&currentActivity.referrerDir=="Left") {
+                    action=currentActivity.referrer;
+                } else if(!isSwipeLeft&&currentActivity.referrerDir!="Left") {
+                    action=currentActivity.referrer;
+                }
+                isOpen=false;
+            }
+
+            if(action) {
+                that.swiperPromise=new Promise();
+
+                that.mask.show();
+                that.get(action,function (activity) {
+                    prepareActivity(currentActivity,activity);
+
+                    that.isSwipeOpen=isOpen;
+
+                    that.swiper=new animation.Animation(getToggleAnimation(isOpen,currentActivity,activity));
+                    that.swipeActivity=activity;
+
+                    that.swiperPromise.resolve();
+                });
+
+            } else {
+                that.swiperPromise=null;
+            }
+        },
+
+        move: function (e) {
+            var that=this,
+                per,
+                deltaX=that.touch.dx;
+
+            if(!that.swiperPromise) return;
+
+            that.swiperPromise.then(function () {
+                if(that.isSwipeLeft&&deltaX<0||!that.isSwipeLeft&&deltaX>0) {
+                    that.swiper.step(0);
+                    return;
+                }
+
+                per=Math.abs(deltaX)*100/that.width;
+
+                that.swiper.step(per);
+            },that);
+        },
+
+        stop: function () {
+            var that=this;
+
+            that.isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
+
+            if(that.swiperPromise) {
+                that.swiperPromise.then(function () {
+                    that.queue([200,that.isCancelSwipe?0:100,function () {
+                        var activity=that.swipeActivity,
+                            currentActivity=that._currentActivity;
+
+                        if(that.isCancelSwipe) {
+                            currentActivity.isPrepareExitAnimation=false;
+                            activity.$el.remove();
+                            that.mask.hide();
+                        } else {
+
+                            that._currentActivity=that.swipeActivity;
+                            that.navigate(activity.url);
+
+                            activity.finishEnterAnimation();
+
+                            if(that.isSwipeOpen) {
+                                activity.referrer=currentActivity.url;
+                                activity.referrerDir=that.isSwipeLeft?"Right":"Left";
+                                currentActivity.trigger('Pause');
+                            } else {
+                                currentActivity.destroy();
+                            }
+                        }
+                        that.turning();
+                    } ],that.swiper.animate,that.swiper);
+
+                    that.swiperPromise=null;
+                });
+            }
+        }
+    };
 
     return Application;
 });
