@@ -57,7 +57,13 @@
             var self=this;
             var sec=localStorage.getItem('valid_time');
 
-            if(sec&&(sec=parseInt(sec))) {
+            console.log(util.formatDate(new Date(parseInt(sec))))
+
+            if(sec&&parseInt(sec)>60) {
+                sec=Math.round((new Date(parseInt(sec)).getTime()-Date.now())/1000);
+
+                if(sec<=0) return;
+
                 self.$valid.addClass('disabled');
 
                 setTimeout(function () {
@@ -69,7 +75,6 @@
                     } else {
                         self.model.set('valid',sec+'秒后获取');
                         sec--;
-                        localStorage.setItem('valid_time',sec);
                         setTimeout(arguments.callee,1000);
                     }
                 },1000);
@@ -129,7 +134,8 @@
                     if(res.error_code==1) {
                         sl.tip(res.error_msg)
                     } else {
-                        sl.tip(res.error_msg)
+                        sl.tip(res.error_msg);
+                        self.back(self.model.data.back);
                     }
                     self.$submit.removeClass('disabled');
                 }
@@ -152,7 +158,7 @@
                     if(res.error_code==1) {
                         sl.tip(res.error_msg)
                     } else {
-                        localStorage.setItem('valid_time',59);
+                        localStorage.setItem('valid_time',Date.now()+60000);
 
                         self.validTimeout();
 

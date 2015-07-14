@@ -13,7 +13,6 @@ for(var i=2,arg,length=args.length;i<length;i++) {
 
 var path=require('path');
 var Tools=require('./../tools/tools');
-var tools=new Tools(path.join(__dirname,'./'),path.join(__dirname,config.dest));
 
 var Util=require('util');
 var util=require('./../core/util');
@@ -185,46 +184,6 @@ promise.each(config.projects,function (i,project) {
             next();
         }
     });
-    var http=require('http');
-
-    app.all('/api/*',function (request,response) {
-        var url=request.url.replace(/^\/api/,'');
-
-        console.log(request.url);
-
-        var options={
-            hostname: 'api.linshi.biz',
-            port: 80,
-            path: url,
-            method: request.method,
-            headers: _.extend({},request.headers,{ host: 'api.linshi.biz' })
-        };
-
-        var req=http.request(options,function (res) {
-            response.set(res.headers);
-            response.set('Access-Control-Allow-Credentials',true);
-            response.set('Access-Control-Allow-Origin','http://127.0.0.1:5555');
-            res.on('data',function (chunk) {
-                response.write(chunk);
-            });
-
-            res.on('end',function () {
-                response.end();
-            });
-        });
-
-        req.on('error',function (e) {
-        });
-
-        request.on('data',function (postData) {
-            req.write(postData);
-        });
-
-        request.on('end',function () {
-            req.end();
-        });
-    });
-
 
     app.use('/webresource',express.static(path.join(__dirname,'./webresource')));
 
@@ -298,6 +257,7 @@ promise.each(config.projects,function (i,project) {
                 js: []
             }));
 
+            var tools=new Tools(path.join(__dirname,'./'),path.join(__dirname,config.dest));
 
             tools.combine({
                 "images/style.css": ['../webresource/images.m/style.css','../webresource/images.m/anim.css','./webresource/images/views.css'],
@@ -334,7 +294,6 @@ promise.each(config.projects,function (i,project) {
                     'anim/default': '../webresource/js.m/anim/default'
                 }
             });
-
 
             app.listen(config.port);
             console.log("start with",config.port,__dirname,process.argv);

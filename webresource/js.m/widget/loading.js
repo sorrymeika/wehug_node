@@ -60,26 +60,33 @@
 
         complete: _.noop,
 
-        showError: function (msg) {
+        showError: function (option) {
             var that=this;
 
-            if(that.isError) {
-                if(this.pageIndex==1) {
-                    this.$loading.animate({
-                        opacity: 0
-                    },300,'ease-out',function () {
-                        that.$loading.hide().css({ opacity: '' });
-                    });
+            if(this.pageIndex==1) {
+                this.$loading.animate({
+                    opacity: 0
+                },300,'ease-out',function () {
+                    that.$loading.hide().css({ opacity: '' });
+                });
 
+                var $error=(that.$error||(that.$error=$(that.errorTemplate).appendTo(that.$el)));
 
-                    var $error=(that.$error||(that.$error=$(that.errorTemplate).appendTo(that.$el)));
-
-                    $error.find('.js_msg').html(typeof msg=='string'?msg:(msg?msg.msg:'加载失败'));
-                    $error.show();
-
-                } else {
-                    that.showMsg('<div class="data-reload js_reload">加载失败，请点击重试<i class="i-refresh"></i></div>');
+                if(typeof option=='string') {
+                    option={
+                        msg: option,
+                        showReload: true
+                    }
                 }
+
+                var $reload=$error.find('.js_reload');
+                option.showReload?$reload.show():$reload.hide();
+
+                $error.find('.js_msg').html(option.msg||'加载失败');
+                $error.show();
+
+            } else {
+                that.showMsg('<div class="data-reload js_reload">加载失败，请点击重试<i class="i-refresh"></i></div>');
             }
         },
 
@@ -186,7 +193,6 @@
                 dataType: that.dataType,
                 error: function (xhr) {
                     that._xhr=null;
-                    that.isError=true;
                     that.isLoading=false;
                     that.error({ msg: '网络错误' },xhr);
                     callback&&callback.call(that,{ msg: '网络错误' },null);
@@ -209,7 +215,6 @@
                             that.dataNotFound(res);
                         }
                     } else {
-                        that.isError=true;
                         that.isLoading=false;
                         that.error(res);
                         callback&&callback.call(that,res,null);
@@ -226,7 +231,6 @@
         dataNotFound: function (e,res) {
             var that=this;
 
-            that.isError=true;
             if(that.pageIndex==1) {
                 that.showError('暂无数据');
             } else {

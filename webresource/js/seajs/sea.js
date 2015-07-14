@@ -142,10 +142,6 @@ function normalize(path) {
     return path.substring(0, last)
   }
 
-//<--debug
-if (path.substring(last - 4) === ".html")return path;
-//debug-->
-
   return (path.substring(last - 2) === ".js" ||
       path.indexOf("?") > 0 ||
       path.substring(last - 3) === ".css" ||

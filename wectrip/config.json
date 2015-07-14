@@ -1,0 +1,12 @@
+{
+	root: '/',
+	js : {},
+	css : {
+		'images/style.css': ['images/reset.css','images/manage.css']
+	},
+	route: {
+		'/': { controller: 'index', template: 'index', api: '' },
+		'/login': { controller: 'login', template: 'login' },
+		'/test/{id:\\d+}': { controller: 'test', api: '/api/test/{id}' }
+	}
+}

@@ -1,4 +1,4 @@
-﻿html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0; font-style: normal; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); list-style: none; box-sizing: border-box; }
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0; font-style: normal; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); list-style: none; box-sizing: border-box; }
 body, html { width: 100%; overflow-x: hidden; }
 img { background: #e7e7e7 url(imgbg.png) center center no-repeat; background-size: 60% auto; }
 a { text-decoration: none; color: #333; }
@@ -95,7 +95,7 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 
 
 .btn { display: inline-block; height: 35px; line-height: 35px; vertical-align: top; text-align: center; background: #0f1423; color: #fff; }
-.btn_large { background:#f90; display: block; text-align: center; height: 30px; line-height: 30px; border-radius: 4px; color:#fff; margin: 10px 10%; }
+.btn_large { background: #f90; display: block; text-align: center; height: 30px; line-height: 30px; border-radius: 4px; color: #fff; margin: 10px 10%; }
 .action { display: -webkit-box; display: box; text-align: center; }
 .action .btn { -webkit-box-flex: 1; display: block; margin-right: 20px; }
 .action .btn:last-child { margin-right: 0; }
@@ -121,7 +121,7 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 .tabs_nav_con { width: 100%; display: -webkit-box; height: 34px; line-height: 34px; color: #797979; text-align: center; font-size: 16px; -webkit-transform: translate(0,0); }
 .tabs_nav_con li { width: 0px; -webkit-box-flex: 1; height: 100%; border-bottom: 1px solid #ccc; }
 .tabs_nav_con li.curr { color: #f90; position: relative; }
-.tabs_nav_con li.curr:after { display: block; width: 60%; left: 20%; bottom: 0px; border-bottom: 2px solid #f90; content:'';position: absolute; }
+.tabs_nav_con li.curr:after { display: block; width: 60%; left: 20%; bottom: 0px; border-bottom: 2px solid #f90; content: ''; position: absolute; }
 .tabs_content { width: 100%; overflow: hidden; }
-.tabs_panel { width: 100%; z-index: 2; display:none; }
+.tabs_panel { width: 100%; z-index: 2; display: none; }
 .tabs_panel.curr { display: block; }

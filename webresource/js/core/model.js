@@ -35,6 +35,17 @@
                 return args[index];
             });
         },
+        'case': function (str) {
+            var args=slice.call(arguments,1),
+                i=0,
+                len=args.length;
+
+            for(;i<len;i+=2) {
+                if(str==args[i])
+                    return args[i+1];
+            }
+            return args[i-1];
+        },
         _addListener: function (parent,model,key,el,self,param,count) {
             var flag=false,
                 fkey;
@@ -62,7 +73,7 @@
         }
     };
 
-    var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\'))*)/g;
+    var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*(?:\:|;)\s*([a-zA-Z_1-9\.]+|\'[^\']+?\'))*)/g;
     var rparams=/\s*\:\s*([a-zA-Z_1-9\.]+|\'[^\']+?\')/g;
 
     var filterFn=function (filters,listItem) {
@@ -118,20 +129,33 @@
 
     var rcollection=/([a-zA-Z_1-9]+)\s+in\s+([a-zA-Z_1-9]+(?:\.[a-zA-Z_1-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}/g;
     var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.]+|'[^']+'))*)*)(\s|,|$)/g;
+    var revents=/\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)(\s|,|$)/g;
 
     var $filterEl=function ($el,selector) {
         return $el.filter(selector).add($el.find(selector));
     };
 
     var Finder=function ($elem) {
+        this.count=0;
+        this.repeats={};
+        this.bindings={};
+        this.events=[];
+        this.eventNames=[];
+        this.eventid=0;
+        this.scan($elem);
+    };
+
+    Finder.prototype.scan=function ($elem) {
         var self=this;
-        var repeats=this.repeats={};
-        var bindings=this.bindings={};
-        var models=this.models={};
+        var repeats=this.repeats;
+        var bindings=this.bindings;
+        var events=this.events;
+        var eventNames=this.eventNames;
         var collection;
         var $el;
 
-        var count=0;
+        var count=this.count;
+        var eventid=this.eventid;
 
         var $repeats=$filterEl($elem,'[sn-repeat]').each(function () {
             $el=$(this);
@@ -207,7 +231,7 @@
 
                 var alias;
 
-                $filterEl($el,'[sn-binding],[sn-model]').each(function () {
+                $filterEl($el,'[sn-binding],[sn-model],[sn-on]').each(function () {
                     var el=this;
                     var binding=this.getAttribute('sn-binding');
                     var model=this.getAttribute('sn-model');
@@ -269,29 +293,41 @@
             }
         }
 
-        $filterEl($elem,'[sn-binding]').each(function () {
+        $filterEl($elem,'[sn-binding],[sn-on]').each(function () {
             var binding=this.getAttribute('sn-binding');
+            var on=this.getAttribute('sn-on');
             var el=this;
             var bounds;
 
-            binding.replace(rbinding,function (match,prop,name,key,filters) {
-                name+=key;
-                if(filters) {
-                    prop={
-                        prop: prop,
-                        filter: filterFn(filters)
-                    };
-                }
-                bounds=bindings[name];
+            if(binding)
+                binding.replace(rbinding,function (match,prop,name,key,filters) {
+                    name+=key;
+                    if(filters) {
+                        prop={
+                            prop: prop,
+                            filter: filterFn(filters)
+                        };
+                    }
+                    bounds=bindings[name];
 
-                if(!bounds) {
-                    bounds=bindings[name]=[];
-                }
-                bounds.push({
-                    el: el,
-                    prop: prop
+                    if(!bounds) {
+                        bounds=bindings[name]=[];
+                    }
+                    bounds.push({
+                        el: el,
+                        prop: prop
+                    });
                 });
-            });
+
+            if(on) {
+                var actions=events[eventid];
+                on.replace(revents,function (match,event,name,key) {
+                    if(eventNames.indexOf(event)== -1) eventNames[eventNames.length]=event;
+                    if(!actions) actions=events[eventid]={};
+                    actions[event]=name+key;
+                });
+                eventid++;
+            }
         });
     };
 
@@ -307,18 +343,20 @@
             case 'display':
                 el.style.display=!value?'none':value=='block'||value=='inline'||value=='inline-block'?value:'';
                 break;
+            case 'value':
+                el.value=value;
+                break;
             case 'style':
                 $(el).css(value);
                 break;
             case 'class':
-                el.className=Filter.join(value,' ');
+                el.className=typeof value=='string'?value:Filter.join(value,' ');
                 break;
             default:
                 el.setAttribute(prop,value);
                 break;
         }
     };
-
 
     var Model=function (data,key,parent,$el) {
         if(!data) return;
@@ -358,6 +396,19 @@
         on: Event.on,
         off: Event.off,
         trigger: Event.trigger,
+
+        _redraw: function () {
+            var model;
+            for(var key in this.model) {
+                model=this.model[key];
+
+                if(model instanceof Model||model instanceof Collection) {
+                    model._redraw();
+                } else {
+                    this._syncView(key,model);
+                }
+            }
+        },
 
         _syncView: function (key,val) {
             var bindings=this.root.finder.bindings[key&&this.key?this.key+'.'+key:(this.key||key)],
@@ -407,9 +458,14 @@
 
         get: function (key) {
             if(typeof key!='string') {
-                var model=this.model[key[0]];
-                for(var i=1,len=key.length;i<len;i++) {
-                    model=(model.models||model.model)[key[i]];
+                var model=this;
+                for(var i=0,len=key.length;i<len;i++) {
+                    if(model instanceof Model)
+                        model=model.model[key[i]];
+                    else if(model instanceof Collection)
+                        model=model.models[key[i]];
+                    else
+                        return null;
                 }
                 return model;
             }
@@ -441,7 +497,18 @@
                 var keys=key.split('.');
                 if(keys.length>1) {
                     key=keys.pop();
-                    this.get(keys).set(key,val);
+                    var model=this,
+                        attr;
+                    for(var i=0,len=keys.length;i<len;i++) {
+                        attr=keys[i];
+                        if(model instanceof Model)
+                            model=model.model[attr];
+                        else if(model instanceof Collection)
+                            model=model.models[attr];
+                        else
+                            model=model[attr]=new Model({},attr,model,model.$el);
+                    }
+                    model.set(key,val);
                     return;
                 }
 
@@ -586,6 +653,14 @@
             }
         },
 
+        get: function (model) {
+            for(var i=this.list.length-1;i>=0;i--) {
+                if(this.list[i].model==model) {
+                    return this.list[i];
+                }
+            }
+        },
+
         add: function (model,el,useFragment) {
 
             var list=this.list;
@@ -599,7 +674,6 @@
             this.list.push(item);
 
             if(orderBy) {
-
             }
 
             if(this.filter(model.data)) {
@@ -662,18 +736,46 @@
 
         forEach: function (fn) {
             var model;
+            var $els;
 
             for(var i=0,len=this.models.length;i<len;i++) {
                 model=this.models[i];
 
-                fn(model,i);
+                fn.call(this,model,i);
             }
         },
 
-        append: function (data) {
+        _redraw: function () {
+            for(var i=0,len=this.models.length;i<len;i++) {
+                model=this.models[i];
+
+                if(this.repeats) {
+                    var repeat;
+
+                    for(var i=0,len=this.repeats.length;i<len;i++) {
+                        repeat=this.repeats[i];
+
+                        if(!repeat.get(model)) {
+
+                            var el=item.template.cloneNode(true);
+                            var $el=$(el);
+
+                            el.snModel=model;
+                            repeat.add(model,el);
+
+                            model.$el.push(el);
+                        }
+                    }
+                }
+                model._redraw();
+            }
+
+        },
+
+        append: function (collection) {
             this.fragment(function () {
-                for(var i=0,len=data.length;i<len;i++) {
-                    this.add(data[i],true);
+                for(var i=0,len=collection.length;i<len;i++) {
+                    this.add(collection[i],true);
                 }
             });
         },
@@ -796,16 +898,16 @@
     };
 
     var ViewModel=function ($el,data) {
+        if(!$el) return;
         if(this.created) return;
 
-        this.root=this;
         this.data={};
+        this.root=this;
         this.model={};
         this.key='';
 
         this.load($el);
-        if(data)
-            this.set(data);
+        this.set(data);
 
         this.created=true;
     };
@@ -820,6 +922,36 @@
             this.finder=new Finder($el);
             this.$el=$el.on('input change','[sn-model]',$.proxy(this._inputChange,this));
             return this;
+        },
+
+        append: function (selector,$el) {
+            if(!$el) $el=selector,selector=this.$el;
+            else selector=this.$el.find(selector);
+
+            selector.append($el);
+            this.finder.scan($el);
+            this._redraw();
+        },
+
+        preppend: function (selector,$el) {
+            if(!$el) $el=selector,selector=this.$el;
+            else selector=this.$el.find(selector);
+
+            selector.preppend($el);
+            this.finder.scan($el);
+            this._redraw();
+        },
+
+        before: function (selector,$el) {
+            this.$el.find(selector).before($el);
+            this.finder.scan($el);
+            this._redraw();
+        },
+
+        after: function (selector,$el) {
+            this.$el.find(selector).after($el);
+            this.finder.scan($el);
+            this._redraw();
         },
 
         _inputChange: function (e) {

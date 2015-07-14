@@ -17,39 +17,13 @@
         lastIndexOf=util.lastIndexOf,
         slice=Array.prototype.slice,
         getPath=util.getPath,
-        parseHash=Route.standardizeHash,
-        checkQueryString=Master.checkQueryString,
-        defAnim={
-            openEnterAnimationFrom: {
-                translate: '100%,0'
-            },
-            openEnterAnimationTo: {
-                translate: '0,0'
-            },
-            openExitAnimationFrom: {
-                translate: '0,0'
-            },
-            openExitAnimationTo: {
-                translate: '-50%,0'
-            },
-            closeEnterAnimationTo: {
-                translate: '0,0'
-            },
-            closeEnterAnimationFrom: {
-                translate: '-50%,0'
-            },
-            closeExitAnimationFrom: {
-                translate: '0,0'
-            },
-            closeExitAnimationTo: {
-                translate: '100%,0'
-            }
-        };
+        standardizeHash=Route.standardizeHash,
+        checkQueryString=Master.checkQueryString;
 
-    var getToggleAnimation=function (isOpen,currentActivity,activity,animationName) {
-        if(!animationName) animationName=(isOpen?activity:currentActivity).animationName;
+    var getToggleAnimation=function (isOpen,currentActivity,activity,toggleAnim) {
+        if(!toggleAnim) toggleAnim=(isOpen?activity:currentActivity).toggleAnim;
 
-        var anim=require('anim/'+animationName)||defAnim,
+        var anim=require('anim/'+toggleAnim),
             type=isOpen?"open":"close",
             ease=isOpen?'ease-out':'ease-out',
             enterFrom=Object.create(anim[type+'EnterAnimationFrom']),
@@ -72,12 +46,122 @@
         }];
     }
 
-    var prepareActivity=function (currentActivity,activity) {
-        currentActivity.prepareExitAnimation();
+    var adjustActivity=function (currentActivity,activity) {
+        currentActivity.startExit();
         currentActivity.$el.siblings(':not([data-path="'+activity.path+'"])').hide();
 
         if(activity.el.parentNode===null) activity.$el.appendTo(currentActivity.application.el);
-    }
+    };
+
+    var bindBackGesture=function (application) {
+        application.touch=new Touch(application.el,{
+            start: function () {
+                var that=this,
+                action,
+                isOpen,
+                deltaX=that.touch.dx;
+
+                if(that.touch.isDirectionY||that.swiperPromise) {
+                    that.touch.stop();
+                    return;
+                }
+                that.width=window.innerWidth;
+
+                var currentActivity=that._currentActivity;
+                var isSwipeLeft=that.isSwipeLeft=deltaX>0;
+
+                that.swiper=null;
+
+                action=isSwipeLeft?(currentActivity.swipeLeftForwardAction?(isOpen=true,currentActivity.swipeLeftForwardAction):(isOpen=false,currentActivity.swipeLeftBackAction))
+                        :(currentActivity.swipeRightForwardAction?(isOpen=true,currentActivity.swipeRightForwardAction):(isOpen=false,currentActivity.swipeRightBackAction));
+
+                if(!action) {
+                    if(isSwipeLeft&&currentActivity.referrerDir=="Left") {
+                        action=currentActivity.referrer;
+                    } else if(!isSwipeLeft&&currentActivity.referrerDir!="Left") {
+                        action=currentActivity.referrer;
+                    }
+                    isOpen=false;
+                }
+
+                if(action) {
+                    that.swiperPromise=new Promise();
+
+                    that.mask.show();
+                    that.get(action,function (activity) {
+                        adjustActivity(currentActivity,activity);
+
+                        that.isSwipeOpen=isOpen;
+
+                        that.swiper=new animation.Animation(getToggleAnimation(isOpen,currentActivity,activity));
+                        that.swipeActivity=activity;
+
+                        that.swiperPromise.resolve();
+                    });
+
+                } else {
+                    that.swiperPromise=null;
+                }
+            },
+
+            move: function (e) {
+                var that=this,
+                per,
+                deltaX=that.touch.dx;
+
+                if(!that.swiperPromise) return;
+
+                that.swiperPromise.then(function () {
+                    if(that.isSwipeLeft&&deltaX<0||!that.isSwipeLeft&&deltaX>0) {
+                        that.swiper.step(0);
+                        return;
+                    }
+
+                    per=Math.abs(deltaX)*100/that.width;
+
+                    that.swiper.step(per);
+                },that);
+            },
+
+            stop: function () {
+                var that=this;
+
+                that.isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
+
+                if(that.swiperPromise) {
+                    that.swiperPromise.then(function () {
+                        that.queue([200,that.isCancelSwipe?0:100,function () {
+                            var activity=that.swipeActivity,
+                            currentActivity=that._currentActivity;
+
+                            if(that.isCancelSwipe) {
+                                currentActivity.isPrepareExitAnimation=false;
+                                activity.$el.remove();
+                                that.mask.hide();
+                            } else {
+
+                                that._currentActivity=that.swipeActivity;
+                                that.navigate(activity.url);
+
+                                activity.finishEnterAnimation();
+
+                                if(that.isSwipeOpen) {
+                                    activity.referrer=currentActivity.url;
+                                    activity.referrerDir=that.isSwipeLeft?"Right":"Left";
+                                    currentActivity.trigger('Pause');
+                                } else {
+                                    currentActivity.destroy();
+                                }
+                            }
+                            that.turning();
+                        } ],that.swiper.animate,that.swiper);
+
+                        that.swiperPromise=null;
+                    });
+                }
+            }
+        },application);
+    };
 
     var Application=view.extend(Master,{
         events: {
@@ -117,6 +201,8 @@
 
         el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div><canvas class="imagecanvas"></canvas>',
 
+        backGesture: true,
+
         initialize: function () {
             var that=this,
                 preventEvents='tap click touchend touchmove touchstart';
@@ -128,7 +214,7 @@
             that.el=that.$el[1];
             that.canvas=that.$el[2];
 
-            that.touch=new Touch(that.el,that.drag,that);
+            if(that.backGesture) bindBackGesture(this);
         },
 
         start: function () {
@@ -142,7 +228,7 @@
                 that.$el=$(that.el);
 
                 if(!location.hash) location.hash='/';
-                that.hash=hash=parseHash(location.hash);
+                that.hash=hash=standardizeHash(location.hash);
 
                 that.queue([hash,function (activity) {
                     activity.$el.appendTo(that.el);
@@ -150,18 +236,17 @@
                     that._history.push(activity.url);
                     that._historyCursor++;
 
-                    activity.$el.transform(defAnim.openEnterAnimationTo);
+                    activity.$el.transform(require('anim/'+activity.toggleAnim).openEnterAnimationTo);
                     activity.then(function () {
                         activity.$el.addClass('active');
-                        activity.trigger('Resume');
-                        activity.trigger('Show');
+                        activity.trigger('Resume').trigger('Show');
 
                         that.trigger('start');
                         that.turning();
                     });
 
                     $win.on('hashchange',function () {
-                        hash=that.hash=parseHash(location.hash);
+                        hash=that.hash=standardizeHash(location.hash);
 
                         var index=lastIndexOf(that._history,hash),
                         isForward=(that._skipRecordHistory||index== -1)&&!that.isHistoryBack;
@@ -221,7 +306,7 @@
             }
         },
 
-        _animationTo: function (url,duration,animationName,type,callback) {
+        _animationTo: function (url,duration,toggleAnim,type,callback) {
 
             var that=this,
                 currentActivity=that._currentActivity,
@@ -231,9 +316,9 @@
 
             if(!duration) duration=400;
 
-            if(url!=parseHash(location.hash)&&that._queue.length==1) {
+            if(url!=standardizeHash(location.hash)&&that._queue.length==1) {
                 var args=that._queue.first().args;
-                if(args&&(typeof args[0]=="string"?args[0]:args[0].url)===url) that.navigate(url);
+                if(args&&args[0]===url) that.navigate(url);
             }
 
             if(currentActivity.path==route.path) {
@@ -250,7 +335,7 @@
                 }
                 that._currentActivity=activity;
 
-                prepareActivity(currentActivity,activity);
+                adjustActivity(currentActivity,activity);
 
                 activity.then(function () {
                     activity.trigger('Resume');
@@ -258,7 +343,7 @@
 
                 var isOpen=type=='open',
                     ease=type=='open'?'ease-out':'ease-out',
-                    anims=getToggleAnimation(isOpen,currentActivity,activity,animationName),
+                    anims=getToggleAnimation(isOpen,currentActivity,activity,toggleAnim),
                     anim;
 
                 if(isOpen) {
@@ -291,7 +376,7 @@
         },
 
         _navigate: function (url,skip) {
-            url=parseHash(url);
+            url=standardizeHash(url);
 
             var that=this,
                 index=lastIndexOf(that._history,url);
@@ -323,151 +408,43 @@
             this._navigate(url,true);
         },
 
-        forward: function (url,duration,animationName) {
+        forward: function (url,duration,toggleAnim) {
             var route=this.route.match(url);
             if(route)
-                this.queue(function () {
+                this.queue([route.url],function () {
                     var currentActivity=this._currentActivity;
 
-                    this._animationTo(url,duration,animationName,'open',function () {
+                    this._animationTo(url,duration,toggleAnim,'open',function () {
                         currentActivity.trigger('Pause');
                     });
                 },this);
         },
 
-        back: function (url,duration,animationName) {
+        back: function (url,duration,toggleAnim) {
             var route=this.route.match(url);
             if(route)
-                this.queue(function () {
+                this.queue([route.url],function () {
                     var that=this,
                         currentActivity=that._currentActivity;
 
                     if(!route) {
-                        currentActivity.prepareExitAnimation();
+                        currentActivity.startExit();
                         that.isHistoryBack=true;
                         history.back();
                         that.turning();
 
                     } else {
                         if(typeof duration==='string') {
-                            animationName=duration;
+                            toggleAnim=duration;
                             duration=null;
                         }
-                        that._animationTo(route,duration,animationName,'close',function () {
+                        that._animationTo(route,duration,toggleAnim,'close',function () {
                             currentActivity.destroy();
                         });
                     }
                 },this);
         }
     });
-
-    Application.prototype.drag={
-        start: function () {
-            var that=this,
-                action,
-                isOpen,
-                deltaX=that.touch.dx;
-
-            if(that.touch.isDirectionY||that.swiperPromise) {
-                that.touch.stop();
-                return;
-            }
-            that.width=window.innerWidth;
-
-            var currentActivity=that._currentActivity;
-            var isSwipeLeft=that.isSwipeLeft=deltaX>0;
-
-            that.swiper=null;
-
-            action=isSwipeLeft?(currentActivity.swipeLeftForwardAction?(isOpen=true,currentActivity.swipeLeftForwardAction):(isOpen=false,currentActivity.swipeLeftBackAction))
-                        :(currentActivity.swipeRightForwardAction?(isOpen=true,currentActivity.swipeRightForwardAction):(isOpen=false,currentActivity.swipeRightBackAction));
-
-            if(!action) {
-                if(isSwipeLeft&&currentActivity.referrerDir=="Left") {
-                    action=currentActivity.referrer;
-                } else if(!isSwipeLeft&&currentActivity.referrerDir!="Left") {
-                    action=currentActivity.referrer;
-                }
-                isOpen=false;
-            }
-
-            if(action) {
-                that.swiperPromise=new Promise();
-
-                that.mask.show();
-                that.get(action,function (activity) {
-                    prepareActivity(currentActivity,activity);
-
-                    that.isSwipeOpen=isOpen;
-
-                    that.swiper=new animation.Animation(getToggleAnimation(isOpen,currentActivity,activity));
-                    that.swipeActivity=activity;
-
-                    that.swiperPromise.resolve();
-                });
-
-            } else {
-                that.swiperPromise=null;
-            }
-        },
-
-        move: function (e) {
-            var that=this,
-                per,
-                deltaX=that.touch.dx;
-
-            if(!that.swiperPromise) return;
-
-            that.swiperPromise.then(function () {
-                if(that.isSwipeLeft&&deltaX<0||!that.isSwipeLeft&&deltaX>0) {
-                    that.swiper.step(0);
-                    return;
-                }
-
-                per=Math.abs(deltaX)*100/that.width;
-
-                that.swiper.step(per);
-            },that);
-        },
-
-        stop: function () {
-            var that=this;
-
-            that.isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
-
-            if(that.swiperPromise) {
-                that.swiperPromise.then(function () {
-                    that.queue([200,that.isCancelSwipe?0:100,function () {
-                        var activity=that.swipeActivity,
-                            currentActivity=that._currentActivity;
-
-                        if(that.isCancelSwipe) {
-                            currentActivity.isPrepareExitAnimation=false;
-                            activity.$el.remove();
-                            that.mask.hide();
-                        } else {
-
-                            that._currentActivity=that.swipeActivity;
-                            that.navigate(activity.url);
-
-                            activity.finishEnterAnimation();
-
-                            if(that.isSwipeOpen) {
-                                activity.referrer=currentActivity.url;
-                                activity.referrerDir=that.isSwipeLeft?"Right":"Left";
-                                currentActivity.trigger('Pause');
-                            } else {
-                                currentActivity.destroy();
-                            }
-                        }
-                        that.turning();
-                    } ],that.swiper.animate,that.swiper);
-
-                    that.swiperPromise=null;
-                });
-            }
-        }
-    };
 
     return Application;
 });

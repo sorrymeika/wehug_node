@@ -49,7 +49,7 @@
                 callback=function () {
                     count--;
                     if(count==0) {
-                        that.$el.html(that.razor.html(that.model)).appendTo(that.application.$el);
+                        that.$el.html(that.razor.html(that.data)).appendTo(that.application.$el);
                         that.trigger("Create");
                         that._promise.resolve();
                     }
@@ -62,7 +62,7 @@
                     type: 'GET',
                     dataType: 'json',
                     success: function (res) {
-                        that.model=res;
+                        that.data=res;
                         callback(res);
                     },
                     error: function (xhr) {
@@ -87,7 +87,6 @@
             that.className=that.el.className;
 
             that._setRoute(that.options.route);
-
 
             that.application=that.options.application;
 

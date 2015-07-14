@@ -6,9 +6,7 @@
         slice=Array.prototype.slice;
 
     var Activity=Page.extend({
-        animationName: 'def',
-
-        viewPath: '',
+        toggleAnim: 'def',
 
         onHtmlLoad: function () {
             var that=this;
@@ -38,12 +36,12 @@
             this.application.remove(this.url);
         },
 
-        isPrepareExitAnimation: false,
-        prepareExitAnimation: function () {
+        isExiting: false,
+        startExit: function () {
             var that=this;
-            if(that.isPrepareExitAnimation) return;
+            if(that.isExiting) return;
+            that.isExiting=true;
             var application=that.application;
-            that.isPrepareExitAnimation=true;
             if(application.activeInput) {
                 application.activeInput.blur();
                 application.activeInput=null;
@@ -55,7 +53,7 @@
             var that=this;
             that.application.mask.hide();
 
-            that.isPrepareExitAnimation=false;
+            that.isExiting=false;
             that.then(function () {
                 that.$el.addClass('active');
                 that.trigger('Show');
@@ -120,12 +118,12 @@
             return dialog;
         },
 
-        forward: function () {
-            this.application.forward.apply(this.application,arguments);
+        forward: function (url,duration,toggleAnim) {
+            this.application.forward(url,duration,toggleAnim);
         },
 
-        back: function () {
-            this.application.back.apply(this.application,arguments);
+        back: function (url,duration,toggleAnim) {
+            this.application.back(url,duration,toggleAnim);
         }
     });
 
