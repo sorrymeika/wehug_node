@@ -902,6 +902,7 @@
         if(this.created) return;
 
         this.data={};
+        this.events=[];
         this.root=this;
         this.model={};
         this.key='';
@@ -924,13 +925,20 @@
             return this;
         },
 
+        bindEvents: function () {
+        },
+
+        scan: function ($el) {
+            this.finder.scan($el);
+            this._redraw();
+        },
+
         append: function (selector,$el) {
             if(!$el) $el=selector,selector=this.$el;
             else selector=this.$el.find(selector);
 
             selector.append($el);
-            this.finder.scan($el);
-            this._redraw();
+            this.scan($el);
         },
 
         preppend: function (selector,$el) {
@@ -938,20 +946,17 @@
             else selector=this.$el.find(selector);
 
             selector.preppend($el);
-            this.finder.scan($el);
-            this._redraw();
+            this.scan($el);
         },
 
         before: function (selector,$el) {
             this.$el.find(selector).before($el);
-            this.finder.scan($el);
-            this._redraw();
+            this.scan($el);
         },
 
         after: function (selector,$el) {
             this.$el.find(selector).after($el);
-            this.finder.scan($el);
-            this._redraw();
+            this.scan($el);
         },
 
         _inputChange: function (e) {
