@@ -10,7 +10,14 @@
         events: {},
 
         onCreate: function () {
-            this.model=new model.ViewModel(this.$el,{});
+            this.model=new model.ViewModel(this.$el,{
+                buttons: [{
+                    value: '提交',
+                    click: function () {
+                        form.submit();
+                    }
+                }]
+            });
 
             var form=new Form({
                 model: this.model,
@@ -24,12 +31,6 @@
                     field: 'name',
                     emptyAble: false,
                     emptyText: '不可为空'
-                }],
-                buttons: [{
-                    value: '提交',
-                    click: function () {
-                        form.submit();
-                    }
                 }]
             });
 

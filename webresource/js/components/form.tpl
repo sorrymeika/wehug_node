@@ -37,7 +37,7 @@
                         $data.plugins.push(field);
                     <input type="hidden" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="value:@(name).@(field.field)">
                     }
-                    <span sn-binding="class:@(validator).@(field.field).success|case:-1:'msg_tip':true:'right_tip':false:'error_tip':'hide',html:@(validator).@(field.field).msg"></span>
+                    <span sn-binding="class:@(validator).result.@(field.field).success|case:-1:'msg_tip':true:'right_tip':false:'error_tip':'hide',html:@(validator).result.@(field.field).msg"></span>
                     </td>
                 }
             </tr>

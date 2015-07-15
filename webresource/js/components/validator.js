@@ -40,10 +40,10 @@
     exports.prototype.valid=function (single,value) {
         if(!single) return { success: true };
 
-        if((value=="")&&(single.emptyAble===false||($.isFunction(single.emptyAble)&&!single.emptyAble())))
+        if((value==''||value==null)&&(single.emptyAble===false||($.isFunction(single.emptyAble)&&!single.emptyAble())))
             return { success: false,msg: single.emptyText };
 
-        else if(v!=""&&opt.regex!==null&&!opt.regex.test(v))
+        else if(value!=""&&single.regex!==null&&!single.regex.test(value))
             return { success: false,msg: single.regexText };
 
         else if(single.compare&&this.data[single.compare]!=value)

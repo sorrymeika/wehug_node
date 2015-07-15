@@ -68,6 +68,7 @@
         submit: function () {
             var res=this.valid.validate();
             console.log(res);
+            this.model.set(this.validator,res)
 
             if(res.success) {
             }
