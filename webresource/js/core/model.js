@@ -116,7 +116,7 @@
 
                         } else {
                             code+=',model.root.data.'+param;
-                            before+='if(el)Filter._addListener(model.root,model,key,el,this,"'+param+'",'+(count++)+');';
+                            before+=listenerCode('model.root')+'"'+param+'",'+(count++)+');';
                         }
                     }
                 }
