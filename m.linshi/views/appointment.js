@@ -98,14 +98,12 @@
 
             this.model.set({
                 mobile: member.mobile,
-                userName: member.user_name,
+                userName: member.nick_name||member.user_name,
                 member_id: member.member_id
             });
 
-
             this.$submit=this.$('.js_submit');
             this.$valid=this.$('.js_valid');
-
 
             self.validTimeout();
 
@@ -159,7 +157,6 @@
                         localStorage.setItem('valid_time',Date.now()+60000);
 
                         self.validTimeout();
-
                     }
                 }
             });
