@@ -1,5 +1,5 @@
-﻿<header>
-    <div class="head_city" sn-binding='html:city.name'></div>
+<header>
+    <div sn-binding="class:menu"></div>
     <div class="head_search"><input placeholder="输入姓名或手机号搜索老师" sn-model="search" /></div>
     <div class="head_search_btn"><b class="btn_small js_search">搜索</b></div>
 </header>
@@ -11,5 +11,10 @@
                 <div class="tli_name" sn-binding="html:item.teacher_name|concat:'—':item.discipline"></div>
             </div>
         </li>
+    </ul>
+</div>
+<div class="search_filters">
+    <ul class="filters_list">
+        <li sn-repeat="item in filters" sn-binding="html:item.name,data-forward:item.id|format:'/search/q?course_category={0}'"></li>
     </ul>
 </div>

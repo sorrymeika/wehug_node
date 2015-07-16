@@ -6,6 +6,9 @@
 	include: ['widget/extend/loading.js'],
 	route: {
 		'/': { controller: 'index', template: 'index' },
+		'/menu': { controller: 'menu', template: 'menu' },
+		'/member': { controller: 'member', template: 'member' },
+		'/settings': { controller: 'settings', template: 'settings' },
 		'/login': { controller: 'login', template: 'login' },
 		'/search/{keywords:.+}': { controller: 'search', template: 'search' },
 		'/teacher/{id:\\d+}': { controller: 'teacher', template: 'teacher' },

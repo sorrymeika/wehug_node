@@ -57,8 +57,6 @@
             var self=this;
             var sec=localStorage.getItem('valid_time');
 
-            console.log(util.formatDate(new Date(parseInt(sec))))
-
             if(sec&&parseInt(sec)>60) {
                 sec=Math.round((new Date(parseInt(sec)).getTime()-Date.now())/1000);
 

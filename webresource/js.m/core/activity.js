@@ -46,6 +46,7 @@
                 application.activeInput.blur();
                 application.activeInput=null;
             }
+            that.$el.removeClass('active');
             application.mask.show();
         },
 

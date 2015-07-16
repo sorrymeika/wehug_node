@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="api-base-url" content="@html(debug?"http://192.168.0.104:5556/api":"http://api.linshi.biz")" />
+    <meta name="api-base-url" content="@html(debug?"http://127.0.0.1:5556/api":"http://api.linshi.biz")" />
     <title></title>
     <link href="@html(webresource+'images/style.css')" rel="stylesheet" type="text/css"/>
     @if(debug){

@@ -1,5 +1,9 @@
-﻿define('anim/def',function() {
+﻿define('anim/def', function () {
     return {
+        openEnterZIndex: 2,
+        closeEnterZIndex: 1,
+        openExitZIndex: 1,
+        closeExitZIndex: 3,
         openEnterAnimationFrom: {
             translate: '100%,0'
         },
@@ -26,8 +30,13 @@
         }
     };
 });
-define('anim/menu',function() {
+define('anim/menu', function () {
     return {
+        openEnterZIndex: 1,
+        closeEnterZIndex: 2,
+        openExitZIndex: 3,
+        closeExitZIndex: 1,
+
         openEnterAnimationFrom: {
             translate: '-80%,0'
         },
@@ -38,19 +47,55 @@ define('anim/menu',function() {
             translate: '0,0'
         },
         openExitAnimationTo: {
-            translate: '60%,0'
+            translate: '70%,0',
+            scale: '.8,.8'
         },
         closeEnterAnimationFrom: {
-            translate: '60%,0'
+            translate: '70%,0',
+            scale: '.8,.8'
         },
         closeEnterAnimationTo: {
-            translate: '0,0'
+            translate: '0,0',
+            scale: '1,1'
         },
         closeExitAnimationFrom: {
             translate: '0,0'
         },
         closeExitAnimationTo: {
             translate: '-80%,0'
+        }
+    };
+});
+
+define('anim/dialog', function () {
+    return {
+        openEnterZIndex: 2,
+        closeEnterZIndex: 1,
+        openExitZIndex: 1,
+        closeExitZIndex: 3,
+        openEnterAnimationFrom: {
+            scale: '.3,.3',
+            opacity: 0
+        },
+        openEnterAnimationTo: {
+            scale: '1,1',
+            opacity: 1
+        },
+        openExitAnimationFrom: {
+        },
+        openExitAnimationTo: {
+        },
+        closeEnterAnimationFrom: {
+        },
+        closeEnterAnimationTo: {
+        },
+        closeExitAnimationFrom: {
+            scale: '1,1',
+            opacity: 1
+        },
+        closeExitAnimationTo: {
+            scale: '.3,.3',
+            opacity: 0
         }
     };
 });
