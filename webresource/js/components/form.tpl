@@ -31,10 +31,14 @@
                     } else if (field.type=='number'){
                         <input class="@(field.className||'text_normal')" type="number"@html(attr)/>
 
-                    }  else if (field.type=='password'){
+                    } else if (field.type=='password'){
                         <input class="@(field.className||'text')" type="password"@html(attr)/>
 
-                    }   else if (field.type=='file'){
+                    } else if (field.type=='captcha'){
+                    console.log(1)
+                        <input class="@(field.className||'text_normal')" type="text"@html(attr)/>
+                        <img class="captcha" src="@(field.captcha)?v=@(Date.now())" onclick="this.src='@(field.captcha)?v='+Date.now()" sn-binding="src:captcha|or:'@(field.captcha)'"/>
+                    } else if (field.type=='file'){
 <input type="file" name="@(field.field)" sn-model="@(name).@(field.field)"/>
                     } else {
                         $data.plugins.push(field);

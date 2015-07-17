@@ -179,6 +179,12 @@
 
         compareUrl: function (url) {
             return getUrlPath(url)===this.route.path.toLowerCase();
+        },
+        back: function (url) {
+            this.application.to(url);
+        },
+        forward: function (url) {
+            this.application.to(url);
         }
     });
 

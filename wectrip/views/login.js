@@ -2,8 +2,6 @@
 
 
     var $=require('$');
-    require('../../dest/components');
-
     var util=require('util'),
         Page=require('core/page'),
         model=require('core/model'),
@@ -13,17 +11,28 @@
         events: {},
 
         onCreate: function () {
+            var self=this;
+
             this.model=new model.ViewModel(this.$el,{
                 title: '登录',
                 buttons: [{
                     value: '确认',
                     click: function () {
-                        form.submit();
+                        form.submit(function (res) {
+                            if(res.success) {
+                                sl.tip('登录成功');
+                                self.back('/');
+
+                            } else {
+                                sl.tip(res.msg);
+                                self.model.set({
+                                    captcha: '/captcha/'+Date.now()+'.jpg'
+                                });
+                            }
+                        });
                     }
                 }]
             });
-
-            console.log(this.model)
 
             var form=new Form({
                 model: this.model,
@@ -35,7 +44,7 @@
                 enctype: '',
                 fields: [{
                     label: '账号',
-                    field: 'name',
+                    field: 'username',
                     emptyAble: false,
                     emptyText: '不可为空'
                 },{
@@ -45,12 +54,14 @@
                     emptyAble: false,
                     emptyText: '不可为空'
                 },{
-                    label: '富文本',
-                    vAlign: 'top',
-                    field: 'content',
-                    type: 'richTextBox',
+                    label: '验证码',
+                    field: 'captcha',
+                    type: 'captcha',
+                    captcha: '/captcha/1.jpg',
                     emptyAble: false,
-                    emptyText: '不可为空'
+                    emptyText: '不可为空',
+                    render: function () {
+                    }
                 }]
             });
 
@@ -83,12 +94,13 @@
 
             var now=Date.now();
             for(var i=0;i<1000000;i++) {
+                c();
             }
             console.log(Date.now()-now);
 
             now=Date.now();
             for(var i=0;i<1000000;i++) {
-                d()
+                c.call(this,1)
             }
             console.log(Date.now()-now);
         },

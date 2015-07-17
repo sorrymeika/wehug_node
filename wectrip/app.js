@@ -147,6 +147,46 @@ configloader('./config',function (config,routes) {
                 });
             });
 
+            var http=require('http');
+            app.all('*',function (request,response) {
+                var url=request.url;//.replace(/^\/api/,'');
+
+                console.log(request.url);
+
+                var options={
+                    hostname: 'localhost',
+                    port: 11405,
+                    path: url,
+                    method: request.method,
+                    headers: _.extend({},request.headers,{ host: 'localhost' })
+                };
+
+                var req=http.request(options,function (res) {
+                    response.set(res.headers);
+                    response.set('Access-Control-Allow-Credentials',true);
+                    response.set('Access-Control-Allow-Origin',request.headers.origin);
+
+                    res.on('data',function (chunk) {
+                        response.write(chunk);
+                    });
+
+                    res.on('end',function () {
+                        response.end();
+                    });
+                });
+
+                req.on('error',function (e) {
+                });
+
+                request.on('data',function (postData) {
+                    req.write(postData);
+                });
+
+                request.on('end',function () {
+                    req.end();
+                });
+            });
+
             app.listen(config.port);
             console.log("start with",config.port,__dirname,process.argv);
         });

@@ -87,7 +87,7 @@
                             if(!resultText||result!=resultText) {
                                 resultText=result;
                                 try {
-                                    success.call(self,JSON.stringify(resultText));
+                                    success.call(self,JSON.parse(resultText));
                                 } catch(e) {
                                     error&&error.call(self,e,resultText);
                                 }

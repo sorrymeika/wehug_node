@@ -107,7 +107,7 @@
                 var currentActivity=that._currentActivity,
                     route=that.route.match(url);
 
-                if(promise.queue.length==1&&url!=standardizeHash(location.hash)) {
+                if(promise.queue.length==0&&url!=standardizeHash(location.hash)) {
                     that.navigate(url);
                 }
 

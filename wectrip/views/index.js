@@ -2,13 +2,12 @@
 
     var $=require('$'),
         util=require('util'),
-        Page=require('page');
+        Page=require('./manage');
 
     return Page.extend({
         events: {},
 
         onCreate: function() {
-
         },
 
         onShow: function() {
