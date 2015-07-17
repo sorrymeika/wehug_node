@@ -5,7 +5,7 @@
 <div class="main">
     <div class="login_form">
         <ul class="form">
-            <li><input placeholder="输入手机号" sn-model="userName" /></li>
+            <li><input placeholder="输入手机号" sn-model="mobile" /></li>
             <li><input placeholder="输入验证码" sn-model="password" type="text" /> <b class="js_valid" sn-binding="html:valid"></b></li>
         </ul>
         <div class="login_btn"><b class="btn_large js_bind">登录</b> </div>

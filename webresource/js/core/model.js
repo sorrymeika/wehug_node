@@ -994,11 +994,11 @@
             this.scan($el);
         },
 
-        preppend: function (selector,$el) {
+        prepend: function (selector, $el) {
             if(!$el) $el=selector,selector=this.$el;
             else selector=this.$el.find(selector);
 
-            selector.preppend($el);
+            selector.prepend($el);
             this.scan($el);
         },
 

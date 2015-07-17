@@ -13,29 +13,32 @@
                     items=[items];
                 }
                 @for (var j=0,length=items.length;j<length;j++){
-                    field=items[j];
-                    <th>@field.label @if (!field.emptyAble){<i>*</i>}</th>
+                    field=items[j];var attr=' name="'+field.field+'" sn-model="'+name+'.'+field.field+'" sn-binding="value:'+name+'.'+field.field+'"';
+
+                    <th @html(field.vAlign?'style="vertical-align:'+field.vAlign+'"':'')>@field.label @if (field.emptyAble!==false){<i>*</i>}</th>
                     <td colspan="@(field.colSpan||1)">
 
                     @if (field.type=='text'||!field.type){
-                        <input class="text" type="text" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="value:@(name).@(field.field)">
+                        <input class="@(field.className||'text')" type="text"@html(attr)/>
 
                     } else if (field.type=='textarea') {
-                        <textarea class="text" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="value:@(name).@(field.field)"></textarea>
+                        <textarea class="@(field.className||'text')"@html(attr)></textarea>
 
                     } else if (field.type=='select') {
-                        <select class="text" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="value:@(name).@(field.field)" sn-options="@(field.options.text),@(field.options.value) in @(field.options.data)">
+                        <select class="@(field.className||'text')"@html(attr) sn-options="@(field.options.text),@(field.options.value) in @(field.options.data)">
                         </select>
 
                     } else if (field.type=='number'){
-                        <input class="text_normal" type="number" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="value:@(name).@(field.field)">
+                        <input class="@(field.className||'text_normal')" type="number"@html(attr)/>
 
                     }  else if (field.type=='password'){
-                        <input class="text" type="password" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="value:@(name).@(field.field)">
+                        <input class="@(field.className||'text')" type="password"@html(attr)/>
 
+                    }   else if (field.type=='file'){
+<input type="file" name="@(field.field)" sn-model="@(name).@(field.field)"/>
                     } else {
                         $data.plugins.push(field);
-                    <input type="hidden" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="value:@(name).@(field.field)">
+                    <input type="hidden"@html(attr)>
                     }
                     <span sn-binding="class:@(validator).result.@(field.field).success|case:-1:'msg_tip':true:'right_tip':false:'error_tip':'hide',html:@(validator).result.@(field.field).msg"></span>
                     </td>

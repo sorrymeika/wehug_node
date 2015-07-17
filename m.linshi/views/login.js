@@ -12,10 +12,10 @@ define(function (require, exports, module) {
     return Activity.extend({
         events: {
             'tap .js_bind:not(.disabled)': function () {
-                var userName = this.model.get('userName');
+                var mobile = this.model.get('mobile');
                 var password = this.model.get('password');
 
-                if (!userName || !util.validateMobile(userName)) {
+                if (!mobile || !util.validateMobile(mobile)) {
                     sl.tip('请输入正确的手机');
                     return;
                 }
@@ -25,13 +25,22 @@ define(function (require, exports, module) {
                 }
 
                 this.loading.setParam({
-                    user_name: userName,
-                    password: password
+                    mobile: mobile,
+                    valid_code: password,
+                    type: 7
                 }).load();
             },
             'tap .js_valid:not(.disabled)': function (e) {
-                this.$valid.addClass('disabled');
+                var mobile = this.model.get('mobile');
+                if (!mobile || !util.validateMobile(mobile)) {
+                    sl.tip('请输入正确的手机');
+                    return;
+                }
 
+                this.$valid.addClass('disabled');
+                this.valid.setParam({
+                    mobile: this.model.data.mobile
+                });
                 this.valid.load();
             }
         },
@@ -79,29 +88,52 @@ define(function (require, exports, module) {
             });
 
             this.loading = new Loading({
-                url: '/user/login',
-                params: {
-                    longitude: 0,
-                    latitudes: 0
-                },
+                url: '/user/smslogin',
                 method: 'POST',
                 check: false,
                 checkData: false,
                 $el: this.$el,
+                xhrFields: {
+                    withCredentials: true
+                },
                 success: function (res) {
                     if (res.error_msg)
                         sl.tip(res.error_msg);
                     else {
                         localStorage.setItem('member', JSON.stringify({
-                            mobile: self.model.data.userName,
+                            mobile: self.model.data.mobile,
                             member_id: res.data.member_id,
-                            user_name: res.data.huanxin_user
+                            user_name: self.model.data.mobile
                         }));
                         self.back(self.route.queries.success || '/');
                     }
                 },
                 error: function (res) {
                     sl.tip(res.msg);
+                }
+            });
+
+            this.valid = new Loading({
+                url: '/sms/send_valid_code',
+                method: 'POST',
+                xhrFields: {
+                    withCredentials: true
+                },
+                params: {
+                    mobile: self.model.data.mobile,
+                    type: 7
+                },
+                check: false,
+                checkData: false,
+                $el: this.$el,
+                success: function (res) {
+                    if (res.error_code == 1) {
+                        sl.tip(res.error_msg)
+                    } else {
+                        localStorage.setItem('valid_time', Date.now() + 60000);
+
+                        self.validTimeout();
+                    }
                 }
             });
 

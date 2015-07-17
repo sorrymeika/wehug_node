@@ -21,7 +21,7 @@
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                memberUrl: '/login',
+                memberUrl: '/member',
                 user_name: '请登录'
             });
 
@@ -31,9 +31,8 @@
 
                 this.model.set({
                     user_name: member.nick_name,
-                    memberUrl: '/member'
+                    memberUrl: '/member',
                 });
-
 
                 if (!('head_photo' in member)) {
                     this.loading = new Loading({

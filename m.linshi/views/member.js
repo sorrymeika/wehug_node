@@ -28,7 +28,7 @@
                 if (res.error_code != 0) {
                     sl.tip(res.error_msg);
                 } else {
-                    self.model.set('member',data);
+                    self.model.set('member', data);
                 }
                 self.loading.hideLoading();
             }, 'json');
@@ -76,10 +76,13 @@
                 });
                 self['$' + name] = self.model.$el.find('[sn-model="' + name + '.input"]');
             });
+        },
 
+        onShow: function () {
+            var self = this;
             var member = localStorage.getItem('member');
             if (member) {
-                member = JSON.parse(member);
+                self.member = member = JSON.parse(member);
                 if (member.head_photo === '') member.head_photo = null;
 
                 this.loading = new Loading({
@@ -91,7 +94,7 @@
                     },
                     $el: this.$el,
                     success: function (res) {
-                        member = $.extend(member, res.data);
+                        self.member = member = $.extend(member, res.data);
                         if (member.head_photo === '') member.head_photo = null;
                         localStorage.setItem('member', JSON.stringify(member));
                         self.model.set({
@@ -106,10 +109,6 @@
             } else {
                 this.forward('/login');
             }
-        },
-
-        onShow: function () {
-            var that = this;
         },
 
         onDestory: function () {

@@ -86,6 +86,8 @@ define('anim/dialog', function () {
         openExitAnimationTo: {
         },
         closeEnterAnimationFrom: {
+            scale: '1,1',
+            translate: '0,0'
         },
         closeEnterAnimationTo: {
         },

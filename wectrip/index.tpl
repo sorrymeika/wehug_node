@@ -22,8 +22,7 @@
     <!--[if lte IE 9]><script src="@(webresource+(debug?'/js/jquery-1.11.3.js':'jquery-1.11.3.min.js'))"></script><![endif]-->
     <script src="@(webresource)@html(isDebugFramework?'js/seajs/sea.js':'slan.js')"></script>
     @if(debug){
-    <script src="@(webresource)js/zepto.js"></script>
-    <script src="@(webresource)js/extend/fx.js"></script>
+    <script src="@(webresource)js/jquery-1.11.3.js"></script>
     }
     @for(var key in js){
         var items=js[key],

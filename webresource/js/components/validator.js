@@ -38,7 +38,7 @@
     };
 
     exports.prototype.valid=function (single,value) {
-        if(!single) return { success: true };
+        if (!single) return { success: true };
 
         if((value==''||value==null)&&(single.emptyAble===false||($.isFunction(single.emptyAble)&&!single.emptyAble())))
             return { success: false,msg: single.emptyText };
@@ -59,7 +59,8 @@
     exports.prototype.validate=function (key) {
         var attrs,
             single;
-        if(key) {
+
+        if (key) {
             return this.valid(this.options[key],this.data[key]);
 
         } else {
