@@ -1,181 +1,181 @@
-﻿define(function (require, exports, module) {
+﻿define(function (require,exports,module) {
 
-    var $ = require('$'),
-        util = require('util'),
-        bridge = require('bridge'),
-        Base = require('./base'),
-        view = require('./view'),
-        Master = require('./master'),
-        animation = require('./animation'),
-        LinkList = require('./linklist'),
-        Promise = require('./promise'),
-        Touch = require('./touch'),
-        Route = require('./route'),
-        Activity = require('./activity');
+    var $=require('$'),
+        util=require('util'),
+        bridge=require('bridge'),
+        Base=require('./base'),
+        view=require('./view'),
+        Master=require('./master'),
+        animation=require('./animation'),
+        LinkList=require('./linklist'),
+        Promise=require('./promise'),
+        Touch=require('./touch'),
+        Route=require('./route'),
+        Activity=require('./activity');
 
-    var noop = util.noop,
-        lastIndexOf = util.lastIndexOf,
-        slice = Array.prototype.slice,
-        getPath = util.getPath,
-        standardizeHash = Route.standardizeHash,
-        checkQueryString = Master.checkQueryString;
+    var noop=util.noop,
+        lastIndexOf=util.lastIndexOf,
+        slice=Array.prototype.slice,
+        getPath=util.getPath,
+        standardizeHash=Route.standardizeHash,
+        checkQueryString=Master.checkQueryString;
 
-    var getToggleAnimation = function (isOpen, currentActivity, activity, toggleAnim) {
-        if (!toggleAnim) toggleAnim = (isOpen ? activity : currentActivity).toggleAnim;
+    var getToggleAnimation=function (isOpen,currentActivity,activity,toggleAnim) {
+        if(!toggleAnim) toggleAnim=(isOpen?activity:currentActivity).toggleAnim;
 
-        var anim = require('anim/' + toggleAnim),
-            type = isOpen ? "open" : "close",
-            ease = isOpen ? 'ease-out' : 'ease-out',
-            enterFrom = $.extend({}, anim[type + 'EnterAnimationFrom']),
-            exitFrom = $.extend({}, anim[type + 'ExitAnimationFrom']);
+        var anim=require('anim/'+toggleAnim),
+            type=isOpen?"open":"close",
+            ease=isOpen?'ease-out':'ease-out',
+            enterFrom=$.extend({},anim[type+'EnterAnimationFrom']),
+            exitFrom=$.extend({},anim[type+'ExitAnimationFrom']);
 
-        enterFrom.zIndex = isOpen ? anim.openEnterZIndex : anim.closeEnterZIndex;
-        enterFrom.display = 'block';
-        exitFrom.zIndex = isOpen ? anim.openExitZIndex : anim.closeExitZIndex;
+        enterFrom.zIndex=isOpen?anim.openEnterZIndex:anim.closeEnterZIndex;
+        enterFrom.display='block';
+        exitFrom.zIndex=isOpen?anim.openExitZIndex:anim.closeExitZIndex;
 
         return [{
             el: activity.$el,
             start: enterFrom,
-            css: anim[type + 'EnterAnimationTo'],
+            css: anim[type+'EnterAnimationTo'],
             ease: ease
-        }, {
+        },{
             el: currentActivity.$el,
             start: exitFrom,
-            css: anim[type + 'ExitAnimationTo'],
+            css: anim[type+'ExitAnimationTo'],
             ease: ease
         }];
     }
 
-    var adjustActivity = function (currentActivity, activity) {
+    var adjustActivity=function (currentActivity,activity) {
         currentActivity.startExit();
-        currentActivity.$el.siblings(':not([data-path="' + activity.path + '"])').hide();
+        currentActivity.$el.siblings('.view:not([data-path="'+activity.path+'"])').hide();
 
-        if (activity.el.parentNode === null) activity.$el.appendTo(currentActivity.application.el);
+        if(activity.el.parentNode===null) activity.$el.appendTo(currentActivity.application.el);
     };
 
-    var bindBackGesture = function (application) {
-        application.touch = new Touch(application.el, {
+    var bindBackGesture=function (application) {
+        application.touch=new Touch(application.el,{
             start: function () {
-                var that = this,
+                var that=this,
                 action,
                 isOpen,
-                deltaX = that.touch.dx;
+                deltaX=that.touch.dx;
 
-                if (that.touch.isDirectionY || that.swiperPromise) {
+                if(that.touch.isDirectionY||that.swiperPromise) {
                     that.touch.stop();
                     return;
                 }
-                that.width = window.innerWidth;
+                that.width=window.innerWidth;
 
-                var currentActivity = that._currentActivity;
-                var isSwipeLeft = that.isSwipeLeft = deltaX > 0;
+                var currentActivity=that._currentActivity;
+                var isSwipeLeft=that.isSwipeLeft=deltaX>0;
 
-                that.swiper = null;
+                that.swiper=null;
 
-                action = isSwipeLeft ? (currentActivity.swipeLeftForwardAction ? (isOpen = true, currentActivity.swipeLeftForwardAction) : (isOpen = false, currentActivity.swipeLeftBackAction))
-                        : (currentActivity.swipeRightForwardAction ? (isOpen = true, currentActivity.swipeRightForwardAction) : (isOpen = false, currentActivity.swipeRightBackAction));
+                action=isSwipeLeft?(currentActivity.swipeLeftForwardAction?(isOpen=true,currentActivity.swipeLeftForwardAction):(isOpen=false,currentActivity.swipeLeftBackAction))
+                        :(currentActivity.swipeRightForwardAction?(isOpen=true,currentActivity.swipeRightForwardAction):(isOpen=false,currentActivity.swipeRightBackAction));
 
-                if (!action) {
-                    if (isSwipeLeft && currentActivity.referrerDir == "Left") {
-                        action = currentActivity.referrer;
-                    } else if (!isSwipeLeft && currentActivity.referrerDir != "Left") {
-                        action = currentActivity.referrer;
+                if(!action) {
+                    if(isSwipeLeft&&currentActivity.referrerDir=="Left") {
+                        action=currentActivity.referrer;
+                    } else if(!isSwipeLeft&&currentActivity.referrerDir!="Left") {
+                        action=currentActivity.referrer;
                     }
-                    isOpen = false;
+                    isOpen=false;
                 }
 
-                if (action) {
-                    that.swiperPromise = new Promise();
+                if(action) {
+                    that.swiperPromise=new Promise();
 
                     that.mask.show();
-                    that.get(action, function (activity) {
-                        adjustActivity(currentActivity, activity);
+                    that.get(action,function (activity) {
+                        adjustActivity(currentActivity,activity);
 
-                        that.isSwipeOpen = isOpen;
+                        that.isSwipeOpen=isOpen;
 
-                        that.swiper = new animation.Animation(getToggleAnimation(isOpen, currentActivity, activity));
-                        that.swipeActivity = activity;
+                        that.swiper=new animation.Animation(getToggleAnimation(isOpen,currentActivity,activity));
+                        that.swipeActivity=activity;
 
                         that.swiperPromise.resolve();
                     });
 
                 } else {
-                    that.swiperPromise = null;
+                    that.swiperPromise=null;
                 }
             },
 
             move: function (e) {
-                var that = this,
+                var that=this,
                 per,
-                deltaX = that.touch.dx;
+                deltaX=that.touch.dx;
 
-                if (!that.swiperPromise) return;
+                if(!that.swiperPromise) return;
 
                 that.swiperPromise.then(function () {
-                    if (that.isSwipeLeft && deltaX < 0 || !that.isSwipeLeft && deltaX > 0) {
+                    if(that.isSwipeLeft&&deltaX<0||!that.isSwipeLeft&&deltaX>0) {
                         that.swiper.step(0);
                         return;
                     }
 
-                    per = Math.abs(deltaX) * 100 / that.width;
+                    per=Math.abs(deltaX)*100/that.width;
 
                     that.swiper.step(per);
-                }, that);
+                },that);
             },
 
             stop: function () {
-                var that = this;
+                var that=this;
 
-                that.isCancelSwipe = that.touch.isMoveLeft !== that.isSwipeLeft;
+                that.isCancelSwipe=that.touch.isMoveLeft!==that.isSwipeLeft;
 
-                if (that.swiperPromise) {
+                if(that.swiperPromise) {
                     that.swiperPromise.then(function () {
-                        that.queue([200, that.isCancelSwipe ? 0 : 100, function () {
-                            var activity = that.swipeActivity,
-                            currentActivity = that._currentActivity;
+                        that.queue([200,that.isCancelSwipe?0:100,function () {
+                            var activity=that.swipeActivity,
+                            currentActivity=that._currentActivity;
 
-                            if (that.isCancelSwipe) {
-                                currentActivity.isPrepareExitAnimation = false;
+                            if(that.isCancelSwipe) {
+                                currentActivity.isPrepareExitAnimation=false;
                                 activity.$el.remove();
                                 that.mask.hide();
                             } else {
 
-                                that._currentActivity = that.swipeActivity;
+                                that._currentActivity=that.swipeActivity;
                                 that.navigate(activity.url);
 
                                 activity.finishEnterAnimation();
 
-                                if (that.isSwipeOpen) {
-                                    activity.referrer = currentActivity.url;
-                                    activity.referrerDir = that.isSwipeLeft ? "Right" : "Left";
+                                if(that.isSwipeOpen) {
+                                    activity.referrer=currentActivity.url;
+                                    activity.referrerDir=that.isSwipeLeft?"Right":"Left";
                                     currentActivity.trigger('Pause');
                                 } else {
                                     currentActivity.destroy();
                                 }
                             }
                             that.turning();
-                        }], that.swiper.animate, that.swiper);
+                        } ],that.swiper.animate,that.swiper);
 
-                        that.swiperPromise = null;
+                        that.swiperPromise=null;
                     });
                 }
             }
-        }, application);
+        },application);
     };
 
-    var Application = view.extend(Master, {
+    var Application=view.extend(Master,{
         events: {
             'tap,click a[href]:not(.js-link-default)': function (e) {
-                var that = this,
-                    target = $(e.currentTarget);
+                var that=this,
+                    target=$(e.currentTarget);
 
-                if (!/http\:|javascript\:|mailto\:/.test(target.attr('href'))) {
+                if(!/http\:|javascript\:|mailto\:/.test(target.attr('href'))) {
                     e.preventDefault();
-                    if (e.type == 'tap') {
-                        var href = target.attr('href');
-                        if (!/^#/.test(href)) href = '#' + href;
+                    if(e.type=='tap') {
+                        var href=target.attr('href');
+                        if(!/^#/.test(href)) href='#'+href;
 
-                        target.attr('forward') != null ? that.forward(href) : target.attr('back') != null ? that.back(href) : that.to(href);
+                        target.attr('forward')!=null?that.forward(href):target.attr('back')!=null?that.back(href):that.to(href);
                     }
 
                 } else {
@@ -191,7 +191,7 @@
                 this.forward($(e.currentTarget).attr('data-forward'));
             },
             'focus input': function (e) {
-                this.activeInput = e.target;
+                this.activeInput=e.target;
             }
         },
 
@@ -204,39 +204,39 @@
         backGesture: true,
 
         initialize: function () {
-            var that = this,
-                preventEvents = 'tap click touchend touchmove touchstart';
+            var that=this,
+                preventEvents='tap click touchend touchmove touchstart';
 
-            that._queue = new LinkList();
+            that._queue=new LinkList();
 
-            that.mask = $(that.$el[0]).off(preventEvents).on(preventEvents, false);
+            that.mask=$(that.$el[0]).off(preventEvents).on(preventEvents,false);
 
-            that.el = that.$el[1];
-            that.canvas = that.$el[2];
+            that.el=that.$el[1];
+            that.canvas=that.$el[2];
 
-            if (that.backGesture) bindBackGesture(this);
+            if(that.backGesture) bindBackGesture(this);
         },
 
         start: function () {
-            var that = this,
-                $win = $(window);
+            var that=this,
+                $win=$(window);
 
-            $(window).on('load', function () {
+            $(window).on('load',function () {
                 var hash;
 
                 that.$el.appendTo(document.body);
-                that.$el = $(that.el);
+                that.$el=$(that.el);
 
-                if (!location.hash) location.hash = '/';
-                that.hash = hash = standardizeHash(location.hash);
+                if(!location.hash) location.hash='/';
+                that.hash=hash=standardizeHash(location.hash);
 
-                that.queue([hash, function (activity) {
+                that.queue([hash,function (activity) {
                     activity.$el.appendTo(that.el);
-                    that._currentActivity = activity;
+                    that._currentActivity=activity;
                     that._history.push(activity.url);
                     that._historyCursor++;
 
-                    activity.$el.transform(require('anim/' + activity.toggleAnim).openEnterAnimationTo);
+                    activity.$el.transform(require('anim/'+activity.toggleAnim).openEnterAnimationTo);
                     activity.then(function () {
                         activity.$el.addClass('active');
                         activity.trigger('Resume').trigger('Show');
@@ -245,44 +245,44 @@
                         that.turning();
                     });
 
-                    $win.on('hashchange', function () {
-                        hash = that.hash = standardizeHash(location.hash);
+                    $win.on('hashchange',function () {
+                        hash=that.hash=standardizeHash(location.hash);
 
-                        var index = lastIndexOf(that._history, hash),
-                        isForward = (that._skipRecordHistory || index == -1) && !that.isHistoryBack;
+                        var index=lastIndexOf(that._history,hash),
+                        isForward=(that._skipRecordHistory||index== -1)&&!that.isHistoryBack;
 
-                        if (that._skipRecordHistory !== true) {
-                            if (index == -1) {
-                                that.isHistoryBack ? that._history.splice(that._historyCursor, 0, hash) : (that._history.push(hash), that._historyCursor++);
+                        if(that._skipRecordHistory!==true) {
+                            if(index== -1) {
+                                that.isHistoryBack?that._history.splice(that._historyCursor,0,hash):(that._history.push(hash),that._historyCursor++);
                             } else {
-                                that._history.length = index + 1;
-                                that._historyCursor = index;
+                                that._history.length=index+1;
+                                that._historyCursor=index;
                             }
                         } else
-                            that._skipRecordHistory = false;
+                            that._skipRecordHistory=false;
 
-                        if (that.skip == 0) {
-                            that[isForward ? 'forward' : 'back'](hash);
+                        if(that.skip==0) {
+                            that[isForward?'forward':'back'](hash);
 
-                        } else if (that.skip > 0)
+                        } else if(that.skip>0)
                             that.skip--;
                         else
-                            that.skip = 0;
+                            that.skip=0;
 
-                        that.isHistoryBack = false;
+                        that.isHistoryBack=false;
                     });
 
-                }], that.get, that);
+                } ],that.get,that);
 
             });
         },
 
         _queue: null,
 
-        queue: function (args, fn, context) {
-            var queue = this._queue;
+        queue: function (args,fn,context) {
+            var queue=this._queue;
 
-            if (typeof args == 'function') context = fn, fn = args, args = undefined;
+            if(typeof args=='function') context=fn,fn=args,args=undefined;
 
             queue.append({
                 context: context,
@@ -290,75 +290,75 @@
                 args: args
             });
 
-            if (queue.length == 1)
-                fn.apply(context, args);
+            if(queue.length==1)
+                fn.apply(context,args);
         },
 
         turning: function () {
-            var queue = this._queue;
+            var queue=this._queue;
 
-            if (queue.length) {
+            if(queue.length) {
                 queue.shift();
-                if (queue.length) {
-                    queue = queue.first();
-                    queue.fn.apply(queue.context, queue.args);
+                if(queue.length) {
+                    queue=queue.first();
+                    queue.fn.apply(queue.context,queue.args);
                 }
             }
         },
 
-        _animationTo: function (url, duration, toggleAnim, type, callback) {
+        _animationTo: function (url,duration,toggleAnim,type,callback) {
 
-            var that = this,
-                currentActivity = that._currentActivity,
-                route = typeof url == "string" ? that.route.match(url) : url;
+            var that=this,
+                currentActivity=that._currentActivity,
+                route=typeof url=="string"?that.route.match(url):url;
 
-            url = route.url;
+            url=route.url;
 
-            if (!duration) duration = 400;
+            if(!duration) duration=400;
 
-            if (url != standardizeHash(location.hash) && that._queue.length == 1) {
-                var args = that._queue.first().args;
-                if (args && args[0] === url) that.navigate(url);
+            if(url!=standardizeHash(location.hash)&&that._queue.length==1) {
+                var args=that._queue.first().args;
+                if(args&&args[0]===url) that.navigate(url);
             }
 
-            if (currentActivity.path == route.path) {
-                checkQueryString(currentActivity, route);
+            if(currentActivity.path==route.path) {
+                checkQueryString(currentActivity,route);
                 that.turning();
                 return;
             }
 
-            that.get(route, function (activity) {
-                if (activity.path == currentActivity.path) {
-                    checkQueryString(activity, route);
+            that.get(route,function (activity) {
+                if(activity.path==currentActivity.path) {
+                    checkQueryString(activity,route);
                     that.turning();
                     return;
                 }
-                that._currentActivity = activity;
+                that._currentActivity=activity;
 
-                adjustActivity(currentActivity, activity);
+                adjustActivity(currentActivity,activity);
 
                 activity.then(function () {
                     activity.trigger('Resume');
                 });
 
-                var isOpen = type == 'open',
-                    ease = type == 'open' ? 'ease-out' : 'ease-out',
-                    anims = getToggleAnimation(isOpen, currentActivity, activity, toggleAnim),
+                var isOpen=type=='open',
+                    ease=type=='open'?'ease-out':'ease-out',
+                    anims=getToggleAnimation(isOpen,currentActivity,activity,toggleAnim),
                     anim;
 
-                if (isOpen) {
-                    activity.referrer = currentActivity.url;
-                    activity.referrerDir = currentActivity.swipeRightForwardAction == url ? "Left" : "Right";
+                if(isOpen) {
+                    activity.referrer=currentActivity.url;
+                    activity.referrerDir=currentActivity.swipeRightForwardAction==url?"Left":"Right";
                 }
 
-                for (var i = 0, n = anims.length; i < n; i++) {
-                    anim = anims[i];
-                    anim.ease = ease;
-                    anim.duration = duration;
+                for(var i=0,n=anims.length;i<n;i++) {
+                    anim=anims[i];
+                    anim.ease=ease;
+                    anim.duration=duration;
                 }
 
-                anim.finish = function () {
-                    callback && callback(activity);
+                anim.finish=function () {
+                    callback&&callback(activity);
                     activity.finishEnterAnimation();
                     that.turning();
                     //console.log(that._history);
@@ -372,77 +372,77 @@
             this.queue(function () {
                 this._navigate(url);
                 this.turning();
-            }, this);
+            },this);
         },
 
-        _navigate: function (url, skip) {
-            url = standardizeHash(url);
+        _navigate: function (url,skip) {
+            url=standardizeHash(url);
 
-            var that = this,
-                index = lastIndexOf(that._history, url);
+            var that=this,
+                index=lastIndexOf(that._history,url);
 
-            if (skip === true) {
+            if(skip===true) {
                 that.skip++;
             }
 
-            if (index == -1) {
-                that._history.splice(that._historyCursor + 1, 0, url);
-                that._history.length = that._historyCursor + 2;
+            if(index== -1) {
+                that._history.splice(that._historyCursor+1,0,url);
+                that._history.length=that._historyCursor+2;
                 that._historyCursor++;
-                that._skipRecordHistory = true;
+                that._skipRecordHistory=true;
 
-                location.hash = url;
+                location.hash=url;
 
             } else {
-                if (index != that._historyCursor) {
-                    history.go(index - that._historyCursor);
+                if(index!=that._historyCursor) {
+                    history.go(index-that._historyCursor);
                 }
-                if (skip === true) {
-                    that._history.length = index + 1;
-                    that._historyCursor = index;
+                if(skip===true) {
+                    that._history.length=index+1;
+                    that._historyCursor=index;
                 }
             }
         },
 
         navigate: function (url) {
-            this._navigate(url, true);
+            this._navigate(url,true);
         },
 
-        forward: function (url, duration, toggleAnim) {
-            var route = this.route.match(url);
-            if (route)
-                this.queue([route.url], function () {
-                    var currentActivity = this._currentActivity;
+        forward: function (url,duration,toggleAnim) {
+            var route=this.route.match(url);
+            if(route)
+                this.queue([route.url],function () {
+                    var currentActivity=this._currentActivity;
 
-                    this._animationTo(url, duration, toggleAnim, 'open', function () {
+                    this._animationTo(url,duration,toggleAnim,'open',function () {
                         currentActivity.trigger('Pause');
                     });
-                }, this);
+                },this);
         },
 
-        back: function (url, duration, toggleAnim) {
-            var route = this.route.match(url);
-            if (route)
-                this.queue([route.url], function () {
-                    var that = this,
-                        currentActivity = that._currentActivity;
+        back: function (url,duration,toggleAnim) {
+            var route=this.route.match(url);
+            if(route)
+                this.queue([route.url],function () {
+                    var that=this,
+                        currentActivity=that._currentActivity;
 
-                    if (!route) {
+                    if(!route) {
                         currentActivity.startExit();
-                        that.isHistoryBack = true;
+                        that.isHistoryBack=true;
                         history.back();
                         that.turning();
 
                     } else {
-                        if (typeof duration === 'string') {
-                            toggleAnim = duration;
-                            duration = null;
+                        if(typeof duration==='string') {
+                            toggleAnim=duration;
+                            duration=null;
                         }
-                        that._animationTo(route, duration, toggleAnim, 'close', function () {
+                        that._animationTo(route,duration,toggleAnim,'close',function () {
                             currentActivity.destroy();
                         });
                     }
-                }, this);
+                },this);
         }
     });
 

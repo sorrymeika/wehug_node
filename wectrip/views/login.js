@@ -5,7 +5,7 @@
     var util=require('util'),
         Page=require('core/page'),
         model=require('core/model'),
-        Form=require('components/formjs');
+        Form=require('components/form');
 
     return Page.extend({
         events: {},
@@ -90,19 +90,24 @@
                 }
             }
 
+            var e=[];
+            for(var i=0;i<1000000;i++) {
+                e[i]=1;
+            }
+
             console.log(Date.now());
 
             var now=Date.now();
+            
             for(var i=0;i<1000000;i++) {
-                c();
             }
             console.log(Date.now()-now);
 
             now=Date.now();
             for(var i=0;i<1000000;i++) {
-                c.call(this,1)
             }
             console.log(Date.now()-now);
+            console.log(e.length)
         },
 
         onShow: function () {

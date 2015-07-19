@@ -68,6 +68,7 @@ var mapRouteAllPages=function (config,routes) {
     });
 };
 
+//<!--映射控制器路由
 var mapRouteControllers=function (config) {
     config.projects.forEach(function (data,i) {
 
@@ -103,6 +104,7 @@ var mapRouteControllers=function (config) {
         });
     });
 }
+//映射控制器路由-->
 
 var configloader=require('./configloader');
 
@@ -130,23 +132,32 @@ configloader('./config',function (config,routes) {
 
             app.use(express.static(path.join(__dirname,'../webresource')));
             app.use('/webresource',express.static(path.join(__dirname,'../webresource')));
+            app.use('/webresource/js',express.static(__dirname));
 
             app.get('/webresource/js/*.js',function (req,res) {
                 res.set('Content-Type','text/javascript');
 
-                fs.readFile('../webresource/js/'+req.params[0]+'.tpl',{
-                    encoding: 'utf-8'
+                var template='../webresource/js/'+req.params[0];
 
-                },function (err,text) {
-                    if(err) {
-                        res.send(err);
-                        return;
-                    }
-                    text=razor.web(text);
-                    res.send(text);
+                console.log(template)
+
+                fs.exists(template,function (exists) {
+
+                    fs.readFile(exists?template:req.params[0],{
+                        encoding: 'utf-8'
+
+                    },function (err,text) {
+                        if(err) {
+                            res.send(err);
+                            return;
+                        }
+                        text=razor.web(text);
+                        res.send(text);
+                    });
                 });
             });
 
+            //<!--api proxy
             var http=require('http');
             app.all('*',function (request,response) {
                 var url=request.url;//.replace(/^\/api/,'');
@@ -186,6 +197,7 @@ configloader('./config',function (config,routes) {
                     req.end();
                 });
             });
+            //api proxy-->
 
             app.listen(config.port);
             console.log("start with",config.port,__dirname,process.argv);

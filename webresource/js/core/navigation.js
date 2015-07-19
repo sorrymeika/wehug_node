@@ -66,8 +66,7 @@
                     that._currentActivity=activity;
 
                     activity.then(function () {
-                        activity.trigger('Resume');
-                        activity.trigger('Show');
+                        activity.trigger('Resume').trigger('Show');
 
                         that.trigger('start');
                         that.promise.resolve();
@@ -126,10 +125,10 @@
 
                         if(activity.el.parentNode===null) activity.$el.appendTo(currentActivity.application.el);
 
-                        activity.$el.show().siblings().hide();
+                        activity.$el.show().siblings('.view').hide();
 
                         activity.then(function () {
-                            activity.trigger('Resume');
+                            activity.trigger('Resume').trigger('Show');
                         });
                     }
                     promise.resolve();

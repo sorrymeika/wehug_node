@@ -15,7 +15,7 @@
                 @for (var j=0,length=items.length;j<length;j++){
                     field=items[j];var attr=' name="'+field.field+'" sn-model="'+name+'.'+field.field+'" sn-binding="value:'+name+'.'+field.field+'"';
 
-                    <th @html(field.vAlign?'style="vertical-align:'+field.vAlign+'"':'')>@field.label @if (field.emptyAble!==false){<i>*</i>}</th>
+                    <th @html(field.vAlign?'style="vertical-align:'+field.vAlign+'"':'')>@field.label @if (field.emptyAble===false){<i>*</i>}</th>
                     <td colspan="@(field.colSpan||1)">
 
                     @if (field.type=='text'||!field.type){
@@ -35,7 +35,6 @@
                         <input class="@(field.className||'text')" type="password"@html(attr)/>
 
                     } else if (field.type=='captcha'){
-                    console.log(1)
                         <input class="@(field.className||'text_normal')" type="text"@html(attr)/>
                         <img class="captcha" src="@(field.captcha)?v=@(Date.now())" onclick="this.src='@(field.captcha)?v='+Date.now()" sn-binding="src:captcha|or:'@(field.captcha)'"/>
                     } else if (field.type=='file'){

@@ -1,6 +1,6 @@
 ﻿define(function (require,exports,module) {
     var $=require('$');
-    var form=require('./form');
+    var form=require('./form.tpl');
     var util=require('util');
     var Validator=require('./validator');
 
@@ -50,7 +50,7 @@
         this.$el=$(this.template.html(this));
         this.el=this.$el[0];
 
-        this.$el.on('blur','[name]',$.proxy(this._validInput,this))
+        this.$el.on('blur change','[name]',$.proxy(this._validInput,this))
 
         for(var i=0,len=this.plugins.length;i<len;i++) {
             var plugin=this.plugins[i];
@@ -137,7 +137,7 @@
         var self=this;
         this.$input=$input;
         self.id='UMEditor'+(RichTextBox.guid++);
-        $input.before('<script type="text/plain" id="'+self.id+'" style="width:'+(options.width||500)+'px;height:240px;"></script>');
+        $input.before('<script type="text/plain" id="'+self.id+'" style="width:'+(options.width||640)+'px;height:300px;"></script>');
 
         window.UMEDITOR_HOME_URL=seajs.resolve('components/umeditor/');
 

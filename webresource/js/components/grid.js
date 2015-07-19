@@ -248,7 +248,7 @@
     };
 
 
-    var Grid=function(container,options) {
+    var Grid=function(options) {
         var self=this;
 
         self.options=options=$.extend(true,{
@@ -284,8 +284,6 @@
             },option);
         });
 
-        self.$container=$(container);
-
         self.$el=$(self.el);
         self.el=self.$el[0];
 
@@ -318,8 +316,6 @@
                     self.load();
                 }
             });
-
-        self.$el.appendTo(self.$container);
     }
 
 
@@ -681,6 +677,7 @@
                     else self.msg(xhr.responseText)
                 }
             });
+            return self;
         },
 
         search: function(options) {
@@ -698,7 +695,7 @@
                     param[key]=item.$el.val();
                 });
 
-            self.load();
+            return self.load();
         },
 
         createSearch: function() {

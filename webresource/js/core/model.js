@@ -13,6 +13,7 @@
             return (data instanceof Model||data instanceof Collection)?JSON.stringify(data.data):JSON.stringify(data);
         },
         join: function (arr,split) {
+            console.log(arr)
             return (arr instanceof Collection)?arr.data.join(split):arr.join(split);
         },
         or: function (str,or) {
@@ -47,7 +48,7 @@
                 if(str==args[i])
                     return args[i+1];
             }
-            return args[i-2];
+            return len%2==0?undefined:args[len-1];
         },
         _addListener: function (parent,model,key,el,self,param,count) {
             var flag=false,
@@ -76,8 +77,8 @@
         }
     };
 
-    var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*(?:\:|;)\s*([a-zA-Z_1-9\.-]+|\'[^\']+?\'))*)/g;
-    var rparams=/\s*\:\s*([a-zA-Z_1-9\.-]+|\'[^\']+?\')/g;
+    var rfilter=/\s*\|\s*([a-zA-Z_1-9]+)((?:\s*(?:\:|;)\s*([a-zA-Z_1-9\.-]+|\'[^\']*?\'))*)/g;
+    var rparams=/\s*\:\s*([a-zA-Z_1-9\.-]+|\'[^\']*?\')/g;
     var listenerCode=function (parent) {
         return 'if(el)Filter._addListener('+parent+',model,key,el,self,';
     }
@@ -127,7 +128,7 @@
     };
 
     var rcollection=/([a-zA-Z_1-9]+)\s+in\s+([a-zA-Z_1-9]+(?:\.[a-zA-Z_1-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}/g;
-    var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.-]+|'[^']+'))*)*)(\s|,|$)/g;
+    var rbinding=/\b([a-zA-Z_1-9-]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.-]+|'[^']*'))*)*)(\s|,|$)/g;
     var revents=/\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)(\s|,|$)/g;
 
     var $filterEl=function ($el,selector) {
@@ -528,6 +529,7 @@
             for(var attr in attrs) {
                 origin=model[attr];
                 value=attrs[attr];
+
 
                 if(origin!==value) {
                     var keys=attr.split('.');
@@ -994,7 +996,7 @@
             this.scan($el);
         },
 
-        prepend: function (selector, $el) {
+        prepend: function (selector,$el) {
             if(!$el) $el=selector,selector=this.$el;
             else selector=this.$el.find(selector);
 
