@@ -167,3 +167,5 @@ h1 { border-bottom: 1px solid #ddd; font-size: 18pt; margin-bottom: 20px; paddin
 .menu_bd dd:before { content:' ' }
 .menu_bd dd.curr a {color:#533; text-decoration: underline; font-size: 15px;}
 .menu~.view { margin-left: 210px; }
+
+.main { min-width: 800px; }
