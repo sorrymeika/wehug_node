@@ -27,7 +27,7 @@
 
             var member = localStorage.getItem('member');
             if (member) {
-                member = JSON.parse(member);
+                this.member = member = JSON.parse(member);
 
                 this.model.set({
                     user_name: member.nick_name,
@@ -47,7 +47,7 @@
                             member = $.extend(member, res.data);
                             localStorage.setItem('member', JSON.stringify(member));
                             self.model.set({
-                                avatars: member.head_photo,
+                                avatars: member.head_photo + '?v=' + localStorage.getItem('photo_ver'),
                                 user_name: member.nick_name
                             });
                         }
@@ -62,7 +62,11 @@
         },
 
         onShow: function () {
-            var that = this;
+            var self = this;
+            if (self.member)
+                self.model.set({
+                    avatars: self.member.head_photo + '?v=' + localStorage.getItem('photo_ver')
+                });
         },
 
         onDestory: function () {

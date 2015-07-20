@@ -28,15 +28,17 @@
                 fr.onload = function (evt) {
                     self.loading.showLoading();
                     $.post(bridge.url('/user/edit_photo'), {
-                        headPic: encodeURIComponent(evt.target.result.replace('data:image/png;base64,', '')),
+                        headPic: encodeURIComponent(evt.target.result.replace(/^data\:image\/[a-z]+\;base64,/g, '')),
                         member_id: self.member.member_id
                     }, function (res) {
                         if (res.error_code != 0) {
                             sl.tip(res.error_msg);
-                            self.loading.hideLoading();
                         } else {
-                            self.loading.load();
+                            var photo_ver = Date.now();
+                            localStorage.setItem('photo_ver', photo_ver)
+                            self.model.set('member', { head_photo: res.data.head_photo + '?v=' + photo_ver });
                         }
+                        self.loading.hideLoading();
                     }, 'json');
                 };
                 fr.readAsDataURL(e.target.files[0]);
@@ -149,6 +151,7 @@
                     success: function (res) {
                         self.member = member = $.extend(member, res.data);
                         if (member.head_photo === '') member.head_photo = null;
+                        else member.head_photo = member.head_photo + '?v=' + localStorage.getItem('photo_ver')
                         localStorage.setItem('member', JSON.stringify(member));
                         self.model.set({
                             member: member,
