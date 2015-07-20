@@ -7,6 +7,7 @@
 	route: {
 		'/': { controller: 'index', template: 'index' },
 		'/menu': { controller: 'menu', template: 'menu' },
+		'/about': { controller: 'about', template: 'about' },
 		'/member': { controller: 'member', template: 'member' },
 		'/settings': { controller: 'settings', template: 'settings' },
 		'/login': { controller: 'login', template: 'login' },

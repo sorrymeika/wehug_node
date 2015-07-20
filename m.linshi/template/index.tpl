@@ -8,7 +8,7 @@
         <li class="teacher_item" sn-repeat="item in data" sn-binding="data-id:item.teacher_id">
             <img sn-binding="src:item.head_photo" />
             <div class="tli_info">
-                <div class="tli_honor" sn-binding="html:item.honor"></div>
+                <!--<div class="tli_honor" sn-binding="html:item.honor"></div>-->
                 <div class="tli_name" sn-binding="html:item.teacher_name|concat:'—':item.discipline"></div>
             </div>
         </li>

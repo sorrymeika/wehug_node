@@ -1,69 +1,68 @@
-﻿define(function (require,exports,module) {
+﻿define(function (require, exports, module) {
 
-    var $=require('$'),
-        util=require('util'),
-        Base=require('./base'),
-        view=require('./view'),
-        Route=require('./route'),
-        Master=require('./master'),
-        Promise=require('./promise');
+    var $ = require('$'),
+        util = require('util'),
+        Base = require('./base'),
+        view = require('./view'),
+        Route = require('./route'),
+        Master = require('./master'),
+        Promise = require('./promise');
 
-    var noop=util.noop,
-        slice=Array.prototype.slice,
-        getPath=util.getPath,
-        standardizeHash=Route.standardizeHash,
-        checkQueryString=Master.checkQueryString;
+    var noop = util.noop,
+        slice = Array.prototype.slice,
+        getPath = util.getPath,
+        standardizeHash = Route.standardizeHash,
+        checkQueryString = Master.checkQueryString;
 
-    var Navigation=view.extend(Master,{
+    var Navigation = view.extend(Master, {
         events: {
             'click a[href]:not(.js-link-default)': function (e) {
-                var that=this,
-                    target=$(e.currentTarget);
+                var that = this,
+                    target = $(e.currentTarget);
 
-                if(!/http\:|javascript\:|mailto\:/.test(target.attr('href'))) {
+                if (!/http\:|javascript\:|mailto\:/.test(target.attr('href')) && target.attr('target') != '_blank') {
                     e.preventDefault();
-                    var href=target.attr('href');
-                    if(!/^#/.test(href)) href='#'+href;
+                    var href = target.attr('href');
+                    if (!/^#/.test(href)) href = '#' + href;
 
-                    location.hash=href;
+                    location.hash = href;
+                    return false;
 
                 } else {
                     target.addClass('js-link-default');
                 }
-
-                return false;
             }
         },
         el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div>',
         initialize: function () {
-            var that=this;
+            var that = this;
 
-            that.$mask=$(that.$el[0]).on('click',false);
-            that.el=that.$el[1];
-            that.promise=Promise.resolve();
+            that.$mask = $(that.$el[0]).on('click', false);
+            that.el = that.$el[1];
+            that.promise = Promise.resolve();
         },
 
         start: function () {
-            var that=this,
+            var that = this,
                 hash,
-                $win=$(window),
-                $body=$(document.body),
-                $views=$body.find('.view');
+                $win = $(window),
+                $body = $(document.body),
+                $views = $body.find('.view');
 
             that.$el.appendTo($body);
-            that.$el=$(that.el);
+            that.$el = $(that.el);
 
-            if($views.length) {
+            if ($views.length) {
                 that.$el.append($views.hide());
             }
 
-            if(!location.hash) location.hash='/';
-            that.hash=hash=standardizeHash(location.hash);
+            if (!location.hash) location.hash = '/';
+            that.hash = hash = standardizeHash(location.hash);
 
             that.promise.then(function () {
-                that.get(hash,function (activity) {
+                that.get(hash, function (activity) {
                     activity.$el.show().appendTo(that.el);
-                    that._currentActivity=activity;
+                    that._currentActivity = activity;
 
                     activity.then(function () {
                         activity.trigger('Resume').trigger('Show');
@@ -73,17 +72,17 @@
                     });
                 });
 
-                $win.on('hashchange',function () {
-                    hash=that.hash=standardizeHash(location.hash);
+                $win.on('hashchange', function () {
+                    hash = that.hash = standardizeHash(location.hash);
 
-                    if(that.skip==0) {
+                    if (that.skip == 0) {
 
                         that.to(hash);
 
-                    } else if(that.skip>0)
+                    } else if (that.skip > 0)
                         that.skip--;
                     else
-                        that.skip=0;
+                        that.skip = 0;
                 });
 
                 return that.promise;
@@ -91,39 +90,39 @@
         },
 
         navigate: function (url) {
-            url=standardizeHash(url);
+            url = standardizeHash(url);
             this.skip++;
-            location.hash=url;
+            location.hash = url;
         },
 
         to: function (url) {
-            url=standardizeHash(url);
+            url = standardizeHash(url);
 
-            var that=this,
-                promise=that.promise;
+            var that = this,
+                promise = that.promise;
 
             promise.then(function () {
-                var currentActivity=that._currentActivity,
-                    route=that.route.match(url);
+                var currentActivity = that._currentActivity,
+                    route = that.route.match(url);
 
-                if(promise.queue.length==0&&url!=standardizeHash(location.hash)) {
+                if (promise.queue.length == 0 && url != standardizeHash(location.hash)) {
                     that.navigate(url);
                 }
 
-                if(currentActivity.path==route.path) {
-                    checkQueryString(currentActivity,route);
+                if (currentActivity.path == route.path) {
+                    checkQueryString(currentActivity, route);
                     promise.resolve();
                     return;
                 }
 
-                that.get(route,function (activity) {
-                    if(activity.path==currentActivity.path) {
-                        checkQueryString(activity,route);
+                that.get(route, function (activity) {
+                    if (activity.path == currentActivity.path) {
+                        checkQueryString(activity, route);
 
                     } else {
-                        that._currentActivity=activity;
+                        that._currentActivity = activity;
 
-                        if(activity.el.parentNode===null) activity.$el.appendTo(currentActivity.application.el);
+                        if (activity.el.parentNode === null) activity.$el.appendTo(currentActivity.application.el);
 
                         activity.$el.show().siblings('.view').hide();
 
@@ -139,7 +138,7 @@
         }
     });
 
-    sl.Navigation=Navigation;
+    sl.Navigation = Navigation;
 
-    module.exports=Navigation;
+    module.exports = Navigation;
 });

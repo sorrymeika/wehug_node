@@ -5,7 +5,7 @@
 		'images/style.css': ['images/reset.css','images/manage.css']
 	},
 	route: {
-		'/': { controller: 'index', template: 'index', api: '' },
+		'/': { controller: 'index', template: 'list', api: '' },
 		'/login': { controller: 'login', template: 'login' },
 		'/add_destination': { controller: 'add_destination', template: 'form' },
 		'/test/{id:\\d+}': { controller: 'test', api: '/api/test/{id}' }

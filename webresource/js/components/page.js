@@ -40,7 +40,7 @@
                     total=options.total,
                     pageSize=options.pageSize,
                     onChange=options.onChange,
-                    serialButtons=bind(this._serialButtons,this);
+                    serialButtons=$.proxy(this._serialButtons,this);
 
                 if(page==1) html+="<span>第一页</span><span>上一页</span>";
                 else html+=createButton(1,"第一页")+createButton(page-1,"上一页");

@@ -169,7 +169,7 @@
             return this;
         },
 
-        onActivityResult: function (event,fn) {
+        onResult: function (event,fn) {
             this.listenTo(this.application,event,fn);
         },
 

@@ -13,7 +13,7 @@
                     <li class="s_data"><span sn-binding="html:item.class_hours_number|concat:'小时'"></span><span sn-binding="html:item.students_number|concat:'个'"></span><span sn-binding="html:item.praise_rate"></span><span sn-binding="html:item.continue_rate"></span></li>
                 </ul>
             </div>
-            <div class="s_honor" sn-binding="html:item.honor|format:'获得荣誉：{0}'"></div>
+            <!--<div class="s_honor" sn-binding="html:item.honor|format:'获得荣誉：{0}'"></div>-->
             <ul class="s_cert">
                 <li class="cert" sn-binding="display:item.certification_flag">身份认证</li>
                 <li class="t_cert" sn-binding="display:item.teacher_certification_flag">教师资格认证</li>

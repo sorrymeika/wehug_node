@@ -1,26 +1,48 @@
-﻿define(function (require,exports,module) {
+﻿define(function (require, exports, module) {
 
-    var $=require('$');
-    var util=require('util');
-    var model=require('core/model');
-    var Page=require('common/page');
-    var menu=require('common/menu');
-    var Form=require('components/form');
-    var Grid=require('components/grid');
+    var $ = require('$');
+    var util = require('util');
+    var model = require('core/model');
+    var Page = require('common/page');
+    var menu = require('common/menu');
+    var Form = require('components/form');
+    var Grid = require('components/grid');
 
     return Page.extend({
-        events: {},
+        events: {
+            'click .js_grid_delete': function (e) {
+                var id = e.currentTarget.getAttribute('data-id');
+                var self = this;
+
+                if (window.confirm('确认删除？')) {
+                    $.post('/api/manage/delete_destination', {
+                        id: id
+                    }, function (res) {
+                        if (res.success) {
+                            self.grid.load()
+                        } else {
+                            sl.tip(res.msg)
+                        }
+
+                    }, 'json');
+                }
+            }
+        },
 
         onCreate: function () {
-            var self=this;
+            var self = this;
 
-            this.model=new model.ViewModel(this.$el,{
+            this.model = new model.ViewModel(this.$el, {
                 title: '目的地管理'
             });
 
-            this.grid=new Grid({
+            this.onResult('destination_change', function () {
+                this.grid.load();
+            });
+
+            this.grid = new Grid({
                 search: {
-                    url: '/mongo',
+                    url: '/api/destination/list',
                     type: 'GET',
                     beforeSend: function () {
                     },
@@ -33,30 +55,41 @@
                 },
                 onSelectRow: function () {
                 },
+                pageEnabled: true,
+                pageSize: 20,
                 columns: [{
-                    text: "数据库",
-                    bind: "name",
-                    width: 10,
-                    sortable: true
-                },{
-                    text: "大小",
-                    bind: "sizeOnDisk",
+                    text: "目的编号",
+                    bind: "ID",
+                    width: 5
+                }, {
+                    text: "目的地名称",
+                    bind: "Name",
+                    width: 10
+                }, {
+                    text: "目的地图片",
+                    bind: "MiddlePic",
                     width: 10,
                     render: function (data) {
-                        console.log(data)
-                        this.cellItem(Math.round(data.sizeOnDisk/(1000*1000))/1000+'GB');
+                        this.append('<a href="/' + data.MiddlePic + '" target="_blank">' + data.MiddlePic + '</a>');
+                    }
+                }, {
+                    text: "操作",
+                    bind: "LargePic",
+                    width: 10,
+                    align: 'center',
+                    valign: 'center',
+                    render: function (data) {
+                        this.append('<a href="/">[修改]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
                     }
                 }]
 
             }).search();
 
-            console.log(this.grid)
-
-            this.$el.find('h1').after(this.grid.$el);
+            this.$el.find('.toolbar').after(this.grid.$el);
         },
 
         onShow: function () {
-            this.menu=menu.get('/');
+            this.menu = menu.get('/');
             this.$el.before(this.menu.$el);
         },
 

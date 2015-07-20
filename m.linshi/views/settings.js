@@ -18,6 +18,7 @@ define(function (require, exports, module) {
             'tap .logout': function () {
                 if (localStorage.getItem('member')) {
                     localStorage.removeItem('member')
+                    this.back('/');
                 } else {
                     this.forward('/login');
                 }
@@ -36,7 +37,8 @@ define(function (require, exports, module) {
                 back: '/',
                 title: '设置',
                 settings: [{
-                    title: '关于我们'
+                    title: '关于我们',
+                    href: '/about'
                 }]
             });
 

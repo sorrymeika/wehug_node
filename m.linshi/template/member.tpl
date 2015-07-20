@@ -4,9 +4,12 @@
 </header>
 <div class="main">
     <div class="member">
-        <div class="member_avatars">
+        <iframe style="top:-999px;left:-999px;position:absolute;display:none;" frameborder="0" width="0" height="0" name="__upload"></iframe>
+        <form sn-binding="action:upload" method="post" class="member_avatars" enctype="multipart/form-data">
+            <input type="file" name="headPic" />
+            <input type="hidden" name="member_id" sn-binding="value:member.member_id" />
             <img sn-binding="src:member.head_photo" />
-        </div>
+        </form>
         <ul class="member_info">
             <li>
                 <div>昵称</div>

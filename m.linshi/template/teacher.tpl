@@ -17,7 +17,7 @@
             <li class="t_cert" sn-binding="display:basic_info.teacher_certification_flag">教师资格认证</li>
             <li class="education" sn-binding="display:basic_info.education_flag">学历认证</li>
         </ul>
-        <div class="teacher_honor" sn-binding="html:basic_info.honor"></div>
+       <!-- <div class="teacher_honor" sn-binding="html:basic_info.honor"></div-->
     </div>
     <ul class="teacher_data">
         <li sn-binding="html:basic_info.class_hours_number|concat:'小时'"></li>

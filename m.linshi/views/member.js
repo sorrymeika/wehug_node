@@ -7,6 +7,7 @@
         Scroll = require('../widget/scroll'),
         bridge = require('bridge');
     var Loading = require('../widget/extend/loading');
+    var guid = 0;
 
     return Activity.extend({
         events: {
@@ -17,6 +18,57 @@
                         member_id: this.model.get('member.member_id'),
                         sex: value
                     });
+            },
+            'change form input[type="file"]': function (e) {
+                guid++;
+                var self = this;
+                var form = e.target.parentNode;
+
+                var fr = new FileReader();
+                fr.onload = function (evt) {
+                    self.loading.showLoading();
+                    $.post(bridge.url('/user/edit_photo'), {
+                        headPic: encodeURIComponent(evt.target.result.replace('data:image/png;base64,', '')),
+                        member_id: self.member.member_id
+                    }, function (res) {
+                        if (res.error_code != 0) {
+                            sl.tip(res.error_msg);
+                            self.loading.hideLoading();
+                        } else {
+                            self.loading.load();
+                        }
+                    }, 'json');
+                };
+                fr.readAsDataURL(e.target.files[0]);
+                /*
+                var target = "_submit_iframe" + guid;
+                var resultText;
+                var $iframe = $('<iframe style="top:-999px;left:-999px;position:absolute;display:none;" frameborder="0" width="0" height="0" name="' + target + '"></iframe>')
+                        .appendTo(document.body)
+                        .on('load', function () {
+                            var result;
+                            try {
+                                result = $.trim((this.contentWindow.document.body.innerHTML));
+                            } catch (e) {
+                                self.loading.load();
+                                return;
+                            }
+                            if (!resultText || result != resultText) {
+                                resultText = result;
+                                try {
+                                    result = JSON.parse(resultText);
+                                    sl.tip(e.error_msg)
+
+                                    if (result.error_code == 0) {
+                                        self.loading.load();
+                                    }
+
+                                } catch (e) {
+                                    sl.tip(e.message)
+                                }
+                            }
+                        });
+                        */
             }
         },
         swipeRightBackAction: '/',
@@ -39,7 +91,8 @@
 
             this.model = new model.ViewModel(this.$el, {
                 title: '个人信息',
-                back: '/'
+                back: '/',
+                upload: bridge.url('/user/edit_photo') //'http://api.linshi.biz/user/edit_photo'
             });
 
             ['nick_name', 'address'].forEach(function (name) {
@@ -59,7 +112,7 @@
                             if (self.model.data.member[name] != this.input) {
 
                                 var data = {
-                                    member_id: member.member_id
+                                    member_id: self.member.member_id
                                 };
                                 data[name] = this.input;
 

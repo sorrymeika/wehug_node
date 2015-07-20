@@ -71,7 +71,7 @@
                         localStorage.removeItem('valid_time');
 
                     } else {
-                        self.model.set('valid',sec+'秒后获取');
+                        self.model.set('valid',sec+'秒');
                         sec--;
                         setTimeout(arguments.callee,1000);
                     }

@@ -7,12 +7,12 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 
 .btn_large1 { border: 1px solid #ccc; background: #fff; color: #f90; line-height: 44px; height: 44px; }
 
-.head_back, .head_menu { width: 50px; height: 47px; }
+.head_back, .head_menu { width: 60px; height: 47px; z-index: 1000; }
 .head_back:before, .head_menu:before { display: inline-block; background: url(site.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin-top: 10px; }
 .head_city { width: 50px; height: 47px; line-height: 47px; text-align: center; }
 .head_menu:before { background-position: -150px 0px; }
 
-.head_search { background: #ffb84d; border-radius: 4px; height: 30px; margin: 9px 0 0 10px; -webkit-flex: 1; position: relative; }
+.head_search { background: #ffb84d; border-radius: 4px; height: 30px; margin: 9px 0 0 0; -webkit-flex: 1; position: relative; }
 .head_search:before { display: inline-block; background: url(site.png) no-repeat 0px -26px; content: ''; width: 30px; height: 30px; background-size: 320px auto; position: absolute; left: 3px; top: 0; }
 .head_search input { display: block; border: 0px; color: #fff; background: #ffb84d; border-radius: 4px; height: 31px; box-sizing: border-box; width: 100%; text-align: center; padding-left: 16px; padding-top: 3px; font-size: 13px; }
 .head_search input::-webkit-input-placeholder { color: #fff; font-size: 13px; }
@@ -163,8 +163,10 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 
 .member { }
 .member_avatars, .member_info { display: -webkit-box; background: #fff; margin: 5px; border-radius: 3px; padding-left: 10px; }
+.member_avatars { position: relative; }
 .member_avatars:before { content: '头像'; display: block; -webkit-box-flex: 1; line-height: 60px; }
 .member_avatars img { display: block; border-radius: 50%; padding: 2px; display: block; height: 50px; width: 50px; margin: 5px; }
+.member_avatars input[type="file"]{ width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; }
 .member_info { padding: 5px; display: block; color: #333; font-size: 14px; min-height: 16px; }
 .member_info li { line-height: 40px; margin-left: 5px; position: relative; border-bottom: 1px solid #ccc; }
 .member_info li div { display: block; }
@@ -179,3 +181,8 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .filters_list { display: -webkit-box; line-height: 42px; height: 42px; background: rgba(255,255,255,.9); }
 .filters_list li { -webkit-box-flex: 1; text-align: center; }
 .filters_list li:before { content: ''; margin-top: 9px; display: inline-block; border-right: 1px solid #ccc; float: right; height: 25px; }
+
+
+.aboutus { padding: 20px; font-size: 16px; line-height: 22px; background:#fff; height: 100%; }
+.aboutus img { display: block; width: 128px; height: 128px; margin: 40px auto 10px auto; }
+.aboutus_ver { text-align: center; }
