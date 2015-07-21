@@ -52,7 +52,7 @@ define(function (require, exports, module) {
         },
 
         onShow: function () {
-            var that = this;
+            var self = this;
         },
 
         onDestory: function () {

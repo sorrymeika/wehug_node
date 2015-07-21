@@ -15,7 +15,7 @@
                 var self = this;
 
                 if (window.confirm('确认删除？')) {
-                    $.post('/api/manage/delete_destination', {
+                    $.post('/api/manage/delete_acitvity', {
                         id: id
                     }, function (res) {
                         if (res.success) {
@@ -42,7 +42,7 @@
 
             this.grid = new Grid({
                 search: {
-                    url: '/api/destination/list',
+                    url: '/api/acitvity/list',
                     type: 'GET',
                     beforeSend: function () {
                     },
@@ -79,7 +79,7 @@
                     align: 'center',
                     valign: 'center',
                     render: function (data) {
-                        this.append('<a href="/modify_destination/' + data.ID + '" >[修改]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
+                        this.append('<a href="/modify_acitvity/' + data.ID + '" >[修改]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
                     }
                 }]
 
