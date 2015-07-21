@@ -59,13 +59,18 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .teacher_exp dt { background: #ffc671; color: #fff; border-radius: 3px; margin: 4px 0; padding: 2px; display: inline-block; }
 .teacher_exp dd { padding: 4px 0; color: #808080; }
 
-.teacher_cmt h3 { font-size: 16px; margin: 10px 0 10px 0; }
-.teacher_cmt .class_time { color: #f90; margin-left: 30px; font-size: 12px; font-weight: normal; }
+.teacher_cmt .name { font-size: 14px; }
+.teacher_cmt .score { display: inline-block; position: relative; vertical-align: -3px; margin-left: 20px; }
+.teacher_cmt .score .score_bd { position: absolute; top: 0; left: 0; overflow: hidden; height: 15px; }
+.teacher_cmt .score i { display: inline-block; width: 18px; height: 15px; background: url(site.png) no-repeat -30px -60px; background-size: 320px auto; }
+.teacher_cmt .score .score_bd i { background-position: 0px -60px; }
+.teacher_cmt .class_time { color: #f90; margin-left: 25px; font-size: 13px; font-weight: normal; }
 .teacher_cmt .class_time:before { display: inline-block; background: url(site.png) no-repeat -130px -30px; content: ''; width: 16px; height: 22px; background-size: 320px auto; vertical-align: -1px; }
 .teacher_cmt h4 { margin: 6px 0; }
 .teacher_cmt h4 span { margin-left: 6px; color: #f90; }
-.teacher_cmt_item { margin: 10px 30px 0 30px; }
-.teacher_cmt .comments { padding: 4px 0; color: #808080; font-size: 14px; }
+.teacher_cmt_item { padding: 10px 15px 10px 15px; margin: 0px 15px 0px 15px; border-bottom:1px solid #d9d9d9; }
+.teacher_cmt .comments { padding: 4px 0; color: #808080; font-size: 13px; line-height: 1.3; }
+.teacher_cmt .comments_sub { font-size: 12px; margin-top: 6px; text-align: right; }
 
 .tabs_nav { margin-top: 10px; }
 .tabs_content { background: #fff; padding-bottom: 10px; }
@@ -115,22 +120,22 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .s_cert li.education:after { background-position: -90px -30px; }
 
 .form { display: block; }
-.form li {  width: 100%; height: 32px;  border-radius: 5px; margin-top: 6px; }
-.form li input { display: block; width: 100%; border: 0px; height: 100%; border-radius: 5px; padding-left: 10px; box-sizing: border-box; font-size: 14px;  -webkit-box-flex:1;border: 1px solid #ccc; background: #fff;}
+.form li { width: 100%; height: 32px; border-radius: 5px; margin-top: 6px; }
+.form li input { display: block; width: 100%; border: 0px; height: 100%; border-radius: 5px; padding-left: 10px; box-sizing: border-box; font-size: 14px; -webkit-box-flex: 1; border: 1px solid #ccc; background: #fff; }
 .form li:last-child { display: -webkit-box; }
-.form li:last-child input {  width: auto; }
-.form li b { display: block; line-height: 32px; color:#fff; background:#f90;border-radius: 5px; margin-left: 6px; padding: 0 5px; }
+.form li:last-child input { width: auto; }
+.form li b { display: block; line-height: 32px; color: #fff; background: #f90; border-radius: 5px; margin-left: 6px; padding: 0 5px; }
 
 .login_form { margin: 10px 5% 0 5%; width: 90%; }
 .login_btn { margin-top: 20px; }
 .login_btn .btn_large { -webkit-flex: 1; width: 100%; margin: 0; height: 40px; line-height: 40px; font-size: 18px; }
 .login_notice { font-size: 14px; color: #666; margin: 20px 0 0 0; line-height: 20px; text-align: center; }
 
-.login_view { background:rgba(0,0,0,0); -webkit-box-shadow:none;box-shadow:none; }
-.login_view header{ width: 80%; margin: 25% 10% 0 10%; height: 40px; line-height: 40px; border-top-left-radius: 5px;border-top-right-radius: 5px; }
-.login_view .main { width: 80%; margin: 25% 10% 0 10%; height: 250px; top: 40px;border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;  }
+.login_view { background: rgba(0,0,0,0); -webkit-box-shadow: none; box-shadow: none; }
+.login_view header { width: 80%; margin: 25% 10% 0 10%; height: 40px; line-height: 40px; border-top-left-radius: 5px; border-top-right-radius: 5px; }
+.login_view .main { width: 80%; margin: 25% 10% 0 10%; height: 250px; top: 40px; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px; }
 .login_view .head_back { position: absolute; right: 0px; }
-.login_view .head_back:before {  background-position: -240px 0px;}
+.login_view .head_back:before { background-position: -240px 0px; }
 
 .teacher_item { margin-top: 10px; display: -webkit-flex; }
 .teacher_item img { margin: 0 0 0 6px; display: block; width: 84px; height: 63px; border-radius: 4px; }
@@ -166,7 +171,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .member_avatars { position: relative; }
 .member_avatars:before { content: '头像'; display: block; -webkit-box-flex: 1; line-height: 60px; }
 .member_avatars img { display: block; border-radius: 50%; padding: 2px; display: block; height: 50px; width: 50px; margin: 5px; }
-.member_avatars input[type="file"]{ width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; }
+.member_avatars input[type="file"] { width: 100%; height: 100%; position: absolute; top: 0; left: 0; opacity: 0; }
 .member_info { padding: 5px; display: block; color: #333; font-size: 14px; min-height: 16px; }
 .member_info li { line-height: 40px; margin-left: 5px; position: relative; border-bottom: 1px solid #ccc; }
 .member_info li div { display: block; }
@@ -183,6 +188,6 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-fle
 .filters_list li:before { content: ''; margin-top: 9px; display: inline-block; border-right: 1px solid #ccc; float: right; height: 25px; }
 
 
-.aboutus { padding: 20px; font-size: 16px; line-height: 22px; background:#fff; height: 100%; }
+.aboutus { padding: 20px; font-size: 16px; line-height: 22px; background: #fff; height: 100%; }
 .aboutus img { display: block; width: 128px; height: 128px; margin: 40px auto 10px auto; }
 .aboutus_ver { text-align: center; }

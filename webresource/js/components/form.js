@@ -3,12 +3,14 @@
     var form = require('./form.tpl');
     var util = require('util');
     var Validator = require('./validator');
+    var Promise = require('core/promise');
 
     var valid_keys = ['emptyAble', 'emptyText', 'regex', 'regexText', 'compare', 'compareText', 'validate', 'validateText', 'success'];
     var guid = 0;
 
     module.exports = exports = function (options) {
-        var option,
+        var self = this,
+            option,
             fields;
 
         this.hiddens = [];
@@ -45,10 +47,11 @@
         }
 
         this.model.set(this.name, {});
-        this.data = this.model.get(this.name).data;
+        this.formModel = this.model.get(this.name);
+        this.data = this.formModel.data;
 
         this.valid = new Validator(validator, this.data);
-        this.$el = $(this.template.html(this));
+        this.$el = $(this.template.html(this)).appendTo('body');
         this.el = this.$el[0];
 
         this.$el.on('blur', '[name]', $.proxy(this._validInput, this))
@@ -56,7 +59,10 @@
         for (var i = 0, len = this.plugins.length; i < len; i++) {
             var plugin = this.plugins[i];
             var $hidden = this.$el.find('[name="' + plugin.field + '"]');
-            this.compo[plugin.type] = new (exports.require(plugin.type))($hidden, plugin);
+            var compo = this.compo[plugin.type] = new (exports.require(plugin.type))($hidden, plugin);
+            this.formModel.on('change:' + plugin.field, function (e, value) {
+                compo.val(value);
+            })
         }
     };
 
@@ -143,11 +149,13 @@
 
     var RichTextBox = function ($input, options) {
         var self = this;
-        this.$input = $input;
+        self.$input = $input;
         self.id = 'UMEditor' + (RichTextBox.guid++);
-        $input.before('<script type="text/plain" id="' + self.id + '" style="width:' + (options.width || 640) + 'px;height:300px;"></script>');
+
+        var $script = $('<script type="text/plain" id="' + self.id + '" style="width:' + (options.width || 640) + 'px;height:300px;"></script>').insertBefore($input);
 
         window.UMEDITOR_HOME_URL = seajs.resolve('components/umeditor/');
+        self.promise = Promise();
 
         (function (fn) {
             window.jQuery ? fn() : seajs.use(['components/umeditor/third-party/jquery.min'], fn);
@@ -167,14 +175,20 @@
                 });
 
                 self.editor = editor;
+                editor.ready(function () {
+                    self.promise.resolve();
+                });
             });
         });
     };
 
     RichTextBox.prototype = {
         val: function (val) {
-            this.editor.setContent(val);
-            this.$input.val(val).trigger('change');
+            var self = this;
+            self.promise.then(function () {
+                self.editor.setContent(val, false);
+            });
+            self.$input.val(val).trigger('change');
         }
     }
 
