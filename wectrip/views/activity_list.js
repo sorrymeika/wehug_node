@@ -15,7 +15,7 @@
                 var self = this;
 
                 if (window.confirm('确认删除？')) {
-                    $.post('/api/manage/delete_acitvity', {
+                    $.post('/api/manage/delete_activity', {
                         id: id
                     }, function (res) {
                         if (res.success) {
