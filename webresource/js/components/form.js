@@ -4,6 +4,7 @@
     var util = require('util');
     var Validator = require('./validator');
     var Promise = require('core/promise');
+    var TimePicker = require('./timepicker');
 
     var valid_keys = ['emptyAble', 'emptyText', 'regex', 'regexText', 'compare', 'compareText', 'validate', 'validateText', 'success'];
     var guid = 0;
@@ -59,10 +60,12 @@
         for (var i = 0, len = this.plugins.length; i < len; i++) {
             var plugin = this.plugins[i];
             var $hidden = this.$el.find('[name="' + plugin.field + '"]');
-            var compo = this.compo[plugin.type] = new (exports.require(plugin.type))($hidden, plugin);
-            this.formModel.on('change:' + plugin.field, function (e, value) {
-                compo.val(value);
-            })
+            var compo = this.compo[plugin.field] = new (exports.require(plugin.type))($hidden, plugin);
+            this.formModel.on('change:' + plugin.field, (function (compo) {
+                return function (e, value) {
+                    compo.val(value);
+                }
+            })(compo))
         }
     };
 
@@ -195,4 +198,5 @@
     RichTextBox.guid = 0;
 
     exports.define('RichTextBox', RichTextBox);
+    exports.define('TimePicker', TimePicker);
 });

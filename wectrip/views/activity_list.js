@@ -33,16 +33,16 @@
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                title: '目的地管理'
+                title: '活动管理'
             });
 
-            this.onResult('destination_change', function () {
+            this.onResult('activity_change', function () {
                 this.grid.load();
             });
 
             this.grid = new Grid({
                 search: {
-                    url: '/api/acitvity/list',
+                    url: '/api/activity/list',
                     type: 'GET',
                     beforeSend: function () {
                     },
@@ -58,28 +58,34 @@
                 pageEnabled: true,
                 pageSize: 20,
                 columns: [{
-                    text: "目的编号",
+                    text: "活动编号",
                     bind: "ID",
                     width: 5
                 }, {
-                    text: "目的地名称",
+                    text: "活动名称",
                     bind: "Name",
                     width: 10
                 }, {
-                    text: "目的地图片",
-                    bind: "MiddlePic",
+                    text: "时间",
+                    bind: "StartTime",
+                    width: 17,
+                    render: function (data) {
+                        this.append(util.formatDate(data.StartTime) + '到' + util.formatDate(data.FinishTime));
+                    }
+                }, {
+                    text: "活动图片",
+                    bind: "Pic",
                     width: 10,
                     render: function (data) {
-                        this.append('<a href="/' + data.MiddlePic + '" target="_blank">' + data.MiddlePic + '</a>');
+                        this.append('<a href="/' + data.Pic + '" target="_blank">' + data.Pic + '</a>');
                     }
                 }, {
                     text: "操作",
-                    bind: "LargePic",
                     width: 10,
                     align: 'center',
                     valign: 'center',
                     render: function (data) {
-                        this.append('<a href="/modify_acitvity/' + data.ID + '" >[修改]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
+                        this.append('<a href="/modify_activity/' + data.ID + '" >[修改]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
                     }
                 }]
 
@@ -89,7 +95,7 @@
         },
 
         onShow: function () {
-            this.menu = menu.get('/');
+            this.menu = menu.get(this.route.path);
             this.$el.before(this.menu.$el);
         },
 

@@ -14,15 +14,15 @@
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                title: '修改目的地',
+                title: '修改活动',
                 buttons: [{
                     value: '确认',
                     click: function () {
                         form.submit(function (res) {
                             if (res.success) {
                                 sl.tip('修改成功');
-                                self.setResult('destination_change');
-                                self.back('/');
+                                self.setResult('activity_change');
+                                self.back('/activity_list');
                                 self.form.reset();
 
                             } else {
@@ -33,7 +33,9 @@
                 }]
             });
 
-            $.get('/api/destination/get?id=' + this.route.data.id, function (res) {
+            $.get('/api/activity/get?id=' + this.route.data.id, function (res) {
+                res.data.StartTime = util.formatDate(res.data.StartTime);
+                res.data.FinishTime = util.formatDate(res.data.FinishTime);
                 self.model.set(res);
 
             }, 'json')
@@ -43,27 +45,35 @@
                 name: 'data',
                 title: 'test',
                 useIframe: true,
-                url: '/api/manage/modify_destination',
+                url: '/api/manage/modify_activity',
                 validator: 'userValid',
                 enctype: '',
                 fields: [{
                     field: 'ID',
                     type: 'hidden'
                 }, {
-                    label: '目的地名称',
+                    label: '活动名称',
                     field: 'Name',
                     emptyAble: false,
                     emptyText: '必填'
                 }, {
-                    label: '目的地图片',
-                    field: 'MiddlePic',
+                    label: '活动图片',
+                    field: 'Pic',
                     type: 'file'
                 }, {
-                    label: '目的地大图',
-                    type: 'file',
-                    field: 'LargePic'
+                    label: '活动开始时间',
+                    field: 'StartTime',
+                    type: 'timepicker',
+                    emptyAble: false,
+                    emptyText: '不可为空'
                 }, {
-                    label: '目的详情',
+                    label: '活动结束时间',
+                    field: 'FinishTime',
+                    type: 'timepicker',
+                    emptyAble: false,
+                    emptyText: '不可为空'
+                }, {
+                    label: '活动详情',
                     field: 'Content',
                     vAlign: 'top',
                     type: 'richTextBox',

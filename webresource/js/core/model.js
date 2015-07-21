@@ -399,7 +399,7 @@
 
         if (parent instanceof Model) {
             this.parent = parent;
-            this.key = parent.key ? parent.key + '.' + this.key : key;
+            this.key = parent.key ? parent.key + '.' + key : key;
 
             this.root = parent.root;
 
@@ -552,7 +552,7 @@
                             if (model instanceof Model) {
                                 model = model.model[attr];
                                 if (!model) {
-                                    model = prev.model[attr] = new Model({}, attr, model, model.$el);
+                                    model = prev.model[attr] = new Model({}, attr, prev, prev.$el);
                                     prev.data[attr] = model.data;
                                 }
 

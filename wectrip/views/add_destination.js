@@ -23,7 +23,7 @@
                                 sl.tip('添加成功');
                                 self.setResult('destination_change');
                                 self.back('/');
-                                self.form.reset();
+                                form.reset();
 
                             } else {
                                 sl.tip(res.msg);

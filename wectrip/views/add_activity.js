@@ -22,8 +22,8 @@
                             if (res.success) {
                                 sl.tip('添加成功');
                                 self.setResult('activity_change');
-                                self.back('/');
-                                self.form.reset();
+                                self.back('/activity_list');
+                                form.reset();
 
                             } else {
                                 sl.tip(res.msg);
@@ -55,6 +55,18 @@
                     label: '活动图片',
                     field: 'pic',
                     type: 'file',
+                    emptyAble: false,
+                    emptyText: '不可为空'
+                }, {
+                    label: '活动开始时间',
+                    field: 'startTime',
+                    type: 'timepicker',
+                    emptyAble: false,
+                    emptyText: '不可为空'
+                }, {
+                    label: '活动结束时间',
+                    field: 'finishTime',
+                    type: 'timepicker',
                     emptyAble: false,
                     emptyText: '不可为空'
                 }, {
