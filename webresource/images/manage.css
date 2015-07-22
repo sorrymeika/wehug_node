@@ -58,10 +58,10 @@ h1 { border-bottom: 1px solid #ddd; font-size: 18pt; margin-bottom: 20px; paddin
 .dir_open i { background-position-x: -16px; }
 .dir i { background-position-x: 0px; }
 
-.search .button { margin-left: 4px;height: 28px; border-radius: 4px; }
+.search .button { margin-left: 4px; height: 28px; border-radius: 4px; }
 .search .text { margin-left: 4px; width: 100px; height: 22px; border-radius: 4px; border: 1px solid #bdbdbd; }
 .toolbar { padding: 5px 0px 10px 0px; }
-.toolbar .button { margin-right: 5px; margin-bottom: 2px;  }
+.toolbar .button { margin-right: 5px; margin-bottom: 2px; }
 .button.disabled { opacity: 0.5; filter: alpha(opacity:50); cursor: default; }
 .button.disabled:hover { color: #333; }
 .ico-delete { display: inline-block; width: 12px; height: 12px; background: url(icons.png) no-repeat -98px -131px; vertical-align: middle; margin-right: 2px; }
@@ -71,7 +71,7 @@ h1 { border-bottom: 1px solid #ddd; font-size: 18pt; margin-bottom: 20px; paddin
 
 .table { width: 100%; border: 1px solid #cdcdcd; font-size: 12px; }
 .table th { border: 1px solid #cdcdcd; background: #fff url(grid_header.png) repeat-x; height: 25px; padding: 0 10px; vertical-align: middle; text-align: left; }
-.table td { border: 1px solid #cdcdcd; vertical-align: middle; text-align: left; padding: 5px 15px; line-line-height: 20px; }
+.table td { border: 1px solid #cdcdcd; vertical-align: middle; text-align: left; padding: 5px 15px; line-height: 20px; }
 
 .grid { font-size: 12px; border-top: 1px solid #cdcdcd; background: #fff url(grid_header.png) repeat-x; margin: 0px auto 0px auto; overflow: hidden; height: auto; width: 100%; border-collapse: collapse; }
 .grid_border_r, .grid_header_cont, .grid_body, .grid_child_non, .grid_child_con { clear: both; }

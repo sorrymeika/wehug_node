@@ -1,0 +1,17 @@
+{
+	root: '/',
+	js : {},
+	css : {
+		'images/style.css': ['images/reset.css','images/manage.css']
+	},
+	route: {
+		'/': { controller: 'index', template: 'list', api: '' },
+		'/login': { controller: 'login', template: 'login' },
+		'/add_destination': { controller: 'add_destination', template: 'form' },
+		'/modify_destination/{id:\\d+}': { controller: 'modify_destination', template: 'form' },
+		'/activity_list': { controller: 'activity_list', template: 'list', api: '' },
+		'/add_activity': { controller: 'add_activity', template: 'form' },
+		'/modify_activity/{id:\\d+}': { controller: 'modify_activity', template: 'form' },
+		'/test/{id:\\d+}': { controller: 'test', api: '/api/test/{id}' }
+	}
+}
