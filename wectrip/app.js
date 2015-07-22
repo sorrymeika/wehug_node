@@ -45,8 +45,7 @@ var mapRouteAllPages = function (config, routes) {
 
     app.get("*", function (req, res, next) {
         var data = route.match(req.url),
-            cfg,
-            html;
+            cfg;
 
         if (data) {
             res.set('Content-Type', 'text/html');
@@ -55,9 +54,7 @@ var mapRouteAllPages = function (config, routes) {
                 cfg = config.projects[i];
 
                 if (cfg.root == data.root) {
-                    html = cfg.html.replace('</head>', '<script>if(!location.hash)location.hash="' + data.url + '";</script>');
-
-                    res.send(html);
+                    res.send(cfg.html.replace('</head>', '<script>if(!location.hash)location.hash="' + data.url + '";</script></head>'));
                     break;
                 }
             }
@@ -139,8 +136,6 @@ configloader('./config', function (config, routes) {
                 res.set('Content-Type', 'text/javascript');
 
                 var template = '../webresource/js/' + req.params[0];
-
-                console.log(template)
 
                 fs.exists(template, function (exists) {
 
