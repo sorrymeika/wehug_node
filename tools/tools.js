@@ -1,7 +1,7 @@
 ﻿var UglifyJS = require('uglify-js');
 
 var compressCss = function (res) {
-    return res.replace(/^\uFEFF/, '').replace(/\s*([;|,|\{|\}])\s*/img, '$1').replace(/\{(\s*[-a-zA-Z]+\s*\:\s*[^;\}]+?(;|\}))+/mg, function (match) {
+    return res.replace(/^\uFEFF/i, '').replace(/\s*([;|,|\{|\}])\s*/img, '$1').replace(/\{(\s*[-a-zA-Z]+\s*\:\s*[^;\}]+?(;|\}))+/mg, function (match) {
         return match.replace(/\s*:\s*/mg, ':');
     }).replace(/[\r\n]/mg, '').replace(/;}/mg, '}').replace(/\s*\/\*.*?\*\/\s*/mg, '');
 }
@@ -29,7 +29,7 @@ var compressor = UglifyJS.Compressor({
 });
 
 var compressJs = function (code) {
-    code = code.replace(/^\uFEFF/, '').replace(/\/\/<--debug[\s\S]+?\/\/debug-->/img, '');
+    code = code.replace(/^\uFEFF/i, '').replace(/\/\/<--debug[\s\S]+?\/\/debug-->/img, '');
 
     var ast = UglifyJS.parse(code);
     ast.figure_out_scope();
@@ -41,14 +41,21 @@ var compressJs = function (code) {
     return code;
 };
 
-var replaceDefine = function (id, code, append) {
-    return code.replace(/\bdefine\((\s*|\s*\[[^\]]*\]\s*,\s*)function(.*?){/mg, function (match, param, fn) {
-        return 'define(' + '"' + id + '",' + param + 'function' + fn + '{' + (append || '');
+var replaceDefine = function (id, code, requires, append) {
+    if (typeof requires == 'string') append = requires, requires = undefined;
+    return code.replace(/\bdefine\((?:\s*|\s*(\[[^\]]*\]{0,1})\s*,\s*)function(.*?){/m, function (match, param, fn) {
+        if (requires && requires.length) {
+            param = JSON.stringify(requires.concat(param ? JSON.parse(param) : [])) + ',';
+            console.log(param)
+        } else if (param) {
+            param += ','
+        }
+        return 'define(' + '"' + id + '",' + (param || '') + 'function' + fn + '{' + (append || '');
     })
 }
 
 var compressHTML = function (html) {
-    return html.replace(/^\uFEFF/, '').replace(/\s*(<(\/{0,1}[a-zA-Z]+)(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(\/){0,1}\s*>)\s*/img, '$1')
+    return html.replace(/^\uFEFF/i, '').replace(/\s*(<(\/{0,1}[a-zA-Z]+)(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(\/){0,1}\s*>)\s*/img, '$1')
         .replace(/<script(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/script>/img, function (r0, r1) {
             return /^\s*$/.test(r1) ? r0 : ('<script>' + compressJs(r1) + '</script>');
         }).replace(/<style(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(?:\/){0,1}\s*>([\S\s]*?)<\/style>/img, function (r0, r1) {

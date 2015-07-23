@@ -1,28 +1,28 @@
-﻿define(['$','util','bridge','./../core/view'],function (require,exports,module) {
-    var $=require('$'),
-        _=require('util'),
-        view=require('./../core/view'),
-        app=require('bridge');
+﻿define(['$', 'util', 'bridge', './../core/view'], function (require, exports, module) {
+    var $ = require('$'),
+        _ = require('util'),
+        view = require('./../core/view'),
+        app = require('bridge');
 
-    var records=[];
+    var records = [];
 
-    var extend=['$el','url','method','headers','dataType','xhrFields','success','complete','pageIndex','pageSize','append','$content','$scroll','checkData','check','hasData','KEY_PAGE','KEY_PAGESIZE','DATAKEY_TOTAL'];
+    var extend = ['$el', 'url', 'method', 'headers', 'dataType', 'xhrFields', 'success', 'complete', 'pageIndex', 'pageSize', 'append', '$content', '$scroll', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
 
-    var Loading=function (options) {
-        $.extend(this,_.pick(options,extend));
+    var Loading = function (options) {
+        $.extend(this, _.pick(options, extend));
 
-        if(options.el)
-            this.$el=$(options.el);
-        this.el=this.$el[0];
+        if (options.el)
+            this.$el = $(options.el);
+        this.el = this.$el[0];
 
-        this.params=options.params||{};
-        this.error=options.error||this.showError;
-        this.$content=options.$content||this.$el;
-        this.$scroll=options.$scroll||this.$el;
-        this.$el.on('tap','.js_reload',$.proxy(this.reload,this));
+        this.params = options.params || {};
+        this.error = options.error || this.showError;
+        this.$content = options.$content || this.$el;
+        this.$scroll = options.$scroll || this.$el;
+        this.$el.on('tap', '.js_reload', $.proxy(this.reload, this));
     }
 
-    Loading.prototype={
+    Loading.prototype = {
         KEY_PAGE: 'page',
         KEY_PAGESIZE: 'pageSize',
 
@@ -40,16 +40,16 @@
         errorTemplate: '<div class="server_error"><i class="msg js_msg"></i><i class="ico_reload js_reload"></i></div>',
 
         check: function (res) {
-            var flag=!!(res&&res.success);
+            var flag = !!(res && res.success);
             return flag;
         },
 
         hasData: function (res) {
-            return res.data&&res.data.length;
+            return res.data && res.data.length;
         },
 
         showMsg: function (msg) {
-            if(this.pageIndex==1) {
+            if (this.pageIndex == 1) {
                 this.$loading.find('.js_msg').show().html(msg);
                 this.$loading.show().find('.js_loading').hide();
             } else {
@@ -61,28 +61,28 @@
         complete: _.noop,
 
         showError: function (option) {
-            var that=this;
+            var that = this;
 
-            if(this.pageIndex==1) {
+            if (this.pageIndex == 1) {
                 this.$loading.animate({
                     opacity: 0
-                },300,'ease-out',function () {
+                }, 300, 'ease-out', function () {
                     that.$loading.hide().css({ opacity: '' });
                 });
 
-                var $error=(that.$error||(that.$error=$(that.errorTemplate).appendTo(that.$el)));
+                var $error = (that.$error || (that.$error = $(that.errorTemplate).appendTo(that.$el)));
 
-                if(typeof option=='string') {
-                    option={
+                if (typeof option == 'string') {
+                    option = {
                         msg: option,
                         showReload: true
                     }
                 }
 
-                var $reload=$error.find('.js_reload');
-                option.showReload?$reload.show():$reload.hide();
+                var $reload = $error.find('.js_reload');
+                option.showReload ? $reload.show() : $reload.hide();
 
-                $error.find('.js_msg').html(option.msg||'加载失败');
+                $error.find('.js_msg').html(option.msg || '加载失败');
                 $error.show();
 
             } else {
@@ -91,14 +91,14 @@
         },
 
         showLoading: function () {
-            var that=this,
+            var that = this,
                 $refreshing;
 
-            this.$error&&this.$error.hide();
+            this.$error && this.$error.hide();
 
-            if(that.pageIndex==1) {
-                if(!that.$loading) {
-                    that.$loading=$(that.template);
+            if (that.pageIndex == 1) {
+                if (!that.$loading) {
+                    that.$loading = $(that.template);
                 }
 
                 that.$loading.css({
@@ -106,85 +106,85 @@
                 })
                 .appendTo(that.$el);
 
-                that.$refreshing&&that.$refreshing.hide();
+                that.$refreshing && that.$refreshing.hide();
 
             } else {
-                $refreshing=this.$refreshing;
+                $refreshing = this.$refreshing;
                 $refreshing.show().find('.js_msg').html('正在载入...');
                 $refreshing.find('.js_loading').show();
-                that.$loading&&that.$loading.hide();
+                that.$loading && that.$loading.hide();
             }
         },
 
         hideLoading: function () {
-            this.$error&&this.$error.hide();
-            this.$refreshing&&this.$refreshing.hide();
+            this.$error && this.$error.hide();
+            this.$refreshing && this.$refreshing.hide();
             this.$loading.hide();
         },
 
-        setHeaders: function (key,val) {
+        setHeaders: function (key, val) {
             var attrs;
-            if(!val)
-                attrs=key
-            else
-                (attrs={})[key]=val;
+            if (!val)
+                attrs = key
+            else 
+                (attrs = {})[key] = val;
 
-            if(this.headers===undefined) this.headers={};
+            if (this.headers === undefined) this.headers = {};
 
-            for(var attr in attrs) {
-                this.headers[attr]=attrs[attr];
+            for (var attr in attrs) {
+                this.headers[attr] = attrs[attr];
             }
             return this;
         },
 
-        setParam: function (key,val) {
+        setParam: function (key, val) {
             var attrs;
-            if(!val)
-                attrs=key
-            else
-                (attrs={})[key]=val;
+            if (!val)
+                attrs = key
+            else 
+                (attrs = {})[key] = val;
 
-            for(var attr in attrs) {
-                val=attrs[attr];
+            for (var attr in attrs) {
+                val = attrs[attr];
 
-                if(attr==this.KEY_PAGE)
-                    this.pageIndex=val;
-                else if(attr==this.KEY_PAGESIZE)
-                    this.pageSize=val
+                if (attr == this.KEY_PAGE)
+                    this.pageIndex = val;
+                else if (attr == this.KEY_PAGESIZE)
+                    this.pageSize = val
                 else
-                    this.params[attr]=val;
+                    this.params[attr] = val;
             }
             return this;
         },
 
-        getParam: function (key,val) {
+        getParam: function (key, val) {
             return this.params;
         },
 
-        reload: function (options,callback) {
-            if(!this.isLoading) {
-                this.setParam(this.KEY_PAGE,1).load(options,callback);
+        reload: function (options, callback) {
+            if (!this.isLoading) {
+                this.setParam(this.KEY_PAGE, 1).load(options, callback);
             }
         },
 
-        load: function (options,callback) {
-            var that=this;
+        load: function (options, callback) {
+            var that = this;
 
-            if(that.isLoading) return;
-            that.isLoading=true;
+            if (that.isLoading) return;
+            that.isLoading = true;
 
-            if(typeof options=='function') callback=options,options=null;
+            if (typeof options == 'function') callback = options, options = null;
 
-            that.params[that.KEY_PAGE]=that.pageIndex;
-            that.params[that.KEY_PAGESIZE]=that.pageSize;
+            that.params[that.KEY_PAGE] = that.pageIndex;
+            that.params[that.KEY_PAGESIZE] = that.pageSize;
 
-            for(var i=records.length-1;i>=0;i--) {
+            for (var i = records.length - 1; i >= 0; i--) {
                 records[i].disableAutoRefreshing();
             }
 
-            if(!options||options.showLoading!==false) that.showLoading();
+            if (!options || options.showLoading !== false) that.showLoading();
 
-            that._xhr=$.ajax({
+            that._xhr = $.ajax({
                 url: app.url(that.url),
                 headers: that.headers,
                 xhrFields: that.xhrFields,
@@ -192,35 +192,35 @@
                 type: that.method,
                 dataType: that.dataType,
                 error: function (xhr) {
-                    that._xhr=null;
-                    that.isLoading=false;
-                    that.error({ msg: '网络错误' },xhr);
-                    callback&&callback.call(that,{ msg: '网络错误' },null);
+                    that._xhr = null;
+                    that.isLoading = false;
+                    that.error({ msg: '网络错误' }, xhr);
+                    callback && callback.call(that, { msg: '网络错误' }, null);
                 },
-                success: function (res,status,xhr) {
-                    that._xhr=null;
-                    that.isLoading=false;
+                success: function (res, status, xhr) {
+                    that._xhr = null;
+                    that.isLoading = false;
 
-                    if(!that.check||that.check(res)) {
+                    if (!that.check || that.check(res)) {
                         that.hideLoading();
 
-                        if(that.checkData===false||that.hasData(res)) {
-                            if(that.pageIndex==1||!that.append) that.success(res,status,xhr);
-                            else that.append(res,status,xhr);
+                        if (that.checkData === false || that.hasData(res)) {
+                            if (that.pageIndex == 1 || !that.append) that.success(res, status, xhr);
+                            else that.append(res, status, xhr);
 
-                            callback&&callback.call(that,null,res);
+                            callback && callback.call(that, null, res);
 
                             that.checkAutoRefreshing(res);
                         } else {
                             that.dataNotFound(res);
                         }
                     } else {
-                        that.isLoading=false;
+                        that.isLoading = false;
                         that.error(res);
-                        callback&&callback.call(that,res,null);
+                        callback && callback.call(that, res, null);
                     }
                 },
-                complete: $.proxy(that.complete,that)
+                complete: $.proxy(that.complete, that)
             });
         },
 
@@ -228,39 +228,39 @@
             this.abort().load();
         },
 
-        dataNotFound: function (e,res) {
-            var that=this;
+        dataNotFound: function (e, res) {
+            var that = this;
 
-            if(that.pageIndex==1) {
+            if (that.pageIndex == 1) {
                 that.showError('暂无数据');
             } else {
                 setTimeout(function () {
                     that.$refreshing.hide()
 
-                },3000);
+                }, 3000);
             }
         },
 
-        _scroll: function (e,x,y) {
-            var that=this;
+        _scroll: function (e, x, y) {
+            var that = this;
 
-            if(!that.isLoading
-                &&that._scrollY<y
-                &&y+that.$scroll.height()>=that.$refreshing[0].offsetTop) {
+            if (!that.isLoading
+                && that._scrollY < y
+                && y + that.$scroll.height() >= that.$refreshing[0].offsetTop) {
 
                 that._refresh();
             }
 
-            that._scrollY=y;
+            that._scrollY = y;
         },
 
         _autoRefreshingEnabled: false,
 
         checkAutoRefreshing: function (res) {
-            var that=this,
-                data=that.params;
+            var that = this,
+                data = that.params;
 
-            if(that.append&&((that.DATAKEY_PAGENUM&&res[that.DATAKEY_PAGENUM]&&res[that.DATAKEY_PAGENUM]>data[that.KEY_PAGE])||(that.DATAKEY_TOTAL&&res[that.DATAKEY_TOTAL]&&res[that.DATAKEY_TOTAL]>data[that.KEY_PAGE]*data[that.KEY_PAGESIZE]))) {
+            if (that.append && ((that.DATAKEY_PAGENUM && res[that.DATAKEY_PAGENUM] && res[that.DATAKEY_PAGENUM] > data[that.KEY_PAGE]) || (that.DATAKEY_TOTAL && res[that.DATAKEY_TOTAL] && res[that.DATAKEY_TOTAL] > data[that.KEY_PAGE] * data[that.KEY_PAGESIZE]))) {
 
                 that.pageIndex++;
                 that.enableAutoRefreshing();
@@ -271,34 +271,34 @@
         },
 
         enableAutoRefreshing: function () {
-            var $refreshing=(this.$refreshing||(this.$refreshing=$(this.refresh)).appendTo(this.$content)).show();
+            var $refreshing = (this.$refreshing || (this.$refreshing = $(this.refresh)).appendTo(this.$content)).show();
 
-            if(this._autoRefreshingEnabled) return;
-            this._autoRefreshingEnabled=true;
+            if (this._autoRefreshingEnabled) return;
+            this._autoRefreshingEnabled = true;
 
-            this.$scroll.on('scrollStop',$.proxy(this._scroll,this));
+            this.$scroll.on('scrollStop', $.proxy(this._scroll, this));
 
-            this._scrollY=this.el.scrollTop;
+            this._scrollY = this.el.scrollTop;
 
-            if(this.el.scrollTop+this.$scroll.height()>=this.$refreshing[0].offsetTop) {
+            if (this.el.scrollTop + this.$scroll.height() >= this.$refreshing[0].offsetTop) {
                 this._refresh();
             }
         },
 
         disableAutoRefreshing: function () {
-            if(!this._autoRefreshingEnabled) return;
-            this._autoRefreshingEnabled=false;
+            if (!this._autoRefreshingEnabled) return;
+            this._autoRefreshingEnabled = false;
 
-            this.$scroll.off('scrollStop',this._scroll);
+            this.$scroll.off('scrollStop', this._scroll);
 
-            this.$refreshing&&this.$refreshing.hide();
+            this.$refreshing && this.$refreshing.hide();
         },
 
         abort: function () {
-            if(this._xhr) {
-                this.isLoad=false;
+            if (this._xhr) {
+                this.isLoad = false;
                 this._xhr.abort();
-                this._xhr=null;
+                this._xhr = null;
 
                 this.hideLoading();
             }
@@ -308,11 +308,11 @@
         destory: function () {
             this.abort();
             this.disableAutoRefreshing();
-            this.$el.off('tap','.js_reload',this.reload);
+            this.$el.off('tap', '.js_reload', this.reload);
         }
     };
 
-    Loading.extend=_.extend;
+    Loading.extend = _.extend;
 
-    module.exports=Loading;
+    module.exports = Loading;
 });

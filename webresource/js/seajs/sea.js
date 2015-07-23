@@ -311,7 +311,11 @@
         }
 
 
-        addOnload(node, callback, isCSS, url)
+        if (isCSS) {
+            callback();
+        } else {
+            addOnload(node, callback, isCSS, url)
+        }
 
         if (isCSS) {
             node.rel = "stylesheet"
@@ -342,12 +346,6 @@
         var supportOnload = "onload" in node
 
         // for Old WebKit and Old Firefox
-        if (isCSS && (isOldWebKit || !supportOnload)) {
-            setTimeout(function () {
-                pollCss(node, callback)
-            }, 1) // Begin after node insertion
-            return
-        }
 
         if (supportOnload) {
             node.onload = onload

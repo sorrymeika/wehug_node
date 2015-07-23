@@ -3,7 +3,7 @@
     var $ = require('$');
     var util = require('util');
     var Activity = require('activity');
-    var Loading = require('../widget/extend/loading');
+    var Loading = require('../widget/loading');
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
@@ -30,11 +30,6 @@
                 this.forward('/teacher/' + e.currentTarget.getAttribute('data-id'));
             },
             'tap .js_search': function (e) {
-
-                alert(navigator.userAgent)
-                alert("linshi://" + JSON.stringify({ method: 'back' }));
-                return;
-
                 var search = this.model.data.search;
                 if (search) this.forward('/search/' + search);
                 else sl.tip('请输入搜索内容');

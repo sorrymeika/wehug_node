@@ -1,21 +1,21 @@
-﻿define(function (require,exports,module) {
+﻿define(function (require, exports, module) {
 
-    var $=require('$'),
-        util=require('util'),
-        Route=require('./route');
+    var $ = require('$'),
+        util = require('util'),
+        Route = require('./route');
 
-    var getPath=util.getPath;
+    var getPath = util.getPath;
 
-    var Master={
-        checkQueryString: function (activity,route) {
-            if(activity.route.url!=route.url) {
+    var Master = {
+        checkQueryString: function (activity, route) {
+            if (activity.route.url != route.url) {
                 activity._setRoute(route);
                 activity.trigger('QueryChange');
             }
         },
 
-        mapRoute: function (routes,isDebug) {
-            this.route=new Route(routes,isDebug);
+        mapRoute: function (routes, isDebug) {
+            this.route = new Route(routes, isDebug);
             return this;
         },
         skip: 0,
@@ -23,59 +23,63 @@
         _currentActivity: null,
         _activities: {},
 
-        set: function (url,activity) {
-            this._activities[getPath(url)]=activity;
+        set: function (url, activity) {
+            this._activities[getPath(url)] = activity;
         },
 
-        get: function (url,callback) {
-            var that=this,
-                route=typeof url==='string'?that.route.match(url):url;
+        get: function (url, callback) {
+            var that = this,
+                route = typeof url === 'string' ? that.route.match(url) : url;
 
-            if(!route) {
+            if (!route) {
                 return;
             }
 
-            var path=getPath(route.path);
-            var activity=this._activities[path];
+            var path = getPath(route.path);
+            var activity = this._activities[path];
 
-            if(activity==null) {
-                seajs.use(route.package||route.view,function (Activity) {
-                    var options={
-                        application: that,
-                        route: route
-                    },
-                    $el;
+            if (activity == null) {
+                (function (fn) {
+                    route.package ? seajs.use(route.package, fn) : fn();
 
-                    if(route.package) Activity=seajs.require(route.view);
+                })(function () {
 
-                    if(null!=Activity) {
-                        $el=that.$el.find('[data-path="'+route.path+'"]');
-                        if($el.length) {
-                            options.el=$el;
+                    seajs.use(route.view, function (Activity) {
+                        var options = {
+                            application: that,
+                            route: route
+                        },
+                        $el;
+
+                        if (null != Activity) {
+                            $el = that.$el.find('[data-path="' + route.path + '"]');
+                            if ($el.length) {
+                                options.el = $el;
+                            }
+
+                            activity = new Activity(options);
+                            that.set(path, activity);
+
+                            activity.then(function () {
+                                callback.call(that, activity, route);
+                            });
+
+                        } else {
+                            that.skip++;
+                            location.hash = that._currentActivity.url;
                         }
-
-                        activity=new Activity(options);
-                        that.set(path,activity);
-
-                        activity.then(function () {
-                            callback.call(that,activity,route);
-                        });
-
-                    } else {
-                        that.skip++;
-                        location.hash=that._currentActivity.url;
-                    }
+                    });
                 });
 
             } else {
-                callback.call(that,activity,route);
+                callback.call(that, activity, route);
             }
         },
 
         remove: function (url) {
-            this._activities[getPath(url)]=void 0;
+            this._activities[getPath(url)] = void 0;
         }
     };
 
-    module.exports=Master;
+    module.exports = Master;
 });

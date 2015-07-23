@@ -5,10 +5,6 @@
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <title></title>
-    <link href="@html(webresource+'images/style.css')" rel="stylesheet" type="text/css"/>
-    @if(debug){
-        <link href="@html(webresource+'images/anim.css')" rel="stylesheet" type="text/css"/>
-    }
     @for(var key in css){
         var items=css[key],
             item;
@@ -40,7 +36,7 @@
                 items=[item];
             for(var i=0,len=items.length;i<len;i++) {
                 var item=items[i];
-                <script src="@(webresource)@item"></script>
+                <script src="@(webresource)@(item).js"></script>
             }
         } else {
             <script src="@(webresource)@key"></script>

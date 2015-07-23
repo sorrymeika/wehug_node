@@ -125,11 +125,14 @@ configloader('./config', function (config, routes) {
         })
         .then(function () {
             if (config.build) {
-                require('./build')();
+                require('./build')('production');
             }
 
             app.use(express.static(path.join(__dirname, '../webresource')));
             app.use('/webresource', express.static(path.join(__dirname, '../webresource')));
+            app.use('/webresource', express.static(path.join(__dirname, './webresource')));
+            app.use('/webresource/js', express.static(path.join(__dirname, '../webresource/js.m')));
+            app.use('/webresource/images', express.static(path.join(__dirname, '../webresource/images.m')));
             app.use('/webresource/js', express.static(__dirname));
 
             app.get('/webresource/js/*.js', function (req, res) {

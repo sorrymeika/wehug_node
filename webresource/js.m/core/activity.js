@@ -25,7 +25,7 @@
         initialize: function () {
             this.on('Create',this.onHtmlLoad);
             this.one('Show',this.onLoad);
-            this.on('Destroy',this._onDestroy);
+            this.on('Destroy', this._onDestroy);
 
             Page.prototype.initialize.apply(this,arguments);
         },
