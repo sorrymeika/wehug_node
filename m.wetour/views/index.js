@@ -70,7 +70,7 @@
             ['/api/activity/recommend', '/api/destination/list?getall=1', '/api/activity/list', '/api/activity/recommend'].forEach(function (url, index) {
                 var loading = new Loading({
                     url: url,
-                    $el: self.$el,
+                    $el: $main.eq(index),
                     $content: $main.eq(index).children(":first-child"),
                     $scroll: $main.eq(index),
                     success: function (res) {

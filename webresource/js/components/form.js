@@ -123,6 +123,8 @@
                         error: error && $.proxy(error, this)
                     });
                 }
+            } else {
+                sl.tip("请检查填写是否有误");
             }
         },
 

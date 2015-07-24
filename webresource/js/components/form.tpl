@@ -13,7 +13,8 @@
                     items=[items];
                 }
                 @for (var j=0,length=items.length;j<length;j++){
-                    field=items[j];var attr=' name="'+field.field+'" sn-model="'+name+'.'+field.field+'" sn-binding="value:'+name+'.'+field.field+'"';
+                    field = items[j];
+                    var attr = 'style="' + (field.width ? "width:" + field.width+"px;" : '') + (field.height ? "height:" + field.height+"px;" : '') + '" name="' + field.field + '" sn-model="' + name + '.' + field.field + '" sn-binding="value:' + name + '.' + field.field + '"';
 
                     <th @html(field.vAlign?'style="vertical-align:'+field.vAlign+'"':'')>@field.label @if (field.emptyAble===false){<i>*</i>}</th>
                     <td colspan="@(field.colSpan||1)">
@@ -29,7 +30,7 @@
                         </select>
 
                     } else if (field.type=='number'){
-                        <input class="@(field.className||'text_normal')" type="number"@html(attr)/>
+                        <input class="@(field.className||'text_normal')" type="text"@html(attr)/>
 
                     } else if (field.type=='password'){
                         <input class="@(field.className||'text')" type="password"@html(attr)/>

@@ -6,9 +6,9 @@
     <div class="login_form">
         <ul class="form">
             <li><input placeholder="输入手机号" sn-model="mobile" /></li>
-            <li><input placeholder="输入验证码" sn-model="password" type="text" /> <b class="js_valid" sn-binding="html:valid"></b></li>
+            <li><input placeholder="输入密码" sn-model="password" type="password" /></li>
         </ul>
-        <div class="login_btn"><b class="btn_large js_bind">登录</b> </div>
-        <div class="login_notice">新用户点击登陆即可完成注册</div>
+        <div class="login_btn"><b class="btn_large js_login">登录</b> </div>
+        <div class="login_notice"><a href="/register" forward>我要注册</a> | <a href="/forget" forward>忘记密码？</a></div>
     </div>
 </div>

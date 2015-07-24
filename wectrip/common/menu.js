@@ -29,6 +29,13 @@
                 url: '/user',
                 title: '用户管理'
             }, {
+                url: '/article_list',
+                title: '文案管理',
+                children: [{
+                    title: '添加文案',
+                    url: '/add_article'
+                }]
+            }, {
                 id: 'admin',
                 title: '系统管理',
                 url: '/admin'
@@ -66,7 +73,7 @@
                 }
             }
         }
-
+        cache.$el.show();
         return cache;
     }
 });

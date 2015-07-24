@@ -1,165 +1,140 @@
-﻿define(function (require,exports,module) {
+﻿define(function (require, exports, module) {
 
-    var $=require('$');
-    var util=require('util');
-    var Activity=require('activity');
-    var Loading=require('../widget/extend/loading');
-    var model=require('../core/model');
-    var Scroll=require('../widget/scroll');
-    var animation=require('animation');
+    var $ = require('$');
+    var util = require('util');
+    var Activity = require('activity');
+    var Loading = require('../widget/loading');
+    var model = require('../core/model');
+    var Scroll = require('../widget/scroll');
+    var animation = require('animation');
+    var md5 = require('util/md5');
 
     return Activity.extend({
         events: {
-            'tap .js_submit:not(.disabled)': function (e) {
-                if(!this.model.data.validCode) {
+            'tap .js_bind:not(.disabled)': function () {
+                var mobile = this.model.data.mobile;
+                var password = this.model.data.password;
+                var password1 = this.model.data.password1;
+                var smsCode = this.model.data.smsCode;
+
+                if (!mobile || !util.validateMobile(mobile)) {
+                    sl.tip('请输入正确的手机');
+                    return;
+                }
+                if (password != password1) {
+                    sl.tip('两次密码输入不一致');
+                    return;
+                }
+                if (!smsCode) {
                     sl.tip('请输入验证码');
                     return;
                 }
 
-                this.$submit.addClass('disabled');
-
                 this.loading.setParam({
-                    valid_code: this.model.data.validCode
+                    mobile: mobile,
+                    password: md5.md5(password),
+                    smsCode: smsCode
                 }).load();
             },
             'tap .js_valid:not(.disabled)': function (e) {
-                this.$valid.addClass('disabled');
+                var mobile = this.model.get('mobile');
+                if (!mobile || !util.validateMobile(mobile)) {
+                    sl.tip('请输入正确的手机');
+                    return;
+                }
 
+                this.$valid.addClass('disabled');
+                this.valid.setParam({
+                    mobile: this.model.data.mobile
+                });
                 this.valid.load();
             }
         },
 
-        onCreate: function () {
-            var self=this;
-
-            var $main=this.$('.main');
-
-            Scroll.bind($main);
-
-            var member=localStorage.getItem('member');
-            var teacher=JSON.parse(localStorage.getItem('teacher'));
-
-            this.teacher=teacher;
-
-            this.model=new model.ViewModel(this.$el,{
-                title: '预约试听',
-                back: '/teacher/'+teacher.basic_info.teacher_id,
-                teacher: teacher.basic_info,
-                valid: '获取验证码'
-            });
-
-            if(!member) {
-                this.forward('/login?success=/appointment&from=/teacher/'+teacher.basic_info.teacher_id);
-            }
-        },
-
         validTimeout: function () {
-            var self=this;
-            var sec=localStorage.getItem('valid_time');
+            var self = this;
+            var sec = localStorage.getItem('valid_time');
 
-            if(sec&&parseInt(sec)>60) {
-                sec=Math.round((new Date(parseInt(sec)).getTime()-Date.now())/1000);
+            if (sec && parseInt(sec) > 60) {
+                sec = Math.round((new Date(parseInt(sec)).getTime() - Date.now()) / 1000);
 
-                if(sec<=0) return;
+                if (sec <= 0) return;
 
                 self.$valid.addClass('disabled');
 
                 setTimeout(function () {
-                    if(sec<=0) {
+                    if (sec <= 0) {
                         self.$valid.removeClass('disabled');
-                        self.model.set('valid','获取验证码');
+                        self.model.set('valid', '获取验证码');
                         localStorage.removeItem('valid_time');
 
                     } else {
-                        self.model.set('valid',sec+'秒');
+                        self.model.set('valid', sec + '秒');
                         sec--;
-                        setTimeout(arguments.callee,1000);
+                        setTimeout(arguments.callee, 1000);
                     }
-                },1000);
+                }, 1000);
             }
         },
 
-        onShow: function () {
-            var self=this;
+        onCreate: function () {
+            var self = this;
 
-            var member=localStorage.getItem('member');
-            var teacher=this.teacher;
+            var $main = this.$('.main');
 
-            if(!member) {
-                this.forward('/login?success=/appointment&from=/teacher/'+teacher.basic_info.teacher_id);
-                return;
-            }
+            Scroll.bind($main);
 
-            if(this.created) return;
-
-            this.created=true;
-
-            member=JSON.parse(member);
-
-            this.model.set({
-                mobile: member.mobile,
-                userName: member.nick_name||member.user_name,
-                member_id: member.member_id
+            this.model = new model.ViewModel(this.$el, {
+                title: '快速登录 / 注册',
+                valid: '获取验证码',
+                back: this.route.queries.from || '/'
             });
 
-            this.$submit=this.$('.js_submit');
-            this.$valid=this.$('.js_valid');
-
-            self.validTimeout();
-
-            this.loading=new Loading({
-                url: '/student/appointment_teacher',
+            this.loading = new Loading({
+                url: '/api/user/register',
                 method: 'POST',
-                xhrFields: {
-                    withCredentials: true
-                },
-                params: {
-                    teacher_id: teacher.basic_info.teacher_id,
-                    student_id: this.model.data.member_id,
-                    discipline: teacher.basic_info.discipline,
-                    student_name: this.model.data.userName,
-                    student_mobile: this.model.data.mobile,
-                    teacher_name: teacher.basic_info.teacher_name,
-                    appointment_time: util.formatDate(new Date),
-                    valid_type: 7
-                },
                 check: false,
                 checkData: false,
                 $el: this.$el,
                 success: function (res) {
-                    if(res.error_code==1) {
-                        sl.tip(res.error_msg)
-                    } else {
-                        sl.tip(res.error_msg);
-                        self.back(self.model.data.back);
+                    if (!res.success)
+                        sl.tip(res.msg);
+                    else {
+                        localStorage.setItem('user', res.data);
+                        self.back(self.route.queries.success || '/');
                     }
-                    self.$submit.removeClass('disabled');
+                },
+                error: function (res) {
+                    sl.tip(res.msg);
                 }
             });
 
-            this.valid=new Loading({
-                url: '/sms/send_valid_code',
+            this.valid = new Loading({
+                url: '/api/user/send_sms',
                 method: 'POST',
-                xhrFields: {
-                    withCredentials: true
-                },
                 params: {
-                    mobile: self.model.data.mobile,
-                    type: 7
+                    mobile: self.model.data.mobile
                 },
                 check: false,
                 checkData: false,
                 $el: this.$el,
                 success: function (res) {
-                    if(res.error_code==1) {
-                        sl.tip(res.error_msg)
+                    if (!res.success) {
+                        sl.tip(res.msg)
                     } else {
-                        localStorage.setItem('valid_time',Date.now()+60000);
+                        localStorage.setItem('valid_time', Date.now() + 60000);
 
                         self.validTimeout();
                     }
                 }
             });
+
+            self.$valid = this.$('.js_valid');
+            self.validTimeout();
+        },
+
+        onShow: function () {
+            var that = this;
         },
 
         onDestory: function () {

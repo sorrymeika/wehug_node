@@ -114,7 +114,7 @@
             self._update();
         });
 
-        $calendar.find('span').each(function (j) {
+        $calendar.children('span').each(function (j) {
             var item = $(this),
                 itemText = item.find('em'),
                 selector = calendarSelectors.eq(j);
@@ -128,7 +128,6 @@
                     firstSelectorItem = selectorItems.eq(0),
                     selectorItem = selectorItems.filter('[data-val="' + val + '"]'),
                     index = selectorItem.index();
-
 
                 selectorItems.filter('.curr').removeClass('curr');
                 if (index != -1) {
@@ -150,7 +149,7 @@
                     if (selector.has(e.target).length == 0) {
                         selector.hide();
                         $calendar.removeClass('curr');
-                        $(this).off('click', arguments.callee);
+                        $(this).off('mouseup', arguments.callee);
                     }
                 });
 

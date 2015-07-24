@@ -12,6 +12,9 @@
 		'/recommend_list': { controller: 'recommend_list', template: 'list', api: '' },
 		'/activity_list': { controller: 'activity_list', template: 'list', api: '' },
 		'/add_activity': { controller: 'add_activity', template: 'form' },
-		'/modify_activity/{id:\\d+}': { controller: 'modify_activity', template: 'form' }
+		'/modify_activity/{id:\\d+}': { controller: 'modify_activity', template: 'form' },
+		'/article_list': { controller: 'article_list', template: 'list', api: '' },
+		'/add_article': { controller: 'add_article', template: 'form' },
+		'/modify_article/{id:\\d+}': { controller: 'modify_article', template: 'form' }
 	}
 }

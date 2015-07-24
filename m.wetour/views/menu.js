@@ -5,7 +5,7 @@
         Activity = require('activity'),
         model = require('core/model'),
         Scroll = require('../widget/scroll');
-    var Loading = require('../widget/extend/loading');
+    var Loading = require('../widget/loading');
 
     return Activity.extend({
         toggleAnim: 'menu',
@@ -21,52 +21,25 @@
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                memberUrl: '/member',
-                user_name: '请登录'
+                memberUrl: '/member'
             });
 
-            var member = localStorage.getItem('member');
-            if (member) {
-                this.member = member = JSON.parse(member);
+            var user = localStorage.getItem('user');
+            if (user) {
+                this.user = user = JSON.parse(user);
+                this.model.set('user', user);
 
-                this.model.set({
-                    user_name: member.nick_name,
-                    memberUrl: '/member',
+            } else {
+                this.model.set('user', {
+                    NickName: '未登录'
                 });
-
-                if (!('head_photo' in member)) {
-                    this.loading = new Loading({
-                        url: '/user/get_member_info',
-                        check: false,
-                        checkData: false,
-                        params: {
-                            member_id: member.member_id
-                        },
-                        $el: this.$el,
-                        success: function (res) {
-                            member = $.extend(member, res.data);
-                            localStorage.setItem('member', JSON.stringify(member));
-                            self.model.set({
-                                avatars: member.head_photo + '?v=' + localStorage.getItem('photo_ver'),
-                                user_name: member.nick_name
-                            });
-                        }
-                    });
-                    this.loading.load();
-                }
-                else if (member.head_photo)
-                    this.model.set({
-                        avatars: member.head_photo
-                    });
             }
         },
 
         onShow: function () {
             var self = this;
-            if (self.member)
-                self.model.set({
-                    avatars: self.member.head_photo + '?v=' + localStorage.getItem('photo_ver')
-                });
+            if (self.user)
+                self.model.set('user.Avatars', self.user.Avatars + '?v=' + localStorage.getItem('avatars_ver'));
         },
 
         onDestory: function () {
