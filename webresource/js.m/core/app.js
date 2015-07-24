@@ -126,7 +126,7 @@
             stop: function () {
                 var that = this;
 
-                that.isCancelSwipe = that.touch.isMoveLeft !== that.isSwipeLeft;
+                that.isCancelSwipe = that.touch.isMoveLeft !== that.isSwipeLeft || Math.abs(that.touch.dx) <= 10;
 
                 if (that.swiperPromise) {
                     that.swiperPromise.then(function () {
@@ -136,6 +136,7 @@
 
                             if (that.isCancelSwipe) {
                                 currentActivity.isPrepareExitAnimation = false;
+                                currentActivity.$el.addClass('active');
                                 activity.$el.remove();
                                 that.mask.hide();
                             } else {
@@ -220,6 +221,10 @@
         start: function () {
             var that = this,
                 $win = $(window);
+
+            if (bridge.hasStatusBar) {
+                util.style('header{border-top-width:20px;border-top-style:solid;box-sizing: content-box;}');
+            }
 
             $(window).on('load', function () {
                 var hash;

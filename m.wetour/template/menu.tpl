@@ -7,12 +7,12 @@
         </div>
     </div>
     <ul class="menu_list">
-        <li class="menu_activity" data-back="/">我的活动</li>
-        <li class="menu_comments" data-back="/settings">我的评论</li>
+        <li class="menu_activity" data-back="/myactivity">我的活动</li>
+        <li class="menu_comments" data-back="/mycomments">我的评论</li>
     </ul>
     <ul class="menu_list">
-        <li class="menu_pwd" data-back="/">修改密码</li>
+        <li class="menu_pwd" data-back="/modifypwd">修改密码</li>
         <li class="menu_settings" data-back="/settings">设置</li>
-        <li class="menu_logout" sn-binding="html:logoutOrLogin,data-back:logout">退出</li>
+        <li class="menu_logout" sn-binding="html:logoutOrLogin,data-logout:logout">退出</li>
     </ul>
 </div>

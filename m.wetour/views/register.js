@@ -85,9 +85,9 @@
             Scroll.bind($main);
 
             this.model = new model.ViewModel(this.$el, {
-                title: '快速登录 / 注册',
+                title: '注册',
                 valid: '获取验证码',
-                back: this.route.queries.from || '/'
+                back: this.route.queries.from || '/login'
             });
 
             this.loading = new Loading({
@@ -100,7 +100,7 @@
                     if (!res.success)
                         sl.tip(res.msg);
                     else {
-                        localStorage.setItem('user', res.data);
+                        localStorage.setItem('user', JSON.stringify(res.data));
                         self.back(self.route.queries.success || '/');
                     }
                 },
