@@ -1,0 +1,24 @@
+header { background: #46abef; height: 47px; line-height: 47px; }
+.footer { position: absolute; bottom: 0px; width: 100%; height: 49px; border-top: 1px solid #ccc; background: #fff; z-index: 1000; display: -webkit-box; text-align: center; color:#666; }
+.footer li { width: 0px; -webkit-box-flex: 1; font-size: .8em; }
+.footer li:before { display: block; background: url(site.png) no-repeat 0px -30px; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 0px auto; }
+.footer li.curr { color:#46abef; }
+.footer li.curr:before { background-position-y: -60px; }
+.footer li:nth-child(2):before {background-position-x: -30px;  }
+.footer li:nth-child(3):before {background-position-x: -60px;  }
+.footer li:nth-child(4):before {background-position-x: -90px;  }
+
+.head_back, .head_menu { width: 60px; height: 47px; z-index: 1000; }
+.head_back:before, .head_menu:before { display: block; background: url(site.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 8px 0 0 8px; }
+.head_back:before { background-position: -30px 0px; }
+
+.main { top: 47px; background: #eee; }
+
+.recommend_list { padding-bottom: 10px; }
+.recommend_item { width: 96%; margin: 10px 2% 0 2%; position: relative; }
+.recommend_item img { display: block; width: 100%; margin: 0; min-height: 100px; border-radius: 4px; }
+.recommend_name { position: absolute; bottom: 10px; left: 15px; color: #fff; font-size: 1.2em; font-weight: bold; }
+.recommend_fav { position: absolute; right: 10px; top: 15px; color: #fff; }
+
+.home .main { bottom: 50px; }
+

@@ -4,6 +4,7 @@
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('../widget/loading');
+    var Slider = require('../widget/slider');
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
@@ -15,98 +16,85 @@
                     this.back('/')
                 }
             },
-            'tap .js_back,.search_filters': function (e) {
-                var $target = $(e.target);
-                var self = this;
-                if ($target.hasClass('js_back') || $target.hasClass('search_filters')) {
-                    this.$searchFilters.hide();
-                    setTimeout(function () {
-                        self.model.set('menu', 'head_menu');
-                    }, 0);
-                    return false;
-                }
-            },
-            'tap [sn-repeat-name="data"][data-id]': function (e) {
-                this.forward('/teacher/' + e.currentTarget.getAttribute('data-id'));
-            },
-            'tap .js_search': function (e) {
-                var search = this.model.data.search;
-                if (search) this.forward('/search/' + search);
-                else sl.tip('请输入搜索内容');
-            },
             'tap .head_menu': function (e) {
                 this.forward('/menu');
             },
-            'focus [sn-model="search"]': function () {
-                this.model.set('menu', 'head_back js_back');
-                this.$searchFilters.show();
+            'tap .footer li': function (e) {
+                var $target = $(e.currentTarget);
+                if (!$target.hasClass('curr')) {
+                    var index = $target.index();
+                    $target.addClass('curr').siblings('.curr').removeClass('curr');
+                    this.$main.eq(index).show().siblings('.main').hide();
+
+                    if (!this.loading[index].isDataLoaded) {
+                        this.loading[index].load();
+                    }
+                }
             }
         },
 
         swipeRightForwardAction: '/menu',
 
+        className: 'home',
+
         onCreate: function () {
             var self = this;
 
-            var $main = this.$('.main');
-            this.$searchFilters = this.$('.search_filters');
-
-            Scroll.bind($main, {
-                //useScroll: true,
-                refresh: function (resolve, reject) {
-                    self.loading.reload({
-                        showLoading: false
-                    }, function (err, data) {
-                        if (err) reject(err)
-                        else resolve(data);
-                    });
-                }
-            });
-
-            this.loading = new Loading({
-                url: '/teacher/teacher_list',
-                check: false,
-                $el: this.$el,
-                $content: $main.children(":first-child"),
-                $scroll: $main,
-                success: function (res) {
-                    if (res.data.length >= 10)
-                        res.total = (this.pageIndex + 1) * this.pageSize;
-
-                    self.model.set(res);
-                },
-                append: function (res) {
-                    if (res.data.length >= 10) {
-                        res.total = (this.pageIndex + 1) * this.pageSize;
-                    }
-
-                    self.model.get('data').append(res.data);
-                }
-            });
-
             this.model = new model.ViewModel(this.$el, {
                 menu: 'head_menu',
-                filters: [{
-                    name: '小学',
-                    id: 2
-                }, {
-                    name: '初中',
-                    id: 3
-                }, {
-                    name: '高中',
-                    id: 4
-                }, {
-                    name: '艺术',
-                    id: 6
-                }, {
-                    name: '体育',
-                    id: 5
-                }],
-                city: {
-                    name: '上海'
+                titleClass: 'head_title',
+                title: '福州'
+            });
+
+            var $main = this.$main = this.$('.main');
+
+            Scroll.bind($main, {
+                refresh: function (resolve, reject) {
+                    var index = this.parentNode.getAttribute('data-index');
+
+                    if (index == 1) {
+                        resolve();
+                    } else {
+                        self.loading[index].reload({
+                            showLoading: false
+                        }, function (err, data) {
+                            if (err) reject(err)
+                            else resolve(data);
+                        });
+                    }
                 }
             });
-            this.loading.load();
+
+            this.loading = [];
+
+            ['/api/activity/recommend', '/api/destination/list?getall=1', '/api/activity/list', '/api/activity/recommend'].forEach(function (url, index) {
+                var loading = new Loading({
+                    url: url,
+                    $el: self.$el,
+                    $content: $main.eq(index).children(":first-child"),
+                    $scroll: $main.eq(index),
+                    success: function (res) {
+                        this.isDataLoaded = true;
+
+                        if (index == 1) {
+                            self.slider = new Slider(this.$content, {
+                                arrow: true,
+                                itemTemplate: '<img src="<%=LargePic%>">',
+                                data: res.data
+                            })
+                        } else {
+                            self.model.set("data" + index, res.data);
+                        }
+                    },
+                    append: function (res) {
+                        self.model.get('data' + index).append(res.data);
+                    }
+                });
+
+                self.loading.push(loading);
+            });
+
+            this.loading[0].load();
         },
 
         onShow: function () {

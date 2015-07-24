@@ -22,6 +22,9 @@
                     url: '/add_activity'
                 }]
             }, {
+                url: '/recommend_list',
+                title: '推荐管理'
+            }, {
                 id: 'user',
                 url: '/user',
                 title: '用户管理'

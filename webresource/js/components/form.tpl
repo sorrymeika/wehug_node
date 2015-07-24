@@ -39,6 +39,8 @@
                         <img class="captcha" src="@(field.captcha)?v=@(Date.now())" onclick="this.src='@(field.captcha)?v='+Date.now()" sn-binding="src:captcha|or:'@(field.captcha)'"/>
                     } else if (field.type=='file'){
 <input type="file" name="@(field.field)" sn-model="@(name).@(field.field)"/>
+                    }  else if (field.type=='radio'||field.type=='checkbox'){
+<input type="@(field.type)" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="checked:@(name).@(field.field)|or:undefined"/>
                     } else {
                         $data.plugins.push(field);
                     <input type="hidden"@html(attr)>

@@ -70,6 +70,10 @@
                     emptyAble: false,
                     emptyText: '不可为空'
                 }, {
+                    label: '是否推荐',
+                    field: 'IsRecommend',
+                    type: 'checkbox'
+                }, {
                     label: '活动详情',
                     field: 'content',
                     vAlign: 'top',

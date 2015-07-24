@@ -77,8 +77,8 @@
         }
     };
 
-    var rfilter = /\s*\|\s*([a-zA-Z_1-9]+)((?:\s*(?:\:|;)\s*([a-zA-Z_1-9\.-]+|\'[^\']*?\'))*)/g;
-    var rparams = /\s*\:\s*([a-zA-Z_1-9\.-]+|\'[^\']*?\')/g;
+    var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\'))*)/g;
+    var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\')/g;
     var listenerCode = function (parent) {
         return 'if(el)Filter._addListener(' + parent + ',model,key,el,self,';
     }
@@ -94,7 +94,7 @@
             code += 'value=Filter.' + filter + '(value';
 
             parameters.replace(rparams, function (match, param) {
-                if (param[0] == '\'' || /^((-)*\d+|true|false)$/.test(param)) {
+                if (param[0] == '\'' || /^((-)*\d+|true|false|undefined|null)$/.test(param)) {
                     code += ',' + param;
 
                 } else {
@@ -127,9 +127,9 @@
         return new Function('Filter', 'model', 'value', 'key', 'el', before + code);
     };
 
-    var rcollection = /([a-zA-Z_1-9]+)\s+in\s+([a-zA-Z_1-9]+(?:\.[a-zA-Z_1-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_1-9\.]+)(?:\s*\:\s*([a-zA-Z_1-9\.]+)){0,1}){0,1}/g;
-    var rbinding = /\b([a-zA-Z_1-9-\.]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)((?:\s*\|\s*[a-zA-Z_1-9]+(?:\s*\:\s*(?:[a-zA-Z_1-9\.-]+|'[^']*'))*)*)(\s|,|$)/g;
-    var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_1-9]+)((?:\.[a-zA-Z_1-9]+)*)(\s|,|$)/g;
+    var rcollection = /([a-zA-Z_0-9]+)\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}/g;
+    var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*(?:[a-zA-Z_0-9\.-]+|'[^']*'))*)*)(\s|,|$)/g;
+    var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)(\s|,|$)/g;
 
     var $filterEl = function ($el, selector) {
         return $el.filter(selector).add($el.find(selector));
@@ -347,7 +347,6 @@
                 eventid++;
             }
         });
-
     };
 
     var setElement = function (el, prop, value) {

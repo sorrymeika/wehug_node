@@ -63,6 +63,10 @@
                     type: 'file',
                     field: 'LargePic'
                 }, {
+                    label: '是否推荐',
+                    field: 'IsRecommend',
+                    type: 'checkbox'
+                }, {
                     label: '目的详情',
                     field: 'Content',
                     vAlign: 'top',
