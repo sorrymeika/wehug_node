@@ -6,43 +6,44 @@
         model = require('core/model'),
         Scroll = require('../widget/scroll'),
         bridge = require('bridge');
-    var Loading = require('../widget/extend/loading');
+    var Loading = require('../widget/loading');
     var guid = 0;
 
     return Activity.extend({
         events: {
-            'tap [member="gender"]': function (e) {
+            'tap [user="gender"]': function (e) {
                 var value = e.currentTarget.getAttribute('value');
-                if (this.model.get('member.sex') != value)
+                if (this.model.get('user.Gender') != value)
                     this.setMemberInfo({
-                        member_id: this.model.get('member.member_id'),
-                        sex: value
+                        id: this.user.ID,
+                        auth: this.user.Auth,
+                        gender: value
                     });
             },
             'change form input[type="file"]': function (e) {
                 guid++;
                 var self = this;
                 var form = e.target.parentNode;
-
+                /*
                 var fr = new FileReader();
                 fr.onload = function (evt) {
                     self.loading.showLoading();
                     $.post(bridge.url('/user/edit_photo'), {
                         headPic: encodeURIComponent(evt.target.result.replace(/^data\:image\/[a-z]+\;base64,/g, '')),
-                        member_id: self.member.member_id
+                        member_id: self.user.member_id
                     }, function (res) {
                         if (res.error_code != 0) {
                             sl.tip(res.error_msg);
                         } else {
                             var photo_ver = Date.now();
                             localStorage.setItem('photo_ver', photo_ver)
-                            self.model.set('member', { head_photo: res.data.head_photo + '?v=' + photo_ver });
+                            self.model.set('user', { head_photo: res.data.head_photo + '?v=' + photo_ver });
                         }
                         self.loading.hideLoading();
                     }, 'json');
                 };
                 fr.readAsDataURL(e.target.files[0]);
-                /*
+                        */
                 var target = "_submit_iframe" + guid;
                 var resultText;
                 var $iframe = $('<iframe style="top:-999px;left:-999px;position:absolute;display:none;" frameborder="0" width="0" height="0" name="' + target + '"></iframe>')
@@ -70,7 +71,8 @@
                                 }
                             }
                         });
-                        */
+
+                form.submit();
             }
         },
         swipeRightBackAction: '/',
@@ -78,11 +80,11 @@
         setMemberInfo: function (data) {
             var self = this;
             this.loading.showLoading();
-            $.post(bridge.url('/user/edit_member_info'), data, function (res) {
+            $.post(bridge.url('/api/user/update'), data, function (res) {
                 if (res.error_code != 0) {
                     sl.tip(res.error_msg);
                 } else {
-                    self.model.set('member', data);
+                    self.model.set('user', data);
                 }
                 self.loading.hideLoading();
             }, 'json');
@@ -94,10 +96,10 @@
             this.model = new model.ViewModel(this.$el, {
                 title: '个人信息',
                 back: '/',
-                upload: bridge.url('/user/edit_photo') //'http://api.linshi.biz/user/edit_photo'
+                upload: bridge.url('/api/user/update')
             });
 
-            ['nick_name', 'address'].forEach(function (name) {
+            ['NickName', 'Address'].forEach(function (name) {
                 self.model.set(name, {
                     edit: 'edit',
                     value: '',
@@ -111,10 +113,10 @@
                             });
                             self['$' + name].focus();
                         } else {
-                            if (self.model.data.member[name] != this.input) {
+                            if (self.model.data.user[name] != this.input) {
 
                                 var data = {
-                                    member_id: self.member.member_id
+                                    id: self.user.ID
                                 };
                                 data[name] = this.input;
 
@@ -135,28 +137,29 @@
 
         onShow: function () {
             var self = this;
-            var member = localStorage.getItem('member');
-            if (member) {
-                self.member = member = JSON.parse(member);
-                if (member.head_photo === '') member.head_photo = null;
+            var user = localStorage.getItem('user');
+            if (user) {
+                self.user = user = JSON.parse(user);
+                if (user.Avatars === '') user.Avatars = null;
 
                 this.loading = new Loading({
-                    url: '/user/get_member_info',
+                    url: '/api/user/get',
                     check: false,
                     checkData: false,
                     params: {
-                        member_id: member.member_id
+                        id: user.ID,
+                        auth: user.Auth
                     },
                     $el: this.$el,
                     success: function (res) {
-                        self.member = member = $.extend(member, res.data);
-                        if (member.head_photo === '') member.head_photo = null;
-                        else member.head_photo = member.head_photo + '?v=' + localStorage.getItem('photo_ver')
-                        localStorage.setItem('member', JSON.stringify(member));
+                        self.user = user = $.extend(user, res.data);
+                        if (user.Avatars === '') user.Avatars = null;
+                        else user.Avatars = user.Avatars + '?v=' + localStorage.getItem('photo_ver')
+                        localStorage.setItem('user', JSON.stringify(user));
                         self.model.set({
-                            member: member,
-                            'nick_name.input': member.nick_name,
-                            'address.input': member.address
+                            user: user,
+                            'NickName.input': user.NickName,
+                            'Address.input': user.Address
                         });
                     }
                 });

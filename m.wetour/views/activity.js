@@ -3,7 +3,7 @@
     var $ = require('$');
     var util = require('util');
     var Activity = require('activity');
-    var Loading = require('../widget/extend/loading');
+    var Loading = require('../widget/loading');
     var model = require('../core/model');
     var Promise = require('../core/promise');
     var Scroll = require('../widget/scroll');
@@ -11,14 +11,7 @@
 
 
     return Activity.extend({
-        events: {
-            'tap .tabs_nav_con li:not(.curr)': function (e) {
-                var $target = $(e.currentTarget);
-
-                $target.addClass('curr').siblings('.curr').removeClass('curr');
-                this.$panels.eq($target.index()).addClass('curr').siblings('.curr').removeClass('curr');
-            }
-        },
+        events: {},
 
         onCreate: function () {
             var self = this;
@@ -28,21 +21,19 @@
 
             Scroll.bind(this.$main);
 
-            this.$panels = this.$('.tabs_panel');
-
             model.Filter.precent = function (score) {
                 return parseFloat(score) + '%'
             }
 
             this.model = new model.ViewModel(this.$el, {
-                title: '老师详情页',
+                title: '活动详情',
                 back: this.route.queries.from || '/'
             });
 
             this.loading = new Loading({
-                url: '/teacher/teacher_info',
+                url: '/api/activity/get',
                 params: {
-                    teacher_id: this.route.data.id
+                    id: this.route.data.id
                 },
                 check: false,
                 checkData: false,
@@ -52,9 +43,9 @@
                 success: function (res) {
 
                     self.promise.then(function () {
-                        self.model.set(res.data);
+                        self.model.set(res);
                     });
-                    localStorage.setItem('teacher', JSON.stringify(res.data));
+                    localStorage.setItem('destination', JSON.stringify(res.data));
                 }
             });
 

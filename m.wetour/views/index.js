@@ -19,12 +19,22 @@
             'tap .head_menu': function (e) {
                 this.forward('/menu');
             },
+            'tap .js_comment_list [data-id]': function (e) {
+                var $target = $(e.currentTarget);
+
+                this.forward(($target.data('type') == 1 ? "/activity/" : "/destination/") + $target.data('id'))
+            },
             'tap .footer li': function (e) {
                 var $target = $(e.currentTarget);
                 if (!$target.hasClass('curr')) {
                     var index = $target.index();
                     $target.addClass('curr').siblings('.curr').removeClass('curr');
                     this.$main.eq(index).show().siblings('.main').hide();
+                    this.model.set("title", this.titles[index]);
+
+                    this.$el.find('.js_comment').css({
+                        display: index == 3 ? 'block' : 'none'
+                    })
 
                     if (!this.loading[index].isDataLoaded) {
                         this.loading[index].load();
@@ -36,6 +46,7 @@
         swipeRightForwardAction: '/menu',
 
         className: 'home',
+        titles: ['福州', '目的地', '活动', '驴友圈'],
 
         onCreate: function () {
             var self = this;
@@ -67,7 +78,7 @@
 
             this.loading = [];
 
-            ['/api/activity/recommend', '/api/destination/list?getall=1', '/api/activity/list', '/api/activity/recommend'].forEach(function (url, index) {
+            ['/api/activity/recommend', '/api/destination/list?getall=1', '/api/activity/list', '/api/quan/list'].forEach(function (url, index) {
                 var loading = new Loading({
                     url: url,
                     $el: $main.eq(index),
@@ -79,7 +90,7 @@
                         if (index == 1) {
                             self.slider = new Slider(this.$content, {
                                 arrow: true,
-                                itemTemplate: '<img src="<%=LargePic%>">',
+                                itemTemplate: '<a href="/destination/<%=ID%>" forward><img src="<%=LargePic%>"></a>',
                                 data: res.data
                             })
                         } else {

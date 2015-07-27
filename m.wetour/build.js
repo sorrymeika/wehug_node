@@ -130,6 +130,7 @@ module.exports = function (env) {
                 'widget/tip': '../webresource/js/widget/tip',
                 'widget/dialog': '../webresource/js/widget/dialog',
                 'widget/loading': '../webresource/js.m/widget/loading',
+                'widget/slider': '../webresource/js.m/widget/slider',
                 'anim/default': '../webresource/js.m/anim/default'
             }
         };
