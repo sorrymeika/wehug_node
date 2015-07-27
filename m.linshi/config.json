@@ -13,6 +13,8 @@
 		'/login': { controller: 'login', template: 'login' },
 		'/search/{keywords:.+}': { controller: 'search', template: 'search' },
 		'/teacher/{id:\\d+}': { controller: 'teacher', template: 'teacher' },
-		'/appointment': { controller: 'appointment', template: 'appointment' }
+		'/appointment': { controller: 'appointment', template: 'appointment' },
+		'/find': { controller: 'findlist', template: 'findlist' },
+		'/find/{id:\\d+}': { controller: 'find', template: 'find' }
 	}
 }

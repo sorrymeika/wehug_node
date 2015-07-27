@@ -187,12 +187,12 @@ promise.each(config.projects, function (i, project) {
     });
 
     app.use('/webresource', express.static(path.join(__dirname, './webresource')));
-
     app.use('/webresource/js', express.static(path.join(__dirname, '../webresource/js.m')));
     app.use('/webresource/images', express.static(path.join(__dirname, '../webresource/images.m')));
     app.use('/webresource', express.static(path.join(__dirname, '../webresource')));
 
     app.use('/webresource/js', express.static(path.join(__dirname)));
+    app.use('/', express.static(path.join(__dirname, './')));
 
 
     if (config.build) {

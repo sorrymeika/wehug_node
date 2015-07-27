@@ -56,6 +56,16 @@
                     emptyAble: false,
                     emptyText: '必填'
                 }, {
+                    label: '教龄',
+                    field: 'TeachingAge',
+                    emptyAble: false,
+                    emptyText: '必填'
+                }, {
+                    label: '好评率',
+                    field: 'PraiseRate',
+                    emptyAble: false,
+                    emptyText: '必填'
+                }, {
                     label: '关联ID',
                     field: 'RelativeID',
                     type: 'number',
@@ -77,6 +87,10 @@
                     type: 'file',
                     emptyAble: false,
                     emptyText: '不可为空'
+                }, {
+                    label: '图片2',
+                    field: 'Pic1',
+                    type: 'file'
                 }, {
                     label: '排序权重',
                     field: 'Sort',

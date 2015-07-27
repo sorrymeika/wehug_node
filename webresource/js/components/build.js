@@ -17,6 +17,7 @@ fs.readFile('./form.tpl',{ encoding: 'utf-8' },function (err,data) {
 promise.then(function () {
     tools.combine({
         components: {
+            'components/timepicker': './timepicker',
             'components/validator': './validator',
             'components/form.tpl': './form.tpl',
             'components/form': './form',

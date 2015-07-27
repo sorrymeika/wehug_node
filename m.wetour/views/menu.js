@@ -24,7 +24,7 @@
             var self = this;
 
             if (bridge.hasStatusBar) {
-                this.$el.find('.menu_bd').addClass("fix_statusbar");
+                this.$el.find('.fix_statusbar').addClass("fix_statusbar");
             }
 
             this.model = new model.ViewModel(this.$el, {

@@ -536,6 +536,9 @@
                 changed = false;
 
             for (var attr in attrs) {
+                this.data[attr] = attrs[attr];
+            }
+            for (var attr in attrs) {
                 origin = model[attr];
                 value = attrs[attr];
 
@@ -574,21 +577,18 @@
                         }
                         origin.set(value);
 
+                    } else if ($.isPlainObject(value)) {
+                        model[attr] = new Model(value, attr, this, this.$el);
+
+                    } else if ($.isArray(value)) {
+                        model[attr] = new Collection;
+                        collections.push(attr);
+
                     } else {
                         this.data[attr] = value;
-
-                        if ($.isPlainObject(value)) {
-                            model[attr] = new Model(value, attr, this, this.$el);
-
-                        } else if ($.isArray(value)) {
-                            model[attr] = new Collection;
-                            collections.push(attr);
-
-                        } else {
-                            model[attr] = value;
-                            this._syncView(attr, value);
-                            if (this.created) this.trigger('change:' + attr, value);
-                        }
+                        model[attr] = value;
+                        this._syncView(attr, value);
+                        if (this.created) this.trigger('change:' + attr, value);
                     }
 
                     if (!changed) changed = true;

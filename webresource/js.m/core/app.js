@@ -223,7 +223,7 @@
                 $win = $(window);
 
             if (bridge.hasStatusBar) {
-                util.style('header{border-top-width:20px;border-top-style:solid;box-sizing: content-box;}');
+                util.style('header{border-top-width:20px;border-top-style:solid;box-sizing:content-box !important;}header~.main{margin-top:20px;}');
             }
 
             $(window).on('load', function () {
