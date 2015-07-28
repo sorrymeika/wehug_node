@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+﻿define(function (require, exports, module) {
 
     var $ = require('$');
     var util = require('util');
@@ -18,25 +18,64 @@ define(function (require, exports, module) {
                 });
                 util.store('find_data', item);
                 this.forward('/find/' + id);
+            },
+            'tap .js_back': function () {
+                if (sl.isInApp) {
+                    alert("linshi://" + JSON.stringify({ method: 'back' }));
+                } else {
+                    this.back('/');
+                }
+            },
+            'tap .js_share': function (e) {
+                alert('linshi://' + JSON.stringify({
+                    method: "share",
+                    params: {
+                        shareTitle: "分享的标题",
+                        shareContent: "分享的内容",
+                        shareUrl: location.href
+                    }
+                }));
             }
         },
-        swipeRightBackAction: '/',
+        swipeRightBackAction: sl.isInApp ? null : '/',
         className: 'piano_bg',
 
         onCreate: function () {
             var self = this;
 
-            var $main = this.$('.pianolist');
+            $(window).on('setMember', function (e, params) {
+                if (params && params.member_id) {
+                    util.store('member', params);
+                }
+            });
 
-            Scroll.bind(this.$el);
+            if (sl.hasStatusBar) {
+                this.$el.find('header').css({ borderTop: '20px solid #f90', 'box-sizing': 'content-box' });
+                this.$el.find('.main').css({ top: 67 });
+            }
 
-            this.model = new model.ViewModel(this.$el, {});
+            Scroll.bind(this.$el.find('.wrap'));
+
+            this.$share = this.$el.find('.js_share');
+            if (!sl.isInApp) {
+                this.$share.hide();
+
+                if (util.isInWechat) {
+                    seajs.use('http://res.wx.qq.com/open/js/jweixin-1.0.0.js', function (wx) {
+                    });
+                }
+            }
+
+            this.model = new model.ViewModel(this.$el, {
+                title: '发现老师'
+            });
 
             this.loading = new Loading({
                 $el: this.$el
             });
 
             this.loading.showLoading();
+
             $.get('data/find.json', function (res) {
                 self.model.set(res);
                 self.loading.hideLoading();

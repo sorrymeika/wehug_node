@@ -94,6 +94,7 @@ var promise = new Promise(function () {
     var pms = this;
     fs.readFile('./index.tpl', { encoding: 'utf-8' }, function (err, data) {
 
+        data = data.replace(/^\uFEFF/i, '');
         data = Tools.compressJs(razor.node(data))
 
         fs.writeFile('./index.js', data, function (err, res) {

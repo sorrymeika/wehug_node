@@ -30,11 +30,6 @@
                 this.forward('/teacher/' + e.currentTarget.getAttribute('data-id'));
             },
             'tap .js_search': function (e) {
-
-                alert(navigator.userAgent)
-                alert("linshi://" + JSON.stringify({ method: 'back' }));
-                return;
-
                 var search = this.model.data.search;
                 if (search) this.forward('/search/' + search);
                 else sl.tip('请输入搜索内容');

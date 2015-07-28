@@ -22,7 +22,12 @@
         $.fn.trigger.apply($win, arguments);
     };
 
-    var queue = [], guid = 0,
+    window.callJS = function (data) {
+        $win.trigger(data.method, data.params);
+    }
+
+    var queue = [],
+        guid = 0,
         hybrid = function (method, params, hybridCallback) {
 
             var data = {

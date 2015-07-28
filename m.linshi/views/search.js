@@ -62,7 +62,6 @@
                             msg: '搜索不到您要找的老师'
                         });
 
-                    console.log(self.model);
                     self.model.set(res);
                 },
                 append: function (res) {
