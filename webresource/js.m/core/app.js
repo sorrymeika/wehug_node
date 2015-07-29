@@ -355,21 +355,26 @@
                     activity.referrerDir = currentActivity.swipeRightForwardAction == url ? "Left" : "Right";
                 }
 
+                var finishExecuted = false;
+                var finish = function () {
+                    if (finishExecuted) return;
+                    finishExecuted = true;
+                    clearTimeout(finishTimer);
+                    callback && callback(activity);
+                    activity.finishEnterAnimation();
+                    that.turning();
+                }
+                var finishTimer = setTimeout(finish, duration + 100);
+
                 for (var i = 0, n = anims.length; i < n; i++) {
                     anim = anims[i];
                     anim.ease = ease;
                     anim.duration = duration;
 
-                    anim.el.css(animation.transform(anim.start).css).animate(anim.css, duration, ease);
+                    anim.el.css(animation.transform(anim.start).css).animate(anim.css, duration, ease, finish);
                 }
 
-                anim.finish = function () {
-                    callback && callback(activity);
-                    activity.finishEnterAnimation();
-                    that.turning();
-                }
-                setTimeout(anim.finish, duration);
-
+                //anim.finish = finish;
                 //animation.parallel(anims);
             });
         },
