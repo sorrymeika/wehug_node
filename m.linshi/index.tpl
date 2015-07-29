@@ -11,11 +11,11 @@
     @if(debug){
     <link href="@html(webresource+'images/anim.css')" rel="stylesheet" type="text/css" />
     }
-    @for(var i=0;i
-    <css.length;i++){ var item=css[i];
+    @for(var i=0;i<css.length;i++){ 
+        var item=css[i];
         <link href="@item" rel="stylesheet" type="text/css"/>
     }
-    <script src="@html(webresource+(isDebugFramework?'js/seajs/sea.js':'slan.m.js'))"></script>
+    <script src="@html(webresource+(isDebugFramework?'js/seajs/sea.js':'slan.m.js?v1.0.1'))"></script>
     @if(debug){
         <script src="@(webresource)js/zepto.js"></script>
         <script src="@(webresource)js/extend/fx.js"></script>
@@ -42,6 +42,7 @@
             sl.isInApp=/linshiapp/ig.test(navigator.userAgent);
             sl.hasStatusBar=sl.isInApp&&util.ios&&util.osVersion>=7;
             sl.isDebug=@debug;
+            sl.buildVersion=@(Date.now());
 
             new App().mapRoute(@html(JSON.stringify(routes)),@debug).start();
         });

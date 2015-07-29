@@ -1,5 +1,5 @@
 header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box; overflow: hidden; }
-.main { top: 47px; padding-top: 1px; background: #f2f2f2; }
+.main { top: 47px; padding-top: 1px; background: #f2f2f2; overflow: hidden; overflow-y: auto; z-index: 1; }
 .refreshing { background: #f2f2f2; }
 
 .radio:before { background: url(site.png) no-repeat -240px -30px; background-size: 320px auto; vertical-align: -10px; }
@@ -8,12 +8,12 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .btn_large1 { border: 1px solid #ccc; background: #fff; color: #f90; line-height: 44px; height: 44px; }
 
 .head_back, .head_menu, .head_share { width: 60px; height: 47px; z-index: 1000; }
-.head_back:before, .head_menu:before,.head_share:before { display: inline-block; background: url(site.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin-top: 10px; }
+.head_back:before, .head_menu:before, .head_share:before { display: inline-block; background: url(site.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin-top: 10px; }
 .head_city { width: 50px; height: 47px; line-height: 47px; text-align: center; }
 .head_menu:before { background-position: -150px 0px; }
 .head_share:before { background-position: -60px -60px; }
 
-.head_share{ position: absolute; right: 0px; }
+.head_share { position: absolute; right: 0px; }
 
 .head_search { background: #ffb84d; border-radius: 4px; height: 30px; margin: 9px 0 0 0; -webkit-box-flex: 1; position: relative; }
 .head_search:before { display: inline-block; background: url(site.png) no-repeat 0px -26px; content: ''; width: 30px; height: 30px; background-size: 320px auto; position: absolute; left: 3px; top: 0; }
@@ -24,11 +24,12 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .head_search_btn .btn_small { background: #fff; height: 30px; line-height: 31px; color: #f90; font-size: 14px; display: block; margin: 0 6px 0 6px; border-radius: 4px; }
 
 .teacherwrap { padding-bottom: 60px; }
+.teacher_list { width: 100%; }
 
 .head_photo { width: 68px; height: 68px; border-radius: 50%; margin-left: 6px; }
 
-.teacher_basic { display: -webkit-flex; padding-top: 10px; background: #fff; }
-.teacher_basic .tb_item { height: 80px; border-bottom: 1px solid #ddd; -webkit-flex: 1; padding-left: 6px; }
+.teacher_basic { display: -webkit-box; padding-top: 10px; background: #fff; }
+.teacher_basic .tb_item { height: 80px; border-bottom: 1px solid #ddd; -webkit-box-flex: 1; padding-left: 6px; }
 .teacher_basic .tb_item:last-child { text-align: right; padding-right: 6px; }
 .teacher_basic .teacher_name { font-size: 22px; }
 .teacher_basic .discipline { font-size: 22px; }
@@ -37,7 +38,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 
 .teacher_photo { display: block; margin-left: 10px; }
 
-.teacher_cert, .teacher_honor { display: -webkit-flex; background: #fff; height: 32px; line-height: 32px; font-size: 14px; color: #666; border-bottom: 1px solid #ddd; }
+.teacher_cert, .teacher_honor { display: -webkit-box; background: #fff; height: 32px; line-height: 32px; font-size: 14px; color: #666; border-bottom: 1px solid #ddd; }
 .teacher_cert li { margin-left: 10px; }
 .teacher_cert li:after { display: inline-block; background: url(site.png) no-repeat -30px 0px; content: ''; width: 30px; height: 30px; background-size: 320px auto; vertical-align: -9px; }
 .teacher_cert li.cert:after { }
@@ -47,8 +48,8 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .teacher_honor { padding-left: 10px; color: #000; }
 .teacher_honor:before { content: '获得荣誉：'; color: #666; }
 
-.teacher_data { display: -webkit-flex; text-align: center; margin-top: 10px; background: #fff; padding: 15px 0; border-bottom: 1px solid #ddd; font-size: 12px; }
-.teacher_data li { display: block; -webkit-flex: 1; color: #f90; line-height: 22px; border-left: 1px solid #f1f1f1; }
+.teacher_data { display: -webkit-box; text-align: center; margin-top: 10px; background: #fff; padding: 15px 0; border-bottom: 1px solid #ddd; font-size: 12px; }
+.teacher_data li { display: block; -webkit-box-flex: 1; color: #f90; line-height: 22px; border-left: 1px solid #f1f1f1; }
 .teacher_data li:first-child { border-left: 0px; }
 .teacher_data li:after { display: block; color: #333; }
 .teacher_data li:nth-child(1):after, .s_data span:nth-child(1):after { content: '课时数'; }
@@ -80,13 +81,13 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 
 .bottom_bar { background: #fff; }
 
-.apm_member_form, .apm_member, .apm_teacher { display: -webkit-flex; width: 84%; margin: 14px 8% 0 8%; height: 44px; }
+.apm_member_form, .apm_member, .apm_teacher { display: -webkit-box; width: 84%; margin: 14px 8% 0 8%; height: 44px; }
 
 .apm_teacher { background: #fff; border-radius: 4px; }
 .apm_teacher img { display: block; width: 39px; height: 39px; border-radius: 50%; margin: 3px 0 0 5px; }
-.apm_teacher ul { -webkit-flex: 1; line-height: 18px; font-size: 14px; margin: 5px 0 0 20px; }
+.apm_teacher ul { -webkit-box-flex: 1; line-height: 18px; font-size: 14px; margin: 5px 0 0 20px; }
 
-.apm_member_form input, .apm_member_form .btn_large1 { display: block; width: 0px; -webkit-flex: 1; }
+.apm_member_form input, .apm_member_form .btn_large1 { display: block; width: 0px; -webkit-box-flex: 1; }
 .apm_member_form input { font-size: 15px; }
 .apm_member_form :nth-child(2) { margin-left: 5px; }
 .apm_member, .apm_member_form input, .apm_member_form .btn_large1 { border: 1px solid #ccc; border-radius: 4px; text-align: center; }
@@ -97,26 +98,26 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .search_item { background: #fff; border-bottom: 2px solid #e9e9e9; margin-bottom: 10px; }
 .search_item:first-child { padding-top: 10px; }
 
-.s_teacher { display: -webkit-flex; padding-top: 5px; }
+.s_teacher { display: -webkit-box; padding-top: 5px; }
 .s_teacher img { display: block; width: 70px; height: 70px; border-radius: 50%; margin: 0 0 0 8px; }
-.s_teacher_basic { -webkit-flex: 1; margin-left: 10px; }
-.s_teacher_basic li { display: -webkit-flex; padding: 0; height: 20px; line-height: 19px; }
+.s_teacher_basic { -webkit-box-flex: 1; margin-left: 10px; }
+.s_teacher_basic li { display: -webkit-box; padding: 0; height: 20px; line-height: 19px; }
 .s_teacher_basic strong { font-size: 14px; font-weight: normal; margin-right: 10px; }
 .s_teacher_basic em, .s_teacher_basic span, .s_teacher_basic i { display: block; font-size: 14px; }
-.s_teacher_basic i { text-align: right; -webkit-flex: 1; color: #f90; margin-right: 5px; }
+.s_teacher_basic i { text-align: right; -webkit-box-flex: 1; color: #f90; margin-right: 5px; }
 .s_teacher_basic .s_area { font-size: 14px; margin-top: -5px; }
 .s_teacher_basic .s_area:before { display: inline-block; background: url(site.png) no-repeat -130px -1px; content: ''; width: 16px; height: 22px; background-size: 320px auto; vertical-align: -1px; }
-.s_teacher_basic .s_age { font-size: 14px; text-align: right; -webkit-flex: 1; margin: 0 5px 0 0; }
+.s_teacher_basic .s_age { font-size: 14px; text-align: right; -webkit-box-flex: 1; margin: 0 5px 0 0; }
 
-.s_teacher_basic li.s_data { display: -webkit-flex; font-size: 13px; text-align: center; height: 40px; }
+.s_teacher_basic li.s_data { display: -webkit-box; font-size: 13px; text-align: center; height: 40px; }
 .s_data span:after { display: block; color: #333; }
-.s_data span { display: block; -webkit-flex: 1; color: #f90; }
+.s_data span { display: block; -webkit-box-flex: 1; color: #f90; }
 .s_data span:before { border-left: 1px solid #f1f1f1; display: block; width: 0px; height: 30px; margin-top: 5px; float: left; content: ''; }
 .s_data span:first-child:before { border-left: 0px; }
 
 .s_honor, .s_cert { font-size: 13px; color: #999; background: #fafafa; line-height: 30px; padding-left: 10px; }
 .s_honor { border-bottom: 1px solid #e6e6e6; }
-.s_cert { display: -webkit-flex; }
+.s_cert { display: -webkit-box; }
 .s_cert li:after { display: inline-block; background: url(site.png) no-repeat -30px -30px; content: ''; width: 28px; height: 30px; background-size: 320px auto; vertical-align: -9px; margin-right: 10px; }
 .s_cert li.cert:after { }
 .s_cert li.t_cert:after { background-position: -60px -30px; }
@@ -131,7 +132,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 
 .login_form { margin: 10px 5% 0 5%; width: 90%; }
 .login_btn { margin-top: 20px; }
-.login_btn .btn_large { -webkit-flex: 1; width: 100%; margin: 0; height: 40px; line-height: 40px; font-size: 18px; }
+.login_btn .btn_large { -webkit-box-flex: 1; width: 100%; margin: 0; height: 40px; line-height: 40px; font-size: 18px; }
 .login_notice { font-size: 14px; color: #666; margin: 20px 0 0 0; line-height: 20px; text-align: center; }
 
 .login_view { background: rgba(0,0,0,0); -webkit-box-shadow: none; box-shadow: none; }
@@ -140,9 +141,9 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .login_view .head_back { position: absolute; right: 0px; }
 .login_view .head_back:before { background-position: -240px 0px; }
 
-.teacher_item { margin-top: 10px; display: -webkit-flex; }
+.teacher_item { margin-top: 10px; display: -webkit-box; }
 .teacher_item img { margin: 0 0 0 6px; display: block; width: 84px; height: 63px; border-radius: 4px; }
-.tli_info { -webkit-flex: 1; margin-left: 15px; min-height: 55px; border-bottom: 1px solid #ddd; }
+.tli_info { -webkit-box-flex: 1; margin-left: 15px; min-height: 55px; border-bottom: 1px solid #ddd; }
 .tli_honor { margin-top: 3px; line-height: 20px; }
 .tli_name { font-size: 14px; color: #f90; margin-top: 6px; }
 
@@ -195,8 +196,8 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .aboutus img { display: block; width: 128px; height: 128px; margin: 40px auto 10px auto; }
 .aboutus_ver { text-align: center; }
 
-.piano_bg { background: #363f48;  }
-.piano_bg .main{ margin-top: -1px;background: #363f48;  }
+.piano_bg { background: #363f48; }
+.piano_bg .main { margin-top: -1px; background: #363f48; }
 .pianolist_hd { width: 100%; height: 181px; background: url(piano_bg.png) no-repeat; background-size: 110% auto; overflow: hidden; }
 .pianolist_hd:before { display: block; content: ''; width: 190px; height: 88px; background: url(piano_hd.png) no-repeat; background-size: 190px auto; margin: 40px 0px; float: right; }
 .pianolist_hd:after { display: block; content: ''; width: 500px; height: 150px; background: #363f48; -webkit-transform: translate(-50px,150px) rotate(12deg); }
@@ -272,9 +273,9 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
     .pianoli_con p { margin-top: 10px; }
 }
 
-.order ul { margin:20px 15px; line-height: 1.5; font-size: .9em; }
-.order ul li:before{ width: 80px; content:''; display: inline-block; color:#999; }
-.order ul li:nth-child(1):before{ content:"科    目："}
-.order ul li:nth-child(2):before{ content:"授课老师："}
-.order ul li:nth-child(3):before{ content:"订单单号："}
-.order ul li:nth-child(4):before{ content:"实际支付："}
+.order ul { margin: 20px 15px; line-height: 1.5; font-size: .9em; }
+.order ul li:before { width: 80px; content: ''; display: inline-block; color: #999; }
+.order ul li:nth-child(1):before { content: "科    目："; }
+.order ul li:nth-child(2):before { content: "授课老师："; }
+.order ul li:nth-child(3):before { content: "订单单号："; }
+.order ul li:nth-child(4):before { content: "实际支付："; }

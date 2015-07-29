@@ -12,21 +12,26 @@
             }, function (res) {
 
                 wx.config({
-                    debug: true,
+                    debug: false,
                     appId: res.appId,
                     timestamp: res.tm,
                     nonceStr: res.nonceStr,
                     signature: res.sign,
                     jsApiList: [
-                      'onMenuShareAppMessage'
+                      'onMenuShareAppMessage',
+                      'onMenuShareTimeline',
+                      'onMenuShareQQ',
+                      'onMenuShareWeibo',
+                      'onMenuShareQZone'
                     ]
                 });
 
                 wx.ready(function () {
-                    wx.onMenuShareAppMessage({
+
+                    var shareOptions = {
                         title: shareData.shareTitle,
                         desc: shareData.shareContent,
-                        shareUrl: location.href,
+                        link: location.href,
                         imgUrl: 'http://m.linshi.biz/upload/share.png',
                         trigger: function (res) {
                         },
@@ -36,7 +41,13 @@
                         },
                         fail: function (res) {
                         }
-                    });
+                    }
+
+                    wx.onMenuShareTimeline(shareOptions);
+                    wx.onMenuShareAppMessage(shareOptions);
+                    wx.onMenuShareQQ(shareOptions);
+                    wx.onMenuShareWeibo(shareOptions);
+                    wx.onMenuShareQZone(shareOptions);
                 });
 
             }, 'json');

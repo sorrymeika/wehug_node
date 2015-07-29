@@ -51,38 +51,6 @@
             var $main = this.$('.main');
             this.$searchFilters = this.$('.search_filters');
 
-            Scroll.bind($main, {
-                //useScroll: true,
-                refresh: function (resolve, reject) {
-                    self.loading.reload({
-                        showLoading: false
-                    }, function (err, data) {
-                        if (err) reject(err)
-                        else resolve(data);
-                    });
-                }
-            });
-
-            this.loading = new Loading({
-                url: '/teacher/teacher_list',
-                check: false,
-                $el: this.$el,
-                $content: $main.children(":first-child"),
-                $scroll: $main,
-                success: function (res) {
-                    if (res.data.length >= 10)
-                        res.total = (this.pageIndex + 1) * this.pageSize;
-
-                    self.model.set(res);
-                },
-                append: function (res) {
-                    if (res.data.length >= 10) {
-                        res.total = (this.pageIndex + 1) * this.pageSize;
-                    }
-
-                    self.model.get('data').append(res.data);
-                }
-            });
 
             this.model = new model.ViewModel(this.$el, {
                 menu: 'head_menu',
@@ -106,6 +74,44 @@
                     name: '上海'
                 }
             });
+            Scroll.bind($main, {
+                //useScroll: true,
+                refresh: function (resolve, reject) {
+                    self.loading.reload({
+                        showLoading: false
+                    }, function (err, data) {
+                        if (err) reject(err)
+                        else resolve(data);
+                    });
+                }
+            });
+
+            this.loading = new Loading({
+                url: '/teacher/teacher_list',
+                params: {
+                    sort: 'member_id',
+                    order_by: 'desc'
+                },
+                check: false,
+                $el: this.$el,
+                $content: $main.children(":first-child"),
+                $scroll: $main,
+                success: function (res) {
+                    if (res.data.length >= 10)
+                        res.total = (this.pageIndex + 1) * this.pageSize;
+
+                    self.model.set(res);
+                },
+                append: function (res) {
+                    if (res.data.length >= 10) {
+                        res.total = (this.pageIndex + 1) * this.pageSize;
+                    }
+
+                    self.model.get('data').append(res.data);
+                }
+            });
+
+
             this.loading.load();
         },
 

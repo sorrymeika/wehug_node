@@ -42,7 +42,6 @@
             }
         },
         swipeRightBackAction: sl.isInApp ? null : '/',
-        swipeLeftForwardAction: '/find/8',
         className: 'piano_bg',
 
         onCreate: function () {
