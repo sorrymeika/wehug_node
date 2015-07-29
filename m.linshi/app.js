@@ -294,6 +294,7 @@ promise.each(config.projects, function (i, project) {
                     'widget/dialog': '../webresource/js/widget/dialog',
                     'widget/loading': '../webresource/js.m/widget/loading',
                     'widget/extend/loading': './widget/extend/loading',
+                    'widget/extend/wxshare': './widget/extend/wxshare',
                     'anim/default': '../webresource/js.m/anim/default'
                 }
             });

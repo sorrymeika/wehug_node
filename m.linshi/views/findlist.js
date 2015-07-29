@@ -4,10 +4,16 @@
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('../widget/extend/loading');
+    var wxshare = require('../widget/extend/wxshare');
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
+    var bridge = require('bridge');
 
+    var shareData = {
+        shareTitle: "邻师钢琴老师专场，狂潮来袭，首单一折",
+        shareContent: "风格百变的邻师品牌老师馆，定期推出专场活动，挑选一位您喜欢的老师吧！"
+    };
 
     return Activity.extend({
         events: {
@@ -29,15 +35,14 @@
             'tap .js_share': function (e) {
                 alert('linshi://' + JSON.stringify({
                     method: "share",
-                    params: {
-                        shareTitle: "分享的标题",
-                        shareContent: "分享的内容",
+                    params: $.extend(shareData, {
                         shareUrl: location.href
-                    }
+                    })
                 }));
             }
         },
         swipeRightBackAction: sl.isInApp ? null : '/',
+        swipeLeftForwardAction: '/find/8',
         className: 'piano_bg',
 
         onCreate: function () {
@@ -54,15 +59,14 @@
                 this.$el.find('.main').css({ top: 67 });
             }
 
-            Scroll.bind(this.$el.find('.wrap'));
+            Scroll.bind(this.$el.find('.main'));
 
             this.$share = this.$el.find('.js_share');
             if (!sl.isInApp) {
                 this.$share.hide();
 
                 if (util.isInWechat) {
-                    seajs.use('http://res.wx.qq.com/open/js/jweixin-1.0.0.js', function (wx) {
-                    });
+                    wxshare(shareData);
                 }
             }
 

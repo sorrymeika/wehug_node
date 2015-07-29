@@ -11,17 +11,10 @@ define(function (require, exports, module) {
 
     return Activity.extend({
         events: {
-            'tap .js_bind:not(.disabled)': function () {
+            'tap .js_pay:not(.disabled)': function () {
+                var data = this.model.data.data;
 
-            },
-
-            'tap .logout': function () {
-                if (localStorage.getItem('member')) {
-                    localStorage.removeItem('member')
-                    this.back('/');
-                } else {
-                    this.forward('/login');
-                }
+                location.href = 'http://' + (sl.isDebug ? 'front' : 'www') + '.linshi.biz/alipay/index?out_trade_no=' + data.order_code + "&return=" + encodeURIComponent(location.href.replace(/#.+/, '#/find/' + data.id));
             }
         },
         swipeRightBackAction: '/',
@@ -33,18 +26,15 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
-            this.model = new model.ViewModel(this.$el, {
-                back: this.route.queries.from || '/',
-                title: '订单支付'
-            });
+            var orderInfo = util.store('orderInfo');
 
-            var member = localStorage.getItem('member');
-            if (member) {
-                member = JSON.stringify(member);
-                this.model.set('logout', '退出当前账号')
-            } else {
-                this.model.set('logout', '立即登录')
-            }
+            this.swipeRightBackAction = this.route.queries.from || '/';
+
+            self.model = new model.ViewModel(this.$el, {
+                back: this.route.queries.from || '/',
+                title: '订单支付',
+                data: orderInfo
+            });
         },
 
         onShow: function () {

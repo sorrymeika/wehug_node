@@ -9,7 +9,7 @@
         </div>
         <ul class="pianolist_bd">
             <li sn-repeat="item in data" sn-binding="data-id:item.ID">
-                <img sn-binding="src:item.Pic1|or:item.Pic" />
+                <img sn-binding="src:item.Pic" />
                 <div class="pianoli_con">
                     <h2 sn-binding="html:item.Title"></h2>
                     <h3 sn-binding="html:item.SubTitle"></h3>

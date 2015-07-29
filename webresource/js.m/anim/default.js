@@ -5,7 +5,7 @@
         openExitZIndex: 1,
         closeExitZIndex: 3,
         openEnterAnimationFrom: {
-            translate: '100%,0'
+            translate: '99%,0'
         },
         openEnterAnimationTo: {
             translate: '0,0'

@@ -5,17 +5,24 @@
     var Activity = require('activity');
     var model = require('../core/model');
     var Loading = require('../widget/extend/loading');
+    var wxshare = require('../widget/extend/wxshare');
     var Promise = require('../core/promise');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
     var bridge = require('bridge');
+
+    var shareData = {
+        shareTitle: "首单一折，邻师钢琴老师专场",
+        shareContent: "风格百变的邻师品牌老师馆，定期推出专场活动，挑选一位您喜欢的老师吧！",
+        shareUrl: location.href
+    };
 
     return Activity.extend({
         events: {
             'tap .js_buy:not(.disabled)': function (e) {
                 var member = util.store('member');
                 if (!member) {
-                    this.forward('/login?from=' + this.route.url);
+                    this.forward('/login?success=' + this.route.url + '&from=' + this.route.url);
                     return;
                 }
 
@@ -45,11 +52,7 @@
             'tap .js_share': function (e) {
                 alert('linshi://' + JSON.stringify({
                     method: "share",
-                    params: {
-                        shareTitle: "分享的标题",
-                        shareContent: "分享的内容",
-                        shareUrl: location.href
-                    }
+                    params: shareData
                 }));
             }
         },
@@ -77,8 +80,7 @@
                 this.$share.hide();
 
                 if (util.isInWechat) {
-                    seajs.use('http://res.wx.qq.com/open/js/jweixin-1.0.0.js', function (wx) {
-                    });
+                    wxshare(shareData);
                 }
             }
 
@@ -100,22 +102,29 @@
                     if (res.error_code == 1) {
                         sl.tip(res.error_msg);
 
-                    } else if (sl.isInApp) {
-                        alert("linshi://" + JSON.stringify({
-                            method: 'pay',
-                            params: {
-                                order_code: res.data.order_code,
-                                really_price: data.SpecialPrice,
-                                subject: "钢琴",
-                                teacherName: data.Title
-                            }
-                        }));
-
-                    } else if (sl.isInWechat) {
-                        self.forward('/order/' + res.data.order_code + "?from=" + self.route.url);
-
                     } else {
-                        location.href = bridge.url('/alipay/index?out_trade_no=' + res.data.order_code)
+                        var orderInfo = {
+                            order_code: res.data.order_code,
+                            really_price: data.SpecialPrice,
+                            subject: "钢琴",
+                            id: self.route.data.id,
+                            teacherName: data.Title
+                        };
+                        util.store('orderInfo', orderInfo);
+
+                        if (sl.isInApp) {
+                            alert("linshi://" + JSON.stringify({
+                                method: 'pay',
+                                params: orderInfo
+                            }));
+
+                        } else if (util.isInWechat) {
+                            location.href = 'http://' + (sl.isDebug ? 'front' : 'www') + '.linshi.biz/wxpay/index?out_trade_no=' + res.data.order_code + "&return=" + encodeURIComponent(location.href);
+                            //self.forward('/order/' + res.data.order_code + "?from=" + self.route.url);
+
+                        } else {
+                            self.forward('/order/' + res.data.order_code + "?paytype=alipay&from=" + self.route.url);
+                        }
                     }
                 },
                 error: function () {

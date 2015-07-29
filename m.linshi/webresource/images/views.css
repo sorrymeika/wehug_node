@@ -271,3 +271,10 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
     .pianoli_con h2 { margin-top: 10px; }
     .pianoli_con p { margin-top: 10px; }
 }
+
+.order ul { margin:20px 15px; line-height: 1.5; font-size: .9em; }
+.order ul li:before{ width: 80px; content:''; display: inline-block; color:#999; }
+.order ul li:nth-child(1):before{ content:"科    目："}
+.order ul li:nth-child(2):before{ content:"授课老师："}
+.order ul li:nth-child(3):before{ content:"订单单号："}
+.order ul li:nth-child(4):before{ content:"实际支付："}

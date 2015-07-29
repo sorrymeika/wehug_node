@@ -26,7 +26,6 @@
             <h4>03<b>经历</b></h4>
             <div class="piano_con" sn-binding="html:data.Content3|htmlString"></div>
         </div>
-
     </div>
 </div>
 <footer class="piano_ft">

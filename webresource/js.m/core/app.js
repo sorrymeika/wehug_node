@@ -219,66 +219,65 @@
         },
 
         start: function () {
-            var that = this,
-                $win = $(window);
+            var that = this;
+            var $win = $(window);
+            var hash = location.hash || '/';
 
             if (bridge.hasStatusBar) {
                 util.style('header{border-top-width:20px;border-top-style:solid;box-sizing:content-box !important;}header~.main{margin-top:20px;}');
             }
 
+            that.$el.appendTo(document.body);
+            that.$el = $(that.el);
+
+            that.hash = hash = standardizeHash(hash);
+
+            that.queue([hash, function (activity) {
+                activity.$el.appendTo(that.el);
+                that._currentActivity = activity;
+                that._history.push(activity.url);
+                that._historyCursor++;
+
+                activity.$el.transform(require('anim/' + activity.toggleAnim).openEnterAnimationTo);
+                activity.then(function () {
+                    activity.$el.addClass('active');
+                    activity.trigger('Resume').trigger('Show');
+
+                    that.trigger('start');
+                    that.turning();
+                });
+
+                $win.on('hashchange', function () {
+                    hash = that.hash = standardizeHash(location.hash);
+
+                    var index = lastIndexOf(that._history, hash),
+                    isForward = (that._skipRecordHistory || index == -1) && !that.isHistoryBack;
+
+                    if (that._skipRecordHistory !== true) {
+                        if (index == -1) {
+                            that.isHistoryBack ? that._history.splice(that._historyCursor, 0, hash) : (that._history.push(hash), that._historyCursor++);
+                        } else {
+                            that._history.length = index + 1;
+                            that._historyCursor = index;
+                        }
+                    } else
+                        that._skipRecordHistory = false;
+
+                    if (that.skip == 0) {
+                        that[isForward ? 'forward' : 'back'](hash);
+
+                    } else if (that.skip > 0)
+                        that.skip--;
+                    else
+                        that.skip = 0;
+
+                    that.isHistoryBack = false;
+                });
+
+            }], that.get, that);
+
             $(window).on('load', function () {
-                var hash;
-
-                that.$el.appendTo(document.body);
-                that.$el = $(that.el);
-
                 if (!location.hash) location.hash = '/';
-                that.hash = hash = standardizeHash(location.hash);
-
-                that.queue([hash, function (activity) {
-                    activity.$el.appendTo(that.el);
-                    that._currentActivity = activity;
-                    that._history.push(activity.url);
-                    that._historyCursor++;
-
-                    activity.$el.transform(require('anim/' + activity.toggleAnim).openEnterAnimationTo);
-                    activity.then(function () {
-                        activity.$el.addClass('active');
-                        activity.trigger('Resume').trigger('Show');
-
-                        that.trigger('start');
-                        that.turning();
-                    });
-
-                    $win.on('hashchange', function () {
-                        hash = that.hash = standardizeHash(location.hash);
-
-                        var index = lastIndexOf(that._history, hash),
-                        isForward = (that._skipRecordHistory || index == -1) && !that.isHistoryBack;
-
-                        if (that._skipRecordHistory !== true) {
-                            if (index == -1) {
-                                that.isHistoryBack ? that._history.splice(that._historyCursor, 0, hash) : (that._history.push(hash), that._historyCursor++);
-                            } else {
-                                that._history.length = index + 1;
-                                that._historyCursor = index;
-                            }
-                        } else
-                            that._skipRecordHistory = false;
-
-                        if (that.skip == 0) {
-                            that[isForward ? 'forward' : 'back'](hash);
-
-                        } else if (that.skip > 0)
-                            that.skip--;
-                        else
-                            that.skip = 0;
-
-                        that.isHistoryBack = false;
-                    });
-
-                }], that.get, that);
-
             });
         },
 
@@ -319,7 +318,7 @@
 
             url = route.url;
 
-            if (!duration) duration = 400;
+            if (!duration) duration = 300;
 
             if (url != standardizeHash(location.hash) && that._queue.length == 1) {
                 var args = that._queue.first().args;
@@ -361,8 +360,7 @@
                     anim.ease = ease;
                     anim.duration = duration;
 
-                    anim.el.css(animation.transform(anim.start).css)
-                        .animate(anim.css, ease, duration)
+                    anim.el.css(animation.transform(anim.start).css).animate(anim.css, duration, ease);
                 }
 
                 anim.finish = function () {
