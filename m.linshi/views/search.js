@@ -35,7 +35,7 @@
 
             Scroll.bind($main, {
                 //useScroll: true,
-                refresh: util.android && (/MQQBrowser/.test(navigator.userAgent) || util.isInWechat) ? null : function (resolve, reject) {
+                refresh: function (resolve, reject) {
                     self.loading.reload({
                         showLoading: false
                     }, function (err, data) {
