@@ -276,7 +276,6 @@
 
                     if (binding) {
                         binding.replace(rbinding, function (match, prop, name, key, filters) {
-
                             if (name == listItem.alias) {
                                 name = collectionName + '^child' + key;
 

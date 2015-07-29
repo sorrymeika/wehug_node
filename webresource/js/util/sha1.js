@@ -77,7 +77,6 @@
  * 返回对应F函数的值  
  */
     function sha1_ft(t, b, c, d) {
-        f893293634164e42df0bc0250cbcbffd04c2ec4
         if (t < 20) return (b & c) | ((~b) & d);
         if (t < 40) return b ^ c ^ d;
         if (t < 60) return (b & c) | (b & d) | (c & d);
