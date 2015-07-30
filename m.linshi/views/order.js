@@ -14,7 +14,7 @@ define(function (require, exports, module) {
             'tap .js_pay:not(.disabled)': function () {
                 var data = this.model.data.data;
 
-                location.href = 'http://' + (sl.isDebug ? 'front' : 'www') + '.linshi.biz/alipay/index?out_trade_no=' + data.order_code + "&return=" + encodeURIComponent(location.href.replace(/#.+/, '#/find/' + data.id));
+                location.href = 'http://' + (sl.isDebug ? 'front' : 'www') + '.linshi.biz/alipay/index?out_trade_no=' + data.order_code + "&return=" + encodeURIComponent(location.href.replace(/#.+/, '#/find/' + data.id)) + "&show=" + encodeURIComponent(location.href.replace(/#.+/, '#/find/' + data.id));
             }
         },
         swipeRightBackAction: '/',

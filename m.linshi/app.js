@@ -95,7 +95,7 @@ var promise = new Promise(function () {
     fs.readFile('./index.tpl', { encoding: 'utf-8' }, function (err, data) {
 
         data = data.replace(/^\uFEFF/i, '');
-        data = Tools.compressJs(razor.node(data))
+        data = Tools.compressJs(razor.node(data));
 
         fs.writeFile('./index.js', data, function (err, res) {
             pms.resolve();
@@ -298,7 +298,7 @@ promise.each(config.projects, function (i, project) {
                     'anim/default': '../webresource/js.m/anim/default'
                 }
             });
-
+            
             app.listen(config.port);
             console.log("start with", config.port, __dirname, process.argv);
         });

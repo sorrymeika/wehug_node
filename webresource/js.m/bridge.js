@@ -8,17 +8,12 @@
         slice = Array.prototype.slice,
         blankFn = function () { },
         $win = $(window),
-        baseUrl = $('meta[name="api-base-url"]').attr('content');
+        baseUrl = $('meta[name="api-base-url"]').attr('content'),
+        hybridFunctions = {};
 
-    window.hybridFunctions = {};
-    window.complete = function () {
-        if (ios && queue.length != 0) {
-            queue.shift();
-            if (queue.length != 0) location.href = queue.shift();
-        }
-    };
+    window.hybridFunctions = hybridFunctions;
 
-    window.trigger = window.app_trigger = function () {
+    window.trigger = function () {
         $.fn.trigger.apply($win, arguments);
     };
 
@@ -29,16 +24,18 @@
     var queue = [],
         guid = 0,
         hybrid = function (method, params, hybridCallback) {
+            var data, hybridReturn;
 
-            var data = {
-                method: method
-            },
-            hybridReturn;
+            if (typeof method == 'object') {
+                hybridCallback = data.callback;
 
-            hybridCallback = typeof params === "function" ? params : hybridCallback;
-            params = typeof params === "function" ? null : params;
-
-            data.params = params;
+            } else {
+                if (typeof params === "function") hybridCallback = params, params = null;
+                data = {
+                    method: method,
+                    params: params
+                }
+            }
 
             if (typeof hybridCallback == "function") {
                 hybridReturn = "hybridCallback" + (++guid);
@@ -50,17 +47,9 @@
                 };
             }
 
-            if (bridge.isDevelopment) {
-                switch (data.method) {
-                    case 'exitLauncher':
-                        hybridFunctions[hybridReturn]();
-                        break;
-                }
-                return;
-            }
-
             if (ios) {
-                alert(JSON.stringify(data));
+                alert('slapp://' + JSON.stringify(data));
+
             } else if (isAndroid) {
                 prompt(JSON.stringify(data));
             }
@@ -72,11 +61,6 @@
             ios: ios,
             versionName: isAndroid ? '1.0' : "1.0",
             exec: hybrid,
-            exitLauncher: function (f) {
-                hybrid('exitLauncher', function () {
-                    f && f();
-                });
-            },
             tip: function (msg) {
                 hybrid('tip', msg + "");
             },
@@ -126,26 +110,6 @@
         };
 
     bridge.hasStatusBar = bridge.isInApp && util.ios && util.osVersion >= 7;
-
-    var prepareExit = false;
-
-    $win.on('back', function () {
-        var hash = location.hash;
-        if (hash == '' || hash === '#' || hash === "/" || hash === "#/") {
-            if (prepareExit) {
-                bridge.exit();
-            } else {
-                prepareExit = true;
-                setTimeout(function () {
-                    prepareExit = false;
-                }, 2000);
-                bridge.tip("再按一次退出程序");
-            }
-
-        } else {
-            history.back();
-        }
-    });
 
     return bridge;
 });

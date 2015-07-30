@@ -216,6 +216,26 @@
             that.canvas = that.$el[2];
 
             if (that.backGesture) bindBackGesture(this);
+
+            var prepareExit = false;
+
+            this.on('back', function () {
+                var hash = location.hash;
+                if (hash == '' || hash === '#' || hash === "/" || hash === "#/") {
+                    if (prepareExit) {
+                        bridge.exit();
+                    } else {
+                        prepareExit = true;
+                        setTimeout(function () {
+                            prepareExit = false;
+                        }, 2000);
+                        sl.tip("再按一次退出程序");
+                    }
+
+                } else {
+                    history.back();
+                }
+            });
         },
 
         start: function () {

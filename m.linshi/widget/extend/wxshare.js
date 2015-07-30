@@ -15,7 +15,7 @@
                     debug: false,
                     appId: res.appId,
                     timestamp: res.tm,
-                    nonceStr: res.nonceStr,
+                    nonceStr: res.nonceStr + "",
                     signature: res.sign,
                     jsApiList: [
                       'onMenuShareAppMessage',
@@ -27,7 +27,6 @@
                 });
 
                 wx.ready(function () {
-
                     var shareOptions = {
                         title: shareData.shareTitle,
                         desc: shareData.shareContent,
@@ -48,6 +47,8 @@
                     wx.onMenuShareQQ(shareOptions);
                     wx.onMenuShareWeibo(shareOptions);
                     wx.onMenuShareQZone(shareOptions);
+
+                    alert(1);
                 });
 
             }, 'json');

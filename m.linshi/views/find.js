@@ -119,7 +119,7 @@
                             }));
 
                         } else if (util.isInWechat) {
-                            location.href = 'http://' + (sl.isDebug ? 'front' : 'www') + '.linshi.biz/wxpay/index?out_trade_no=' + res.data.order_code + "&return=" + encodeURIComponent(location.href);
+                            location.href = 'http://' + (sl.isDebug ? 'front' : 'www') + '.linshi.biz/wxpay/index?out_trade_no=' + res.data.order_code + "&return=" + encodeURIComponent(location.href) + "&show=" + encodeURIComponent(location.href);
                             //self.forward('/order/' + res.data.order_code + "?from=" + self.route.url);
 
                         } else {

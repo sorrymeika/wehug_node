@@ -109,6 +109,7 @@ module.exports = function (env) {
                 'extend/matchMedia': '../webresource/js.m/extend/matchMedia',
                 'extend/ortchange': '../webresource/js.m/extend/ortchange',
                 'util': '../webresource/js/util',
+                'util/md5': '../webresource/js/util/md5',
                 'bridge': '../webresource/js.m/bridge',
                 'graphics/matrix2d': '../webresource/js/graphics/matrix2d',
                 'graphics/tween': '../webresource/js/graphics/tween',

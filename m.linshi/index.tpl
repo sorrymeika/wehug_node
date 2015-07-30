@@ -15,7 +15,7 @@
         var item=css[i];
         <link href="@item" rel="stylesheet" type="text/css"/>
     }
-    <script src="@html(webresource+(isDebugFramework?'js/seajs/sea.js':'slan.m.js?v1.0.1'))"></script>
+    <script src="@html(webresource+(isDebugFramework?'js/seajs/sea.js':('slan.m.js?v'+Date.now())))"></script>
     @if(debug){
         <script src="@(webresource)js/zepto.js"></script>
         <script src="@(webresource)js/extend/fx.js"></script>
