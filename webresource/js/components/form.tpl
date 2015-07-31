@@ -26,7 +26,11 @@
                         <textarea class="@(field.className||'text')"@html(attr)></textarea>
 
                     } else if (field.type=='select') {
-                        <select class="@(field.className||'text')"@html(attr) sn-options="@(field.options.text),@(field.options.value) in @(field.options.data)">
+                        <select class="@(field.className||'text')"@html(attr)>
+                            @for (var ii=0,len1=field.options.data.length;ii<len1;ii++){
+                                var option=field.options.data[ii];
+                            <option value="@option[field.options.value||"value"]">@option[field.options.text||"text"]</option>
+                            }
                         </select>
 
                     } else if (field.type=='number'){
@@ -38,15 +42,18 @@
                     } else if (field.type=='captcha'){
                         <input class="@(field.className||'text_normal')" type="text"@html(attr)/>
                         <img class="captcha" src="@(field.captcha)?v=@(Date.now())" onclick="this.src='@(field.captcha)?v='+Date.now()" sn-binding="src:captcha|or:'@(field.captcha)'"/>
+
                     } else if (field.type=='file'){
-<input type="file" name="@(field.field)" sn-model="@(name).@(field.field)"/>
+                        <input type="file" name="@(field.field)" sn-model="@(name).@(field.field)"/>
+
                     }  else if (field.type=='radio'||field.type=='checkbox'){
-<input type="@(field.type)" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="checked:@(name).@(field.field)|or:undefined"/>
+                        <input type="@(field.type)" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="checked:@(name).@(field.field)|or:undefined"/>
+
                     } else {
                         $data.plugins.push(field);
-                    <input type="hidden"@html(attr)>
+                        <input type="hidden"@html(attr)>
                     }
-                    <span sn-binding="class:@(validator).result.@(field.field).success|case:-1:'msg_tip':true:'right_tip':false:'error_tip':'hide',html:@(validator).result.@(field.field).msg"></span>
+                        <span sn-binding="class:@(validator).result.@(field.field).success|case:-1:'msg_tip':true:'right_tip':false:'error_tip':'hide',html:@(validator).result.@(field.field).msg"></span>
                     </td>
                 }
             </tr>

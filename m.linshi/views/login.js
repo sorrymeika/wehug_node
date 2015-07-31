@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
-
+    var bridge = require('bridge');
 
     return Activity.extend({
         events: {
@@ -100,11 +100,17 @@ define(function (require, exports, module) {
                     if (res.error_msg)
                         sl.tip(res.error_msg);
                     else {
-                        localStorage.setItem('member', JSON.stringify({
+                        var member = {
                             mobile: self.model.data.mobile,
                             member_id: res.data.member_id,
                             user_name: self.model.data.mobile
-                        }));
+                        }
+                        localStorage.setItem('member', JSON.stringify(member));
+
+                        $.get(bridge.url('/user/get_member_info?member_id=' + res.data.member_id), function (res) {
+                            localStorage.setItem('member', JSON.stringify($.extend(member, res.data)));
+                        }, 'json');
+
                         self.back(self.route.queries.success || '/');
                     }
                 },

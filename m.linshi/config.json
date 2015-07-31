@@ -15,7 +15,9 @@
 		'/teacher/{id:\\d+}': { controller: 'teacher', template: 'teacher' },
 		'/appointment': { controller: 'appointment', template: 'appointment' },
 		'/find': { controller: 'findlist', template: 'findlist' },
+		'/findlist/{id:\\d+}': { controller: 'findlist', template: 'findlist' },
 		'/order/{id:\\w+}': { controller: 'order', template: 'order' },
-		'/find/{id:\\d+}': { controller: 'find', template: 'find' }
+		'/find/{id:\\d+}': { controller: 'find', template: 'find' },
+		'/find/{type:\\d+}/{id:\\d+}': { controller: 'find', template: 'find' }
 	}
 }

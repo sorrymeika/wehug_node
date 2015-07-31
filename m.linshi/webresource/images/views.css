@@ -196,11 +196,14 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .aboutus img { display: block; width: 128px; height: 128px; margin: 40px auto 10px auto; }
 .aboutus_ver { text-align: center; }
 
+.find1 .piano_price h3 { color: #ffe00c; }
+.find1 .piano_price i { color: #ffe00c; }
+.find1 .piano_price i:before { background-color: #ffe00c; }
+
 .piano_bg { background: #363f48; }
 .piano_bg .main { margin-top: -1px; background: #363f48; }
-.pianolist_hd { width: 100%; height: 181px; background: url(piano_bg.png) no-repeat; background-size: 110% auto; overflow: hidden; }
-.pianolist_hd:before { display: block; content: ''; width: 190px; height: 88px; background: url(piano_hd.png) no-repeat; background-size: 190px auto; margin: 40px 0px; float: right; }
-.pianolist_hd:after { display: block; content: ''; width: 500px; height: 150px; background: #363f48; -webkit-transform: translate(-50px,150px) rotate(12deg); }
+.pianolist_hd { width: 100%; background: url(find_list_hd.jpg) no-repeat; background-size: 100% auto; overflow: hidden; }
+.pianolist_hd:before { display: block; content: ''; width: 100%; padding-top: 58%; }
 
 .pianolist_bd { margin-top: -20px; padding-bottom: 25px; }
 .pianolist_bd li { position: relative; margin: 25px 5px 0 5px; display: -webkit-box; }
@@ -209,36 +212,36 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .pianoli_con h2 { font-size: 1em; margin-left: 10px; }
 .pianoli_con h3 { font-size: .8em; margin: 4px 0 0 10px; }
 .pianoli_con p { font-size: 8px; margin-left: 10px; margin-top: 3px; line-height: 12px; max-height: 36px; overflow: hidden; }
-.pianoli_flag { display: -webkit-box; margin: 10px 0 0 10px; padding: 0 17px 0 10px; background: #fb6150; font-size: 12px; position: relative; height: 44px; }
-.pianoli_flag:before { display: block; content: ''; width: 0px; height: 0px; border-bottom: 22px solid #fb6150; border-top: 22px solid #fb6150; border-left: 12px solid #fff; z-index: 1; margin-left: -15px; }
+.pianoli_flag { display: -webkit-box; margin: 10px 0 0 6px; padding: 0 0 0 12px; background: #fb6150; font-size: 12px; position: relative; height: 40px; }
+.pianoli_flag:before { display: block; content: ''; width: 12px; height: 40px; z-index: 1; background: url(site.png) no-repeat -270px -50px; background-size: 320px auto; position: absolute; left: 0px; top: 0px; -webkit-transform: rotate(180deg); }
 .pianoli_flag i, .pianoli_flag span, .pianoli_flag em { display: block; }
 .pianoli_flag i:before { display: block; content: '首单'; color: #fb6150; background: #fff; width: 12px; padding: 1px; border-radius: 2px; font-size: 8px; text-align: center; }
 .pianoli_flag i { color: #fff; padding-left: 3px; padding-top: 4px; }
 .pianoli_price { color: #fff; font-size: 32px; margin: 3px 0 0 2px; }
 .pianoli_flag span { font-size: 7px; color: #b14134; }
 .pianoli_flag del { font-size: 8px; color: #fff; }
-.pianoli_info { padding: 6px 0 0 2px; }
+.pianoli_info { padding: 6px 0 0 2px; -webkit-box-flex: 1; }
 .pianoli_praise_rate { font-size: 1.3em; color: #b14134; text-align: center; margin-left: 2px; padding: 6px 0 0 2px; border-left: 1px solid #b14134; border-left-width: .5px; }
 .pianoli_praise_rate:before { display: block; content: '好评率'; color: #fff; font-size: 10px; }
 .pianolist .btn_cart { -webkit-transform: scale(.7); margin-left: -25px; }
 
-.pianolist_bd li:nth-child(2n) { display: block; }
-.pianolist_bd li:nth-child(2n):after { content: ''; clear: both; display: block; height: 0px; }
-.pianolist_bd li:nth-child(2n) img { width: 50%; float: right; -webkit-box-flex: unset; height: 150px; }
-.pianolist_bd li:nth-child(2n) .pianoli_con { width: 50%; float: left; -webkit-box-flex: unset; }
-.pianolist_bd li:nth-child(2n) .pianoli_flag { margin-left: 0; margin-right: 7px; padding-left: 0; }
-.pianolist_bd li:nth-child(2n) .pianoli_flag:before { margin-left: 0; -webkit-transform: rotate(180deg); position: absolute; right: 0px; }
+.pianolist_bd li:nth-child(2n+1) { display: block; }
+.pianolist_bd li:nth-child(2n+1):after { content: ''; clear: both; display: block; height: 0px; }
+.pianolist_bd li:nth-child(2n+1) img { width: 50%; float: right; -webkit-box-flex: unset; height: 150px; }
+.pianolist_bd li:nth-child(2n+1) .pianoli_con { width: 50%; float: left; -webkit-box-flex: unset; }
+.pianolist_bd li:nth-child(2n+1) .pianoli_flag { margin-right: 6px; margin-left: 0px; padding-right: 12px; padding-left: 0px; }
+.pianolist_bd li:nth-child(2n+1) .pianoli_flag:before { margin-left: 0; position: absolute; right: 0px; left: auto; -webkit-transform: rotate(0deg); }
 
 .btn_cart { background: #fff url(site.png) no-repeat -270px 0px; background-size: 320px auto; width: 50px; height: 50px; border-radius: 50%; position: absolute; left: 50%; margin: -25px; border: 2px solid #363f48; }
 
-.piano_hd { z-index: 1; position: relative; width: 100%; height: 171px; background: url(piano_bg.png) no-repeat; background-size: 100% auto; display: -webkit-box; }
-.piano_hd img { width: 100px; height: 100px; border: 2px solid #ffdb8f; border-radius: 2px; margin: 26px 0 0 20px; }
+.piano_hd { z-index: 1; position: relative; width: 100%; height: 171px; background: url(find_bg.jpg) no-repeat; background-size: 100% auto; display: -webkit-box; }
+.piano_hd img { width: 110px; height: 110px; border: 2px solid #ffdb8f; border-radius: 2px; margin: 26px 0 0 20px; }
 
 .piano_base { padding: 26px 20px 0 20px; -webkit-box-flex: 1; }
-.piano_base h1 { font-size: 1.2em; }
-.piano_base h2 { font-size: .9em; }
-.piano_base p { font-size: .6em; max-height: 42px; line-height: 14px; overflow: hidden; color: #363f48; }
-.piano_price { display: -webkit-box; padding-top: 2px; }
+.piano_base h1 { font-size: 1.1em; }
+.piano_base h2 { font-size: .8em; }
+.piano_base p { font-size: .5em; height: 30px; line-height: 1.3; overflow: hidden; color: #363f48; }
+.piano_price { display: -webkit-box; float: right; }
 .piano_price del { display: block; color: #4e4f50; font-size: 12px; font-weight: bold; margin-top: 30px; }
 .piano_price i { display: block; color: #ff620c; font-size: 12px; font-weight: bold; text-align: center; margin: 6px 0 0 6px; }
 .piano_price i:before { display: block; content: '首单'; color: #fff; background: #ff620c; width: 12px; padding: 1px; border-radius: 2px; font-size: 8px; text-align: center; }
@@ -262,13 +265,13 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .btn_back:after { content: ''; display: block; position: absolute; border-left: 2px solid #f90; border-top: 2px solid #f90; top: 19px; left: 21px; width: 10px; height: 10px; -webkit-transform: rotate(-45deg); }
 
 @media screen and (min-width: 360px) {
-    .pianoli_con, .pianolist_bd li:nth-child(2n) img { height: 180px; }
+    .pianoli_con, .pianolist_bd li:nth-child(2n+1) img { height: 180px; }
     .pianoli_con h2 { margin-top: 10px; }
     .pianoli_con p { margin-top: 10px; }
 }
 
 @media screen and (min-width: 414px) {
-    .pianoli_con, .pianolist_bd li:nth-child(2n) img { height: 200px; }
+    .pianoli_con, .pianolist_bd li:nth-child(2n+1) img { height: 200px; }
     .pianoli_con h2 { margin-top: 10px; }
     .pianoli_con p { margin-top: 10px; }
 }

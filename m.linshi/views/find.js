@@ -47,7 +47,7 @@
 
             },
             'tap .js_back': function (e) {
-                this.back('/find')
+                this.back(this.type ? '/findlist/' + this.type : '/find');
             },
             'tap .js_share': function (e) {
                 alert('linshi://' + JSON.stringify({
@@ -61,6 +61,12 @@
 
         onCreate: function () {
             var self = this;
+
+            this.type = !this.route.data.type || this.route.data.type == 0 ? '' : this.route.data.type;
+            if (this.type) {
+                this.$('.piano_hd').css({ backgroundImage: getComputedStyle(this.$('.piano_hd')[0]).backgroundImage.replace('.jpg', this.type + '.jpg') });
+                this.$el.addClass('find' + this.type);
+            }
 
             if (sl.hasStatusBar) {
                 this.$el.find('header').css({ borderTop: '20px solid #f90', 'box-sizing': 'content-box' });

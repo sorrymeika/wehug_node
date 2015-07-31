@@ -15,6 +15,7 @@
 		'/modify_activity/{id:\\d+}': { controller: 'modify_activity', template: 'form' },
 		'/article_list': { controller: 'article_list', template: 'list', api: '' },
 		'/add_article': { controller: 'add_article', template: 'form' },
-		'/modify_article/{id:\\d+}': { controller: 'modify_article', template: 'form' }
+		'/modify_article/{id:\\d+}': { controller: 'modify_article', template: 'form' },
+		'/user': { controller: 'user_list', template: 'list' }
 	}
 }

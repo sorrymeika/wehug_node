@@ -47,8 +47,6 @@
                     wx.onMenuShareQQ(shareOptions);
                     wx.onMenuShareWeibo(shareOptions);
                     wx.onMenuShareQZone(shareOptions);
-
-                    alert(1);
                 });
 
             }, 'json');

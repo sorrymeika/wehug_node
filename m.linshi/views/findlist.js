@@ -23,7 +23,8 @@
                     return item.ID == id;
                 });
                 util.store('find_data', item);
-                this.forward('/find/' + id);
+
+                this.forward('/find/' + (this.id ? this.id + '/' : '') + id);
             },
             'tap .js_back': function () {
                 if (sl.isInApp) {
@@ -79,7 +80,12 @@
 
             this.loading.showLoading();
 
-            $.get('data/find.json', function (res) {
+            this.id = !this.route.data.id || this.route.data.id == 0 ? '' : this.route.data.id;
+            if (this.id) {
+                this.$('.pianolist_hd').css({ backgroundImage: getComputedStyle(this.$('.pianolist_hd')[0]).backgroundImage.replace('.jpg', this.id + '.jpg') });
+            }
+
+            $.get('data/find' + this.id + '.json', function (res) {
                 self.model.set(res);
                 self.loading.hideLoading();
             }, 'json');

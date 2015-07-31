@@ -65,6 +65,19 @@
                     emptyAble: false,
                     emptyText: '必填'
                 }, {
+                    label: '所属专题',
+                    field: 'Type',
+                    type: 'select',
+                    options: {
+                        data: [{
+                            text: '钢琴',
+                            value: '0'
+                        }, {
+                            text: '游泳',
+                            value: '1'
+                        }]
+                    }
+                }, {
                     label: '好评率',
                     field: 'PraiseRate',
                     emptyAble: false,
