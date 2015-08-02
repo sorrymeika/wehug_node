@@ -13,15 +13,6 @@ define(function (require, exports, module) {
         events: {
             'tap .js_bind:not(.disabled)': function () {
 
-            },
-
-            'tap .logout': function () {
-                if (localStorage.getItem('member')) {
-                    localStorage.removeItem('member')
-                    this.back('/');
-                } else {
-                    this.forward('/login');
-                }
             }
         },
         swipeRightBackAction: '/',
@@ -35,20 +26,8 @@ define(function (require, exports, module) {
 
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
-                title: '设置',
-                settings: [{
-                    title: '关于我们',
-                    href: '/about'
-                }]
+                title: '设置'
             });
-
-            var member = localStorage.getItem('member');
-            if (member) {
-                member = JSON.stringify(member);
-                this.model.set('logout', '退出当前账号')
-            } else {
-                this.model.set('logout', '立即登录')
-            }
         },
 
         onShow: function () {

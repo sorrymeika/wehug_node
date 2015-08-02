@@ -1,0 +1,1 @@
+var util=require("util"),T={html:function($data){var __="";with($data||{})__+='<div class="reply"> <input type="text" sn-model="content" sn-binding="value:content" /> <b class="btn_small js_reply">回复评论</b> </div>';return __},helpers:{}};T.template=T.html,module.exports=T;

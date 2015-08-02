@@ -14,6 +14,11 @@
     else if (android) osVersion = android[2].split('.');
     else if (ie) osVersion = ie[1].split('.');
 
+    var pad = function (num, n) {
+        var a = '0000000000000000' + num;
+        return a.substr(a.length - (n || 2));
+    };
+
     var util = {
         ios: !!ios,
         ie: !!ie,
@@ -137,10 +142,7 @@
             return result;
         },
 
-        pad: function (num, n) {
-            var a = '0000000000000000' + num;
-            return a.substr(a.length - (n || 2));
-        },
+        pad: pad,
 
         formatDate: function (d, f) {
             if (typeof d === "string" && /^\/Date\(\d+\)\/$/.test(d)) {
@@ -148,7 +150,7 @@
             } else if (typeof d === 'number')
                 d = new Date(d);
 
-            var y = d.getFullYear() + "", M = d.getMonth() + 1, D = d.getDate(), H = d.getHours(), m = d.getMinutes(), s = d.getSeconds(), mill = d.getMilliseconds() + "0000", pad = this.pad;
+            var y = d.getFullYear() + "", M = d.getMonth() + 1, D = d.getDate(), H = d.getHours(), m = d.getMinutes(), s = d.getSeconds(), mill = d.getMilliseconds() + "0000";
             return (f || 'yyyy-MM-dd HH:mm:ss').replace(/\y{4}/, y)
                 .replace(/y{2}/, y.substr(2, 2))
                 .replace(/M{2}/, pad(M))

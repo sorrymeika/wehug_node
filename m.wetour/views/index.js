@@ -24,6 +24,13 @@
 
                 this.forward(($target.data('type') == 1 ? "/activity/" : "/destination/") + $target.data('id'))
             },
+            'tap .js_comment': function (e) {
+                if (!this.user) {
+                    this.forward('/login');
+                } else {
+                    this.forward('/comment');
+                }
+            },
             'tap .footer li': function (e) {
                 var $target = $(e.currentTarget);
                 if (!$target.hasClass('curr')) {
@@ -40,6 +47,15 @@
                         this.loading[index].load();
                     }
                 }
+            },
+            'tap .quanli_reply': function (e) {
+                var $target = $(e.currentTarget);
+                var $el = $target.closest('[data-id]');
+                var id = $el.data('id');
+
+                util.store('replyAt', '@' + $el.data('at'));
+
+                this.forward('/reply/' + id);
             }
         },
 
@@ -106,10 +122,16 @@
             });
 
             this.loading[0].load();
+
+            self.onResult('comment_success', function () {
+                self.loading[3].reload();
+            });
         },
 
         onShow: function () {
-            var that = this;
+            var self = this;
+
+            self.user = util.store('user');
         },
 
         onDestory: function () {

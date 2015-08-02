@@ -12,8 +12,10 @@
         json: function (data) {
             return (data instanceof Model || data instanceof Collection) ? JSON.stringify(data.data) : JSON.stringify(data);
         },
+        length: function (data) {
+            return data instanceof Collection ? data.data.length : (data && data.length || 0)
+        },
         join: function (arr, split) {
-            console.log(arr)
             return (arr instanceof Collection) ? arr.data.join(split) : arr.join(split);
         },
         or: function (str, or) {
@@ -466,6 +468,7 @@
         _syncOwnView: function () {
             if (this.root != this) {
                 this._syncView('', this.data);
+
                 if (this.created && this.parent instanceof Model)
                     this.parent.trigger('change:' + this._key, this.data);
 
@@ -532,7 +535,8 @@
             var collections = [],
                 collection,
                 value,
-                changed = false;
+                changed = false,
+                cache = [];
 
             for (var attr in attrs) {
                 this.data[attr] = attrs[attr];
@@ -586,9 +590,12 @@
                     } else {
                         this.data[attr] = value;
                         model[attr] = value;
-                        this._syncView(attr, value);
-                        if (this.created) this.trigger('change:' + attr, value);
+                        if (this.created) {
+                            this.trigger('change:' + attr, value);
+                        }
                     }
+
+                    cache.push(attr, value);
 
                     if (!changed) changed = true;
                 }
@@ -604,6 +611,9 @@
             if (changed) {
                 if (this.root != this) {
                     this._syncOwnView();
+                }
+                for (var i = 0, len = cache.length; i < len; i += 2) {
+                    this._syncView(cache[i], cache[i + 1]);
                 }
             }
 

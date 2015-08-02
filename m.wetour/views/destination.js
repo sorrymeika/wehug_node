@@ -11,7 +11,11 @@
 
 
     return Activity.extend({
-        events: {},
+        events: {
+            'tap .js_comment': function () {
+                this.forward('/destcomment/' + this.route.data.id);
+            }
+        },
 
         onCreate: function () {
             var self = this;
@@ -50,6 +54,23 @@
             });
 
             this.loading.load();
+
+            this.comments = new Loading({
+                url: '/api/destination/comment_list',
+                $el: self.$('.quan_list'),
+                success: function (res) {
+                    self.model.set("comments", res.data);
+                },
+                append: function (res) {
+                    self.model.get('comments').append(res.data);
+                }
+            });
+
+            this.comments.load();
+
+            self.onResult('destcomment_success', function () {
+                self.comments.reload();
+            });
         },
 
         onLoad: function () {

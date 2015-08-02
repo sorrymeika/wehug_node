@@ -57,6 +57,11 @@
                     emptyAble: false,
                     emptyText: '必填'
                 }, {
+                    label: '活动地址',
+                    field: 'Address',
+                    emptyAble: false,
+                    emptyText: '必填'
+                }, {
                     label: '活动图片',
                     field: 'Pic',
                     type: 'file'

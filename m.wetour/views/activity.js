@@ -11,7 +11,23 @@
 
 
     return Activity.extend({
-        events: {},
+        events: {
+            'tap .js_submit:not(.disabled)': function (e) {
+                if (!this.user) {
+                    this.forward('/login?success=' + this.route.url + "&from=" + this.route.url);
+                } else {
+                    this.$submit.addClass('disabled');
+                    this.submit.setParam({
+                        UserID: this.user.ID,
+                        Auth: this.user.Auth
+
+                    }).load();
+                }
+            },
+            'tap .js_comment': function () {
+                this.forward('/actcomment/' + this.route.data.id);
+            }
+        },
 
         onCreate: function () {
             var self = this;
@@ -50,10 +66,52 @@
             });
 
             this.loading.load();
+
+            this.$submit = this.$el.find('.js_submit');
+
+            this.submit = new Loading({
+                url: '/api/activity/signup',
+                params: {
+                    id: this.route.data.id
+                },
+                check: false,
+                checkData: false,
+                $el: this.$el,
+                success: function (res) {
+                    if (res.success) {
+                        sl.tip('报名成功！')
+                        self.model.set('data.SignUpQty', self.model.data.data.SignUpQty + 1);
+                    } else {
+                        sl.tip(res.msg);
+                    }
+                    self.$submit.removeClass('disabled');
+                }
+            });
+
+            this.comments = new Loading({
+                url: '/api/activity/comment_list',
+                $el: self.$('.quan_list'),
+                success: function (res) {
+                    self.model.set("comments", res.data);
+                },
+                append: function (res) {
+                    self.model.get('comments').append(res.data);
+                }
+            });
+
+            this.comments.load();
+
+            self.onResult('actcomment_success', function () {
+                self.comments.reload();
+            });
         },
 
         onLoad: function () {
             this.promise.resolve();
+        },
+
+        onShow: function () {
+            this.user = util.store('user');
         },
 
         onDestory: function () {

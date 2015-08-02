@@ -3,6 +3,4 @@
     <div sn-binding="html:title" class="head_title"></div>
 </header>
 <div class="main">
-    <div class="settings">
-    </div>
 </div>

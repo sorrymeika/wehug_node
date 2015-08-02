@@ -12,7 +12,7 @@
     </ul>
     <ul class="menu_list">
         <li class="menu_pwd" data-back="/modifypwd">修改密码</li>
-        <li class="menu_settings" data-back="/settings">设置</li>
+        <li class="menu_settings" data-back="/member">设置</li>
         <li class="menu_logout" sn-binding="html:logoutOrLogin,data-logout:logout">退出</li>
     </ul>
 </div>

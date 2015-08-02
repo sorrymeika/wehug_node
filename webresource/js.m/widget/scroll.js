@@ -218,7 +218,8 @@
         var result = [];
 
         (typeof selector === 'string' ? $(selector) : selector).each(function () {
-            var $el = $(this).addClass('scrollview'),
+            var el = this,
+                $el = $(el).addClass('scrollview'),
                 scrollView;
 
             if (options && options.useScroll || util.android && parseFloat(util.osVersion <= 2.3)) {
@@ -257,6 +258,24 @@
                         }
                     });
             }
+
+            $el.on('focus', 'input,textarea', function (e) {
+                var node = e.currentTarget,
+                    offsetTop = 0;
+                do {
+                    offsetTop += node.offsetTop;
+                    node = node.offsetParent;
+                }
+                while (node && el != node && !$.contains(node, el));
+
+                var y = offsetTop - (window.innerHeight / 4 - 60);
+
+                if (scrollView) {
+                    scrollView.scrollTo(scrollView.x, y)
+                } else {
+                    el.scrollTop = y;
+                }
+            });
 
             if (options && options.refresh) {
 

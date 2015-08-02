@@ -2,7 +2,7 @@
     <div class="head_back" sn-binding="data-back:back"></div>
     <div sn-binding="html:title" class="head_title"></div>
 </header>
-<div class="main">
+<div class="main scrollview">
     <div class="member">
         <iframe style="top:-999px;left:-999px;position:absolute;display:none;" frameborder="0" width="0" height="0" name="__upload"></iframe>
         <form sn-binding="action:upload" method="post" class="member_avatars" enctype="multipart/form-data">

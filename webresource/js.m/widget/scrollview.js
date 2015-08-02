@@ -62,7 +62,6 @@
             }
         },
         stop: function () {
-            console.log(this.$el)
             this.$el.triggerHandler('scrollStop', [0, this.y]);
         },
         resetStartTime: function () {
@@ -102,9 +101,13 @@
                 .addMomentumOptions(this._startTop, this.y, this.minY, this.maxY, this.wrapperH);
         },
         momentum: function (a, b) {
-
             this.x = a.current;
             this.y = b.current;
+            this.$scroller.css({ '-webkit-transform': 'translate(' + (-this.x) + 'px,' + (-this.y) + 'px) translateZ(0)' });
+        },
+        scrollTo: function (x, y) {
+            this.x = x > this.maxX ? this.maxX : x < this.minX ? this.minX : x;
+            this.y = y > this.maxY ? this.maxY : y < this.minY ? this.minY : y;
             this.$scroller.css({ '-webkit-transform': 'translate(' + (-this.x) + 'px,' + (-this.y) + 'px) translateZ(0)' });
         },
         destory: function () {

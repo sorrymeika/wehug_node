@@ -58,7 +58,7 @@ define(function (require, exports, module) {
                     if (res.error_msg)
                         sl.tip(res.error_msg);
                     else {
-                        localStorage.setItem('user', JSON.stringify(res.data));
+                        util.store('user', res.data);
                         self.back(self.route.queries.success || '/');
                     }
                 },

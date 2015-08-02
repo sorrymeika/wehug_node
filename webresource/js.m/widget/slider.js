@@ -68,10 +68,10 @@
             that._next = $('<span class="slider-next js_next"></span>').appendTo(that.$el);
 
             that.$el.on('tap', '.js_pre', function (e) {
-                that.index(options.index - 1);
+                //that.index(options.index - 1);
             })
             .on('tap', '.js_next', function (e) {
-                that.index(options.index + 1);
+                //that.index(options.index + 1);
             });
         }
 
