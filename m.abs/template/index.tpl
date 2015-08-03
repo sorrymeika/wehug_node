@@ -8,8 +8,26 @@
     <div sn-binding="display:isLogin" class="home_bd">
         <div class="home_vip">
             <div class="rainbow">
+                <ul class="rainbow_points">
+                    <li>0</li>
+                    <li>1000</li>
+                    <li>5000</li>
+                    <li>10000</li>
+                    <li>50000</li>
+                </ul>
+                <ul class="rainbow_vip">
+                    <li>银卡</li>
+                    <li>金卡</li>
+                    <li>钻石</li>
+                    <li>VIP</li>
+                    <li>SVIP</li>
+                </ul>
             </div>
-            <div class="home_points"></div>
+            <div class="home_points_bg">
+                <div class="home_points"></div>
+                <div class="home_points"></div>
+                <div class="home_points_cursor"></div>
+            </div>
         </div>
     </div>
     <div sn-binding="display:isLogin|not" class="home_notlogin">

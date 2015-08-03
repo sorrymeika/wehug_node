@@ -355,7 +355,7 @@
     };
 
     exports.animate = function (/*[el,css]|step,duration,ease,finish*/) {
-        var args = Array.prototype.slice.call(arguments),
+        var args = arguments,
             item = {},
             i = 0,
             el = args[i++];
@@ -475,6 +475,8 @@
 
         return { dist: newDist, time: Math.round(newTime), outside: outsideDist, result: result, current: current, start: current, max: max, min: min, divisor: divisor };
     }
+
+    exports.step = getCurrent;
 
     exports.momentum = function (options, maxDuration, step, ease, end, context) {
         var momentums = [],

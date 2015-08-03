@@ -250,6 +250,13 @@
         },
         noop: function () { },
 
+        circlePoint: function (x0, y0, r, a) {
+            return {
+                x: x0 + r * Math.cos(a * Math.PI / 180),
+                y: y0 + r * Math.sin(a * Math.PI / 180)
+            };
+        },
+
         validateEmail: function (email) {
             return /^[-_a-zA-Z0-9\.]+@([-_a-zA-Z0-9]+\.)+[a-zA-Z0-9]{2,3}$/.test(email)
         },

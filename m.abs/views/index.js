@@ -67,6 +67,41 @@
                     self.model.get('data' + index).append(res.data);
                 }
             });
+
+            this.$points = this.$('.home_points');
+            this.$cursor = this.$('.home_points_cursor');
+
+            console.log(util.circlePoint(0, 0, 91, 90 + 117));
+
+            this.setPercent(55);
+        },
+
+        setPercent: function (percent) {
+            var self = this;
+            var deg = percent / 50 * 117 - 117;
+
+            animation.animate(function (d) {
+                var curr = animation.step(-117, deg, d);
+                var point = util.circlePoint(0, 0, 91, 90 - curr);
+
+                self.$cursor.css({
+                    '-webkit-transform': 'rotate(' + deg + 'deg)',
+                    top: 91 - point.y,
+                    left: 91 + point.x
+                });
+
+            }, 300, 'ease-out')
+
+
+            if (percent > 50) {
+                this.$points.eq(0).animate({
+                    rotate: '0deg'
+                }, 300, 'ease-out');
+            }
+            this.$points.eq(1).animate({
+                rotate: deg + 'deg'
+
+            }, 300, 'ease-out');
         },
 
         onShow: function () {
