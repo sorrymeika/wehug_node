@@ -90,10 +90,21 @@
                 }
             }
 
+            var data = util.store('find_data');
+
             this.model = new model.ViewModel(this.$el, {
                 title: '老师详情',
-                data: util.store('find_data')
+                data: data
             });
+
+            if (!data || data.ID != this.route.data.id) {
+                $.get('data/find' + this.type + '.json', function (res) {
+                    self.model.set('data', util.first(res.data, function (item) {
+                        return item.ID == self.route.data.id;
+                    }));
+                    util.store('find_data', self.model.data.data);
+                }, 'json');
+            }
 
             this.loading = new Loading({
                 $el: this.$el,

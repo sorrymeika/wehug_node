@@ -185,6 +185,7 @@
                     calendarSelectors.eq(2).find('.calendar-con').html(getTimeItems(1, day, 2));
                 }
 
+                self._update();
                 $input.trigger('onTimeChange');
                 e.preventDefault();
                 return false;

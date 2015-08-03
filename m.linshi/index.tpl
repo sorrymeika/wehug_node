@@ -28,6 +28,7 @@
         var item=js[i];
         <script src="@item"></script>
     }
+    <script type="text/javascript" name="baidu-tc-cerfication" data-appid="6534552" src="http://apps.bdimg.com/cloudaapi/lightapp.js"></script>
 </head>
 <body>
     <script>

@@ -21,6 +21,12 @@
         or: function (str, or) {
             return str || or;
         },
+        and: function (str, or) {
+            return str && or;
+        },
+        not: function (str) {
+            return !str;
+        },
         lowercase: function (str) {
             return str.toLowerCase();
         },
@@ -365,10 +371,10 @@
                     el.innerHTML = value;
                     break;
                 case 'display':
-                    el.style.display = !value ? 'none' : value == 'block' || value == 'inline' || value == 'inline-block' ? value : '';
+                    el.style.display = value === undefined || value === null || value === false || value == 'none' ? 'none' : value == 'block' || value == 'inline' || value == 'inline-block' ? value : '';
                     break;
                 case 'value':
-                    el.value = value;
+                    if (el.value != value) el.value = value;
                     break;
                 case 'style':
                     $(el).css(value);
