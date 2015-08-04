@@ -10,10 +10,6 @@
     var animation = require('animation');
     var bridge = require('bridge');
 
-    var shareData = {
-        shareTitle: "邻师钢琴老师专场，狂潮来袭，首单一折",
-        shareContent: "风格百变的邻师品牌老师馆，定期推出专场活动，挑选一位您喜欢的老师吧！"
-    };
 
     return Activity.extend({
         events: {
@@ -36,7 +32,7 @@
             'tap .js_share': function (e) {
                 alert('linshi://' + JSON.stringify({
                     method: "share",
-                    params: $.extend(shareData, {
+                    params: $.extend(wxshare.getShareData(this.id || 0), {
                         shareUrl: location.href
                     })
                 }));
@@ -66,7 +62,9 @@
                 this.$share.hide();
 
                 if (util.isInWechat) {
-                    wxshare(shareData);
+                    wxshare($.extend(wxshare.getShareData(this.id || 0), {
+                        shareUrl: location.href
+                    }));
                 }
             }
 

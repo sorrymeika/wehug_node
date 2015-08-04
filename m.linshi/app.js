@@ -187,6 +187,7 @@ promise.each(config.projects, function (i, project) {
         }
     });
 
+    app.use('/images', express.static('./webresource/images'));
     app.use('/webresource', express.static(path.join(__dirname, './webresource')));
     app.use('/webresource/js', express.static(path.join(__dirname, '../webresource/js.m')));
     app.use('/webresource/images', express.static(path.join(__dirname, '../webresource/images.m')));
@@ -298,7 +299,17 @@ promise.each(config.projects, function (i, project) {
                     'anim/default': '../webresource/js.m/anim/default'
                 }
             });
-            
+
+            var fsc = require('../core/fs');
+
+            fsc.copy('../webresource/images.m', path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+                fsc.copy('webresource/images', path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+                });
+            });
+
+            fsc.copy('data', path.join(config.dest, 'data'), function (err, result) {
+            });
+
             app.listen(config.port);
             console.log("start with", config.port, __dirname, process.argv);
         });

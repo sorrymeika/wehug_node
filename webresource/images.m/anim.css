@@ -93,3 +93,6 @@
         -webkit-transform: rotate(0deg);
     }
 }
+
+.bounce { -webkit-transition: -webkit-transform 300ms cubic-bezier(.45,1.28,.65,1.24) 0ms; }
+.rotateX { -webkit-transform: perspective(400px) rotateX(90deg) rotateY(0deg); -webkit-transform-origin: 50% 100%; }

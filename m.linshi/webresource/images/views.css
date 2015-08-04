@@ -212,7 +212,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .pianoli_con h2 { font-size: 1em; margin-left: 10px; }
 .pianoli_con h3 { font-size: .8em; margin: 4px 0 0 10px; }
 .pianoli_con p { font-size: 8px; margin-left: 10px; margin-top: 3px; line-height: 12px; max-height: 36px; overflow: hidden; }
-.pianoli_flag { display: -webkit-box; margin: 10px 0 0 6px; padding: 0 0 0 12px; background: #fb6150; font-size: 12px; position: relative; height: 40px; }
+.pianoli_flag { display: -webkit-box; margin: 10px 0 0 6px; padding: 0 0 0 12px; background: #fb6150; font-size: 12px; position: relative; height: 40px; overflow: hidden; }
 .pianoli_flag:before { display: block; content: ''; width: 12px; height: 40px; z-index: 1; background: url(site.png) no-repeat -270px -50px; background-size: 320px auto; position: absolute; left: 0px; top: 0px; -webkit-transform: rotate(180deg); }
 .pianoli_flag i, .pianoli_flag span, .pianoli_flag em { display: block; }
 .pianoli_flag i:before { display: block; content: '首单'; color: #fb6150; background: #fff; width: 12px; padding: 1px; border-radius: 2px; font-size: 8px; text-align: center; }
@@ -221,7 +221,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .pianoli_flag span { font-size: 7px; color: #b14134; }
 .pianoli_flag del { font-size: 8px; color: #fff; }
 .pianoli_info { padding: 6px 0 0 2px; -webkit-box-flex: 1; }
-.pianoli_praise_rate { font-size: 1.3em; color: #b14134; text-align: center; margin-left: 2px; padding: 6px 0 0 2px; border-left: 1px solid #b14134; border-left-width: .5px; }
+.pianoli_praise_rate { font-size: 1.3em; color: #b14134; text-align: center; margin-left: 2px; padding: 6px 0 0 2px; border-left: 1px solid #b14134; border-left-width: .5px; max-width: 33px; }
 .pianoli_praise_rate:before { display: block; content: '好评率'; color: #fff; font-size: 10px; }
 .pianolist .btn_cart { -webkit-transform: scale(.7); margin-left: -25px; }
 
@@ -282,3 +282,15 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .order ul li:nth-child(2):before { content: "授课老师："; }
 .order ul li:nth-child(3):before { content: "订单单号："; }
 .order ul li:nth-child(4):before { content: "实际支付："; }
+
+.find2 .piano_base p, .find2 .piano_base, .find2 .piano_price h3, .find2 .piano_price del { color: #fff; }
+.find2 .piano_price i { color: #fff; }
+.find2 .piano_price i:before { background: #fff; color: #dd3a3a; }
+.find2 .piano_bd h4 { background: #e04d4c; color: #fff; }
+.find2 .piano_bd h4:after { background: #e04d4c; }
+.find2 .piano:after { border-right: 2px solid #e04d4c; }
+
+.download { margin-top: -1px; background: #fad27b; }
+.download img { width: 100%; display: block; }
+.download_bar { padding: 20px 0 0 0; }
+.download_bar .btn_large { height: 40px; line-height: 40px; width: 40%; margin: 10px auto; }

@@ -10,6 +10,7 @@
 		'/about': { controller: 'about', template: 'about' },
 		'/member': { controller: 'member', template: 'member' },
 		'/settings': { controller: 'settings', template: 'settings' },
+		'/download': { controller: 'download', template: 'download' },
 		'/login': { controller: 'login', template: 'login' },
 		'/search/{keywords:.+}': { controller: 'search', template: 'search' },
 		'/teacher/{id:\\d+}': { controller: 'teacher', template: 'teacher' },

@@ -22,6 +22,14 @@
                     <li>VIP</li>
                     <li>SVIP</li>
                 </ul>
+                <div class="rainbow_bd">
+                    <div class="point">3333</div>
+                    <div class="desc">金卡会员</div>
+                    <div class="point_tip">
+                        <span>+xxxx</span><b>新鲜氧气</b>
+                        <p>即可享有<em>钻石会员</em>特权</p>
+                    </div>
+                </div>
             </div>
             <div class="home_points_bg">
                 <div class="home_points"></div>

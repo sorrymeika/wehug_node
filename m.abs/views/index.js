@@ -9,6 +9,22 @@
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
 
+
+    var points = [1000, 4000, 5000, 45000];
+    var pointPercent = function (point) {
+        var result = 0;
+        for (var i = 0; i < points.length; i++) {
+            if (point <= points[i]) {
+                result += point * 25 / points[i];
+                break;
+            } else {
+                result += 25;
+                point -= points[i];
+            }
+        }
+        return result;
+    };
+
     return Activity.extend({
         events: {
             'tap': function (e) {
@@ -48,7 +64,8 @@
             this.model = new model.ViewModel(this.$el, {
                 menu: 'head_menu',
                 titleClass: 'head_title',
-                title: 'ABS + CLUB'
+                title: 'ABS + CLUB',
+                isLogin: false
             });
 
             var $main = this.$main = this.$('.main');
@@ -70,10 +87,6 @@
 
             this.$points = this.$('.home_points');
             this.$cursor = this.$('.home_points_cursor');
-
-            console.log(util.circlePoint(0, 0, 91, 90 + 117));
-
-            this.setPercent(55);
         },
 
         setPercent: function (percent) {
@@ -83,6 +96,21 @@
             animation.animate(function (d) {
                 var curr = animation.step(-117, deg, d);
                 var point = util.circlePoint(0, 0, 91, 90 - curr);
+
+
+                if (point.x > 0) {
+                    if (deg == 0) {
+                        point.x = 0;
+                    } else if (deg < 55) {
+                        point.x -= 4;
+                        point.y += 2;
+                    } else if (deg < 80) {
+                        point.x -= 7;
+                    } else {
+                        point.x -= 9;
+                        point.y += 2;
+                    }
+                }
 
                 self.$cursor.css({
                     '-webkit-transform': 'rotate(' + deg + 'deg)',
@@ -108,8 +136,24 @@
             var self = this;
 
             self.user = util.store('user');
-            self.model.set('isLogin', !!self.user);
-            self.model.set('isLogin', true);
+            var isLogin = !!self.user;
+            isLogin = true;
+            self.model.set('isLogin', isLogin);
+
+            if (isLogin) {
+                self.showPoints();
+            }
+        },
+
+        showPoints: function () {
+            var point = pointPercent(5000);
+
+            this.setPercent(point);
+
+            this.$('.point_tip').addClass('show');
+        },
+
+        onLoad: function () {
         },
 
         onDestory: function () {

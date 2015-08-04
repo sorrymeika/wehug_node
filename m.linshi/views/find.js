@@ -11,12 +11,6 @@
     var animation = require('animation');
     var bridge = require('bridge');
 
-    var shareData = {
-        shareTitle: "首单一折，邻师钢琴老师专场",
-        shareContent: "风格百变的邻师品牌老师馆，定期推出专场活动，挑选一位您喜欢的老师吧！",
-        shareUrl: location.href
-    };
-
     return Activity.extend({
         events: {
             'tap .js_buy:not(.disabled)': function (e) {
@@ -52,7 +46,9 @@
             'tap .js_share': function (e) {
                 alert('linshi://' + JSON.stringify({
                     method: "share",
-                    params: shareData
+                    params: $.extend(wxshare.getShareData(this.type || 0), {
+                        shareUrl: location.href
+                    })
                 }));
             }
         },
@@ -86,7 +82,9 @@
                 this.$share.hide();
 
                 if (util.isInWechat) {
-                    wxshare(shareData);
+                    wxshare($.extend(wxshare.getShareData(this.type || 0), {
+                        shareUrl: location.href
+                    }));
                 }
             }
 

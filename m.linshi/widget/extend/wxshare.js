@@ -4,7 +4,7 @@
     var bridge = require('bridge');
     var util = require('util');
 
-    module.exports = function (shareData) {
+    var Share = function (shareData) {
         seajs.use('http://res.wx.qq.com/open/js/jweixin-1.0.0.js', function (wx) {
             $.post(bridge.url('/user/share_weixin'), {
                 url: location.href.replace(/#.+/, '')
@@ -31,7 +31,7 @@
                         title: shareData.shareTitle,
                         desc: shareData.shareContent,
                         link: location.href,
-                        imgUrl: 'http://m.linshi.biz/upload/share.png',
+                        imgUrl: shareData.sharePic || 'http://m.linshi.biz/upload/share.png',
                         trigger: function (res) {
                         },
                         success: function (res) {
@@ -52,4 +52,33 @@
             }, 'json');
         });
     };
+
+    var shareData = {
+        '0': {
+            sharePic: 'http://m.linshi.biz/images/piano_share.jpg',
+            shareTitle: "邻师钢琴老师专场，狂潮来袭，首单一折",
+            shareContent: "风格百变的邻师品牌老师馆，定期推出专场活动，挑选一位您喜欢的老师吧！"
+        },
+        '1': {
+            sharePic: 'http://m.linshi.biz/images/swim_share.jpg',
+            shareTitle: "炎炎夏日，快来邻师学游泳吧",
+            shareContent: "邻师游泳老师专场，泳往直前，泳不言败！"
+        },
+        '2': {
+            sharePic: 'http://m.linshi.biz/images/chinese_share.jpg',
+            shareTitle: "邻师语文老师专场，所有课程一折",
+            shareContent: "邻师语文老师专场，跟邻师一起感受文字的魅力！"
+        },
+        download: {
+            sharePic: 'http://m.linshi.biz/images/logo.jpg',
+            shareTitle: "推荐一个找老师神器，全场首单一折",
+            shareContent: "刚使用了邻师找老师，任意课程首单一折，靠谱又放心，好老师就在身边"
+        }
+    }
+
+    Share.getShareData = function (type) {
+        return shareData[type];
+    }
+
+    module.exports = Share;
 });
