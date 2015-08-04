@@ -290,7 +290,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .find2 .piano_bd h4:after { background: #e04d4c; }
 .find2 .piano:after { border-right: 2px solid #e04d4c; }
 
-.download { margin-top: -1px; background: #fad27b; }
+.download { top: 0px; background: #fad27b; }
 .download img { width: 100%; display: block; }
 .download_bar { padding: 20px 0 0 0; }
 .download_bar .btn_large { height: 40px; line-height: 40px; width: 40%; margin: 10px auto; }
