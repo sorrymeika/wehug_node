@@ -107,11 +107,14 @@ define(function (require, exports, module) {
                         }
                         localStorage.setItem('member', JSON.stringify(member));
 
+                        self.loading.showLoading();
                         $.get(bridge.url('/user/get_member_info?member_id=' + res.data.member_id), function (res) {
-                            localStorage.setItem('member', JSON.stringify($.extend(member, res.data)));
-                        }, 'json');
+                            util.store('member', $.extend(member, res.data));
+                            self.loading.hideLoading();
 
-                        self.back(self.route.queries.success || '/');
+                            self.back(self.route.queries.success || '/');
+
+                        }, 'json');
                     }
                 },
                 error: function (res) {

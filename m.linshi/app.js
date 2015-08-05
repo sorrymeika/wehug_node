@@ -152,6 +152,8 @@ promise.each(config.projects, function (i, project) {
     var Route = require('./../core/route');
     var route = new Route(routes);
 
+    console.log(configList);
+
     for (var i = 0, cfg, length = configList.length; i < length; i++) {
         cfg = configList[i];
 
@@ -291,6 +293,7 @@ promise.each(config.projects, function (i, project) {
                     'core/touch': '../webresource/js.m/core/touch',
                     'widget/scrollview': '../webresource/js.m/widget/scrollview',
                     'widget/scroll': '../webresource/js.m/widget/scroll',
+                    'widget/slider': '../webresource/js.m/widget/slider',
                     'widget/tip': '../webresource/js/widget/tip',
                     'widget/dialog': '../webresource/js/widget/dialog',
                     'widget/loading': '../webresource/js.m/widget/loading',

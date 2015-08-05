@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+    <script>
+        seajs.config({ alias: { "$": "zepto", 'animation': 'core/animation', 'activity': 'core/activity' } });
+
+        seajs.use(['$', 'util', 'core/app'], function ($, util, App) {
+            sl.isInApp = /linshiapp/ig.test(navigator.userAgent);
+            sl.hasStatusBar = sl.isInApp && util.ios && util.osVersion >= 7;
+            sl.isDebug = true; sl.buildVersion = 1438766890701;
+            new App().mapRoute({
+                "/": { "controller": "views/home", "template": "template/home", "root": "/" },
+                "/index": { "controller": "views/index", "template": "template/index", "root": "/" },
+                "/menu": { "controller": "views/menu", "template": "template/menu", "root": "/" },
+                "/about": { "controller": "views/about", "template": "template/about", "root": "/" },
+                "/member": { "controller": "views/member", "template": "template/member", "root": "/" },
+                "/settings": { "controller": "views/settings", "template": "template/settings", "root": "/" }, "/download": { "controller": "views/download", "template": "template/download", "root": "/" }, "/login": { "controller": "views/login", "template": "template/login", "root": "/" }, "/search/{keywords:.+}": { "controller": "views/search", "template": "template/search", "root": "/" }, "/teacher/{id:\\d+}": { "controller": "views/teacher", "template": "template/teacher", "root": "/" }, "/appointment": { "controller": "views/appointment", "template": "template/appointment", "root": "/" }, "/find": { "controller": "views/findlist", "template": "template/findlist", "root": "/" }, "/findlist/{id:\\d+}": { "controller": "views/findlist", "template": "template/findlist", "root": "/" }, "/order/{id:\\w+}": { "controller": "views/order", "template": "template/order", "root": "/" }, "/orderlist": { "controller": "views/orderlist", "template": "template/orderlist", "root": "/" },
+                "/find/{id:\\d+}": { "controller": "views/find", "template": "template/find", "root": "/" }, "/find/{type:\\d+}/{id:\\d+}": { "controller": "views/find", "template": "template/find", "root": "/" }, "/buy": { "controller": "views/buy", "template": "template/buy", "root": "/" },
+                "/buy/{id:\\d+}": { "controller": "views/buy", "template": "template/buy", "root": "/" }
+            }, true).start();
+
+        });
+        window.callJS = function (data) {
+            if (data.method == 'setMember') {
+                seajs.use(['$', 'util'], function ($, util) {
+                    util.store('member', data.params);
+                });
+            }
+        };
+    </script>
+</body>
+</html> 

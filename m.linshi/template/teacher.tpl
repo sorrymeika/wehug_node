@@ -30,12 +30,22 @@
     </ul>
     <div class="tabs_nav">
         <ul class="tabs_nav_con">
-            <li class="curr">经历</li>
+            <li class="curr">课程</li>
+            <li>经历</li>
             <li>评价</li>
         </ul>
     </div>
     <div class="tabs_content">
-        <div class="tabs_panel teacher_exp curr">
+        <div class="tabs_panel curr">
+            <ul class="teacher_course">
+                <li sn-repeat="item in course_list" class="js_course" sn-binding="data-id:item.course_id">
+                    <span sn-binding="html:item.class_method_name"></span>
+                    <span sn-binding="html:item.price|concat:'元'"></span>
+                    <i class="ico_next"></i>
+                </li>
+            </ul>
+        </div>
+        <div class="tabs_panel teacher_exp">
             <h4>过往经历</h4>
             <dl sn-repeat="item in past_experience">
                 <dt sn-binding="html:item.date_area"></dt>
@@ -66,5 +76,6 @@
     </div>
 </div>
 <footer class="bottom_bar">
-    <b class="btn_large" data-forward="/appointment">免费试听</b>
+    <b class="btn_large2" data-forward="/appointment">免费试听</b>
+    <b class="btn_large" data-forward="/buy">立即购买</b>
 </footer>

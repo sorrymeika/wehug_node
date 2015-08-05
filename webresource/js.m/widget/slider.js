@@ -9,7 +9,10 @@
             ease: 'ease-out',
             hScroll: true,
             vScroll: false,
-            width: '100%'
+            width: '100%',
+            index: 0,
+            autoLoop: false
+
         }, options);
 
         $.extend(this, _.pick(options, ['width', 'loop', 'render', 'template', 'itemTemplate', 'navTemplate']));
@@ -52,9 +55,12 @@
         if (that.loop) {
             $slider.prepend(that.$items.eq(that.length - 1).clone());
             $slider.append(that.$items.eq(0).clone());
+            that.$items = $slider.children();
+            options.index++;
         } else {
             length = that.length;
         }
+
 
         if (options.imagelazyload) {
             that.bind("Change", function () {
@@ -68,22 +74,43 @@
             that._next = $('<span class="slider-next js_next"></span>').appendTo(that.$el);
 
             that.$el.on('tap', '.js_pre', function (e) {
-                //that.index(options.index - 1);
+                that.index(options.index - 1);
             })
             .on('tap', '.js_next', function (e) {
-                //that.index(options.index + 1);
+                that.index(options.index + 1);
             });
         }
 
         $(window).on('ortchange', $.proxy(that._adjustWidth, that));
 
         that._adjustWidth();
+        that.index(options.index);
+
+        if (options.autoLoop) {
+            that.startAutoLoop();
+        }
     }
 
     Slider.prototype = Object.create(ScrollView.prototype);
 
     $.extend(Slider.prototype, {
         loop: false,
+
+        startAutoLoop: function () {
+            var that = this;
+            if (that.loopTimer) return;
+
+            that.loopTimer = setTimeout(function () {
+                that.index(that.options.index + 1);
+
+                that.loopTimer = setTimeout(arguments.callee, that.options.autoLoop);
+            }, that.options.autoLoop);
+        },
+
+        stopAutoLoop: function () {
+            clearTimeout(this.loopTimer);
+            this.loopTimer = null;
+        },
 
         start: function () {
             var that = this,
@@ -97,28 +124,43 @@
 
             that.maxX = Math.min(that.scrollerW - that.wrapperW, (index + 1) * that.wrapperW);
             that.minX = Math.max(0, (index - 1) * that.wrapperW);
-            that._startLeft = that.startLeft = that.x
+            that._startLeft = that.startLeft = that.x;
+
+            that.stopAutoLoop();
         },
 
         index: function (index) {
             var options = this.options,
-                x;
+                x,
+                changeFlag;
 
             if (typeof index === 'undefined') return options.index;
 
-            index = index >= this._data.length ? 0 : index < 0 ? this._data.length - 1 : index;
+            index = index >= this.$items.length ? 0 : index < 0 ? this.$items.length - 1 : index;
+
+            if (this.loop) {
+                if (index == 0) {
+                    index = this.$items.length - 2;
+                    this.maxX = x = index * this.wrapperW;
+                } else if (index == this.$items.length - 1) {
+                    index = 1;
+                    this.minX = x = index * this.wrapperW;
+                }
+            }
 
             if (options.index != index) {
-                this.currentData = this._data[index];
+                this.currentData = this._data[this.loop ? index - 1 : index];
                 this._change();
                 options.index = index;
             }
 
             x = index * this.wrapperW;
-            //if(x!=this.x) this.animate(x,0,200);
+            this.scrollTo(x, 0);
         },
         _getIndex: function () {
-            return Math.round(this.x / this.wrapperW);
+            var index = Math.round(this.x / this.wrapperW);
+
+            return index;
         },
         data: function (index) {
             return this._data[index || this.options.index];
@@ -153,6 +195,10 @@
             var index = this._getIndex();
 
             that.index(index);
+
+            if (that.options.autoLoop) {
+                that.startAutoLoop();
+            }
         },
         _loadImage: function () {
             var that = this;
@@ -161,9 +207,9 @@
             if (!item.prop('_detected')) {
 
                 if (that.loop) {
-                    if (that.options.index == 0) {
+                    if (that.options.index == 1) {
                         item = item.add(that.$slider.children(':last-child'));
-                    } else if (that.options.index == that.length - 1) {
+                    } else if (that.options.index == that.length + 1) {
                         item = item.add(that.$slider.children(':first-child'));
                     }
                 }
@@ -197,7 +243,8 @@
 
         _change: function () {
             var that = this,
-                options = that.options;
+                options = that.options,
+                index = that.loop ? options.index - 1 : options.index;
 
             if (options.onChange) options.onChange.call(that, options.index);
             that.trigger('change', options.index, that.currentData);
@@ -205,6 +252,7 @@
 
         destory: function () {
             $(window).off('ortchange', this._adjustWidth);
+            that.$el.off('tap');
             this.touch.destory();
         }
     })

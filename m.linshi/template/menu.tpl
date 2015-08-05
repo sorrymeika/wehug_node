@@ -7,6 +7,5 @@
     <ul class="menu_list">
         <li class="menu_home" data-back="/">首页</li>
         <li class="menu_settings" data-back="/settings">设置</li>
-        <li class="menu_home" data-back="/find">发现</li>
     </ul>
 </div>

@@ -95,13 +95,13 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 .slider-nav-item.curr { background: #c00; }
 .slider-pre, .slider-next { position: absolute; width: 44px; height: 44px; left: 0px; top: 50%; margin-top: -22px; background-size: 320px auto; z-index: 1; }
 .slider-next { background-position: -237px 0px; right: 0px; left: auto; }
-
-.slider img { width: 100%; }
+.slider img { width: 100%; display: block; }
 
 
 .btn { display: inline-block; height: 35px; line-height: 35px; vertical-align: top; text-align: center; background: #0f1423; color: #fff; }
-.btn_large { background: #f90; display: block; text-align: center; height: 30px; line-height: 30px; border-radius: 4px; color: #fff; margin: 10px 10%; }
-.action { display: -webkit-box; display: box; text-align: center; }
+.btn_large, .btn_large2 { background: #f90; display: block; text-align: center; height: 39px; line-height: 39px; border-radius: 4px; color: #fff; margin: 8px; }
+.btn_large2 { background: #fff; border: 1px solid #f90; color:#f90; box-sizing: border-box; }
+.action { display: -webkit-box; text-align: center; }
 .action .btn { -webkit-box-flex: 1; display: block; margin-right: 20px; }
 .action .btn:last-child { margin-right: 0; }
 .disabled { opacity: .5; }

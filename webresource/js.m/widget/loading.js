@@ -126,7 +126,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else
+            else 
                 (attrs = {})[key] = val;
 
             if (this.headers === undefined) this.headers = {};
@@ -141,7 +141,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else
+            else 
                 (attrs = {})[key] = val;
 
             for (var attr in attrs) {
@@ -157,7 +157,8 @@
             return this;
         },
 
-        getParam: function (key, val) {
+        getParam: function (key) {
+            if (key) return this.params[key];
             return this.params;
         },
 

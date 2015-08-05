@@ -17,6 +17,11 @@
 
                 $target.addClass('curr').siblings('.curr').removeClass('curr');
                 this.$panels.eq($target.index()).addClass('curr').siblings('.curr').removeClass('curr');
+            },
+            'tap .js_course[data-id]': function (e) {
+                var $target = $(e.currentTarget);
+                var id = $target.data('id');
+                this.forward('/buy/' + id);
             }
         },
 
@@ -47,14 +52,12 @@
                 check: false,
                 checkData: false,
                 $el: this.$el,
-                $content: this.$main.children(":first-child"),
-                $scroll: this.$main,
                 success: function (res) {
 
                     self.promise.then(function () {
                         self.model.set(res.data);
                     });
-                    localStorage.setItem('teacher', JSON.stringify(res.data));
+                    util.store('teacher', res.data);
                 }
             });
 

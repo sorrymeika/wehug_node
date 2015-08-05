@@ -39,6 +39,15 @@
         round: function (number) {
             return Math.round(number)
         },
+        mul: function (str, num) {
+            return parseFloat(str) * parseFloat(num);
+        },
+        plus: function (str, num) {
+            return parseFloat(str) + parseFloat(num);
+        },
+        minus: function (str, num) {
+            return parseFloat(str) - parseFloat(num);
+        },
         format: function (str) {
             var args = slice.call(arguments);
             var format = args[1];

@@ -27,7 +27,7 @@
 
                 this.loading.setParam({
                     member_id: member.member_id,
-                    total_price: data.SpecialPrice,
+                    total_price: data.Price,
                     payment_price: data.SpecialPrice,
                     total_time: 1,
                     course_id: data.RelativeID,

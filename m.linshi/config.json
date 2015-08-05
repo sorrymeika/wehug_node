@@ -1,24 +1,28 @@
-{
-	root: '/',
+﻿{
+	root: "/",
 	debug: true,
 	js : [],
 	css : [@webresource("images/views.css")],
-	include: ['widget/extend/loading.js'],
+	include: ["widget/extend/loading.js"],
 	route: {
-		'/': { controller: 'index', template: 'index' },
-		'/menu': { controller: 'menu', template: 'menu' },
-		'/about': { controller: 'about', template: 'about' },
-		'/member': { controller: 'member', template: 'member' },
-		'/settings': { controller: 'settings', template: 'settings' },
-		'/download': { controller: 'download', template: 'download' },
-		'/login': { controller: 'login', template: 'login' },
-		'/search/{keywords:.+}': { controller: 'search', template: 'search' },
-		'/teacher/{id:\\d+}': { controller: 'teacher', template: 'teacher' },
-		'/appointment': { controller: 'appointment', template: 'appointment' },
-		'/find': { controller: 'findlist', template: 'findlist' },
-		'/findlist/{id:\\d+}': { controller: 'findlist', template: 'findlist' },
-		'/order/{id:\\w+}': { controller: 'order', template: 'order' },
-		'/find/{id:\\d+}': { controller: 'find', template: 'find' },
-		'/find/{type:\\d+}/{id:\\d+}': { controller: 'find', template: 'find' }
-	}
+		"/": { controller: "home", template: "home" },
+		"/index": { controller: "index", template: "index" },
+		"/menu": { controller: "menu", template: "menu" },
+		"/about": { controller: "about", template: "about" },
+		"/member": { controller: "member", template: "member" },
+		"/settings": { controller: "settings", template: "settings" },
+		"/download": { controller: "download", template: "download" },
+		"/login": { controller: "login", template: "login" },
+		"/search/{keywords:.+}": { controller: "search", template: "search" },
+		"/teacher/{id:\\d+}": { controller: "teacher", template: "teacher" },
+		"/appointment": { controller: "appointment", template: "appointment" },
+		"/find": { controller: "findlist", template: "findlist" },
+		"/findlist/{id:\\d+}": { controller: "findlist", template: "findlist" },
+		"/order/{id:\\w+}": { controller: "order", template: "order" },
+		"/orderlist": { controller: "orderlist", template: "orderlist" },
+		"/find/{id:\\d+}": { controller: "find", template: "find" },
+		"/find/{type:\\d+}/{id:\\d+}": { controller: "find", template: "find" },
+		"/buy": { controller: "buy", template: "buy" },
+		"/buy/{id:\\d+}": { controller: "buy", template: "buy" }
+  }
 }
