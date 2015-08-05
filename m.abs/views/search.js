@@ -23,8 +23,8 @@
             var param = {
                 compare_field: keywords == 'q' ? '' : keywords
             };
-            if (this.route.queries.course_category) {
-                param.course_category = this.route.queries.course_category;
+            if (this.route.query.course_category) {
+                param.course_category = this.route.query.course_category;
             }
             return param;
         },

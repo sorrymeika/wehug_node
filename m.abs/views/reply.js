@@ -42,7 +42,7 @@
         onCreate: function () {
             var self = this;
 
-            this.swipeRightBackAction = self.route.queries.from || '/';
+            this.swipeRightBackAction = self.route.query.from || '/';
 
             this.model = new model.ViewModel(this.$el, {
                 content: util.store('replyAt') + ' '
@@ -57,7 +57,7 @@
                         sl.tip('评论成功');
 
                         self.setResult('comment_success');
-                        self.back(self.route.queries.from || '/');
+                        self.back(self.route.query.from || '/');
                     }
                 }
             });

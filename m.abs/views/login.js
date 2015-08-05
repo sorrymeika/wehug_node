@@ -7,27 +7,39 @@ define(function (require, exports, module) {
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
-    var md5 = require('util/md5');
 
     return Activity.extend({
         events: {
             'tap .js_login:not(.disabled)': function () {
                 var mobile = this.model.get('mobile');
-                var password = this.model.get('password');
+                var smsCode = this.model.get('smsCode');
 
                 if (!mobile || !util.validateMobile(mobile)) {
                     sl.tip('请输入正确的手机');
                     return;
                 }
-                if (!password) {
+                if (!smsCode) {
                     sl.tip('请输入密码');
                     return;
                 }
 
                 this.loading.setParam({
                     mobile: mobile,
-                    password: md5.md5(password)
+                    smsCode: smsCode
                 }).load();
+            },
+            'tap .js_valid:not(.disabled)': function (e) {
+                var mobile = this.model.get('mobile');
+                if (!mobile || !util.validateMobile(mobile)) {
+                    sl.tip('请输入正确的手机');
+                    return;
+                }
+
+                this.$valid.addClass('disabled');
+                this.valid.setParam({
+                    mobile: this.model.data.mobile
+                });
+                this.valid.load();
             }
         },
 
@@ -51,7 +63,7 @@ define(function (require, exports, module) {
                         localStorage.removeItem('valid_time');
 
                     } else {
-                        self.model.set('valid', sec + '秒');
+                        self.model.set('valid', sec + '秒后再次获取');
                         sec--;
                         setTimeout(arguments.callee, 1000);
                     }
@@ -69,7 +81,7 @@ define(function (require, exports, module) {
             this.model = new model.ViewModel(this.$el, {
                 title: '快速登录 / 注册',
                 valid: '获取验证码',
-                back: this.route.queries.from || '/'
+                back: this.route.query.from || '/'
             });
 
             this.loading = new Loading({
@@ -82,17 +94,45 @@ define(function (require, exports, module) {
                     withCredentials: true
                 },
                 success: function (res) {
-                    if (res.error_msg)
-                        sl.tip(res.error_msg);
+                    if (!res.success)
+                        sl.tip(res.msg);
                     else {
                         util.store('user', res.data);
-                        self.back(self.route.queries.success || '/');
+                        self.back(self.route.query.success || '/');
                     }
                 },
                 error: function (res) {
                     sl.tip(res.msg);
                 }
             });
+
+            this.valid = new Loading({
+                url: '/api/user/send_sms',
+                method: 'POST',
+                params: {
+                    mobile: self.model.data.mobile
+                },
+                check: false,
+                checkData: false,
+                $el: this.$el,
+                success: function (res) {
+                    if (!res.success) {
+                        sl.tip(res.msg)
+                    } else {
+                        localStorage.setItem('valid_time', Date.now() + 60000);
+
+                        self.validTimeout();
+                    }
+                },
+                error: function (res) {
+                    sl.tip(res.msg);
+                    self.$valid.removeClass('disabled');
+                    this.hideLoading();
+                }
+            });
+
+            self.$valid = this.$('.js_valid');
+            self.validTimeout();
         },
 
         onShow: function () {

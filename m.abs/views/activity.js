@@ -43,7 +43,7 @@
 
             this.model = new model.ViewModel(this.$el, {
                 title: '活动详情',
-                back: this.route.queries.from || '/'
+                back: this.route.query.from || '/'
             });
 
             this.loading = new Loading({

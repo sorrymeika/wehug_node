@@ -87,6 +87,7 @@
                     view: route.view,
                     data: {},
                     queryString: query,
+                    query: queries,
                     queries: queries
                 };
 

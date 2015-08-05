@@ -89,14 +89,24 @@
             this.$cursor = this.$('.home_points_cursor');
         },
 
-        setPercent: function (percent) {
+        setRainbow: function () {
             var self = this;
+            var total = this.user.Amount;
+            var percent = pointPercent(total);
             var deg = percent / 50 * 117 - 117;
+            var level;
+            var nextLevel;
+
+            self.model.set('vip', total < 1000 ? (level = 0, nextLevel = 1000 - total, '银卡会员') : total < 5000 ? (level = 1, nextLevel = 5000 - total, '金卡会员') : total < 10000 ? (level = 2, nextLevel = 10000 - total, '钻石会员') : total < 50000 ? (level = 3, nextLevel = 50000 - total, 'VIP会员') : (level = 4, nextLevel = 0, 'SVIP会员'));
+
+            this.$('.rainbow_vip :nth-child(' + (level + 1) + ')').addClass('curr');
+
+            self.model.set('nextLevel', "+" + nextLevel);
 
             animation.animate(function (d) {
                 var curr = animation.step(-117, deg, d);
+                var num = Math.round(animation.step(0, total, d));
                 var point = util.circlePoint(0, 0, 91, 90 - curr);
-
 
                 if (point.x > 0) {
                     if (deg == 0) {
@@ -110,7 +120,11 @@
                         point.x -= 9;
                         point.y += 2;
                     }
+                } else {
+                    point.y += 2;
                 }
+
+                self.model.set('point', num);
 
                 self.$cursor.css({
                     '-webkit-transform': 'rotate(' + deg + 'deg)',
@@ -119,7 +133,6 @@
                 });
 
             }, 300, 'ease-out')
-
 
             if (percent > 50) {
                 this.$points.eq(0).animate({
@@ -137,7 +150,6 @@
 
             self.user = util.store('user');
             var isLogin = !!self.user;
-            isLogin = true;
             self.model.set('isLogin', isLogin);
 
             if (isLogin) {
@@ -146,9 +158,8 @@
         },
 
         showPoints: function () {
-            var point = pointPercent(5000);
 
-            this.setPercent(point);
+            this.setRainbow(this.user.Amount);
 
             this.$('.point_tip').addClass('show');
         },

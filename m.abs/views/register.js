@@ -87,7 +87,7 @@
             this.model = new model.ViewModel(this.$el, {
                 title: '注册',
                 valid: '获取验证码',
-                back: this.route.queries.from || '/login'
+                back: this.route.query.from || '/login'
             });
 
             this.loading = new Loading({
@@ -101,7 +101,7 @@
                         sl.tip(res.msg);
                     else {
                         localStorage.setItem('user', JSON.stringify(res.data));
-                        self.back(self.route.queries.success || '/');
+                        self.back(self.route.query.success || '/');
                     }
                 },
                 error: function (res) {

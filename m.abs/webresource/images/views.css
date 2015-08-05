@@ -18,7 +18,7 @@
 .head_search_btn .btn_small { background: #74c0f3; height: 30px; line-height: 31px; color: #fff; font-size: 14px; display: block; margin: 9px 6px 0 6px; border-radius: 4px; padding: 0 10px; }
 
 .main { top: 47px; background: #eeefef; padding-top: .1px; }
-.btn_large { height: 40px; line-height: 40px; background-color: #d4003b; font-size: 1.4em; }
+.btn_large { height: 40px; line-height: 40px; background-color: #d4003b; font-size: 1.2em;  }
 .btn_middle { background-color: #d4003b; height: 35px; line-height: 35px; display: block; border-radius: 4px; color: #fff; padding: 0 5px; }
 
 .form { margin-top: 10px; padding-top: .1px; }
@@ -33,6 +33,7 @@
 
 .login_form input { -webkit-box-flex: 1; }
 .login_btn { margin-top: 20px; }
+.login_btn .btn_large {margin-left: 10%;margin-right: 10% }
 .login_hd { margin: 20px 10% 0 10%; font-size: 1.2em; color: #666; }
 
 .home_bd { position: relative; background: #fff; padding: 20px 0; }
@@ -79,6 +80,7 @@
 .rainbow_vip li:nth-child(3) { top: 37px; left: 104px; -webkit-transform: rotate(0deg); }
 .rainbow_vip li:nth-child(4) { top: 71px; left: 175px; -webkit-transform: rotate(60deg); }
 .rainbow_vip li:nth-child(5) { top: 132px; left: 180px; -webkit-transform: rotate(111deg); }
+.rainbow_vip li.curr { color: #d6415c; }
 
 .rainbow_bd { text-align: center; margin-top: 70px; z-index: 10000; position: relative; }
 .rainbow_bd .point { font-size: 35px; color: #d6415c; }
@@ -87,6 +89,7 @@
 .rainbow_bd .point_tip span { color: #d6415c; font-weight: bold; }
 .rainbow_bd p { font-size: .75em; color: #333; margin-top: 5px; }
 .rainbow_bd .point_tip.show { -webkit-transform: perspective(400px) rotateX(0deg); }
+.rainbow_bd .point_tip em { background:#d6415c; color:#fff; line-height: 1.4; display: inline-block; padding: 0 2px; margin: 0 1px; }
 
 .home_points_bg { width: 182px; height: 182px; border: 4px solid #ccc; border-radius: 50%; position: absolute; left: 50%; top: 48px; margin-left: -91px; }
 .home_points_bg:before { content: ''; display: block; position: absolute; top: 27%; left: 50%; background: #fff; width: 180px; height: 180px; -webkit-transform-origin: 0% 0%; -webkit-transform: rotate(45deg); z-index: 10; }
@@ -94,3 +97,5 @@
 .home_points:before { left: 100%; top: 51px; }
 .home_points:after { display: block; content: ''; width: 182px; height: 182px; border: 4px solid #d6415c; border-radius: 50%; box-sizing: border-box; }
 .home_points_cursor { width: 30px; height: 30px; background: url(icon.png) no-repeat 0px -90px; background-size: 320px auto; position: absolute; z-index: 1000; -webkit-transform-origin: 50% 50%; -webkit-transform: rotate(-117deg); left: 10px; top: 132px; margin-top: -15px; margin-left: -15px; }
+
+.menu { background:#eeefef; }

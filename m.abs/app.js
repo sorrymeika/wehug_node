@@ -159,14 +159,14 @@ configloader('./config', function (config, routes) {
 
             //<!--api proxy
             var http = require('http');
-            app.all('*', function (request, response) {
+            app.all('/api/*', function (request, response) {
                 var url = request.url;//.replace(/^\/api/,'');
 
                 console.log(request.url);
 
                 var options = {
                     hostname: 'localhost',
-                    port: 11405,
+                    port: 6004,
                     path: url,
                     method: request.method,
                     headers: _.extend({}, request.headers, { host: 'localhost' })

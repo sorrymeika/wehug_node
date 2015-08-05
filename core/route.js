@@ -85,6 +85,7 @@ Route.prototype.match=function(url) {
                 view: route.view,
                 data: {},
                 queryString: query,
+                query: queries,
                 queries: queries
             };
 

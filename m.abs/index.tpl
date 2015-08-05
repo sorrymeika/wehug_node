@@ -4,7 +4,7 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="api-base-url" content="@html(debug?"http://127.0.0.1:5558":"http://wetrip.ie1e.com")" />
+    <meta name="api-base-url" content="@html(debug?"http://127.0.0.1:5559":"http://m.abs.cn")" />
     <title></title>
     @for(var key in css){
         var items=css[key],
