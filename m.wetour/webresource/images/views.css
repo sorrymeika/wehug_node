@@ -25,7 +25,7 @@
 
 .home .main { bottom: 50px; }
 
-.slider-pre,.slider-next {  background:rgba(0,0,0,.5) url(site.png) no-repeat -30px 5px;  background-size: 320px auto; width: 30px; height: 40px;}
+.slider-pre, .slider-next { background: rgba(0,0,0,.5) url(site.png) no-repeat -30px 5px; background-size: 320px auto; width: 30px; height: 40px; }
 .slider-next { -webkit-transform: rotate(180deg); }
 
 .btn_large { background: #46abef; height: 40px; line-height: 40px; margin: 10px 5%; }
@@ -89,6 +89,7 @@
 
 .radio:before { background: url(site.png) no-repeat -240px -30px; background-size: 320px auto; vertical-align: -10px; }
 .radio:before { width: 30px; height: 30px; content: ''; display: inline-block; }
+.radio.checked:before { background-position-x: -210px; }
 
 .txt_comment { width: 100%; border: 0px; padding: 6px; box-sizing: border-box; height: 200px; }
 
@@ -124,13 +125,13 @@
 .destcomment { float: right; font-weight: normal; font-size: 1em; }
 .destcomment:before { display: inline-block; background: url(site.png) no-repeat -120px -34px; content: ''; width: 30px; height: 27px; background-size: 320px auto; vertical-align: -10px; }
 
-.destcontent .quan_item{ border-bottom: 0px; }
+.destcontent .quan_item { border-bottom: 0px; }
 .destcontent .quan_list { position: relative; min-height: 100px; }
 
-.myactivity li { display:-webkit-box; padding: 10px; border-bottom: 1px solid #ddd; }
-.myactivity li div { -webkit-box-flex:1; }
-.myactivity li div b{  display: block; font-size: 1.2em; color:#333; }
-.myactivity li div span {  display: block; font-size: .8em; color:#999; }
-.myactivity li em {  display: block; line-height: 40px;}
-.myact_status0 { color:#999; }
-.myact_status1 { color:#59a42b; }
+.myactivity li { display: -webkit-box; padding: 10px; border-bottom: 1px solid #ddd; }
+.myactivity li div { -webkit-box-flex: 1; }
+.myactivity li div b { display: block; font-size: 1.2em; color: #333; }
+.myactivity li div span { display: block; font-size: .8em; color: #999; }
+.myactivity li em { display: block; line-height: 40px; }
+.myact_status0 { color: #999; }
+.myact_status1 { color: #59a42b; }

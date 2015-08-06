@@ -105,10 +105,13 @@
             this.y = b.current;
             this.$scroller.css({ '-webkit-transform': 'translate(' + (-this.x) + 'px,' + (-this.y) + 'px) translateZ(0)' });
         },
-        scrollTo: function (x, y) {
+        scrollTo: function (x, y, duration) {
             this.x = x > this.maxX ? this.maxX : x < this.minX ? this.minX : x;
             this.y = y > this.maxY ? this.maxY : y < this.minY ? this.minY : y;
-            this.$scroller.css({ '-webkit-transform': 'translate(' + (-this.x) + 'px,' + (-this.y) + 'px) translateZ(0)' });
+
+            var css = { '-webkit-transform': 'translate(' + (-this.x) + 'px,' + (-this.y) + 'px) translateZ(0)' };
+
+            !duration ? this.$scroller.css(css) : this.$scroller.animate(css, duration, 'ease-out');
         },
         destory: function () {
             this.touch.destory();

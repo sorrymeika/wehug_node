@@ -18,8 +18,33 @@
         join: function (arr, split) {
             return (arr instanceof Collection) ? arr.data.join(split) : arr.join(split);
         },
-        is: function (str, compare) {
-            return str == compare;
+        is: function (val, type) {
+            switch (type) {
+                case 'array':
+                    return $.isArray(val);
+                case 'object':
+                    return $.isPlainObject(val);
+                case 'empty':
+                    if (!val)
+                        return true;
+                    else if ($.isArray(val)) {
+                        return !val.length;
+                    } else if ($.isPlainObject(val)) {
+                        for (var key in val) {
+                            return false;
+                        }
+                        return true;
+                    }
+                    return false;
+                default:
+                    return typeof val == type;
+            }
+        },
+        equal: function (val, compare, a, b) {
+            return arguments.length == 2 ? val == compare : (val == compare ? a : b);
+        },
+        choose: function (flag, a, b) {
+            return flag ? a : b;
         },
         or: function (str, or) {
             return str || or;
@@ -71,7 +96,7 @@
             }
             return len % 2 == 0 ? undefined : args[len - 1];
         },
-        _addListener: function (parent, model, key, el, self, param, count) {
+        listen: function (parent, model, key, el, self, param, count) {
             var flag = false,
                 fkey;
 
@@ -92,65 +117,77 @@
                     var m = (param.length <= 0 ? parent : (parent.get(param) || parent.set(param.join('.'), {}).get(param)));
 
                     m.on("change" + (attr ? ':' + attr : ''), function () {
-                        model._setProp(el, self.prop, self.filter(Filter, model, model.data[key]))
+                        model._attr(el, self.prop, self.filter(Filter, model, model.data[key]))
                     });
                 }
             }
         }
     };
 
-    var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\'))*)/g;
+    var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\')\){0,1})*)/g;
     var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\')/g;
-    var listenerCode = function (parent) {
-        return 'if(el)Filter._addListener(' + parent + ',model,key,el,self,';
-    }
+    var formatStr = util.format;
 
     var filterFn = function (filters, listItem) {
-        var value;
         var code = '';
-        var before = 'var self=this;';
+        var before = 'var S=this;';
         var count = 0;
         var keys, key, alias;
+        var prefix = 'if(E)F.listen({0},M,K,E,S,';
 
         filters.replace(rfilter, function (match, filter, parameters) {
-            code += 'value=Filter.' + filter + '(value';
+            code += 'V=F.' + filter + '(V';
 
             parameters.replace(rparams, function (match, param) {
+                var parameterStr;
                 if (param[0] == '\'' || /^((-)*\d+|true|false|undefined|null)$/.test(param)) {
-                    code += ',' + param;
+                    parameterStr = param;
 
                 } else {
                     keys = param.split('.');
                     key = keys.shift();
 
                     if (!listItem || (key != listItem.alias && !(alias = listItem.modelAlias[key]))) {
-                        code += ',model.root.data.' + param;
-                        before += listenerCode('model.root') + '"' + param + '",' + (count++) + ');';
+                        parameterStr = 'M.root.data.' + param;
+                        before += formatStr(prefix, 'M.root') + '"' + param + '",' + (count++) + ');';
 
                     } else if (param == listItem.alias) {
-                        code += ',model.data';
-                        before += listenerCode('model.parent') + 'model._key,' + (count++) + ');';
+                        parameterStr = 'M.data';
+                        before += formatStr(prefix, 'M.parent') + 'M._key,' + (count++) + ');';
 
                     } else if (key == listItem.alias) {
-                        code += ',model.data' + param.substr(listItem.alias.length);
-                        before += listenerCode('model') + '"' + param.substr(listItem.alias.length + 1) + '",' + (count++) + ');';
+                        parameterStr = 'M.data' + param.substr(listItem.alias.length);
+                        before += formatStr(prefix, 'M') + '"' + param.substr(listItem.alias.length + 1) + '",' + (count++) + ');';
+
                     } else {
                         param = keys.join('.');
-                        code += ',(function(){parent=model.parent.parent;while(parent){if( parent.key=="' + alias + '^child"){' + listenerCode('parent') + '"' + param + '",' + (count++) + '); return parent.data.' + param + '; } parent=parent.parent.parent; } })()';
+                        parameterStr = '(function(){var P=M.parent.parent;while(P){if( P.key=="' + alias + '^child"){' + formatStr(prefix, 'P') + '"' + param + '",' + (count++) + '); return P.data.' + param + '; } P=P.parent.parent; } })()';
                     }
                 }
+
+                code += ',' + parameterStr;
             });
 
             code += ');';
         });
 
-        code += 'return value;';
-
+        code += 'return V;';
+        /*{
+            F: 'Filter',
+            M: 'model',
+            V: 'value',
+            K: 'key',
+            E: 'el',
+            P: 'parent',
+            S: this
+        }
         return new Function('Filter', 'model', 'value', 'key', 'el', before + code);
+        */
+        return new Function('F', 'M', 'V', 'K', 'E', before + code);
     };
 
     var rcollection = /([a-zA-Z_0-9]+)\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}/g;
-    var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*(?:[a-zA-Z_0-9\.-]+|'[^']*'))*)*)(\s|,|$)/g;
+    var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'[^']*?')\){0,1})*)*)(\s|,|$)/g;
     var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)(\s|,|$)/g;
 
     var $filterEl = function ($el, selector) {
@@ -370,7 +407,7 @@
         });
     };
 
-    var setElement = function (el, prop, value) {
+    var setAttribute = function (el, prop, value) {
         var attr;
         if (prop.indexOf('style.') == 0) {
             (attr = {})[prop.substr(6)] = value;
@@ -479,7 +516,7 @@
                     } else
                         val = value;
 
-                    this._setProp(el, prop, val);
+                    this._attr(el, prop, val);
                 }
             }
             return this;
@@ -498,13 +535,13 @@
             return this;
         },
 
-        _setProp: function (el, prop, val) {
+        _attr: function (el, attr, val) {
             if (typeof el === 'number') {
                 $filterEl(this.$el, '[sn-id="' + el + '"]').each(function () {
-                    setElement(this, prop, val);
+                    setAttribute(this, attr, val);
                 });
             } else {
-                setElement(el, prop, val);
+                setAttribute(el, attr, val);
             }
         },
 
@@ -647,14 +684,6 @@
         }
     };
 
-    var getValue = function (data, names) {
-        if (typeof names === 'string') names = names.split('.');
-        for (var i = 0, len = names.length; i < len; i++) {
-            data = data[names[i]];
-        }
-        return data;
-    };
-
     var Repeat = function (options, collection) {
         this.list = [];
         this.collection = collection;
@@ -673,7 +702,7 @@
             var flag = true;
 
             if (filter) {
-                filter = this.getValue(filter);
+                filter = this.deepValue(filter);
 
                 if (!filter) return true;
 
@@ -710,14 +739,14 @@
             }
         },
 
-        getValue: function (name) {
+        deepValue: function (name) {
             var names = name.split('.');
             var alias = this.modelAlias[names[0]];
 
             if (alias) {
 
             } else {
-                return getValue(this.collection.root.data, name);
+                return util.deepValue(this.collection.root.data, name);
             }
         },
 

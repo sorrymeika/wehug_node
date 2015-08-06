@@ -41,6 +41,8 @@
             navs: ''
         })).appendTo($(el)), options);
 
+        options = this.options;
+
         that.touch.on('stop', that.stop, that);
 
         $slider = that.$slider = that.$el.find('.js_slider');
@@ -61,7 +63,6 @@
             length = that.length;
         }
 
-
         if (options.imagelazyload) {
             that.bind("Change", function () {
                 that._loadImage();
@@ -74,10 +75,10 @@
             that._next = $('<span class="slider-next js_next"></span>').appendTo(that.$el);
 
             that.$el.on('tap', '.js_pre', function (e) {
-                that.index(options.index - 1);
+                that.index(options.index - 1, 300);
             })
             .on('tap', '.js_next', function (e) {
-                that.index(options.index + 1);
+                that.index(options.index + 1, 300);
             });
         }
 
@@ -129,7 +130,7 @@
             that.stopAutoLoop();
         },
 
-        index: function (index) {
+        index: function (index, duration) {
             var options = this.options,
                 x,
                 changeFlag;
@@ -154,8 +155,9 @@
                 options.index = index;
             }
 
+
             x = index * this.wrapperW;
-            this.scrollTo(x, 0);
+            this.scrollTo(x, 0, duration);
         },
         _getIndex: function () {
             var index = Math.round(this.x / this.wrapperW);

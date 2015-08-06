@@ -144,6 +144,24 @@
 
         pad: pad,
 
+        deepValue: function (data, names) {
+            if (typeof names === 'string')
+                names = names.split('.');
+
+            for (var i = 0, len = names.length; i < len; i++) {
+                data = data[names[i]];
+            }
+
+            return data;
+        },
+
+        format: function (format, str) {
+            var args = arguments;
+            return format.replace(/\{(\d+)\}/g, function (match, index) {
+                return args[parseInt(index) + 1];
+            })
+        },
+
         formatDate: function (d, f) {
             if (typeof d === "string" && /^\/Date\(\d+\)\/$/.test(d)) {
                 d = new Function("return new " + d.replace(/\//g, ''))();

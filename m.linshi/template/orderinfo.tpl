@@ -30,4 +30,4 @@
         </div>
     </div>
 </div>
-<footer class="bottom_bar"> <b class="btn_large2" style="display:none" sn-binding="display:order_info.order_status|is:6" sn-on="tap:cancel">取消订单</b> <b class="btn_large" sn-binding="display:order_info.order_status|is:6" sn-on="tap:pay" style="display:none">支付</b> </footer>
+<footer class="bottom_bar"> <b class="btn_large2" style="display:none" sn-binding="display:order_info.order_status|equal:6" sn-on="tap:cancel">取消订单</b> <b class="btn_large" sn-binding="display:order_info.order_status|equal:6" sn-on="tap:pay" style="display:none">支付</b> </footer>

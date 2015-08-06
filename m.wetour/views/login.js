@@ -55,8 +55,8 @@ define(function (require, exports, module) {
                     withCredentials: true
                 },
                 success: function (res) {
-                    if (res.error_msg)
-                        sl.tip(res.error_msg);
+                    if (!res.success)
+                        sl.tip(res.msg);
                     else {
                         util.store('user', res.data);
                         self.back(self.route.queries.success || '/');

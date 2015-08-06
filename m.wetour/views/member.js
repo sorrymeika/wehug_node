@@ -11,39 +11,20 @@
 
     return Activity.extend({
         events: {
-            'tap [user="gender"]': function (e) {
+            'tap [member="gender"]': function (e) {
                 var value = e.currentTarget.getAttribute('value');
+
                 if (this.model.get('user.Gender') != value)
                     this.setMemberInfo({
-                        id: this.user.ID,
+                        userid: this.user.ID,
                         auth: this.user.Auth,
-                        gender: value
+                        Gender: value
                     });
             },
             'change form input[type="file"]': function (e) {
                 guid++;
                 var self = this;
                 var form = e.target.parentNode;
-                /*
-                var fr = new FileReader();
-                fr.onload = function (evt) {
-                    self.loading.showLoading();
-                    $.post(bridge.url('/user/edit_photo'), {
-                        headPic: encodeURIComponent(evt.target.result.replace(/^data\:image\/[a-z]+\;base64,/g, '')),
-                        member_id: self.user.member_id
-                    }, function (res) {
-                        if (res.error_code != 0) {
-                            sl.tip(res.error_msg);
-                        } else {
-                            var photo_ver = Date.now();
-                            localStorage.setItem('photo_ver', photo_ver)
-                            self.model.set('user', { head_photo: res.data.head_photo + '?v=' + photo_ver });
-                        }
-                        self.loading.hideLoading();
-                    }, 'json');
-                };
-                fr.readAsDataURL(e.target.files[0]);
-                        */
                 var target = "_submit_iframe" + guid;
                 var resultText;
                 var $iframe = $('<iframe style="top:-999px;left:-999px;position:absolute;display:none;" frameborder="0" width="0" height="0" name="' + target + '"></iframe>')
@@ -60,10 +41,13 @@
                                 resultText = result;
                                 try {
                                     result = JSON.parse(resultText);
-                                    sl.tip(e.error_msg)
 
-                                    if (result.error_code == 0) {
+                                    if (result.success) {
+                                        var photo_ver = Date.now();
+                                        localStorage.setItem('photo_ver', photo_ver);
                                         self.loading.load();
+                                    } else {
+                                        sl.tip(result.msg)
                                     }
 
                                 } catch (e) {
@@ -72,6 +56,7 @@
                             }
                         });
 
+                form.target = target;
                 form.submit();
             }
         },
@@ -81,8 +66,8 @@
             var self = this;
             this.loading.showLoading();
             $.post(bridge.url('/api/user/update'), data, function (res) {
-                if (res.error_code != 0) {
-                    sl.tip(res.error_msg);
+                if (!res.success) {
+                    sl.tip(res.msg);
                 } else {
                     self.model.set('user', data);
                 }
@@ -105,7 +90,7 @@
                     value: '',
                     readonly: true,
                     click: function (e) {
-                        if (this.edit == 'edit') {
+                        if (this.data.edit == 'edit') {
                             self.model.set(name, {
                                 value: '确定',
                                 readonly: null,
@@ -113,12 +98,13 @@
                             });
                             self['$' + name].focus();
                         } else {
-                            if (self.model.data.user[name] != this.input) {
+                            if (self.model.data.user[name] != this.data.input) {
 
                                 var data = {
-                                    id: self.user.ID
+                                    userid: self.user.ID,
+                                    Auth: self.user.Auth
                                 };
-                                data[name] = this.input;
+                                data[name] = this.data.input;
 
                                 self.setMemberInfo(data);
                             }
@@ -147,7 +133,7 @@
                     check: false,
                     checkData: false,
                     params: {
-                        id: user.ID,
+                        userid: user.ID,
                         auth: user.Auth
                     },
                     $el: this.$el,

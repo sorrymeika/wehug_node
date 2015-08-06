@@ -28,31 +28,32 @@
             }
 
             this.model = new model.ViewModel(this.$el, {
-                memberUrl: '/member'
+                memberUrl: '/member',
+                logout: function () {
+                    util.store('user', null);
+                    self.back('/');
+                }
             });
-
-            var user = localStorage.getItem('user');
-            if (user) {
-                this.user = user = JSON.parse(user);
-                this.model.set({
-                    logoutOrLogin: '退出',
-                    user: user
-                });
-
-            } else {
-                this.model.set({
-                    logoutOrLogin: '登录',
-                    user: {
-                        NickName: '未登录'
-                    }
-                });
-            }
         },
 
         onShow: function () {
             var self = this;
-            if (self.user)
-                self.user.Avatars && self.model.set('user.Avatars', self.user.Avatars + '?v=' + localStorage.getItem('avatars_ver'));
+            var user = util.store('user');
+            if (!user) {
+                this.model.set({
+                    user: null
+                });
+
+            } else if (!self.isLoad) {
+                self.isLoad = true;
+                self.user = user;
+
+                self.model.set({
+                    user: user
+                });
+            }
+
+
         },
 
         onDestory: function () {
