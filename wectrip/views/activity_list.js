@@ -77,7 +77,7 @@
                     bind: "Pic",
                     width: 10,
                     render: function (data) {
-                        this.append('<a href="/' + data.Pic + '" target="_blank">' + data.Pic + '</a>');
+                        this.append('<a href="' + data.Pic + '" target="_blank">' + data.Pic + '</a>');
                     }
                 }, {
                     text: "操作",

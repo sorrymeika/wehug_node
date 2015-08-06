@@ -10,6 +10,7 @@
 		'/add_destination': { controller: 'add_destination', template: 'form' },
 		'/modify_destination/{id:\\d+}': { controller: 'modify_destination', template: 'form' },
 		'/recommend_list': { controller: 'recommend_list', template: 'list', api: '' },
+		'/quan_list': { controller: 'quan_list', template: 'list', api: '' },
 		'/activity_list': { controller: 'activity_list', template: 'list', api: '' },
 		'/add_activity': { controller: 'add_activity', template: 'form' },
 		'/modify_activity/{id:\\d+}': { controller: 'modify_activity', template: 'form' },

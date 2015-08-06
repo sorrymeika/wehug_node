@@ -70,7 +70,7 @@
                     bind: "MiddlePic",
                     width: 10,
                     render: function (data) {
-                        this.append('<a href="/' + data.MiddlePic + '" target="_blank">' + data.MiddlePic + '</a>');
+                        this.append('<a href="' + data.MiddlePic + '" target="_blank">' + data.MiddlePic + '</a>');
                     }
                 }, {
                     text: "操作",

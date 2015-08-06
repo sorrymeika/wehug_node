@@ -33,7 +33,7 @@
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                title: '活动管理'
+                title: '驴友圈管理'
             });
 
             this.onResult('activity_change', function () {
@@ -64,18 +64,21 @@
                 }, {
                     text: "发布人",
                     bind: "UserName",
-                    width: 10
+                    width: 10,
+                    render: function (data) {
+                        this.append(data.UserName || data.Mobile);
+                    }
                 }, {
                     text: "发布时间",
                     bind: "InsertTime",
-                    width: 17,
+                    width: 10,
                     render: function (data) {
                         this.append(util.formatDate(data.InsertTime));
                     }
                 }, {
                     text: "内容",
                     bind: "Content",
-                    width: 10,
+                    width: 30,
                     render: function (data) {
                         this.append(!data.Content || data.Content.length < 15 ? data.Content : data.Content.substr(0, 15));
                     }
@@ -85,7 +88,7 @@
                     align: 'center',
                     valign: 'center',
                     render: function (data) {
-                        this.append('<a href="javascript:;" >[详情]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
+                        this.append(' <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
                     }
                 }]
 

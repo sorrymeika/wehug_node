@@ -28,6 +28,9 @@
                 id: 'user',
                 url: '/user',
                 title: '用户管理'
+            }, {
+                url: '/quan_list',
+                title: '驴友圈管理'
             }/*, {
                 url: '/article_list',
                 title: '文案管理',
@@ -35,11 +38,7 @@
                     title: '添加文案',
                     url: '/add_article'
                 }]
-            }*/, {
-                id: 'admin',
-                title: '系统管理',
-                url: '/admin'
-            }]
+            }*/]
         });
     };
 
