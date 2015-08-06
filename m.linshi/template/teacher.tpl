@@ -5,7 +5,7 @@
 <div class="main teacherwrap">
     <div class="teacher_info">
         <div class="teacher_basic">
-            <img class="head_photo" sn-binding="src:basic_info.head_photo" />
+            <img class="head_photo" sn-binding="src:basic_info|avatar,onerror:basic_info|avatarError" />
             <div class="tb_item">
                 <h1 class="teacher_name" sn-binding="html:basic_info.teacher_name"></h1>
                 <div class="teacher_area" sn-binding="html:basic_info.area"></div>
@@ -76,6 +76,6 @@
     </div>
 </div>
 <footer class="bottom_bar">
-    <b class="btn_large2" data-forward="/appointment">免费试听</b>
+    <a class="btn_large2" href="tel:4009658980">咨询客服</a>
     <b class="btn_large" data-forward="/buy">立即购买</b>
 </footer>

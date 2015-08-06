@@ -20,7 +20,7 @@
                 var that = this,
                     target = $(e.currentTarget);
 
-                if (!/http\:|https\:|javascript\:|mailto\:/.test(target.attr('href')) && target.attr('target') != '_blank') {
+                if (!/^(http\:|https\:|javascript\:|mailto\:|tel\:)/.test(target.attr('href')) && target.attr('target') != '_blank') {
                     e.preventDefault();
                     var href = target.attr('href');
                     if (!/^#/.test(href)) href = '#' + href;

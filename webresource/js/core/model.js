@@ -18,6 +18,9 @@
         join: function (arr, split) {
             return (arr instanceof Collection) ? arr.data.join(split) : arr.join(split);
         },
+        is: function (str, compare) {
+            return str == compare;
+        },
         or: function (str, or) {
             return str || or;
         },
@@ -39,6 +42,7 @@
         round: function (number) {
             return Math.round(number)
         },
+        max: Math.max,
         mul: function (str, num) {
             return parseFloat(str) * parseFloat(num);
         },
@@ -72,23 +76,24 @@
                 fkey;
 
             if (el) {
-                if (typeof el == "number") {
-                    fkey = "_bind_filter" + self.prop + el + '_' + count;
-                    if (!model[fkey]) {
-                        model[fkey] = flag = true;
-                    } else {
-                        fkey = "_bind_filter" + self.prop + '_' + count;
-                        if (!el[fkey]) {
-                            el[fkey] = flag = true;
-                        }
+                fkey = "_bind_filter" + self.prop + (typeof el === "number" ? '' : el) + '_' + count;
+
+                if (!model[fkey]) {
+                    model[fkey] = flag = true;
+                } else {
+                    if (!el[fkey]) {
+                        el[fkey] = flag = true;
                     }
-                    if (flag) {
-                        param = param.split('.');
-                        var attr = param.pop();
-                        (param.length <= 0 ? parent : parent.get(param)).on("change" + (attr ? ':' + attr : ''), function () {
-                            model._setProp(el, self.prop, self.filter(Filter, model, model.data[key]))
-                        });
-                    }
+                }
+                if (flag) {
+
+                    param = param.split('.');
+                    var attr = param.pop();
+                    var m = (param.length <= 0 ? parent : (parent.get(param) || parent.set(param.join('.'), {}).get(param)));
+
+                    m.on("change" + (attr ? ':' + attr : ''), function () {
+                        model._setProp(el, self.prop, self.filter(Filter, model, model.data[key]))
+                    });
                 }
             }
         }
@@ -1009,7 +1014,7 @@
                     fn = ctx.get(model);
                 }
                 index = model.lastIndexOf('.');
-                fn && fn.call((index == -1 ? ctx : ctx.get(model.substr(0, index))).data, e);
+                fn && fn.call(index == -1 ? ctx : ctx.get(model.substr(0, index)), e);
             }
         },
 

@@ -138,7 +138,7 @@
                             //self.forward('/order/' + res.data.order_code + "?from=" + self.route.url);
 
                         } else {
-                            self.forward('/order/' + res.data.order_code + "?paytype=alipay&from=" + self.route.url);
+                            self.forward('/order/' + res.data.order_code + "?paytype=alipay&from=" + self.route.url + "&show=" + encodeURIComponent(location.href));
                         }
                     }
                 },

@@ -152,6 +152,8 @@ define(function (require, exports, module) {
 
         onShow: function () {
             var that = this;
+
+            this.$el.css({ background: 'rgba(0,0,0,.5)' });
         },
 
         onDestory: function () {

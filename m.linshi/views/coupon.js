@@ -14,6 +14,15 @@
                 if (e.target == this.el) {
                     this.back('/')
                 }
+            },
+            'tap .coupon_list > .coupon_item': function (e) {
+                var id = $(e.currentTarget).data('id');
+                var coupon = util.first(this.model.data.data, function (item) {
+                    return id == item.coupon_id;
+                });
+
+                this.setResult('couponSelect', coupon);
+                this.back(this.swipeRightBackAction);
             }
         },
 
@@ -23,10 +32,24 @@
             var self = this;
 
             var $main = this.$('.main');
+            this.$exchange = this.$el.find('.btn_exchange');
+
+            this.swipeRightBackAction = this.route.query.from || '/';
 
             this.model = new model.ViewModel(this.$el, {
-                back: '/',
-                title: '我的订单'
+                back: this.swipeRightBackAction,
+                title: '优惠券',
+                exchange: function () {
+                    if (!this.data.coupon_code) {
+                        sl.tip('请输入优惠券码')
+                    } else {
+                        self.exchange.setParam({
+                            member_id: self.member.member_id,
+                            exchange_code: this.data.coupon_code
+
+                        }).load();
+                    }
+                }
             });
 
             Scroll.bind($main, {
@@ -40,47 +63,36 @@
                 }
             });
 
-            model.Filter.getOrderStatus = function (status) {
+            model.Filter.couponPrice = function (coupon) {
+                return coupon.coupon_id == 11 ? '1折' : (Math.round(coupon.price) + '元');
+            }
+            model.Filter.getCouponStatus = function (status) {
                 var result;
-                switch (status) {
+                switch (parseInt(status)) {
                     case 1:
-                        result = '已取消';
+                        result = '未使用';
                         break;
                     case 2:
-                        result = "待确认课酬";
+                        result = "已使用";
                         break;
                     case 3:
-                        result = "已确认课酬";
+                        result = "已过期";
                         break;
                     case 4:
-                        result = "待评价";
-                        break;
-                    case 5:
-                        result = "已评价，已完成";
-                        break;
-                    case 6:
-                        result = "待付款";
+                        result = "已练结";
                         break;
                 }
                 return result;
             }
 
-            self.onResult('order_cancel', function (e, order_code) {
-                self.model.data.data.forEach(function (item, i) {
-                    if (item.order_code == order_code) {
-                        self.model.set('data.' + i + '.order_status', 1);
-                    }
-                })
-            });
-
             this.loading = new Loading({
-                url: '/order/order_list',
+                url: '/coupon/coupon_list',
                 params: {
-                    sort: 'desc',
-                    order_by: 'order_id',
-                    member_id: ''
+                    sort: 'asc',
+                    order_by: 'end_time'
                 },
                 check: false,
+                checkData: false,
                 $el: this.$el,
                 $content: $main.children(":first-child"),
                 $scroll: $main,
@@ -89,6 +101,10 @@
                         res.total = (this.pageIndex + 1) * this.pageSize;
 
                     self.model.set(res);
+
+                    if (!res.data || !res.data.length) {
+                        this.showError('暂无优惠券');
+                    }
                 },
                 append: function (res) {
                     if (res.data.length >= 10) {
@@ -96,6 +112,21 @@
                     }
 
                     self.model.get('data').append(res.data);
+                }
+            });
+
+            this.exchange = new Loading({
+                url: '/coupon/exchange_coupon',
+                check: false,
+                checkData: false,
+                $el: this.$el,
+                success: function (res) {
+                    if (res.error_code == 0) {
+                        self.loading.reload();
+                        self.model.set('coupon_code', '');
+                    }
+                    else
+                        sl.tip(res.error_msg);
                 }
             });
 
@@ -110,13 +141,12 @@
             } else {
                 this.model.set('member', member);
                 this.member = member;
-                if (!this.isLoad) {
-                    this.isLoad = true;
-                    this.loading.setParam({
-                        member_id: member.member_id
 
-                    }).load();
-                }
+                this.loading.setParam({
+                    member_id: member.member_id,
+                    use_type: 1
+
+                }).load();
             }
         },
 

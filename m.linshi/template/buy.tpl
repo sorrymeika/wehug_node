@@ -33,9 +33,9 @@
             <span class="label">上课地址</span>
             <em class="con" sn-binding="html:basic_info.class_address.address_detail"></em>
         </li>
-        <li>
+        <li sn-on="tap:selectCoupon">
             <span class="label">优惠券</span>
-            <em class="con" sn-binding="html:coupon"></em>
+            <em class="con" sn-binding="html:coupon_title"></em>
             <i class="ico_next"></i>
         </li>
         <li class="multi">
@@ -45,7 +45,7 @@
                 <span class="label" sn-binding="html:total_time|concat:'小时'"></span><em class="con" sn-binding="html:total_time|mul:basic_info.price|concat:'元'"></em>
             </p>
             <p class="bill_li"><span class="label">优惠券</span><em class="con" sn-binding="html:coupon_price|concat:'元'"></em></p>
-            <p class="bill_li"><span class="label">合计</span><em class="con" sn-binding="html:total_time|mul:basic_info.price|minus:coupon_price|concat:'元'"></em></p>
+            <p class="bill_li"><span class="label">合计</span><em class="con" sn-binding="html:total_time|mul:basic_info.price|minus:coupon_price|max:0|concat:'元'"></em></p>
         </li>
     </ul>
 </div>

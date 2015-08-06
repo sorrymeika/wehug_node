@@ -7,6 +7,7 @@
 	route: {
 		"/": { controller: "home", template: "home" },
 		"/index": { controller: "index", template: "index" },
+		"/brand": { controller: "brand", template: "brand" },
 		"/menu": { controller: "menu", template: "menu" },
 		"/about": { controller: "about", template: "about" },
 		"/member": { controller: "member", template: "member" },
@@ -20,6 +21,8 @@
 		"/findlist/{id:\\d+}": { controller: "findlist", template: "findlist" },
 		"/order/{id:\\w+}": { controller: "order", template: "order" },
 		"/orderlist": { controller: "orderlist", template: "orderlist" },
+		"/orderinfo/{code:\\w+}": { controller: "orderinfo", template: "orderinfo" },
+		"/coupon": { controller: "coupon", template: "coupon" },
 		"/find/{id:\\d+}": { controller: "find", template: "find" },
 		"/find/{type:\\d+}/{id:\\d+}": { controller: "find", template: "find" },
 		"/buy": { controller: "buy", template: "buy" },

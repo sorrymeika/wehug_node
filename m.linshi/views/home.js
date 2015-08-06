@@ -21,7 +21,7 @@ define(function (require, exports, module) {
                 if ($(e.target).hasClass("citylistwrap")) {
                     this.$citylist.removeClass("show");
                     this.$('.head_city').removeClass('select_city');
-                    this.model.set('ico', 'head_menu');
+                    this.$('.head_menu').css({ visibility: '' });
                 }
             },
             'tap .head_menu': function (e) {
@@ -32,10 +32,10 @@ define(function (require, exports, module) {
                 if ($target.hasClass('select_city')) {
                     this.$citylist.show()[0].clientHeight;
                     this.$citylist.addClass("show");
-                    this.model.set('ico', 'display_none');
+                    this.$('.head_menu').css({ visibility: 'hidden' });
                 } else {
                     this.$citylist.removeClass("show");
-                    this.model.set('ico', 'head_menu');
+                    this.$('.head_menu').css({ visibility: '' });
                 }
             }
         },
@@ -53,12 +53,13 @@ define(function (require, exports, module) {
                 title: '发现身边好老师',
                 city: '上海',
                 city_list: [{
-                    city_name: '成都'
-                }, {
                     city_name: '杭州'
                 }, {
                     city_name: '南京'
-                }]
+                }],
+                cityTip: function () {
+                    sl.tip('即将开通，敬请期待');
+                }
             });
 
             this.$citylist = this.$('.citylistwrap');

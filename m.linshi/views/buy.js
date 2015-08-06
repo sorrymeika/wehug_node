@@ -67,17 +67,48 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
+            self.onResult('couponSelect', function (e, coupon) {
+
+                if (coupon.coupon_id == 11) {
+                    var data = self.model.data;
+                    var amount = data.basic_info.price * data.total_time;
+                    coupon.price = Math.min(200, Math.round(amount * .9));
+                }
+
+                this.model.set({
+                    coupon_id: coupon.coupon_id,
+                    coupon_price: coupon.price,
+                    coupon_title: coupon.coupon_title
+                });
+            });
+
+            if (!teacher.course_list) {
+                sl.tip('该老师没有课程可以选择');
+            }
+
             this.model = new model.ViewModel(this.$el, $.extend({
                 back: this.teacherUrl,
                 title: '确认购课',
-                course: this.route.data.id ? util.first(teacher.course_list, function (item) {
+                course: teacher.course_list ? (this.route.data.id ? util.first(teacher.course_list, function (item) {
                     return item.course_id == self.route.data.id;
-                }) : teacher.course_list[0],
+                }) : teacher.course_list[0]) : null,
                 total_time: 1,
                 coupon_price: 0,
-                coupon_id: 0
+                coupon_id: 0,
+                selectCoupon: function (e) {
+                    self.forward('/coupon?from=/buy&select=1')
+                }
 
             }, teacher));
+
+            this.model.on('change:total_time', function () {
+                var data = self.model.data;
+
+                if (data.coupon_id == 11) {
+                    var amount = data.basic_info.price * data.total_time;
+                    self.model.set("coupon_price", Math.min(200, Math.round(amount * .9)));
+                }
+            });
 
             this.$buy = this.$el.find('.js_submit');
 
@@ -108,11 +139,11 @@ define(function (require, exports, module) {
                         util.store('orderInfo', orderInfo);
 
                         if (util.isInWechat) {
-                            location.href = 'http://' + (sl.isDebug ? 'front' : 'www') + '.linshi.biz/wxpay/index?out_trade_no=' + res.data.order_code + "&return=" + encodeURIComponent(location.href) + "&show=" + encodeURIComponent(self.teacherUrl);
+                            location.href = 'http://' + (sl.isDebug ? 'front' : 'www') + '.linshi.biz/wxpay/index?out_trade_no=' + res.data.order_code + "&return=" + encodeURIComponent(location.href) + "&show=" + encodeURIComponent("http://m.linshi.biz/#" + self.teacherUrl);
                             //self.forward('/order/' + res.data.order_code + "?from=" + self.route.url);
 
                         } else {
-                            self.forward('/order/' + res.data.order_code + "?paytype=alipay&from=" + self.teacherUrl);
+                            self.forward('/order/' + res.data.order_code + "?paytype=alipay&from=" + self.teacherUrl + "&show=http://" + location.host + "/#" + self.teacherUrl);
                         }
                     }
                 },

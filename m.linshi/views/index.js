@@ -51,6 +51,13 @@
             var $main = this.$('.main');
             this.$searchFilters = this.$('.search_filters');
 
+            model.Filter.avatar = function (item) {
+                return item.head_photo ? item.head_photo : (item.sex == '女' ? 'images/default_photo_fe.png' : 'images/default_photo.png');
+            }
+            model.Filter.avatarError = function (item) {
+                return "this.src='" + (item.sex == '女' ? 'images/default_photo_fe.png' : 'images/default_photo.png') + "'";
+            }
+
             this.model = new model.ViewModel(this.$el, {
                 back: 'head_back js_home',
                 filters: [{
@@ -71,8 +78,23 @@
                 }],
                 city: {
                     name: '上海'
+                },
+                showDownload: !util.store('hideDownload'),
+                closeDownload: function () {
+                    self.model.set('showDownload', false);
+                    util.store('hideDownload', true);
+                },
+                download: function () {
+                    if (util.isInWechat) {
+                        sl.tip('若微信内无法打开下载链接，请点击右上角并选择“' + (util.ios ? '在Safari中打开' : '在浏览器中打开') + '”');
+                    } else {
+                        location.href = (util.android ? "http://api.linshi.biz/download/linshi.apk" : "https://itunes.apple.com/us/app/lin-shi/id1001036632?l=zh&ls=1&mt=8");
+                    }
                 }
             });
+
+            util.store('hideDownload', null)
+
             Scroll.bind($main, {
                 //useScroll: true,
                 refresh: function (resolve, reject) {
@@ -89,7 +111,7 @@
                 url: '/teacher/teacher_list',
                 params: {
                     sort: 'member_id',
-                    order_by: 'desc'
+                    order_by: 'asc'
                 },
                 check: false,
                 $el: this.$el,

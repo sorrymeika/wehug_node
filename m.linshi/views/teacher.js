@@ -39,9 +39,16 @@
                 return parseFloat(score) + '%'
             }
 
+            model.Filter.avatar = function (item) {
+                return item.head_photo ? item.head_photo : (item.sex == '女' ? 'images/default_photo_fe.png' : 'images/default_photo.png');
+            }
+            model.Filter.avatarError = function (item) {
+                return "this.src='" + (item.sex == '女' ? 'images/default_photo_fe.png' : 'images/default_photo.png') + "'";
+            }
+
             this.model = new model.ViewModel(this.$el, {
                 title: '老师详情页',
-                back: this.route.queries.from || '/'
+                back: this.route.queries.from || '/index'
             });
 
             this.loading = new Loading({

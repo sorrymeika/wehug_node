@@ -26,7 +26,7 @@
                 if (sl.isInApp) {
                     alert("linshi://" + JSON.stringify({ method: 'back' }));
                 } else {
-                    this.back('/');
+                    this.back('/brand');
                 }
             },
             'tap .js_share': function (e) {
@@ -38,7 +38,7 @@
                 }));
             }
         },
-        swipeRightBackAction: sl.isInApp ? null : '/',
+        swipeRightBackAction: sl.isInApp ? null : '/brand',
         className: 'piano_bg',
 
         onCreate: function () {

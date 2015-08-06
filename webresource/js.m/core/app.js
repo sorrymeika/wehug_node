@@ -170,7 +170,7 @@
                 var that = this,
                     target = $(e.currentTarget);
 
-                if (!/http\:|https\:|javascript\:|mailto\:/.test(target.attr('href'))) {
+                if (!/^(http\:|https\:|javascript\:|mailto\:|tel\:)/.test(target.attr('href'))) {
                     e.preventDefault();
                     if (e.type == 'tap') {
                         var href = target.attr('href');

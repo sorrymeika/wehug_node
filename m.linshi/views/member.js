@@ -103,7 +103,8 @@
                     value: '',
                     readonly: true,
                     click: function (e) {
-                        if (this.edit == 'edit') {
+                        var me = this.data;
+                        if (me.edit == 'edit') {
                             self.model.set(name, {
                                 value: '确定',
                                 readonly: null,
@@ -111,12 +112,12 @@
                             });
                             self['$' + name].focus();
                         } else {
-                            if (self.model.data.member[name] != this.input) {
+                            if (self.model.data.member[name] != me.input) {
 
                                 var data = {
                                     member_id: self.member.member_id
                                 };
-                                data[name] = this.input;
+                                data[name] = me.input;
 
                                 self.setMemberInfo(data);
                             }

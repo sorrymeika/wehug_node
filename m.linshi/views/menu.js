@@ -20,6 +20,9 @@
         onCreate: function () {
             var self = this;
 
+            model.Filter.defAvatar = function (avatar) {
+            }
+
             this.model = new model.ViewModel(this.$el, {
                 memberUrl: '/member',
                 user_name: '请登录'
@@ -65,7 +68,8 @@
             var self = this;
             if (self.member)
                 self.model.set({
-                    avatars: self.member.head_photo + '?v=' + localStorage.getItem('photo_ver')
+                    avatars: self.member.head_photo + '?v=' + localStorage.getItem('photo_ver'),
+                    defAvatar: self.member.sex == '女' ? 'images/default_photo_fe.png' : 'images/default_photo.png'
                 });
         },
 

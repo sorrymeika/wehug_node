@@ -19,7 +19,6 @@
         this.error = options.error || this.showError;
         this.$content = options.$content || this.$el;
         this.$scroll = options.$scroll || this.$el;
-        this.$el.on('tap', '.js_reload', $.proxy(this.reload, this));
     }
 
     Loading.prototype = {
@@ -70,7 +69,7 @@
                     that.$loading.hide().css({ opacity: '' });
                 });
 
-                var $error = (that.$error || (that.$error = $(that.errorTemplate).appendTo(that.$el)));
+                var $error = (that.$error || (that.$error = $(that.errorTemplate).on('tap', '.js_reload', $.proxy(that.reload, that)).appendTo(that.$el)));
 
                 if (typeof option == 'string') {
                     option = {
@@ -126,7 +125,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else 
+            else
                 (attrs = {})[key] = val;
 
             if (this.headers === undefined) this.headers = {};
@@ -141,7 +140,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else 
+            else
                 (attrs = {})[key] = val;
 
             for (var attr in attrs) {
@@ -309,7 +308,7 @@
         destory: function () {
             this.abort();
             this.disableAutoRefreshing();
-            this.$el.off('tap', '.js_reload', this.reload);
+            this.$error && this.$error.off('tap', '.js_reload', this.reload);
         }
     };
 
