@@ -7,20 +7,21 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "webresource", "webresource\
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
 		Debug.AspNetCompiler.VirtualPath = "/localhost_57301"
-		Debug.AspNetCompiler.PhysicalPath = "E:\node\wehug_node\webresource\"
+		Debug.AspNetCompiler.PhysicalPath = "webresource\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_57301\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
 		Release.AspNetCompiler.VirtualPath = "/localhost_57301"
-		Release.AspNetCompiler.PhysicalPath = "E:\node\wehug_node\webresource\"
+		Release.AspNetCompiler.PhysicalPath = "webresource\"
 		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_57301\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "57301"
+		SlnRelativePath = "webresource\"
 	EndProjectSection
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "core", "core\", "{1D0E6C3A-4686-48BE-BD25-EF71F2A550FD}"
@@ -41,6 +42,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "core", "core\", "{1D0E6C3A-
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "63362"
+		SlnRelativePath = "core\"
 	EndProjectSection
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "tools", "tools\", "{DB271355-6870-458A-AFA4-33A2CED03EB8}"
@@ -61,6 +63,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "tools", "tools\", "{DB27135
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
 		VWDPort = "63420"
+		SlnRelativePath = "tools\"
 	EndProjectSection
 EndProject
 Global
