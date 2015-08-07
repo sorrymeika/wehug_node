@@ -10,13 +10,7 @@ define(function (require, exports, module) {
 
 
     return Activity.extend({
-        events: {
-            'tap .myactivity > li[data-id]': function (e) {
-                var $target = $(e.currentTarget);
-                this.forward('/activity/' + $target.data('id') + "?from=" + this.route.url);
-            }
-        },
-        swipeRightBackAction: '/',
+        events: {},
 
         onCreate: function () {
             var self = this;

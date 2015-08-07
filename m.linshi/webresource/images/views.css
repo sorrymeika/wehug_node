@@ -280,6 +280,34 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .btn_back:before { content: ''; display: block; background-color: rgba(255,255,255,.5); width: 30px; height: 30px; border-radius: 50%; font-weight: bold; color: #f90; }
 .btn_back:after { content: ''; display: block; position: absolute; border-left: 2px solid #f90; border-top: 2px solid #f90; top: 19px; left: 21px; width: 10px; height: 10px; -webkit-transform: rotate(-45deg); }
 
+.find2 .piano_base p, .find2 .piano_base, .find2 .piano_price h3, .find2 .piano_price del { color: #fff; }
+.find2 .piano_price i { color: #fff; }
+.find2 .piano_price i:before { background: #fff; color: #dd3a3a; }
+.find2 .piano_bd h4 { background: #e04d4c; color: #fff; }
+.find2 .piano_bd h4:after { background: #e04d4c; }
+.find2 .piano:after { border-right: 2px solid #e04d4c; }
+
+.findlist2 { padding-top: 1px; }
+.findlist2 > li { background: #fff; margin: 0 10px 10px 10px; display: -webkit-box; }
+.findlist2 .con { -webkit-box-flex: 1; position: relative; }
+.findlist2 .con h2 { padding: 10px 0 0 10px; }
+.findlist2 .con h3 { margin: 6px 0 0 10px; font-size: 0.8em; line-height: 1.4; color: #3c3c3c; }
+.findlist2 .con ul { position: absolute; text-align: center; right: 0px; left: 0px; top: 87px; bottom: 0px; height: 32px; line-height: 32px; display: -webkit-box; }
+.findlist2 .con ul li { width: 50%; background: #e9e4e4; color: #545556; }
+.findlist2 .con ul li:before { content: '好评率'; display: inline; font-size: 8px; margin-right: 5px; }
+.findlist2 .con ul li:last-child:before { content: '续课率'; }
+.findlist2 .con ul li:first-child:after { content: ''; display: inline-block; width: 1px; background: #ccc; height: 30px; margin-top: 2px; float: right; }
+
+.findlist2 .ft { width: 120px; height: 120px; background: #f8643c; color: #fff; padding: 10px 8px 10px 10px; }
+.findlist2 .ft :nth-child(n) { float: left; }
+.findlist2 .ft i { font-size: 1em; font-weight: bold; text-align: center; }
+.findlist2 .ft i:before { display: block; content: '首单'; color: #f8643c; width: 17px; padding: 1px; border-radius: 2px; text-align: center; background: #fff; }
+.findlist2 .price { font-size: 4.5em; line-height: 1; margin: -10px 0 0 5px; }
+.findlist2 .ft .info { font-size: .5em; margin-top: 3px; width: 68px; }
+.findlist2 .ft .info > :nth-child(n) { display: block; }
+.findlist2 .ft .info > :first-child ~ span { color: #b14134; }
+.findlist2 .ft:after { content: '点击详情'; font-size: .8em; text-align: center; float: left; width: 32px; height: 32px; background: #b14134; color: #f8643c; margin: 3px 0 0 0; }
+
 @media screen and (min-width: 360px) {
     .pianoli_con, .pianolist_bd li:nth-child(2n+1) img { height: 180px; }
     .pianoli_con h2 { margin-top: 10px; }
@@ -298,13 +326,6 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .order ul li:nth-child(2):before { content: "授课老师："; }
 .order ul li:nth-child(3):before { content: "订单单号："; }
 .order ul li:nth-child(4):before { content: "实际支付："; }
-
-.find2 .piano_base p, .find2 .piano_base, .find2 .piano_price h3, .find2 .piano_price del { color: #fff; }
-.find2 .piano_price i { color: #fff; }
-.find2 .piano_price i:before { background: #fff; color: #dd3a3a; }
-.find2 .piano_bd h4 { background: #e04d4c; color: #fff; }
-.find2 .piano_bd h4:after { background: #e04d4c; }
-.find2 .piano:after { border-right: 2px solid #e04d4c; }
 
 .download { top: -1px; background: #fff; }
 .download img { width: 100%; display: block; }

@@ -125,7 +125,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else
+            else 
                 (attrs = {})[key] = val;
 
             if (this.headers === undefined) this.headers = {};
@@ -140,7 +140,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else
+            else 
                 (attrs = {})[key] = val;
 
             for (var attr in attrs) {

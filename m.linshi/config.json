@@ -19,12 +19,14 @@
 		"/appointment": { controller: "appointment", template: "appointment" },
 		"/find": { controller: "findlist", template: "findlist" },
 		"/findlist/{id:\\d+}": { controller: "findlist", template: "findlist" },
+		"/findlist2/{id:\\d+}": { controller: "findlist", template: "findlist2" },
 		"/order/{id:\\w+}": { controller: "order", template: "order" },
 		"/orderlist": { controller: "orderlist", template: "orderlist" },
 		"/orderinfo/{code:\\w+}": { controller: "orderinfo", template: "orderinfo" },
 		"/coupon": { controller: "coupon", template: "coupon" },
 		"/find/{id:\\d+}": { controller: "find", template: "find" },
 		"/find/{type:\\d+}/{id:\\d+}": { controller: "find", template: "find" },
+		"/find2/{type:\\d+}/{id:\\d+}": { controller: "find", template: "find2" },
 		"/buy": { controller: "buy", template: "buy" },
 		"/buy/{id:\\d+}": { controller: "buy", template: "buy" }
   }

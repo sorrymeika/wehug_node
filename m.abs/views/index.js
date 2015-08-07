@@ -7,6 +7,8 @@
     var Slider = require('../widget/slider');
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
+    var barcode1 = require('../widget/barcode');
+    var barcode = require('../util/barcode');
     var animation = require('animation');
 
 
@@ -154,6 +156,7 @@
 
             if (isLogin) {
                 self.showPoints();
+                self.model.set('barcode', barcode.code93(self.user.Mobile).replace(/0/g, '<em></em>').replace(/1/g, '<i></i>'))
             }
         },
 

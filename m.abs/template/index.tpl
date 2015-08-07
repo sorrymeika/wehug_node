@@ -3,7 +3,7 @@
     <div sn-binding="html:title,class:titleClass"></div>
     <div class="head_msg"></div>
 </header>
-<div class="main" data-index="0">
+<div class="main" style="display:none" data-index="0">
     <div class="js_slider"></div>
     <div sn-binding="display:isLogin" class="home_bd">
         <div class="home_vip">
@@ -40,7 +40,7 @@
     </div>
     <div sn-binding="display:isLogin|not" class="home_notlogin">
         <div class="home_mask"></div>
-        <div class="home_text">
+        <div class="home_text" data-forward="/login">
             <h1></h1>
             <h2>让回家的灯，为爱亮起来。</h2>
             <h3>开启时尚居家之旅</h3>
@@ -55,7 +55,11 @@
 </div>
 <div class="main" style="display:none" data-index="2">
 </div>
-<div class="main" style="display:none" data-index="3">
+<div class="main home_my" data-index="3">
+    <div class="my">
+        <div class="barcode" sn-binding="html:barcode">
+        </div>
+    </div>
 </div>
 <ul class="footer" sn-binding="display:isLogin">
     <li class="curr">首页</li>

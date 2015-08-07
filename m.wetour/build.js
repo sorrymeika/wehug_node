@@ -178,6 +178,13 @@ module.exports = function (env) {
 
         tools.combine(combine);
 
+        var fsc = require('../core/fs');
+
+        fsc.copy('../webresource/images.m', path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+            fsc.copy('webresource/images', path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+            });
+        });
+
         build(config, routes, requires);
     });
 }
