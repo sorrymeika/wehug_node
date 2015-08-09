@@ -99,9 +99,72 @@
 .home_points_cursor { width: 30px; height: 30px; background: url(icon.png) no-repeat 0px -90px; background-size: 320px auto; position: absolute; z-index: 1000; -webkit-transform-origin: 50% 50%; -webkit-transform: rotate(-117deg); left: 10px; top: 132px; margin-top: -15px; margin-left: -15px; }
 
 .menu { background: #eeefef; }
+.menu_bd { position: absolute; right: 20%; top: 0; left: 0; bottom: 0; }
+.menu_user { height: 90px; }
+.menu_list { border-top: 1px solid #ccc; margin-bottom: 40px; }
+.menu_list li { border-bottom: 1px solid #ccc; overflow: hidden; line-height: 50px; }
+.menu_list li:before { margin: 6px 5px 5px 5px; }
 
-.home_my { background: #fff; }
+.menu_service li:nth-child(1):before { background-position-x: -160px; }
+.menu_service li:nth-child(2):before { background-position-x: -200px; }
+
+.menu_settings li:nth-child(1):before { background-position-x: -240px; }
+
+.home .main { bottom: 50px; }
+.home_my { }
 
 .barcode { height: 80px; display: block; width: 100px; display: -webkit-box; margin: 50px 0 0 20px; }
 .barcode i, .barcode em { height: 100%; display: block; width: 2px; }
 .barcode i { background: #000; }
+
+.myabs { margin: 10px 0; border-bottom: 1px solid #d6415c; background: #fff; color: #333; }
+.myabs li { border-top: 1px solid #d6415c; overflow: hidden; }
+.myabs li:before, .menu_list li:before { display: block; content: ''; float: left; width: 40px; height: 40px; border-radius: 50%; background: url(icon.png) no-repeat 0px -150px; background-size: 320px auto; }
+.myabs li:before { margin: 16px 12px 16px 12px; -webkit-transform: scale(1.4); }
+.myabs li:nth-child(2):before, .menu_my li:nth-child(2):before { background-position-x: -40px; }
+.myabs li:nth-child(3):before, .menu_my li:nth-child(3):before { background-position-x: -80px; }
+.myabs li:nth-child(4):before, .menu_my li:nth-child(4):before { background-position-x: -120px; }
+.myabs li b { display: block; margin-top: 19px; font-size: .9em; }
+.myabs li span { display: block; font-size: .8em; margin-top: 5px; }
+.myabs li em { color: #d4003b; }
+
+.month_present { padding: 6px; background: #fff; }
+.month_present img { display: block; width: 100%; min-height: 100px; }
+.month_notice { font-size: .8em; text-align: center; margin-top: 10px; }
+.month_notice em { color: #d6415c; }
+.month li { float: left; width: 25%; margin-left: 6%; background: #d6415c; margin-top: 20px; text-align: center; position: relative; border-radius: 4px; color: #fff; }
+.month .flag { position: absolute; top: 6px; left: 0px; font-size: .6em; background: #c00; padding: 1px; z-index: 2; }
+.month li:before { padding-top: 85.71%; content: ''; display: block; }
+.month li img { position: absolute; width: 100%; min-height: 69px; top: 0px; border-radius: 4px; display: block; z-index: 1; }
+.month li span { position: absolute; top: 50%; left: 0; width: 100%; margin-top: -7px; font-size: 14px; z-index: 2; }
+.month .lastmonth ~ li { background: #f4ca3c; }
+
+.month .curr em { position: absolute; display: block; width: 106%; margin-left: -3%; background: #c00; color: #fff; bottom: -5px; font-size: 1em; padding: 6px; border-radius: 4px; }
+.month .curr em:before { content: ''; display: block; background: #c00; width: 7px; height: 7px; position: absolute; top: -3px; left: 20%; -webkit-transform: rotate(45deg); }
+
+.mycard { background: #fff; }
+
+.mycard_hd { display: -webkit-box; margin-top: 2px; text-align: center; }
+.mycard_hd li { -webkit-box-flex: 1; width: 0px; background: #eeefef; color: #666; height: 40px; line-height: 40px; }
+.mycard_hd .curr { background: #d6415c; color: #fff; }
+
+.mycard_con { margin-top: 10px; }
+.mycard_con li { height: 95px; margin: 0px 5px 5px 5px; overflow: hidden; position: relative; background: #f36a39; }
+.mycard_con li:after, .mycard_con .free:before { background: url(site.png) no-repeat 0px -30px; background-size: 320px auto; position: absolute; right: 0px; bottom: 0px; content: ''; display: block; width: 139px; height: 55px; z-index: 0; }
+.mycard_con li.free { background: #5096f7; }
+.mycard_con li.free:before { width: 100px; height: 69px; background-position: 0px -85px; left: 20px; top: 17px; }
+.mycard_con li.free .name { font-size: 2em; color: #fff; margin: 40px 0 0 130px; }
+.mycard_con .time { padding-top: 0; color: #fff; font-size: .8em; width: 100px; position: absolute; text-align: center; right: -10px; top: 50%; margin-top: -19px; -webkit-transform-origin: 50% 50%; -webkit-transform: rotate(-90deg); }
+.mycard_con .time .hd:before, .mycard_con .time .hd:after { display: inline-block; content: ''; border-top: 1px solid #fff; width: 27px; height: 5px; }
+.mycard_con .time .hd:before { margin-right: 3px; }
+.mycard_con .time .hd:after { margin-left: 3px; }
+.mycard_con .time .con { margin-top: 10px; }
+
+.mycard_con .name { font-size: .84em; color: #fff; margin: -5px 0 0 20px; }
+.mycard_con .price:before { content: '￥'; display: inline-block; font-size: 12px; vertical-align: 2px; }
+.mycard_con .price { font-size: 3.2em; color: #fff; margin: 10px 0 0 20px; }
+
+.mycard_con li.price50 { background: #fc3; }
+.mycard_con li.price10 { background: #d6415c; }
+
+.mycard_con li.dis { background: #ccc; }

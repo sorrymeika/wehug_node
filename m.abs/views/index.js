@@ -61,8 +61,6 @@
         onCreate: function () {
             var self = this;
 
-            //sector
-
             this.model = new model.ViewModel(this.$el, {
                 menu: 'head_menu',
                 titleClass: 'head_title',

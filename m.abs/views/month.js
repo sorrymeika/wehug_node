@@ -17,6 +17,8 @@
             }
         },
 
+        swipeRightBackAction: '/',
+
         onCreate: function () {
             var self = this;
 
@@ -25,12 +27,8 @@
 
             Scroll.bind(this.$main);
 
-            model.Filter.precent = function (score) {
-                return parseFloat(score) + '%'
-            }
-
             this.model = new model.ViewModel(this.$el, {
-                title: '目的地详情',
+                title: '我的月礼',
                 back: this.route.query.from || '/'
             });
 
@@ -45,36 +43,13 @@
                 $content: this.$main.children(":first-child"),
                 $scroll: this.$main,
                 success: function (res) {
-
-                    self.promise.then(function () {
-                        self.model.set(res);
-                    });
-                    localStorage.setItem('destination', JSON.stringify(res.data));
                 }
             });
 
-            this.loading.load();
-
-            this.comments = new Loading({
-                url: '/api/destination/comment_list',
-                $el: self.$('.quan_list'),
-                success: function (res) {
-                    self.model.set("comments", res.data);
-                },
-                append: function (res) {
-                    self.model.get('comments').append(res.data);
-                }
-            });
-
-            this.comments.load();
-
-            self.onResult('destcomment_success', function () {
-                self.comments.reload();
-            });
+            //this.loading.load();
         },
 
         onLoad: function () {
-            this.promise.resolve();
         },
 
         onDestory: function () {

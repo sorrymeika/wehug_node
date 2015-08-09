@@ -23,6 +23,8 @@
         onCreate: function () {
             var self = this;
 
+            Scroll.bind(this.$('.menu_bd'));
+
             if (bridge.hasStatusBar) {
                 this.$el.find('.fix_statusbar').addClass("fix_statusbar");
             }

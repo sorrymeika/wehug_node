@@ -24,6 +24,7 @@ define(function (require, exports, module) {
                 }
             }
         },
+
         swipeRightBackAction: '/',
 
         onCreate: function () {

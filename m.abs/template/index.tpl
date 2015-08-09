@@ -59,6 +59,24 @@
     <div class="my">
         <div class="barcode" sn-binding="html:barcode">
         </div>
+        <ul class="myabs">
+            <li data-forward="/month">
+                <b>我的月礼</b>
+                <span>您当前享有<em>12个月</em>会员礼免费领特权。</span>
+            </li>
+            <li data-forward="/mycard">
+                <b>我的卡券</b>
+                <span>您现在拥有优惠券<em>8</em>张。</span>
+            </li>
+            <li data-forward="/mypoint">
+                <b>我的积分</b>
+                <span>您当前积分为<em>8</em>。</span>
+            </li>
+            <li data-forward="/myorder">
+                <b>我买到的</b>
+                <span>您目前在ABS共完成<em>8</em>次购物。</span>
+            </li>
+        </ul>
     </div>
 </div>
 <ul class="footer" sn-binding="display:isLogin">

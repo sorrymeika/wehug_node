@@ -21,7 +21,7 @@ define(function (require, exports, module) {
 
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
-                title: '我的活动'
+                title: '我的卡券'
             });
 
             var loading = new Loading({
@@ -35,13 +35,14 @@ define(function (require, exports, module) {
                     self.model.get('data').append(res.data);
                 }
             });
+
             self.user = util.store('user');
+
             if (self.user) {
                 loading.setParam({
                     UserID: self.user.ID,
                     Auth: self.user.Auth
-
-                }).load();
+                });
             }
         },
 

@@ -162,7 +162,7 @@ configloader('./config', function (config, routes) {
             app.all('/api/*', function (request, response) {
                 var url = request.url;//.replace(/^\/api/,'');
 
-                console.log(request.url);
+                //console.log(request.url);
 
                 var options = {
                     hostname: 'localhost',
