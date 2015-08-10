@@ -19,119 +19,16 @@
                         auth: this.user.Auth,
                         gender: value
                     });
-            },
-            'change form input[type="file"]': function (e) {
-                guid++;
-                var self = this;
-                var form = e.target.parentNode;
-                /*
-                var fr = new FileReader();
-                fr.onload = function (evt) {
-                    self.loading.showLoading();
-                    $.post(bridge.url('/user/edit_photo'), {
-                        headPic: encodeURIComponent(evt.target.result.replace(/^data\:image\/[a-z]+\;base64,/g, '')),
-                        member_id: self.user.member_id
-                    }, function (res) {
-                        if (res.error_code != 0) {
-                            sl.tip(res.error_msg);
-                        } else {
-                            var photo_ver = Date.now();
-                            localStorage.setItem('photo_ver', photo_ver)
-                            self.model.set('user', { head_photo: res.data.head_photo + '?v=' + photo_ver });
-                        }
-                        self.loading.hideLoading();
-                    }, 'json');
-                };
-                fr.readAsDataURL(e.target.files[0]);
-                        */
-                var target = "_submit_iframe" + guid;
-                var resultText;
-                var $iframe = $('<iframe style="top:-999px;left:-999px;position:absolute;display:none;" frameborder="0" width="0" height="0" name="' + target + '"></iframe>')
-                        .appendTo(document.body)
-                        .on('load', function () {
-                            var result;
-                            try {
-                                result = $.trim((this.contentWindow.document.body.innerHTML));
-                            } catch (e) {
-                                self.loading.load();
-                                return;
-                            }
-                            if (!resultText || result != resultText) {
-                                resultText = result;
-                                try {
-                                    result = JSON.parse(resultText);
-                                    sl.tip(e.error_msg)
-
-                                    if (result.error_code == 0) {
-                                        self.loading.load();
-                                    }
-
-                                } catch (e) {
-                                    sl.tip(e.message)
-                                }
-                            }
-                        });
-
-                form.submit();
             }
         },
         swipeRightBackAction: '/',
-
-        setMemberInfo: function (data) {
-            var self = this;
-            this.loading.showLoading();
-            $.post(bridge.url('/api/user/update'), data, function (res) {
-                if (res.error_code != 0) {
-                    sl.tip(res.error_msg);
-                } else {
-                    self.model.set('user', data);
-                }
-                self.loading.hideLoading();
-            }, 'json');
-        },
 
         onCreate: function () {
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
                 title: '个人信息',
-                back: '/',
-                upload: bridge.url('/api/user/update')
-            });
-
-            ['NickName', 'Address'].forEach(function (name) {
-                self.model.set(name, {
-                    edit: 'edit',
-                    value: '',
-                    readonly: true,
-                    click: function (e) {
-                        if (this.edit == 'edit') {
-                            self.model.set(name, {
-                                value: '确定',
-                                readonly: null,
-                                edit: 'editing'
-                            });
-                            self['$' + name].focus();
-                        } else {
-                            if (self.model.data.user[name] != this.input) {
-
-                                var data = {
-                                    id: self.user.ID
-                                };
-                                data[name] = this.input;
-
-                                self.setMemberInfo(data);
-                            }
-
-                            self.model.set(name, {
-                                readonly: true,
-                                value: '',
-                                edit: 'edit'
-                            });
-                        }
-                    }
-                });
-                self['$' + name] = self.model.$el.find('[sn-model="' + name + '.input"]');
+                back: '/'
             });
         },
 

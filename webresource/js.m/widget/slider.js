@@ -237,6 +237,7 @@
             slider.css({ width: length * that.width + '%', marginLeft: (100 - that.width) / 2 + '%' });
 
             that.x = that.wrapperW * that.options.index;
+            that.$scroller.css({ '-webkit-transform': 'translate(' + (-that.x) + 'px,0px) translateZ(0)' });
             that.divisorX = that.wrapperW;
 
             children.css({ width: 100 / length + '%' });

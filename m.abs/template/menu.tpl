@@ -1,9 +1,8 @@
 <div class="menu_bd">
     <div class="menu_user" sn-binding="data-back:memberUrl">
-        <img class="menu_avatars" sn-binding="src:user.Avatars" />
         <div class="menu_username">
-            <h1 sn-binding="html:user.NickName"></h1>
-            <h2 sn-binding="html:user.Mobile"></h2>
+            <h1><text sn-binding="html:user.NickName|or:user.Mobile">adfasdf</text> <span>补全信息</span> </h1>
+            <h2 sn-binding="html:user.BirthDay">1988/12/9</h2>
         </div>
     </div>
     <ul class="menu_list menu_my">
@@ -14,7 +13,7 @@
     </ul>
     <ul class="menu_list menu_service">
         <li>新手指南</li>
-        <li>练习客服</li>
+        <li>联系客服</li>
     </ul>
     <ul class="menu_list menu_settings">
         <li>设置</li>

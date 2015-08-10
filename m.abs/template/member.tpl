@@ -4,30 +4,37 @@
 </header>
 <div class="main scrollview">
     <div class="member">
-        <iframe style="top:-999px;left:-999px;position:absolute;display:none;" frameborder="0" width="0" height="0" name="__upload"></iframe>
-        <form sn-binding="action:upload" method="post" class="member_avatars" enctype="multipart/form-data">
-            <input type="file" name="Avatars" />
-            <input type="hidden" name="ID" sn-binding="value:user.ID" />
-            <img sn-binding="src:user.Avatars" />
-        </form>
-        <ul class="member_info">
-            <li>
-                <div>昵称</div>
-                <div><input sn-binding="value:user.NickName,readonly:NickName.readonly" sn-model="NickName.input" /></div>
-                <b sn-binding="class:NickName.edit,html:NickName.value" sn-on="click:NickName.click"></b>
-            </li>
-            <li class="member_one">
-                <div>性别：</div>
-                <div>
-                    <span class="radio" member="gender" value="男" sn-binding="class:user.Gender|case:'男':'checked radio':'radio'">男</span>
-                    <span class="radio" member="gender" value="女" sn-binding="class:user.Gender|case:'女':'checked radio':'radio'">女</span>
-                </div>
-            </li>
-            <li>
-                <div>地址</div>
-                <div><input sn-binding="value:user.Address,readonly:Address.readonly" sn-model="Address.input" /></div>
-                <b sn-binding="class:Address.edit,html:Address.value" sn-on="click:Address.click"></b>
-            </li>
-        </ul>
+        <dl class="member_info">
+            <dt>登录名</dt>
+            <dd></dd>
+            <dt>姓名</dt>
+            <dd><input sn-binding="value:user.Address" sn-model="formData.name" /></dd>
+            <dt>性别：</dt>
+            <dd>
+                <span class="radio" member="gender" value="男" sn-binding="class:user.Gender|case:'男':'checked radio':'radio'">男</span>
+                <span class="radio" member="gender" value="女" sn-binding="class:user.Gender|case:'女':'checked radio':'radio'">女</span>
+            </dd>
+
+            <dt>生日</dt>
+            <dd><input sn-binding="value:user.BirthDay" sn-model="formData.birthDay" /></dd>
+            <dt>所在地</dt>
+            <dd><input sn-binding="value:user.Address" sn-model="formData.address" /></dd>
+
+            <dt>家庭人数</dt>
+            <dd><input sn-binding="value:user.Address" sn-model="formData.address" /></dd>
+
+            <dt>是否有小孩：</dt>
+            <dd>
+                <span class="radio" member="gender" value="1" sn-binding="class:user.Gender|case:'男':'checked radio':'radio'">是</span>
+                <span class="radio" member="gender" value="0" sn-binding="class:user.Gender|case:'女':'checked radio':'radio'">否</span>
+            </dd>
+
+            <dt>小孩生日</dt>
+            <dd><input sn-binding="value:user.BirthDay" sn-model="formData.birthDay" /></dd>
+        </dl>
+        <div class="member_bar">
+            <b class="btn_mid">修改</b>
+            <b class="btn_cancel">取消</b>
+        </div>
     </div>
 </div>

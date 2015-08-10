@@ -14,6 +14,8 @@
 		'/login': { controller: 'login', template: 'login' },
 		'/month': { controller: 'month', template: 'month' },
 		'/mycard': { controller: 'mycard', template: 'mycard' },
+		'/mypoint': { controller: 'mypoint', template: 'mypoint' },
+		'/myorder': { controller: 'myorder', template: 'myorder' },
 		'/activity/{id:\\d+}': { controller: 'activity', template: 'activity' },
 		'/register': { controller: 'register', template: 'register' }
 	}

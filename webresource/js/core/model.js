@@ -629,11 +629,15 @@
                         model.set(key, value);
 
                     } else if (origin instanceof Model) {
-                        origin.set(value);
+                        value === null || value === undefined ? origin.clear() : origin.set(value);
 
                     } else if (origin instanceof Collection) {
                         if (!$.isArray(value)) {
-                            throw new Error('[Array to ' + (typeof value) + ' error]不可改变' + attr + '的数据类型');
+                            if (value == null) {
+                                value = [];
+                            } else {
+                                throw new Error('[Array to ' + (typeof value) + ' error]不可改变' + attr + '的数据类型');
+                            }
                         }
                         origin.set(value);
 
@@ -677,6 +681,14 @@
             self.needUpdateView = true;
 
             return this;
+        },
+
+        clear: function () {
+            var data = {};
+            for (var attr in this.data) {
+                data[attr] = null;
+            }
+            this.set(data);
         },
 
         toJSON: function () {

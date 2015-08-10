@@ -99,8 +99,12 @@
 .home_points_cursor { width: 30px; height: 30px; background: url(icon.png) no-repeat 0px -90px; background-size: 320px auto; position: absolute; z-index: 1000; -webkit-transform-origin: 50% 50%; -webkit-transform: rotate(-117deg); left: 10px; top: 132px; margin-top: -15px; margin-left: -15px; }
 
 .menu { background: #eeefef; }
+.menu_username { margin: 20px 0 0 10px; }
+.menu_username h1 { font-size: 1.3em; }
+.menu_username h1 span { font-size: .6em; color: #666; margin-left: 20px; text-decoration: underline; }
+.menu_username h2 { font-size: .8em; color: #666; margin-top: 4px; }
 .menu_bd { position: absolute; right: 20%; top: 0; left: 0; bottom: 0; }
-.menu_user { height: 90px; }
+.menu_user { height: 90px; overflow: hidden; }
 .menu_list { border-top: 1px solid #ccc; margin-bottom: 40px; }
 .menu_list li { border-bottom: 1px solid #ccc; overflow: hidden; line-height: 50px; }
 .menu_list li:before { margin: 6px 5px 5px 5px; }
@@ -168,3 +172,53 @@
 .mycard_con li.price10 { background: #d6415c; }
 
 .mycard_con li.dis { background: #ccc; }
+
+.mypoint .curr { text-align: center; margin-top: 20px; }
+.mypoint .curr b { font-size: 2.4em; color: #d6415c; vertical-align: -3px; }
+.mypoint .notice { text-align: center; font-size: .7em; margin-top: 5px; }
+.mypoint .notice span { color: #d6415c; }
+.mypoint .hd { margin-top: 6px; font-size: 1em; margin: 20px 0 0 6px; }
+.mypoint_list { margin-top: 6px; background: #fff; }
+.mypoint_list li { padding: 12px 6px 10px 6px; position: relative; border-bottom: 1px solid #ccc; margin: 0 5px; }
+.mypoint_list .from { margin-top: 4px; }
+.mypoint_list .date { font-size: .7em; color: #999; margin-top: 4px; }
+.mypoint_list .points { position: absolute; right: 5px; top: 50%; margin-top: -8px; color: #d6415c; }
+.mypoint_list .points.minus { color: #000; }
+
+.myorder { }
+.myorder > .hd { display: -webkit-box; margin-top: 2px; text-align: center; font-size: .9em; }
+.myorder > .hd li { -webkit-box-flex: 1; width: 0px; background: #eeefef; color: #666; height: 36px; line-height: 36px; }
+.myorder > .hd li.curr { background: #d6415c; color: #fff; }
+
+.myorder > .con { }
+.myorder .con li { border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; margin-top: 10px; background: #fff; }
+.myorder .con li .hd { border-bottom: .5px solid #ccc; margin: 0 5px; height: 30px; line-height: 30px; font-size: .9em; }
+.myorder .con li .hd:before { content: ''; width: 20px; height: 20px; display: inline-block; background: #41c0c2 url(icon.png) no-repeat -120px 0px; background-size: 320px auto; border-radius: 50%; vertical-align: -5px; margin: 0 6px; }
+.myorder .con li .hd .status { float: right; margin-right: 6px; }
+.myorder .con li .bd { border-bottom: .5px solid #ccc; display: -webkit-box; }
+.myorder .con li .bd img { display: block; width: 60px; height: 60px; margin: 10px; }
+.myorder .con li .bd .con { -webkit-box-flex: 1; }
+.myorder .con li .bd h2 { font-size: .95em; margin-top: 10px; }
+.myorder .con li .bd h3 { font-size: .7em; font-weight: normal; margin-top: 8px; }
+.myorder .con li .bd h4 { font-size: .7em; font-weight: normal; margin-top: 4px; }
+.myorder .con .priceinfo { margin: 20px 10px 0 0; text-align: right; }
+.myorder .con .priceinfo span { display: block; }
+.myorder .con .priceinfo .price { font-size: 1.2em; }
+.myorder .con .priceinfo .qty { color: #999; }
+
+.myorder .con li.from1 .hd:before { background-position-x: -150px; }
+.myorder .con li .ft { height: 30px; line-height: 30px; padding-left: 6px; font-size: .9em; }
+.myorder .con li .ft .btn_sml { height: 24px; line-height: 24px; background: #d6415c; color: #fff; display: inline-block; font-size: .8em; border-radius: 4px; padding: 0 5px; float: right; margin: 3px 6px 0 0; }
+
+.member_info { }
+.member_info dt { margin: 15px 0 6px 15px;; font-size: .8em; }
+.member_info dd { height: 36px; line-height: 36px; background: #fff; }
+.member_info dd input { border: 0px; box-sizing: border-box; width: 100%; height: 100%; padding-left: 15px; }
+.member_info dd .radio { width: 50%; float: left; height: 100%; background:#fff; color:#666; text-align: center; font-size: .8em; }
+.member_info dd .radio:before { display: none; }
+.member_info dd .radio.curr { background:#d6415c; color:#fff; }
+
+.member_bar { text-align: center; }
+.member_bar b { display: inline-block; color:#fff; border-radius: 4px;line-height: 36px; height: 36px; padding: 0 20px; margin: 15px 15px; }
+.member_bar .btn_mid{ background:#d6415c;  }
+.member_bar .btn_cancel{ background:#999;  }

@@ -15,7 +15,7 @@
             <li>
                 <div>昵称</div>
                 <div><input sn-binding="value:user.NickName,readonly:NickName.readonly" sn-model="NickName.input" /></div>
-                <b sn-binding="class:NickName.edit,html:NickName.value" sn-on="tap:NickName.click"></b>
+                <b sn-binding="class:NickName.edit,html:NickName.value" sn-on="click:NickName.click"></b>
             </li>
             <li class="member_one">
                 <div>性别：</div>
@@ -27,7 +27,7 @@
             <li>
                 <div>地址</div>
                 <div><input sn-binding="value:user.Address,readonly:Address.readonly" sn-model="Address.input" /></div>
-                <b sn-binding="class:Address.edit,html:Address.value" sn-on="tap:Address.click"></b>
+                <b sn-binding="class:Address.edit,html:Address.value" sn-on="click:Address.click"></b>
             </li>
         </ul>
     </div>
