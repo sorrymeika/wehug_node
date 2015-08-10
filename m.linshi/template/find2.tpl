@@ -6,15 +6,23 @@
 <div class="main">
     <div class="piano">
         <div class="piano_hd">
-            <div class="piano_base">
-                <h1 sn-binding="html:data.Title"></h1>
-                <h2 sn-binding="html:data.SubTitle"></h2>
-                <p sn-binding="html:data.Content"></p>
-                <div class="piano_price">
-                    <del sn-binding="html:data.Price|format:'￥{0}起/小时'"></del>
-                    <i>￥</i>
-                    <h3 sn-binding="html:data.SpecialPrice"></h3>
+            <div class="findstyle2_hd">
+                <div class="con">
+                    <div class="info">
+                        <h1 sn-binding="html:data.Title"></h1>
+                        <h2 sn-binding="html:data.SubTitle"></h2>
+                    </div>
+                    <div class="price">
+                        <i>￥</i>
+                        <h3 sn-binding="html:data.SpecialPrice"></h3>
+                        <del sn-binding="html:data.Price|format:'￥{0}起/小时'"></del>
+                        <span>一对一学生上门</span>
+                    </div>
                 </div>
+                <ul>
+                    <li sn-binding="html:data.PraiseRate"></li>
+                    <li sn-binding="html:data.ContinueRate"></li>
+                </ul>
             </div>
         </div>
         <div class="piano_bd">
@@ -24,6 +32,8 @@
             <div class="piano_con" sn-binding="html:data.Content2|htmlString"></div>
             <h4>03<b>经历</b></h4>
             <div class="piano_con" sn-binding="html:data.Content3|htmlString"></div>
+            <h4>04<b>成果</b></h4>
+            <div class="piano_con" sn-binding="html:data.Content|htmlString"></div>
         </div>
     </div>
 </div>

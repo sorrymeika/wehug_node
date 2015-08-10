@@ -287,6 +287,18 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .find2 .piano_bd h4:after { background: #e04d4c; }
 .find2 .piano:after { border-right: 2px solid #e04d4c; }
 
+.find3 .piano_bd h4 { background: #3158d5; color: #363f48; margin-top: 15px; }
+.find3 .piano_bd h4:after { background: #3158d5; }
+.find3 .piano:after { border-right: 2px solid #3158d5; }
+
+.find4 .piano_base p, .find4 .piano_base, .find4 .piano_price del { color: #fff; }
+.find4 .piano_price i { color: #ffe21e; }
+.find4 .piano_price i:before { background: #ffe21e; color: #61c657; }
+.find4 .piano_bd h4 { background: #61c657; color: #363f48; }
+.find4 .piano_bd h4:after { background: #61c657; }
+.find4 .piano:after { border-right: 2px solid #61c657; }
+.find4 .piano_price h3 { color: #ffe21e; }
+
 .findlist2 { padding-top: 1px; }
 .findlist2 > li { background: #fff; margin: 0 10px 10px 10px; display: -webkit-box; }
 .findlist2 .con { -webkit-box-flex: 1; position: relative; }
@@ -307,6 +319,25 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .findlist2 .ft .info > :nth-child(n) { display: block; }
 .findlist2 .ft .info > :first-child ~ span { color: #b14134; }
 .findlist2 .ft:after { content: '点击详情'; font-size: .8em; text-align: center; float: left; width: 32px; height: 32px; background: #b14134; color: #f8643c; margin: 3px 0 0 0; }
+
+.findstyle2_hd { width: 100%; }
+.findstyle2_hd .con { display: -webkit-box; }
+.findstyle2_hd .info { -webkit-box-flex: 1; display: block; color: #fff; padding: 20px 0 0 20px; }
+.findstyle2_hd .info h1 { font-size: 1.6em; }
+.findstyle2_hd .info h2 { font-size: 1.1em; margin-top: 3px; }
+.findstyle2_hd .price { height: 120px; width: 120px; background: #f8643c; padding: 13px 0 0 13px; }
+.findstyle2_hd ul { clear: both; display: -webkit-box; background: rgba(54,71,106,0.8); height: 42px; text-align: center; }
+.findstyle2_hd ul li { -webkit-box-flex: 1; width: 0px; color: #fff; font-size: 2em; line-height: 42px; }
+.findstyle2_hd ul li:before { content: '好评率'; display: inline; font-size: 10px; margin-right: 5px; color: #8c9097; }
+.findstyle2_hd ul li:last-child:before { content: '续课率'; }
+
+.findstyle2_hd .price { overflow: hidden; color: #fff; }
+.findstyle2_hd .price i { color: #fff; float: left; }
+.findstyle2_hd .price i:before { display: block; content: '首单'; color: #f8643c; width: 17px; padding: 1px; border-radius: 2px; text-align: center; background: #fff; }
+.findstyle2_hd .price h3 { font-size: 4.5em; line-height: 1; margin: -10px 0 0 5px; float: left; }
+.findstyle2_hd .price span { font-size: .9em; display: block; margin-top: 5px; }
+.findstyle2_hd .price del { font-size: .9em; display: block; }
+
 
 @media screen and (min-width: 360px) {
     .pianoli_con, .pianolist_bd li:nth-child(2n+1) img { height: 180px; }

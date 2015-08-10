@@ -13,14 +13,16 @@
 
     return Activity.extend({
         events: {
-            'tap .pianolist_bd>li[data-id]': function (e) {
+            'tap .js_findlist>li[data-id]': function (e) {
                 var id = e.currentTarget.getAttribute('data-id');
                 var item = util.first(this.model.data.data, function (item) {
                     return item.ID == id;
                 });
                 util.store('find_data', item);
 
-                this.forward('/find/' + (this.id ? this.id + '/' : '') + id);
+                var route = this.route.template == 'template/findlist2' ? 'find2' : 'find';
+
+                this.forward('/' + route + '/' + (this.id ? this.id + '/' : '') + id);
             },
             'tap .js_back': function () {
                 if (sl.isInApp) {
@@ -69,7 +71,8 @@
             }
 
             this.model = new model.ViewModel(this.$el, {
-                title: '发现老师'
+                title: '发现老师',
+                type: this.route.data.id || ''
             });
 
             this.loading = new Loading({

@@ -270,11 +270,13 @@
 
                 var y = offsetTop - (window.innerHeight / 4 - 60);
 
-                if (scrollView) {
-                    scrollView.scrollTo(scrollView.x, y)
-                } else {
-                    el.scrollTop = y;
-                }
+                setTimeout(function () {
+                    if (scrollView) {
+                        scrollView.scrollTo(scrollView.x, y)
+                    } else {
+                        el.scrollTop = y;
+                    }
+                }, 1000);
             });
 
             if (options && options.refresh) {

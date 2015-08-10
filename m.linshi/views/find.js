@@ -41,7 +41,8 @@
 
             },
             'tap .js_back': function (e) {
-                this.back(this.type ? '/findlist/' + this.type : '/find');
+
+                this.back(this.type ? '/findlist' + (this.route.template == "template/find2" ? '2' : '') + '/' + this.type : '/find');
             },
             'tap .js_share': function (e) {
                 alert('linshi://' + JSON.stringify({

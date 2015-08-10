@@ -78,6 +78,12 @@
                         }, {
                             text: '语文',
                             value: '2'
+                        }, {
+                            text: '英语',
+                            value: '3'
+                        }, {
+                            text: '吉他',
+                            value: '4'
                         }]
                     }
                 }, {
@@ -85,6 +91,9 @@
                     field: 'PraiseRate',
                     emptyAble: false,
                     emptyText: '必填'
+                }, {
+                    label: '续课率',
+                    field: 'ContinueRate'
                 }, {
                     label: '关联ID',
                     field: 'RelativeID',

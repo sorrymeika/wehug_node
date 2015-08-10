@@ -7,7 +7,7 @@
     <div class="pianolist">
         <div class="pianolist_hd">
         </div>
-        <ul class="pianolist_bd">
+        <ul class="pianolist_bd js_findlist">
             <li sn-repeat="item in data" sn-binding="data-id:item.ID">
                 <img sn-binding="src:item.Pic" />
                 <div class="pianoli_con">

@@ -7,7 +7,7 @@
     <div class="pianolist">
         <div class="pianolist_hd">
         </div>
-        <ul class="findlist2">
+        <ul class="findlist2 js_findlist">
             <li sn-repeat="item in data" sn-binding="data-id:item.ID">
                 <div class="con">
                     <h2 sn-binding="html:item.Title"></h2>
