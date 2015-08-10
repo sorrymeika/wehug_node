@@ -81,7 +81,7 @@ define(function (require, exports, module) {
                 $el: self.$slider,
                 success: function (res) {
                     self.slider = new Slider(self.$slider, {
-                        autoLoop: 4000,
+                        //autoLoop: 4000,
                         itemTemplate: '<a href="<%=url%>"><img src="<%=pic%>"></a>',
                         data: res.data,
                         loop: true
