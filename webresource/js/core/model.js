@@ -440,7 +440,7 @@
     };
 
     var Model = function (data, key, parent, $el) {
-        if (!data) return;
+        if (arguments.length != 4) return;
 
         if (this.created) return;
 
@@ -467,7 +467,7 @@
             throw new Error('Model\'s parent mast be Collection or Model');
         }
 
-        this.set(data);
+        if (data) this.set(data);
 
         parent.data[key] = this.data;
 
@@ -613,7 +613,7 @@
                             if (model instanceof Model) {
                                 model = model.model[attr];
                                 if (!model) {
-                                    model = prev.model[attr] = new Model({}, attr, prev, prev.$el);
+                                    model = prev.model[attr] = new Model(null, attr, prev, prev.$el);
                                     prev.data[attr] = model.data;
                                 }
 
@@ -641,7 +641,7 @@
                         origin.set(value);
 
                     } else if ($.isPlainObject(value)) {
-                        models.push(model[attr] = new Model({}, attr, this, this.$el), value);
+                        models.push(model[attr] = new Model(null, attr, this, this.$el), value);
 
                     } else if ($.isArray(value)) {
                         model[attr] = new Collection;
@@ -808,7 +808,7 @@
     }
 
     var Collection = function (data, key, parent) {
-        if (!data) return;
+        if (arguments.length != 3) return;
 
         this.models = [];
         this.data = [];
@@ -834,7 +834,7 @@
             }
         }
 
-        this.set(data);
+        if (data) this.set(data);
     };
 
     Collection.prototype = {

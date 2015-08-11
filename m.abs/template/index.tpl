@@ -1,7 +1,9 @@
 <header>
     <div sn-binding="class:menu"></div>
     <div sn-binding="html:title,class:titleClass"></div>
-    <div class="head_msg"></div>
+    <div class="head_msg" data-forward="/messages">
+        <i>3</i>
+    </div>
 </header>
 <div class="main" style="display:none" data-index="0">
     <div class="js_slider"></div>
@@ -57,7 +59,15 @@
 </div>
 <div class="main home_my" data-index="3">
     <div class="my">
-        <div class="barcode" sn-binding="html:barcode">
+        <div class="card">
+            <div class="level">
+                <span sn-binding="html:vip"></span>
+                <span sn-binding="html:point"></span>
+            </div>
+            <div class="point" sn-binding="html:id|format:'ID:{0}'"></div>
+            <div class="barcode" sn-binding="html:barcode">
+            </div>
+            <div class="mobile">12347895345</div>
         </div>
         <ul class="myabs">
             <li data-forward="/month">

@@ -16,6 +16,6 @@
         <li>联系客服</li>
     </ul>
     <ul class="menu_list menu_settings">
-        <li>设置</li>
+        <li data-forward="/settings">设置</li>
     </ul>
 </div>

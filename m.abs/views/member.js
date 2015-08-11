@@ -21,14 +21,15 @@
                     });
             }
         },
-        swipeRightBackAction: '/',
 
         onCreate: function () {
             var self = this;
 
+            self.swipeRightBackAction = this.route.query.from || '/';
+
             this.model = new model.ViewModel(this.$el, {
                 title: '个人信息',
-                back: '/'
+                back: self.swipeRightBackAction
             });
         },
 
