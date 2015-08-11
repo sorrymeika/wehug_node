@@ -287,6 +287,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .find2 .piano_bd h4:after { background: #e04d4c; }
 .find2 .piano:after { border-right: 2px solid #e04d4c; }
 
+.find3 .piano_hd { background-color: #4b74f2; }
 .find3 .piano_bd h4 { background: #3158d5; color: #363f48; margin-top: 15px; }
 .find3 .piano_bd h4:after { background: #3158d5; }
 .find3 .piano:after { border-right: 2px solid #3158d5; }
@@ -325,8 +326,8 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 .findstyle2_hd .info { -webkit-box-flex: 1; display: block; color: #fff; padding: 20px 0 0 20px; }
 .findstyle2_hd .info h1 { font-size: 1.6em; }
 .findstyle2_hd .info h2 { font-size: 1.1em; margin-top: 3px; }
-.findstyle2_hd .price { height: 120px; width: 120px; background: #f8643c; padding: 13px 0 0 13px; }
-.findstyle2_hd ul { clear: both; display: -webkit-box; background: rgba(54,71,106,0.8); height: 42px; text-align: center; }
+.findstyle2_hd .price { height: 130px; width: 130px; background: #f8643c; padding: 18px 0 0 18px; }
+.findstyle2_hd ul { clear: both; display: -webkit-box; background: rgba(54,71,106,0.8); height: 42px; position: absolute; bottom: 0; left: 0; right: 0; text-align: center; }
 .findstyle2_hd ul li { -webkit-box-flex: 1; width: 0px; color: #fff; font-size: 2em; line-height: 42px; }
 .findstyle2_hd ul li:before { content: '好评率'; display: inline; font-size: 10px; margin-right: 5px; color: #8c9097; }
 .findstyle2_hd ul li:last-child:before { content: '续课率'; }
@@ -463,7 +464,7 @@ header { background: #f90; height: 47px; line-height: 47px; display: -webkit-box
 
 
 .brand { background: #333; }
-.brand .js_slider { margin-top: 30px; }
+.brand .js_slider { margin-top: 30px; background: #333; }
 .brand .slider-item { padding: 0 15px; background: #333; }
 .brand .slider-item img { border-radius: 8px; }
 

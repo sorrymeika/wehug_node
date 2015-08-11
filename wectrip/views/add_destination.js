@@ -47,6 +47,10 @@
                 validator: 'userValid',
                 enctype: '',
                 fields: [{
+                    field: 'areaId',
+                    type: 'hidden',
+                    value: util.store('global_area')
+                }, {
                     label: '目的地名称',
                     field: 'name',
                     emptyAble: false,
@@ -63,10 +67,6 @@
                     field: 'largePic',
                     emptyAble: false,
                     emptyText: '不可为空'
-                }, {
-                    label: '是否推荐',
-                    field: 'IsRecommend',
-                    type: 'checkbox'
                 }, {
                     label: '目的详情',
                     field: 'content',

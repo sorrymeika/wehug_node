@@ -42,7 +42,7 @@
 
             this.grid = new Grid({
                 search: {
-                    url: '/api/destination/list',
+                    url: '/api/destination/list?areaid=' + util.store('global_area'),
                     type: 'GET',
                     beforeSend: function () {
                     },

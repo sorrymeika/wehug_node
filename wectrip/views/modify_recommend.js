@@ -21,7 +21,7 @@
                         form.submit(function (res) {
                             if (res.success) {
                                 sl.tip('修改成功');
-                                self.setResult('destination_change');
+                                self.setResult('recommend_change');
                                 self.back('/');
                                 self.form.reset();
 
@@ -33,7 +33,7 @@
                 }]
             });
 
-            $.get('/api/destination/get?id=' + this.route.data.id, function (res) {
+            $.get('/api/recommend/get?id=' + this.route.data.id, function (res) {
                 self.model.set(res);
 
             }, 'json')
@@ -43,27 +43,23 @@
                 name: 'data',
                 title: 'test',
                 useIframe: true,
-                url: '/api/manage/modify_destination',
+                url: '/api/manage/modify_recommend',
                 validator: 'userValid',
                 enctype: '',
                 fields: [{
                     field: 'ID',
                     type: 'hidden'
                 }, {
-                    label: '目的地名称',
+                    label: '推荐名称',
                     field: 'Name',
                     emptyAble: false,
                     emptyText: '必填'
                 }, {
-                    label: '目的地图片',
-                    field: 'MiddlePic',
+                    label: '推荐图片',
+                    field: 'Pic',
                     type: 'file'
                 }, {
-                    label: '目的地大图',
-                    type: 'file',
-                    field: 'LargePic'
-                }, {
-                    label: '目的详情',
+                    label: '推荐详情',
                     field: 'Content',
                     vAlign: 'top',
                     type: 'richTextBox',

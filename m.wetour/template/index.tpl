@@ -1,16 +1,29 @@
 <header>
     <div sn-binding="class:menu"></div>
     <div sn-binding="html:title,class:titleClass"></div>
+    <div class="head_city"><text sn-binding="html:city"></text><i></i></div>
     <div class="head_search_btn"><b class="btn_small js_comment" style="display:none">发表评论</b></div>
 </header>
 <div class="main" data-index="0">
     <ul class="recommend_list js_comment_list">
-        <li class="recommend_item" sn-repeat="item in data0" sn-binding="data-id:item.ID,data-type:item.Type">
-            <img sn-binding="src:item.Pic" />
-            <div class="recommend_name" sn-binding="html:item.Name"></div>
-            <div class="recommend_fav" sn-binding="html:item.Favorite"></div>
+        <li class="recommend_item" sn-repeat="item in data0">
+            <a sn-binding="href:item.ID|format:'/recommend/{0}'" forward>
+                <img sn-binding="src:item.Pic" />
+                <div class="recommend_name" sn-binding="html:item.Name"></div>
+                <div class="recommend_fav" sn-binding="html:item.Favorite"></div>
+            </a>
         </li>
     </ul>
+</div>
+<div class="citylistwrap">
+    <div class="city_list">
+        <h1>选择城市</h1>
+        <ul>
+            <li sn-repeat="item in city_list" sn-binding="data-id:item.city_id">
+                <span sn-binding="html:item.city_name" sn-on="tap:cityTip"></span>
+            </li>
+        </ul>
+    </div>
 </div>
 <div class="main" style="display:none" data-index="1">
 </div>
@@ -56,6 +69,7 @@
         </li>
     </ul>
 </div>
+
 <ul class="footer">
     <li class="curr">推荐</li>
     <li>目的地</li>

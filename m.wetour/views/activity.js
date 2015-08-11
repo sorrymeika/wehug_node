@@ -8,7 +8,7 @@
     var Promise = require('../core/promise');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
-
+    var common = require('common');
 
     return Activity.extend({
         events: {
@@ -26,6 +26,16 @@
             },
             'tap .js_comment': function () {
                 this.forward('/actcomment/' + this.route.data.id);
+            },
+            'tap .destfav': function () {
+                if (util.store('user')) {
+                    this.model.set('isFavorite', !this.model.data.isFavorite);
+                    this.model.set('data.Favorite', (this.model.data.data.Favorite || 0) + (!this.model.data.isFavorite ? -1 : 1));
+                    common.favorite('activity', this.route.data.id, this.model.data.isFavorite);
+
+                } else {
+                    sl.tip('请先登录');
+                }
             }
         },
 
@@ -41,9 +51,12 @@
                 return parseFloat(score) + '%'
             }
 
+            var user = util.store('user');
+
             this.model = new model.ViewModel(this.$el, {
                 title: '活动详情',
-                back: this.route.queries.from || '/'
+                back: this.route.queries.from || '/',
+                isFavorite: common.isFavorite('activity', this.route.data.id)
             });
 
             this.loading = new Loading({
@@ -61,7 +74,7 @@
                     self.promise.then(function () {
                         self.model.set(res);
                     });
-                    localStorage.setItem('destination', JSON.stringify(res.data));
+                    localStorage.setItem('activity', JSON.stringify(res.data));
                 }
             });
 
@@ -90,6 +103,9 @@
 
             this.comments = new Loading({
                 url: '/api/activity/comment_list',
+                params: {
+                    id: this.route.data.id
+                },
                 $el: self.$('.quan_list'),
                 success: function (res) {
                     self.model.set("comments", res.data);

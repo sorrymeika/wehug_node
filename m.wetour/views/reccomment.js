@@ -19,6 +19,7 @@ define(function (require, exports, module) {
 
                 } else {
                     self.loading.setParam({
+                        DestID: self.route.data.id,
                         UserID: self.user.ID,
                         Auth: self.user.Auth,
                         Content: self.model.data.content
@@ -42,15 +43,15 @@ define(function (require, exports, module) {
             });
 
             this.loading = new Loading({
-                url: '/api/quan/add_comment?areaid=' + util.store('global_area'),
+                url: '/api/recommend/add_comment',
                 $el: this.$el,
                 checkData: false,
                 success: function (res) {
                     if (res.success) {
                         sl.tip('评论成功');
 
-                        self.setResult('comment_success');
-                        self.back('/')
+                        self.setResult('recommend_success');
+                        self.back('/recommend/' + self.route.data.id);
                     }
                 }
             });

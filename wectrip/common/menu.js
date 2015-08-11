@@ -7,7 +7,15 @@
     module.exports = exports = function () {
         this.$el = $(menu.html());
         this.model = new model.ViewModel(this.$el, {
+            area: util.store('global_area') || 1,
             data: [{
+                url: '/recommend_list',
+                title: '推荐管理',
+                children: [{
+                    title: '添加推荐',
+                    url: '/add_recommend'
+                }]
+            }, {
                 url: '/',
                 title: '目的地管理',
                 children: [{
@@ -21,9 +29,6 @@
                     title: '添加活动',
                     url: '/add_activity'
                 }]
-            }, {
-                url: '/recommend_list',
-                title: '推荐管理'
             }, {
                 id: 'user',
                 url: '/user',
@@ -39,6 +44,12 @@
                     url: '/add_article'
                 }]
             }*/]
+        });
+
+        this.model.on('change:area', function (e, val) {
+            util.store('global_area', val);
+
+            location.reload();
         });
     };
 

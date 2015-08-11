@@ -46,6 +46,7 @@
                                         var photo_ver = Date.now();
                                         localStorage.setItem('photo_ver', photo_ver);
                                         self.loading.load();
+                                        sl.tip('您的头像已生效');
                                     } else {
                                         sl.tip(result.msg)
                                     }

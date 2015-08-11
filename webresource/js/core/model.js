@@ -101,7 +101,7 @@
                 fkey;
 
             if (el) {
-                fkey = "_bind_filter" + self.prop + (typeof el === "number" ? '' : el) + '_' + count;
+                fkey = "_bind_filter" + self.prop + (typeof el === "number" ? el : '') + '_' + count;
 
                 if (!model[fkey]) {
                     model[fkey] = flag = true;
@@ -111,13 +111,12 @@
                     }
                 }
                 if (flag) {
-
                     param = param.split('.');
                     var attr = param.pop();
-                    var m = (param.length <= 0 ? parent : (parent.get(param) || parent.set(param.join('.'), {}).get(param)));
+                    var m = (param.length <= 0 ? parent : (parent.get(param.join('.')) || parent.set(param.join('.'), {}).get(param)));
 
                     m.on("change" + (attr ? ':' + attr : ''), function () {
-                        model._attr(el, self.prop, self.filter(Filter, model, model.data[key]))
+                        model._attr(el, self.prop, self.filter(Filter, model, model.data[key]));
                     });
                 }
             }
@@ -451,7 +450,6 @@
         this.$el = $el;
         this.model = model;
         this._key = key;
-        this.root = this;
         this.data = {};
 
         if (parent instanceof Model) {
@@ -590,7 +588,7 @@
             }
 
             var collections = [],
-                collection,
+                models = [],
                 value,
                 changed = false,
                 cache = [];
@@ -598,6 +596,7 @@
             for (var attr in attrs) {
                 this.data[attr] = attrs[attr];
             }
+
             for (var attr in attrs) {
                 origin = model[attr];
                 value = attrs[attr];
@@ -642,7 +641,7 @@
                         origin.set(value);
 
                     } else if ($.isPlainObject(value)) {
-                        model[attr] = new Model(value, attr, this, this.$el);
+                        models.push(model[attr] = new Model({}, attr, this, this.$el), value);
 
                     } else if ($.isArray(value)) {
                         model[attr] = new Collection;
@@ -662,10 +661,12 @@
                 }
             }
 
+            for (var i = 0, len = models.length; i < len; i += 2) {
+                models[i].set(models[i + 1]);
+            }
+
             for (var i = 0, len = collections.length; i < len; i++) {
                 key = collections[i];
-                collection = model[key];
-
                 model[key].constructor(this.data[key], key, this);
             }
 
@@ -1005,12 +1006,13 @@
     };
 
     var ViewModel = function ($el, data) {
+        this.root = this;
+
         if (!$el) return;
         if (this.created) return;
 
         this.data = {};
         this.events = [];
-        this.root = this;
         this.model = {};
         this.key = '';
 

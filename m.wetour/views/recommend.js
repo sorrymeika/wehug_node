@@ -13,13 +13,13 @@
     return Activity.extend({
         events: {
             'tap .js_comment': function () {
-                this.forward('/destcomment/' + this.route.data.id);
+                this.forward('/reccomment/' + this.route.data.id);
             },
             'tap .destfav': function () {
                 if (util.store('user')) {
                     this.model.set('isFavorite', !this.model.data.isFavorite);
                     this.model.set('data.Favorite', (this.model.data.data.Favorite || 0) + (!this.model.data.isFavorite ? -1 : 1));
-                    common.favorite('destination', this.route.data.id, this.model.data.isFavorite);
+                    common.favorite('recommend', this.route.data.id, this.model.data.isFavorite);
 
                 } else {
                     sl.tip('请先登录');
@@ -40,18 +40,16 @@
             }
 
             this.model = new model.ViewModel(this.$el, {
-                title: '目的地详情',
+                title: '推荐详情',
                 back: this.route.queries.from || '/',
-                isFavorite: common.isFavorite('destination', this.route.data.id)
+                isFavorite: common.isFavorite('recommend', this.route.data.id)
             });
-
             var user = util.store('user');
 
             this.loading = new Loading({
-                url: '/api/destination/get',
+                url: '/api/recommend/get',
                 params: {
-                    id: this.route.data.id,
-                    member_id: user ? user.ID : 0
+                    id: this.route.data.id
                 },
                 check: false,
                 checkData: false,
@@ -63,14 +61,14 @@
                     self.promise.then(function () {
                         self.model.set(res);
                     });
-                    localStorage.setItem('destination', JSON.stringify(res.data));
+                    localStorage.setItem('recommend', JSON.stringify(res.data));
                 }
             });
 
             this.loading.load();
 
             this.comments = new Loading({
-                url: '/api/destination/comment_list',
+                url: '/api/recommend/comment_list',
                 params: {
                     id: this.route.data.id
                 },
@@ -85,7 +83,7 @@
 
             this.comments.load();
 
-            self.onResult('destcomment_success', function () {
+            self.onResult('recommend_success', function () {
                 self.comments.reload();
             });
         },

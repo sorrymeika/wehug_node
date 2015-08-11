@@ -117,7 +117,7 @@
             self.$selector = row.$selector = selector;
 
         } else {
-            this.$body = $('<div class="grid_cell_item'+(options.valign=="center"?' grid_cell_vcenter':'')+'">' + val + '</div>').appendTo(this.$body);
+            this.$body = $('<div class="grid_cell_item' + (options.valign == "center" ? ' grid_cell_vcenter' : '') + '">' + val + '</div>').appendTo(this.$body);
         }
 
         row.$el.append(self.$el);
@@ -772,8 +772,8 @@
 
                     } else if (option.type == "select") {
                         input = $('<select name="' + name + '"></select>');
-                        if ($.isArray(opt.options)) {
-                            $.each(opt.options, function (j, item) {
+                        if ($.isArray(option.options)) {
+                            $.each(option.options, function (j, item) {
                                 input.each(function () {
                                     this.options.add(new Option(item.text, item.value));
                                 });

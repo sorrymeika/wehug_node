@@ -5,7 +5,7 @@
 <div class="main destwrap actwrap">
     <div class="destimg">
         <img sn-binding="src:data.Pic" />
-        <div class="destfav" sn-binding="html:data.Favorite"></div>
+        <div class="destfav" sn-binding="html:data.Favorite,class:isFavorite|equal:true:'destfav fav_current':'destfav'"></div>
         <h1 sn-binding="html:data.Name"></h1>
     </div>
     <div class="activity_info">

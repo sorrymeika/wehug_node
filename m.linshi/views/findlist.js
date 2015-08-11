@@ -14,6 +14,7 @@
     return Activity.extend({
         events: {
             'tap .js_findlist>li[data-id]': function (e) {
+
                 var id = e.currentTarget.getAttribute('data-id');
                 var item = util.first(this.model.data.data, function (item) {
                     return item.ID == id;

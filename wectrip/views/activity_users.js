@@ -9,40 +9,18 @@
     var Grid = require('components/grid');
 
     return Page.extend({
-        events: {
-            'click .js_grid_delete': function (e) {
-                var id = e.currentTarget.getAttribute('data-id');
-                var self = this;
-
-                if (window.confirm('确认删除？')) {
-                    $.post('/api/manage/delete_recommend', {
-                        id: id
-                    }, function (res) {
-                        if (res.success) {
-                            self.grid.load()
-                        } else {
-                            sl.tip(res.msg)
-                        }
-
-                    }, 'json');
-                }
-            }
-        },
+        events: {},
 
         onCreate: function () {
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                title: '推荐管理'
-            });
-
-            this.onResult('recommend_change', function () {
-                this.grid.load();
+                title: '参加活动的用户管理'
             });
 
             this.grid = new Grid({
                 search: {
-                    url: '/api/recommend/list?areaid=' + util.store('global_area'),
+                    url: '/api/activity/userlist?id=' + this.route.data.id,
                     type: 'GET',
                     beforeSend: function () {
                     },
@@ -58,27 +36,30 @@
                 pageEnabled: true,
                 pageSize: 20,
                 columns: [{
-                    text: "推荐编号",
+                    text: "用户编号",
                     bind: "ID",
                     width: 5
                 }, {
-                    text: "推荐名称",
-                    bind: "Name",
+                    text: "手机号",
+                    bind: "Mobile",
                     width: 10
                 }, {
-                    text: "推荐图片",
-                    bind: "Pic",
+                    text: "昵称",
+                    bind: "NickName",
+                    width: 10
+                }, {
+                    text: "报名时间",
+                    bind: "JoinTime",
                     width: 10,
                     render: function (data) {
-                        this.append('<a href="' + data.Pic + '" target="_blank">' + data.Pic + '</a>');
+                        this.append(util.formateDate(data.JoinTime));
                     }
                 }, {
-                    text: "操作",
-                    width: 10,
-                    align: 'center',
-                    valign: 'center',
+                    text: "性别",
+                    bind: "Gender",
+                    width: 5,
                     render: function (data) {
-                        this.append('<a href="/modify_recommend/' + data.ID + '" >[修改]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
+                        this.append(data.Gender ? "男" : "女");
                     }
                 }]
 

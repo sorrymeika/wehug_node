@@ -41,12 +41,27 @@
             });
 
             this.grid = new Grid({
+                multiSelect: true,
                 search: {
-                    url: '/api/quan/list',
+                    url: '/api/quan/list?areaid=' + util.store('global_area'),
                     type: 'GET',
                     beforeSend: function () {
                     },
                     data: {
+                        status: {
+                            label: '状态',
+                            type: 'select',
+                            options: [{
+                                text: '未审批',
+                                value: '0'
+                            }, {
+                                text: '已审批',
+                                value: '1'
+                            }, {
+                                text: '拒绝',
+                                value: '2'
+                            }]
+                        },
                         keywords: {
                             label: '关键字',
                             type: 'text'

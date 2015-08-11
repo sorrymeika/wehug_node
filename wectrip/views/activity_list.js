@@ -42,7 +42,7 @@
 
             this.grid = new Grid({
                 search: {
-                    url: '/api/activity/list',
+                    url: '/api/activity/list?areaid=' + util.store('global_area'),
                     type: 'GET',
                     beforeSend: function () {
                     },
@@ -85,7 +85,7 @@
                     align: 'center',
                     valign: 'center',
                     render: function (data) {
-                        this.append('<a href="/modify_activity/' + data.ID + '" >[修改]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
+                        this.append('<a href="/modify_activity/' + data.ID + '" >[修改]</a> <a href="/activity_users/' + data.ID + '" >[详情]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
                     }
                 }]
 

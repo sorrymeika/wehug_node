@@ -47,6 +47,10 @@
                 validator: 'userValid',
                 enctype: '',
                 fields: [{
+                    field: 'areaId',
+                    type: 'hidden',
+                    value: util.store('global_area')
+                }, {
                     label: '活动名称',
                     field: 'name',
                     emptyAble: false,
@@ -74,10 +78,6 @@
                     type: 'timepicker',
                     emptyAble: false,
                     emptyText: '不可为空'
-                }, {
-                    label: '是否推荐',
-                    field: 'IsRecommend',
-                    type: 'checkbox'
                 }, {
                     label: '活动详情',
                     field: 'content',

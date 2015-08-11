@@ -69,6 +69,16 @@
             shareTitle: "邻师语文老师专场，所有课程一折",
             shareContent: "邻师语文老师专场，跟邻师一起感受文字的魅力！"
         },
+        '3': {
+            sharePic: 'http://m.linshi.biz/images/english_share.jpg',
+            shareTitle: "学英语背单词就行了？听听邻师老师怎么说",
+            shareContent: "邻师英语老师专场，火热进行，打架报名中"
+        },
+        '4': {
+            sharePic: 'http://m.linshi.biz/images/guitar_share.jpg',
+            shareTitle: "古典民谣电音，你想学的都在邻师",
+            shareContent: "邻师吉他老师专场，古典民谣电音，一应俱全！"
+        },
         download: {
             sharePic: 'http://m.linshi.biz/images/logo.jpg',
             shareTitle: "推荐一个找老师神器，全场首单一折",
