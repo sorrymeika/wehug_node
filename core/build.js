@@ -107,10 +107,11 @@ module.exports = function (projectPath, env, callback) {
         config.projects.forEach(function (project) {
             if (project.css) {
                 for (var key in project.css) {
-                    var fileList = combine[key];
-                    if (!fileList) combine[key] = fileList = [];
-                    var cssList = project.css[key];
+                    var cssPath = path.join(project.path, key);
+                    var fileList = combine[cssPath];
+                    if (!fileList) combine[cssPath] = fileList = [];
 
+                    var cssList = project.css[key];
                     var requireList = requires[project.root];
                     if (!requireList) requires[project.root] = requireList = [];
 

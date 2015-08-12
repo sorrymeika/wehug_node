@@ -38,5 +38,7 @@ module.exports = function () {
                 'anim/default': '../webresource/js.m/anim/default'
             }
         });
+
+
     });
 };

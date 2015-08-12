@@ -4,7 +4,7 @@ var _ = require('underscore');
 module.exports = function (host, port, replace) {
 
     return function (request, response) {
-        var url = replace ? replace(request.url) : request.url;//.replace(/^\/api/,'');
+        var url = replace ? replace(request.url) : request.url;
 
         var options = {
             hostname: host,
@@ -29,6 +29,7 @@ module.exports = function (host, port, replace) {
         });
 
         req.on('error', function (e) {
+            response.end();
         });
 
         request.on('data', function (postData) {

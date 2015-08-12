@@ -2,5 +2,5 @@
     debug: false,
     isDebugFramework: false,
     webresource: "/webresource",
-    port: 5558
+    port: 5559
 };
