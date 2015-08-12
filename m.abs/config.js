@@ -2,7 +2,7 @@
     debug: true,
     isDebugFramework: true,
     webresource: "/webresource",
-    dest: '../webresource/dest.m.wetour',
+    dest: './dest',
     node_dest: './node_dest',
     port: 5559,
     projects: ['./']

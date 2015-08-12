@@ -145,29 +145,34 @@ Tools.prototype = {
                 }
             }
 
-            (function (fileList, ids, isCss, destPath) {
-                var promise = new Promise().resolve();
+            if (fileList.length) {
 
-                promise.map(fileList, fs.readFile, fs)
-                    .then(function (err, result) {
-                        if (err) {
-                            console.log(err)
-                            return;
-                        }
+                (function (fileList, ids, isCss, destPath) {
+                    var promise = new Promise().resolve();
 
-                        var text = '';
+                    promise.map(fileList, fs.readFile, fs)
+                        .then(function (err, result) {
+                            if (err) {
+                                console.log(err)
+                                return;
+                            }
 
-                        result.forEach(function (data, i) {
-                            data = data.toString('utf-8');
-                            text += isCss ? compressCss(data) : compressJs(replaceDefine(ids[i], data));
+                            var text = '';
+
+                            result.forEach(function (data, i) {
+                                data = data.toString('utf-8');
+                                text += isCss ? compressCss(data) : compressJs(replaceDefine(ids[i], data));
+                            });
+
+                            return self.save(destPath, text);
                         });
 
-                        return self.save(destPath, text);
-                    });
+                    self.promise.then(promise);
 
-                self.promise.then(promise);
+                })(fileList, ids, isCss, path.join(self.destDir, isCss ? destPath : (destPath + '.js')));
 
-            })(fileList, ids, isCss, path.join(self.destDir, isCss ? destPath : (destPath + '.js')));
+            }
+
         }
 
         return this;

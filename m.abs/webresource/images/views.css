@@ -241,3 +241,7 @@
 .message_card .hd h3 { font-size: .7em; margin-top: 3px; color: #999; }
 .message_card .bd { font-size: .85em; margin: 10px; background: #eeefef; border-radius: 4px; position: relative; padding: 10px; line-height: 1.5; }
 .message_card .bd:before { background: #eeefef; width: 7px; height: 7px; content: ''; display: block; position: absolute; top: -4px; left: 20px; -webkit-transform: rotate(45deg); }
+
+.guide_bd > .hd { background: #41c0c2 url(guide_hd.png) repeat-x; background-size: auto 100%; border-radius: 6px; display: -webkit-box; -webkit-box-orient: horizontal; -webkit-box-pack: center; -webkit-box-align: center; font-size: .8em; height: 32px; }
+.guide_bd > .hd li { -webkit-box-flex: 1; width: 0px; text-align: center; color: #fff; font-weight: bold; }
+.guide_bd > .row { }

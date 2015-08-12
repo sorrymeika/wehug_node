@@ -142,14 +142,15 @@ module.exports = function (projectPath, env, callback) {
         var tools = new Tools(projectPath, config.dest);
         tools.combine(combine);
 
+        build(config, routes, requires);
+
         var fsc = require('./fs');
 
         fsc.copy('../webresource/images.m', path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
-            fsc.copy('webresource/images', path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) { });
+            fsc.copy(path.join(projectPath, 'webresource/images'), path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+            });
+
+            callback(config, tools);
         });
-
-        build(config, routes, requires);
-
-        callback(config, tools);
     });
 }

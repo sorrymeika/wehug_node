@@ -13,7 +13,6 @@ module.exports = function () {
                 'extend/ortchange': '../webresource/js.m/extend/ortchange',
                 'util': '../webresource/js/util',
                 'util/md5': '../webresource/js/util/md5',
-                'common': './common',
                 'bridge': '../webresource/js.m/bridge',
                 'graphics/matrix2d': '../webresource/js/graphics/matrix2d',
                 'graphics/tween': '../webresource/js/graphics/tween',

@@ -28,7 +28,7 @@
                     <div class="point" sn-binding="html:point"></div>
                     <div class="desc" sn-binding="html:vip"></div>
                     <div class="point_tip">
-                        <span sn-binding="html:nextLevel"></span><b>新鲜氧气</b>
+                        <span sn-binding="html:nextLevel"></span><b>活力值</b>
                         <p>即可享有<em>钻石会员</em>特权</p>
                     </div>
                 </div>
@@ -92,6 +92,6 @@
 <ul class="footer" sn-binding="display:isLogin">
     <li class="curr">首页</li>
     <li>马上购物</li>
-    <li>附件门店</li>
+    <li>附近门店</li>
     <li>我</li>
 </ul>

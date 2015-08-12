@@ -18,6 +18,7 @@
 		'/mypoint': { controller: 'mypoint', template: 'mypoint' },
 		'/myorder': { controller: 'myorder', template: 'myorder' },
 		'/activity/{id:\\d+}': { controller: 'activity', template: 'activity' },
-		'/register': { controller: 'register', template: 'register' }
+		'/register': { controller: 'register', template: 'register' },
+		'/guide': { controller: 'guide', template: 'guide' }
 	}
 }

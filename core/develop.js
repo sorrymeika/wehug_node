@@ -98,6 +98,7 @@ var mapControllers = function (config) {
                     res.send(err);
                     return;
                 }
+                text = text.replace(/^\uFEFF/i, '');
                 text = razor.web(text);
                 res.send(text);
             });
@@ -156,6 +157,7 @@ exports.start = function (project, callback) {
                                 res.send(err);
                                 return;
                             }
+                            text = text.replace(/^\uFEFF/i, '');
                             text = razor.web(text);
                             res.send(text);
                         });
