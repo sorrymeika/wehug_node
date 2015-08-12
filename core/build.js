@@ -29,7 +29,7 @@ var build = function (config, routes, projectsRequires) {
             var nodeCode = Tools.compressJs(razor.node(data));
             var code = Tools.compressJs(Tools.replaceDefine(buildConfig.template, razor.web(data)));
 
-            Tools.save(config.node_dest + '/' + buildConfig.template + '.js', nodeCode);
+            Tools.save(path.join(config.node_dest, buildConfig.template + '.js'), nodeCode);
 
             views[root] += code;
             callback();
@@ -101,6 +101,9 @@ module.exports = function (projectPath, env, callback) {
         var combine = {};
         var requires = {};
 
+        config.node_dest = path.join(projectPath, config.node_dest);
+        config.dest = path.join(projectPath, config.dest);
+
         config.projects.forEach(function (project) {
             if (project.css) {
                 for (var key in project.css) {
@@ -136,7 +139,7 @@ module.exports = function (projectPath, env, callback) {
             js: {}
         }));
 
-        var tools = new Tools(path.join(projectPath, './'), path.join(projectPath, config.dest));
+        var tools = new Tools(projectPath, config.dest);
         tools.combine(combine);
 
         var fsc = require('./fs');

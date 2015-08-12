@@ -132,11 +132,15 @@ exports.start = function (project, callback) {
                     require(path.join(project, './build'))();
                 }
 
-                app.use(express.static('../webresource'));
-                app.use('/webresource', express.static('../webresource'));
-                app.use('/webresource', express.static(path.join(project, './webresource')));
                 app.use('/webresource/js', express.static(project));
-                app.use('/webresource/js', express.static('../webresource/js.m'));
+                app.use('/webresource/js', express.static(path.join(__dirname, '../webresource/js.m')));
+
+                app.use(express.static(path.join(__dirname, '../webresource')));
+                app.use('/webresource', express.static(path.join(__dirname, '../webresource')));
+                app.use('/webresource', express.static(path.join(project, './webresource')));
+
+                app.use('/webresource/images', express.static(path.join(__dirname, '../webresource/images.m')));
+
                 app.get('/webresource/js/*.js', function (req, res) {
                     res.set('Content-Type', 'text/javascript');
 
@@ -157,8 +161,6 @@ exports.start = function (project, callback) {
                         });
                     });
                 });
-
-                app.use('/webresource/images', express.static('../webresource/images.m'));
 
                 callback(app);
 
