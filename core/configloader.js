@@ -1,7 +1,7 @@
 ﻿var _ = require('underscore');
 
 var path = require('path');
-var Promise = require('./../core/promise');
+var Promise = require('./promise');
 var fs = require('fs');
 
 function ConfigLoader(configPath, env) {
@@ -103,5 +103,4 @@ ConfigLoader.prototype = {
 module.exports = function (configPath, env, callback) {
     if (typeof env === 'function') callback = env, env = undefined;
     new ConfigLoader(configPath).loadAll(callback);
-
 };

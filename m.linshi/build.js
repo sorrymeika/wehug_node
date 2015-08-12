@@ -1,5 +1,6 @@
 ﻿var build = require('../core/build');
 var fsc = require('../core/fs');
+var path = require('path');
 
 module.exports = function () {
     build(__dirname, 'production', function (config, tools) {
@@ -12,8 +13,6 @@ module.exports = function () {
                 'extend/matchMedia': '../webresource/js.m/extend/matchMedia',
                 'extend/ortchange': '../webresource/js.m/extend/ortchange',
                 'util': '../webresource/js/util',
-                'util/md5': '../webresource/js/util/md5',
-                'common': './common',
                 'bridge': '../webresource/js.m/bridge',
                 'graphics/matrix2d': '../webresource/js/graphics/matrix2d',
                 'graphics/tween': '../webresource/js/graphics/tween',
@@ -32,12 +31,16 @@ module.exports = function () {
                 'core/touch': '../webresource/js.m/core/touch',
                 'widget/scrollview': '../webresource/js.m/widget/scrollview',
                 'widget/scroll': '../webresource/js.m/widget/scroll',
+                'widget/slider': '../webresource/js.m/widget/slider',
                 'widget/tip': '../webresource/js/widget/tip',
                 'widget/dialog': '../webresource/js/widget/dialog',
                 'widget/loading': '../webresource/js.m/widget/loading',
-                'widget/slider': '../webresource/js.m/widget/slider',
+                'widget/extend/loading': './widget/extend/loading',
+                'widget/extend/wxshare': './widget/extend/wxshare',
                 'anim/default': '../webresource/js.m/anim/default'
             }
         });
+
+        fsc.copy('data', path.join(config.dest, 'data'), function (err, result) { });
     });
 };

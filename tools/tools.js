@@ -28,7 +28,7 @@ var compressor = UglifyJS.Compressor({
     join_vars: true,  // join var declarations
     cascade: true,  // try to cascade `right` into `left` in sequences
     side_effects: true,  // drop side-effect-free statements
-    warnings: true,  // warn about potentially dangerous optimizations/code
+    warnings: false,  // warn about potentially dangerous optimizations/code
     global_defs: {}
 });
 
@@ -50,7 +50,6 @@ var replaceDefine = function (id, code, requires, append) {
     return code.replace(/\bdefine\((?:\s*|\s*(\[[^\]]*\]{0,1})\s*,\s*)function(.*?){/m, function (match, param, fn) {
         if (requires && requires.length) {
             param = JSON.stringify(requires.concat(param ? JSON.parse(param) : [])) + ',';
-            console.log(param)
         } else if (param) {
             param += ','
         }

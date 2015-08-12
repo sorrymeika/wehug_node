@@ -40,7 +40,7 @@
                 <script src="@(webresource)@(item).js"></script>
             }
         } else {
-            <script src="@(webresource)@key"></script>
+            <script src="@(webresource)@(key).js"></script>
         }
     }
 </head>

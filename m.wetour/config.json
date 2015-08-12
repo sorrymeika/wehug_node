@@ -1,6 +1,6 @@
 {
 	root: '/',
-		debug: true,
+	debug: true,
 	js: { },
 	css: {
 		'images/style.css': ['images/style.css','images/anim.css','images/views.css']
