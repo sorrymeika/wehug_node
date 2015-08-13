@@ -92,9 +92,7 @@
         }
     }
 
-    Slider.prototype = Object.create(ScrollView.prototype);
-
-    $.extend(Slider.prototype, {
+    $.extend(Slider.prototype, ScrollView.prototype, {
         loop: false,
 
         startAutoLoop: function () {

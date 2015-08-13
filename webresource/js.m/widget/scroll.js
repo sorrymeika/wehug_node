@@ -259,25 +259,24 @@
                     });
             }
 
-            $el.on('focus', 'input,textarea', function (e) {
-                var node = e.currentTarget,
-                    offsetTop = 0;
-                do {
-                    offsetTop += node.offsetTop;
-                    node = node.offsetParent;
-                }
-                while (node && el != node && !$.contains(node, el));
+            if (util.isInApp)
+                $el.on('focus', 'input:not(readonly),textarea:not(readonly)', function (e) {
+                    var node = e.currentTarget,
+                        offsetTop = 0;
+                    do {
+                        offsetTop += node.offsetTop;
+                        node = node.offsetParent;
+                    }
+                    while (node && el != node && !$.contains(node, el));
 
-                var y = offsetTop - (window.innerHeight / 4 - 60);
+                    var y = offsetTop - (window.innerHeight / 4 - 60);
 
-                setTimeout(function () {
                     if (scrollView) {
                         scrollView.scrollTo(scrollView.x, y)
                     } else {
                         el.scrollTop = y;
                     }
-                }, 1000);
-            });
+                });
 
             if (options && options.refresh) {
 

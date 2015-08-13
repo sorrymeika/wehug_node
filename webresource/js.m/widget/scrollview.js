@@ -9,16 +9,9 @@
     };
 
     var ScrollView = function (el, options) {
-
-        options = $.extend({
-            ease: 'ease',
-            hScroll: true,
-            vScroll: true
-        }, options)
-
         var that = this;
 
-        that.options = options;
+        that.options = options = $.extend(that.options, options)
 
         that.$el = $(el).css({ overflow: 'hidden' });
         that.el = that.$el[0];
@@ -30,6 +23,11 @@
     }
 
     ScrollView.prototype = {
+        options: {
+            ease: 'ease',
+            hScroll: true,
+            vScroll: true
+        },
         off: event.off,
         on: event.on,
         trigger: event.trigger,
@@ -57,6 +55,7 @@
             that._startTop = that.startTop = that.y;
 
             if ((!that.options.hScroll || that.wrapperW >= that.scrollW) && touch.isDirectionX || (!that.options.vScroll || that.wrapperH >= that.scrollH) && touch.isDirectionY) {
+                console.log('stop');
                 touch.stop();
                 return;
             }

@@ -974,6 +974,7 @@
                 }
             });
             this.needUpdateView = true;
+            return this;
         },
 
         get: function (i) {

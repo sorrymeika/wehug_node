@@ -68,15 +68,15 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 .refreshing { line-height: 50px; height: 50px; background: #fff; color: #808080; text-align: center; width: 100%; z-index: 1; -webkit-transition: height 300ms ease 0ms; }
 
 
-.selectorwrap { display: -webkit-box; position: absolute; z-index: 1000; bottom: 0px; width: 100%; height: 180px; }
-.selectorbar { border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; height: 36px; z-index: 3; background: #fff; position: absolute; top: 0; left: 0; right: 0; line-height: 36px; }
+.selectorwrap { display: -webkit-box; position: absolute; z-index: 1000; bottom: 0px; width: 100%; height: 210px; }
+.selectorbar { border-bottom: 1px solid #ccc; height: 38px; z-index: 3; background: #fff; position: absolute; top: 0; left: 0; right: 0; line-height: 38px; }
 .selectorbar b { width: 80px; float: right; height: 100%; font-weight: normal; text-align: center; color: #0079FF; }
-.selector { -webkit-box-flex: 1; background: #fff; text-align: center; height: 180px; }
+.selector { -webkit-box-flex: 1; background: #fff; text-align: center; height: 100%; }
 .selector:before { content: ''; display: block; background: -webkit-linear-gradient(top, rgb(255, 255, 255) 5%, rgba(255, 255, 255, 0) 50%, rgb(255, 255, 255) 95%); position: absolute; width: 100%; top: 36px; left: 0; bottom: 0px; z-index: 2; pointer-events: none; }
-.selectorcon { -webkit-box-flex: 1; height: 180px; overflow-y: auto; position: relative; }
-.selector:after { content: ''; display: block; margin-top: 0px; position: absolute; left: 0; top: 50%; height: 28px; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; width: 100%; z-index: 100; }
-.selectorcon > ul > li { height: 26px; font-size: 14px; }
-.selectorcon > ul { padding: 97px 0 57px 0; }
+.selectorcon { -webkit-box-flex: 1; position: relative; }
+.selector:after { content: ''; display: block; margin-top: 1px; position: absolute; left: 0; top: 50%; height: 32px; border-top: .5px solid #ddd; border-bottom: .5px solid #ddd; width: 100%; z-index: 100; pointer-events: none; }
+.selectorcon > ul > li { height: 30px; font-size: 16px; }
+.selectorcon > ul { padding: 114px 0 66px 0; }
 
 
 .slidebar { position: relative; }
@@ -100,7 +100,7 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 
 .btn { display: inline-block; height: 35px; line-height: 35px; vertical-align: top; text-align: center; background: #0f1423; color: #fff; }
 .btn_large, .btn_large2 { background: #f90; display: block; text-align: center; height: 39px; line-height: 39px; border-radius: 4px; color: #fff; margin: 8px; }
-.btn_large2 { background: #fff; border: 1px solid #f90; color:#f90; box-sizing: border-box; }
+.btn_large2 { background: #fff; border: 1px solid #f90; color: #f90; box-sizing: border-box; }
 .action { display: -webkit-box; text-align: center; }
 .action .btn { -webkit-box-flex: 1; display: block; margin-right: 20px; }
 .action .btn:last-child { margin-right: 0; }
