@@ -34,15 +34,36 @@ var mapViews = function (project, config, routes) {
     var home = require(path.join(project, './index'));
     var Route = require('./route');
     var route = new Route(routes);
+    var combine = {};
 
     for (var i = 0, cfg, length = config.projects.length; i < length; i++) {
         cfg = config.projects[i];
 
-        cfg.html = Tools.compressHTML(home.html(_.extend({
-            routes: routes,
-            isDebugFramework: config.isDebugFramework
+        if (cfg.css) {
+            for (var key in cfg.css) {
+                var cssPath = path.join(cfg.path, key);
+                var fileList = combine[cssPath];
+                if (!fileList) combine[cssPath] = fileList = [];
 
-        }, cfg)));
+                var cssList = cfg.css[key];
+
+                cssList.forEach(function (css) {
+                    fileList.push(path.join(cfg.path, css).replace(/\\/g, '/'));
+                });
+            }
+        }
+    }
+
+    for (var i = 0, cfg, option, length = config.projects.length; i < length; i++) {
+        cfg = config.projects[i];
+
+        option = _.extend({}, cfg, {
+            routes: routes,
+            isDebugFramework: config.isDebugFramework,
+            css: combine
+        });
+
+        cfg.html = Tools.compressHTML(home.html(option));
     }
 
     app.get("*", function (req, res, next) {
@@ -133,14 +154,16 @@ exports.start = function (project, callback) {
                     require(path.join(project, './build'))();
                 }
 
-                app.use('/webresource/js', express.static(project));
-                app.use('/webresource/js', express.static(path.join(__dirname, '../webresource/js.m')));
-
+                app.use(express.static(project));
                 app.use(express.static(path.join(__dirname, '../webresource')));
+                app.use('/webresource/js', express.static(path.join(__dirname, '../webresource/js.m')));
                 app.use('/webresource', express.static(path.join(__dirname, '../webresource')));
-                app.use('/webresource', express.static(path.join(project, './webresource')));
-
                 app.use('/webresource/images', express.static(path.join(__dirname, '../webresource/images.m')));
+
+                config.projects.forEach(function (proj) {
+                    app.use(path.join('/webresource/js', proj.path).replace(/\\/g, '/'), express.static(proj.path));
+                    app.use(path.join('/webresource', proj.path).replace(/\\/g, '/'), express.static(path.join(proj.path, './webresource')));
+                });
 
                 app.get('/webresource/js/*.js', function (req, res) {
                     res.set('Content-Type', 'text/javascript');

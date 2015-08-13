@@ -148,7 +148,8 @@ module.exports = function (projectPath, env, callback) {
         var fsc = require('./fs');
 
         fsc.copy('../webresource/images.m', path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
-            fsc.copy(path.join(projectPath, 'webresource/images'), path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+            config.projects.forEach(function (proj) {
+                fsc.copy(path.join(proj.path, '/webresource/images'), path.join(config.dest, proj.path, 'images'), '*.(jpg|png)', function (err, result) { });
             });
 
             callback(config, tools);

@@ -11,16 +11,16 @@
             item;
         if (debug) {
             if (typeof items=='string')
-                items=[item];
+                items=[items];
             for(var i=0,len=items.length;i<len;i++) {
-                var item=items[i];
-                <link href="@(webresource)@item" rel="stylesheet" type="text/css"/>
+                item=items[i];
+                <link href="@(webresource)@item?v@(Date.now())" rel="stylesheet" type="text/css"/>
             }
         } else {
-            <link href="@(webresource)@key" rel="stylesheet" type="text/css"/>
+            <link href="@(webresource)@key?v@(Date.now())" rel="stylesheet" type="text/css"/>
         }
     }
-    <script src="@(webresource)@html(isDebugFramework?'js/seajs/sea.js':'slan.m.js')"></script>
+    <script src="@(webresource)@html(isDebugFramework?'js/seajs/sea.js':'slan.m.js')?v@(Date.now())"></script>
     @if(debug){
     <script src="@(webresource)js/zepto.js"></script>
     <script src="@(webresource)js/extend/fx.js"></script>
@@ -54,6 +54,8 @@
             }
         });
         seajs.use(['$','core/app','util'],function($,App,util) {
+            sl.isDebug=@debug;
+            sl.buildVersion=@(Date.now());
             if (!util.store('global_area'))util.store('global_area',1);
             new App().mapRoute(@html(JSON.stringify(routes)),@debug).start();
         });
