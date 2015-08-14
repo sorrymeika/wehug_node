@@ -126,6 +126,7 @@
     var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\')\){0,1})*)/g;
     var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\')/g;
     var formatStr = util.format;
+    var rvalue = /^((-)*\d+|true|false|undefined|null|'[^']*')$/;
 
     var filterFn = function (filters, listItem) {
         var code = '';
@@ -139,7 +140,7 @@
 
             parameters.replace(rparams, function (match, param) {
                 var parameterStr;
-                if (param[0] == '\'' || /^((-)*\d+|true|false|undefined|null)$/.test(param)) {
+                if (rvalue.test(param)) {
                     parameterStr = param;
 
                 } else {
@@ -187,7 +188,7 @@
 
     var rcollection = /([a-zA-Z_0-9]+)\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}/g;
     var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'[^']*?')\){0,1})*)*)(\s|,|$)/g;
-    var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)(\s|,|$)/g;
+    var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.-]+|'[^']*?'))*)(\s|,|$)/g;
 
     var $filterEl = function ($el, selector) {
         return $el.filter(selector).add($el.find(selector));
@@ -207,6 +208,14 @@
             }
         }
     }
+
+    var getArgs = function (args) {
+        var result = [];
+        args.replace(rparams, function (match, param) {
+            result.push(param);
+        });
+        return result;
+    };
 
     var Finder = function ($elem) {
         this.count = 0;
@@ -323,11 +332,15 @@
                     if (on) {
                         this.setAttribute('sn-on', eventid);
                         var actions = events[eventid];
-                        on.replace(revents, function (match, event, name, key) {
+                        on.replace(revents, function (match, event, name, key, args) {
                             if (eventNames.indexOf(event) == -1) eventNames[eventNames.length] = event;
                             if (!actions) actions = events[eventid] = {};
                             var variable = name + key;
-                            actions[event] = getVariable(listItem, variable) || variable;
+                            actions[event] = {
+                                name: getVariable(listItem, variable) || variable,
+                                args: getArgs(args),
+                                repeat: listItem
+                            };
                         });
                         eventid++;
                     }
@@ -396,14 +409,18 @@
             if (on) {
                 this.setAttribute('sn-on', eventid);
                 var actions = events[eventid];
-                on.replace(revents, function (match, event, name, key) {
+                on.replace(revents, function (match, event, name, key, args) {
                     if (eventNames.indexOf(event) == -1) eventNames[eventNames.length] = event;
                     if (!actions) actions = events[eventid] = {};
-                    actions[event] = name + key;
+                    actions[event] = {
+                        name: name + key,
+                        args: getArgs(args)
+                    };
                 });
                 eventid++;
             }
         });
+
     };
 
     var setAttribute = function (el, prop, value) {
@@ -499,7 +516,6 @@
                 binding,
                 el,
                 prop,
-                key,
                 val;
 
             if (bindings) {
@@ -703,40 +719,48 @@
 
         $.extend(this, options);
 
-        if (!this.placeHolder && collection.parent.$el)
-            this.placeHolder = collection.parent.$el.find('[sn-placeholder="' + this.placeHolderName + '"]')[0];
+        this.selector = '[sn-placeholder="' + this.placeHolderName + '"]';
+        if (!this.placeHolder && this.collection.parent.$el) this.placeHolder = this.collection.parent.$el.find(this.selector)[0];
+        this.isInCollection = !$.contains(document.body, this.placeHolder);
     }
 
     Repeat.prototype = {
+
         filter: function (data) {
             var filter = this.filterName;
             var comparator = this.comparator;
-
             var flag = true;
+            var val;
 
             if (filter) {
                 filter = this.deepValue(filter);
 
                 if (!filter) return true;
 
-                if (comparator == 'true') {
+                if (comparator == 'true' || comparator == '1') {
                     comparator = true;
                 }
 
                 switch (typeof filter) {
                     case 'function':
-                        flag = filter(data);
+                        flag = filter(data, comparator);
                         break;
                     case 'object':
-                        var val;
                         for (var key in data) {
                             val = data[key];
-
-                            if (typeof val == 'string') {
-                            }
                         }
                         break;
                     case 'string':
+                    case 'number':
+                        flag = false;
+                        for (var key in data) {
+                            val = data[key];
+                            if (typeof val == 'string' || (typeof val == 'number' && (val += ''))) {
+                                flag |= comparator ? val == filter : (val.indexOf(filter) != -1);
+                                if (flag)
+                                    break;
+                            }
+                        }
                         break;
                     default:
                         flag = data;
@@ -754,9 +778,16 @@
 
         deepValue: function (name) {
             var names = name.split('.');
-            var alias = this.modelAlias[names[0]];
+            var collectionName = this.modelAlias[names.shift()];
 
-            if (alias) {
+            if (collectionName) {
+                var parent = this.collection.parent;
+                while (parent) {
+                    if (parent.key == collectionName + '^child') {
+                        return util.deepValue(parent.data, names);
+                    }
+                }
+                return null;
 
             } else {
                 return util.deepValue(this.collection.root.data, name);
@@ -783,18 +814,19 @@
 
             this.list.push(item);
 
-            if (orderBy) {
-            }
+            item.visible = this.filter(model.data);
 
-            if (this.filter(model.data)) {
+            if (item.visible) {
                 if (this.fragment) {
                     this.fragment.appendChild(el);
-
                 } else {
-                    this.placeHolder.parentNode.insertBefore(el, this.placeHolder);
+                    this.appendChild(el);
                 }
             }
+        },
 
+        appendChild: function (el) {
+            !this.isInCollection ? this.placeHolder.parentNode.insertBefore(el, this.placeHolder) : this.collection.root.$el.find(this.selector).add(this.placeHolder).before(el);
         },
 
         remove: function (model) {
@@ -943,7 +975,7 @@
             var item;
             for (var i = 0, n = this.repeats.length; i < n; i++) {
                 item = this.repeats[i];
-                item.placeHolder.parentNode.insertBefore(item.fragment, item.placeHolder);
+                item.appendChild(item.fragment);
                 item.fragment = null;
             }
         },
@@ -1006,6 +1038,10 @@
         }
     };
 
+    var closestModel = function (target, collectionName) {
+        return (target.getAttribute('sn-repeat-name') == collectionName ? target : $(target).closest('[sn-repeat-name="' + collectionName + '"]')[0]).snModel;
+    }
+
     var ViewModel = function ($el, data) {
         this.root = this;
 
@@ -1041,24 +1077,50 @@
             var event = e.type;
             var eventid = target.getAttribute('sn-on');
             var events = this.finder.events[eventid];
+            var option = events[event];
             var fn;
+            var ctx,
+                index,
+                modelName;
+            var args = [e];
 
             if (events) {
-                fn = events[event];
-                var ctx,
-                    index,
-                    model;
+                fn = option.name;
+
+                for (var i = 0; i < option.args.length; i++) {
+                    var arg = option.args[i];
+                    var model = this;
+
+                    if (rvalue.test(arg)) {
+                        args.push(arg);
+
+                    } else {
+                        if (option.repeat) {
+                            var names = arg.split('.');
+                            var name = names.shift();
+                            if (option.repeat.alias == name) {
+                                model = closestModel(target, option.repeat.collectionName);
+                                arg = names;
+                            } else if (option.repeat.modelAlias[name]) {
+                                model = closestModel(target, option.repeat.modelAlias[name]);
+                                arg = names;
+                            }
+                        }
+                        args.push(model.get(arg));
+                    }
+                }
+
                 if (typeof fn == 'string') {
-                    model = fn;
+                    modelName = fn;
                     fn = this.get(fn);
                     ctx = this;
                 } else {
-                    ctx = $(target).closest('[sn-repeat-name="' + fn.collection + '"]')[0].snModel;
-                    model = fn.variable;
-                    fn = ctx.get(model);
+                    ctx = closestModel(target, fn.collection);
+                    modelName = fn.variable;
+                    fn = ctx.get(modelName);
                 }
-                index = model.lastIndexOf('.');
-                fn && fn.call(index == -1 ? ctx : ctx.get(model.substr(0, index)), e);
+                index = modelName.lastIndexOf('.');
+                fn && fn.apply(index == -1 ? ctx : ctx.get(modelName.substr(0, index)), args);
             }
         },
 
@@ -1113,7 +1175,7 @@
             if (!collectionName) {
                 this.set(modelName, target.value);
             } else {
-                $(target).closest('[sn-repeat-name="' + collectionName + '"]')[0].snModel.set(modelName, target.value);
+                closestModel(target, collectionName).set(modelName, target.value);
             }
         },
 
