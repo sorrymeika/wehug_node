@@ -60,8 +60,9 @@ var build = function (config, routes, projectsRequires) {
 }
 
 var getWebsourcePath = function (dir, url, callback) {
-    var files = [dir, './', '../'];
+    var files = [dir, './', '../', '../../wehug_node/'];
     var fileName;
+    console.log(__dirname);
 
     for (var i = 0; i < files.length; i++) {
         fileName = path.join(files[i], 'webresource/' + url);
@@ -78,7 +79,7 @@ var getWebsourcePath = function (dir, url, callback) {
 };
 
 var getJsPath = function (dir, url, callback) {
-    var files = [dir, './', '../'];
+    var files = [dir, './', '../', '../../wehug_node/'];
     var fileName;
 
     for (var i = 0; i < files.length; i++) {
