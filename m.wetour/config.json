@@ -3,7 +3,7 @@
 	debug: true,
 	js: { },
 	css: {
-		'images/style.css': ['images/style.css','images/anim.css','images/views.css']
+		'images/style.css': ['images.m/style.css','images.m/anim.css','images/views.css']
 	},
 	route: {
 		'/': { controller: 'index', template: 'index' },

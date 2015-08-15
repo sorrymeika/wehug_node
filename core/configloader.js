@@ -58,8 +58,8 @@ ConfigLoader.prototype = {
 
                 routeKey = root + key;
                 routeData.root = data.root;
-                routeData.controller = 'views/' + routeData.controller;
-                routeData.template = 'template/' + routeData.template;
+                routeData.controller = path.join('views', routeData.controller).replace(/\\/g, '/');
+                routeData.template = path.join('template', routeData.template).replace(/\\/g, '/');
 
                 self.routes[routeKey == '/' ? '/' : routeKey.replace(/\/$/, '')] = routeData;
             }

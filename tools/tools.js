@@ -130,7 +130,7 @@ Tools.prototype = {
             if (!paths.length) {
                 for (var key in paths) {
                     item = paths[key] || key;
-                    item += '.js';
+                    if (!/\.js$/.test(item)) item += '.js';
 
                     fileList.push(path.join(self.baseDir, item));
                     ids.push(key);
@@ -140,7 +140,7 @@ Tools.prototype = {
                 for (var i = 0, n = paths.length; i < n; i++) {
                     item = paths[i];
 
-                    fileList.push(path.join(self.baseDir, isCss ? item : (item + '.js')));
+                    fileList.push(path.join(self.baseDir, isCss || /\.js$/.test(item) ? item : (item + '.js')));
                     ids.push(item);
                 }
             }
@@ -169,7 +169,7 @@ Tools.prototype = {
 
                     self.promise.then(promise);
 
-                })(fileList, ids, isCss, path.join(self.destDir, isCss ? destPath : (destPath + '.js')));
+                })(fileList, ids, isCss, path.join(self.destDir, isCss || /\.js$/.test(destPath) ? destPath : (destPath + '.js')));
 
             }
 

@@ -5,8 +5,7 @@
         <i>3</i>
     </div>
 </header>
-<div class="main" style="display:none" data-index="0">
-    <div class="js_slider"></div>
+<div class="main" data-index="0">
     <div sn-binding="display:isLogin" class="home_bd">
         <div class="home_vip">
             <div class="rainbow">
@@ -57,7 +56,7 @@
 </div>
 <div class="main" style="display:none" data-index="2">
 </div>
-<div class="main home_my" data-index="3">
+<div class="main home_my" style="display:none" data-index="3">
     <div class="my">
         <div class="card">
             <div class="level">

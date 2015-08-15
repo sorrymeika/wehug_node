@@ -6,12 +6,14 @@
 </header>
 <div class="main" data-index="0">
     <ul class="recommend_list js_comment_list">
-        <li class="recommend_item" sn-repeat="item in data0">
-            <a sn-binding="href:item.ID|format:'/recommend/{0}'" forward>
+        <li class="recommend_item" sn-repeat="item,i in data0">
+            <a sn-binding="href:item|format:'/recommend/{ID}'" forward>
                 <img sn-binding="src:item.Pic" />
                 <div class="recommend_name" sn-binding="html:item.Name"></div>
                 <div class="recommend_fav" sn-binding="html:item.Favorite"></div>
             </a>
+            <div sn-repeat="test in item.data" sn-binding="html:test.ID"></div>
+            <div sn-binding="html:i"></div>
         </li>
     </ul>
 </div>

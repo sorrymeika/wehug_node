@@ -77,11 +77,16 @@
         minus: function (str, num) {
             return parseFloat(str) - parseFloat(num);
         },
-        format: function (str) {
-            var args = slice.call(arguments);
-            var format = args[1];
-            args.splice(1, 1);
-            return format.replace(/\{(\d+)\}/g, function (match, index) {
+        format: function (obj) {
+            var args;
+            var format = arguments[1];
+            if (arguments.length == 2 && typeof obj == 'object') {
+                args = obj;
+            } else {
+                args = slice.call(arguments)
+                args.splice(1, 1);
+            }
+            return format.replace(/\{([_a-zA-Z0-9]+)\}/g, function (match, index) {
                 return args[index];
             });
         },
@@ -125,15 +130,14 @@
 
     var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\')\){0,1})*)/g;
     var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\')/g;
-    var formatStr = util.format;
     var rvalue = /^((-)*\d+|true|false|undefined|null|'[^']*')$/;
 
     var filterFn = function (filters, listItem) {
         var code = '';
         var before = 'var S=this;';
         var count = 0;
+        var argCount = 0;
         var keys, key, alias;
-        var prefix = 'if(E)F.listen({0},M,K,E,S,';
 
         filters.replace(rfilter, function (match, filter, parameters) {
             code += 'V=F.' + filter + '(V';
@@ -149,19 +153,20 @@
 
                     if (!listItem || (key != listItem.alias && !(alias = listItem.modelAlias[key]))) {
                         parameterStr = 'M.root.data.' + param;
-                        before += formatStr(prefix, 'M.root') + '"' + param + '",' + (count++) + ');';
+                        before += 'if(E)F.listen(M.root,M,K,E,S,"' + param + '",' + (count++) + ');';
 
                     } else if (param == listItem.alias) {
                         parameterStr = 'M.data';
-                        before += formatStr(prefix, 'M.parent') + 'M._key,' + (count++) + ');';
-
-                    } else if (key == listItem.alias) {
-                        parameterStr = 'M.data' + param.substr(listItem.alias.length);
-                        before += formatStr(prefix, 'M') + '"' + param.substr(listItem.alias.length + 1) + '",' + (count++) + ');';
+                        before += 'if(E)F.listen(M.parent,M,K,E,S,M._key,' + (count++) + ');';
 
                     } else {
+                        if (key == listItem.alias) {
+                            alias = listItem.collectionName;
+                        }
                         param = keys.join('.');
-                        parameterStr = '(function(){var P=M.parent.parent;while(P){if( P.key=="' + alias + '^child"){' + formatStr(prefix, 'P') + '"' + param + '",' + (count++) + '); return P.data.' + param + '; } P=P.parent.parent; } })()';
+                        parameterStr = 'A' + (argCount++);
+
+                        before += 'var ' + parameterStr + ';var P=M;while(P){if(P.key=="' + alias + '^child"){if(E)F.listen(P,M,K,E,S,"' + param + '",' + (count++) + ');' + parameterStr + '=P.data.' + param + ';break;}P=P.parent.parent;}';
                     }
                 }
 
@@ -186,7 +191,7 @@
         return new Function('F', 'M', 'V', 'K', 'E', before + code);
     };
 
-    var rcollection = /([a-zA-Z_0-9]+)\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}/g;
+    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}/g;
     var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'[^']*?')\){0,1})*)*)(\s|,|$)/g;
     var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.-]+|'[^']*?'))*)(\s|,|$)/g;
 
@@ -217,6 +222,22 @@
         return result;
     };
 
+    var getCollectionName = function (modelAlias, collectionName) {
+        var names = collectionName.split('.');
+        var namesLength = names.length;
+        var alia;
+
+        if (namesLength !== 1) {
+            alia = modelAlias[names[0]];
+
+            if (alia) {
+                names[0] = alia + '^child';
+                collectionName = names.join('.');
+            }
+        }
+        return collectionName;
+    }
+
     var Finder = function ($elem) {
         this.count = 0;
         this.repeats = {};
@@ -234,46 +255,45 @@
         var events = this.events;
         var eventNames = this.eventNames;
         var collection;
-        var $el;
 
         var count = this.count;
         var eventid = this.eventid;
 
         var $repeats = $filterEl($elem, '[sn-repeat]').each(function () {
-            $el = $(this);
+            var $el = $(this);
             var el = this;
             var repeat = this.getAttribute('sn-repeat');
             var parents = $el.parents('[sn-repeat-alias]');
             var modelAlias = {};
+            var loopIndexAlias = {};
 
             parents.each(function () {
-                modelAlias[this.getAttribute('sn-repeat-alias')] = this.getAttribute('sn-repeat-name');
+                var repeatName = this.getAttribute('sn-repeat-name');
+                modelAlias[this.getAttribute('sn-repeat-alias')] = repeatName;
+
+                var index = this.snIndexAlias;
+                if (index) {
+                    loopIndexAlias[index] = repeatName;
+                }
             });
 
-            repeat.replace(rcollection, function (match, modelName, collectionName, filter, comparator, orderBy, reverse) {
-                var names = collectionName.split('.');
-                var namesLength = names.length;
-                var varName;
-                var alia;
+            repeat.replace(rrepeat, function (match, modelName, indexAlias, collectionName, filter, comparator, orderBy, reverse) {
 
-                if (namesLength !== 1) {
-                    varName = names[0];
-                    alia = modelAlias[varName];
-
-                    if (alia) {
-                        names[0] = alia + '^child';
-                        collectionName = names.join('.');
-                    }
-                }
+                collectionName = getCollectionName(modelAlias, collectionName);
 
                 el.setAttribute('sn-repeat-alias', modelName);
                 el.setAttribute('sn-repeat-name', collectionName);
+                if (indexAlias) {
+                    el.snIndexAlias = indexAlias;
+                    loopIndexAlias[indexAlias] = collectionName;
+                }
 
                 var placeHolder = document.createElement('script');
                 placeHolder.setAttribute('type', 'text/placeholder');
 
                 var placeHolderName;
                 var listItem = {
+                    loopIndexAlias: loopIndexAlias,
                     orderBy: orderBy,
                     reverse: reverse,
                     filterName: filter,
@@ -284,7 +304,7 @@
                     template: el
                 };
 
-                if (namesLength == 1) listItem.placeHolder = placeHolder;
+                if (collectionName.indexOf('.') == -1) listItem.placeHolder = placeHolder;
 
                 collection = repeats[collectionName];
                 if (!collection) {
@@ -302,14 +322,12 @@
 
         }).remove();
 
-
         for (var collectionName in repeats) {
             var list = repeats[collectionName];
-            var listItem;
 
             for (var i = 0, len = list.length; i < len; i++) {
-                listItem = list[i];
-                $el = $(listItem.template);
+                var listItem = list[i];
+                var $el = $(listItem.template);
 
                 $filterEl($el, '[sn-binding],[sn-model],[sn-on]').each(function () {
                     var el = this;
@@ -347,35 +365,26 @@
 
                     if (binding) {
                         binding.replace(rbinding, function (match, prop, name, key, filters) {
+                            var alias;
                             if (name == listItem.alias) {
-                                name = collectionName + '^child' + key;
+                                name = listItem.collectionName + '^child' + key;
 
-                            } else {
-                                alias = listItem.modelAlias[name];
-                                if (alias) {
-                                    name = alias + '^child' + key;
-                                }
+                            } else if (listItem.loopIndexAlias && listItem.loopIndexAlias[name]) {
+                                name = listItem.loopIndexAlias[name] + '^child.^' + name;
+
+                            } else if (alias = listItem.modelAlias[name]) {
+                                name = alias + '^child' + key;
                             }
 
-                            if (filters) {
-                                prop = {
+                            (bindings[name] || (bindings[name] = [])).push({
+                                el: count,
+                                prop: !filters ? prop : {
                                     prop: prop,
                                     filter: filterFn(filters, listItem)
-                                };
-                            }
-                            var bounds = bindings[name];
-
-                            if (!bounds) {
-                                bounds = bindings[name] = [];
-                            }
-
-                            bounds.push({
-                                el: count,
-                                prop: prop
+                                }
                             });
                         });
                     }
-
                 });
             }
         }
@@ -384,25 +393,17 @@
             var binding = this.getAttribute('sn-binding');
             var on = this.getAttribute('sn-on');
             var el = this;
-            var bounds;
 
             if (binding)
                 binding.replace(rbinding, function (match, prop, name, key, filters) {
                     name += key;
-                    if (filters) {
-                        prop = {
+
+                    (bindings[name] || (bindings[name] = [])).push({
+                        el: el,
+                        prop: !filters ? prop : {
                             prop: prop,
                             filter: filterFn(filters)
-                        };
-                    }
-                    bounds = bindings[name];
-
-                    if (!bounds) {
-                        bounds = bindings[name] = [];
-                    }
-                    bounds.push({
-                        el: el,
-                        prop: prop
+                        }
                     });
                 });
 
@@ -420,7 +421,6 @@
                 eventid++;
             }
         });
-
     };
 
     var setAttribute = function (el, prop, value) {
@@ -447,7 +447,8 @@
                     $(el).css(value);
                     break;
                 case 'class':
-                    el.className = typeof value == 'string' || !value ? value : Filter.join(value, ' ');
+                    if (typeof el.initClassName === 'undefined') el.initClassName = el.className || '';
+                    el.className = el.initClassName + ' ' + (typeof value == 'string' || !value ? value : Filter.join(value, ' '));
                     break;
                 default:
                     (value === null || value === undefined) ? el.removeAttribute(prop) : el.setAttribute(prop, value);
@@ -802,21 +803,24 @@
             }
         },
 
+        syncIndex: function () {
+            for (var i = this.list.length - 1; i >= 0; i--) {
+                this.list[i].model._syncView('^' + this.template.snIndexAlias, i);
+            }
+        },
+
         add: function (model, el, useFragment) {
 
             var list = this.list;
             var orderBy = this.orderBy;
             var reverse = this.reverse;
-            var item = {
-                model: model,
-                el: el
-            };
 
-            this.list.push(item);
+            if (this.filter(model.data)) {
+                this.list.push({
+                    model: model,
+                    el: el
+                });
 
-            item.visible = this.filter(model.data);
-
-            if (item.visible) {
                 if (this.fragment) {
                     this.fragment.appendChild(el);
                 } else {
@@ -925,15 +929,14 @@
             var $els;
             var model = new this.model();
             var length = this.data.length;
+            var repeats;
 
             this.models[length] = model;
             this.data[length] = data;
 
             if (this.repeats) {
-                var item;
-
                 for (var i = 0, len = this.repeats.length; i < len; i++) {
-                    item = this.repeats[i];
+                    var item = this.repeats[i];
 
                     var el = item.template.cloneNode(true);
                     var $el = $(el);
@@ -941,11 +944,21 @@
                     el.snModel = model;
                     item.add(model, el);
 
+                    if (item.template.snIndexAlias) {
+                        (repeats || (repeats = [])).push(item);
+                    }
+
                     if (!$els) $els = $el;
                     else $els = $els.add($el);
                 }
             }
             model.constructor(data, length, this, $els);
+
+            if (repeats) {
+                for (var i = 0, len = repeats.length; i < len; i++) {
+                    repeats[i].syncIndex();
+                }
+            }
 
             if (!useFragment) {
                 this._syncOwnView();

@@ -155,6 +155,7 @@ exports.start = function (project, callback) {
                 }
 
                 app.use(express.static(project));
+                app.use(express.static(path.join(project, 'webresource')));
                 app.use(express.static(path.join(__dirname, '../webresource')));
                 app.use('/webresource/js', express.static(path.join(__dirname, '../webresource/js.m')));
                 app.use('/webresource', express.static(path.join(__dirname, '../webresource')));

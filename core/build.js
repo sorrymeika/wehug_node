@@ -12,6 +12,7 @@ var build = function (config, routes, projectsRequires) {
     var route = new Route(routes);
 
     tmplPromise.each(route.routes, function (i, buildConfig) {
+
         var templatePath = './' + buildConfig.template + '.tpl',
             viewPath = './' + buildConfig.view + '.js',
             count = 2,
@@ -21,19 +22,26 @@ var build = function (config, routes, projectsRequires) {
                     tmplPromise.next(i);
                 }
             },
-            root = buildConfig.root == '/' ? '/' : (buildConfig.root + '/');
+            root = buildConfig.root == '/' ? '/' : (buildConfig.root + '/'),
+            viewInfo = views[root];
 
-        if (!views[root]) views[root] = '';
+        if (!viewInfo) views[root] = viewInfo = { code: '', records: {} };
 
-        fs.readFile(templatePath, { encoding: 'utf-8' }, function (err, data) {
-            var nodeCode = Tools.compressJs(razor.node(data));
-            var code = Tools.compressJs(Tools.replaceDefine(buildConfig.template, razor.web(data)));
+        if (!viewInfo.records[buildConfig.template]) {
+            viewInfo.records[buildConfig.template] = true;
 
-            Tools.save(path.join(config.node_dest, buildConfig.template + '.js'), nodeCode);
+            fs.readFile(templatePath, { encoding: 'utf-8' }, function (err, data) {
+                var nodeCode = Tools.compressJs(razor.node(data));
+                var code = Tools.compressJs(Tools.replaceDefine(buildConfig.template, razor.web(data)));
 
-            views[root] += code;
+                Tools.save(path.join(config.node_dest, buildConfig.template + '.js'), nodeCode);
+
+                viewInfo.code += code;
+                callback();
+            });
+        } else {
             callback();
-        });
+        }
 
         fs.readFile(viewPath, { encoding: 'utf-8' }, function (err, data) {
             var requires,
@@ -43,13 +51,13 @@ var build = function (config, routes, projectsRequires) {
             }
             var code = Tools.compressJs(Tools.replaceDefine(buildConfig.view, data, requires));
 
-            views[root] += code;
+            viewInfo.code += code;
             callback();
         });
     })
     .then(function () {
         for (var key in views) {
-            Tools.save(config.dest + key + 'controller.js', views[key]);
+            Tools.save(config.dest + key + 'controller.js', views[key].code);
         }
 
         Tools.save(path.join(config.node_dest, 'config.js'), 'module.exports=' + JSON.stringify(config));
@@ -59,58 +67,46 @@ var build = function (config, routes, projectsRequires) {
     return tmplPromise;
 }
 
-var getWebsourcePath = function (dir, url, callback) {
-    var files = [dir, './', '../', '../../wehug_node/'];
+var getWebsourcePath = function (root, dir, url, callback) {
+    var dirs = [path.join(root, dir, 'webresource'), path.join(root, 'webresource'), path.join(__dirname, '../webresource')];
     var fileName;
-    console.log(__dirname);
 
-    for (var i = 0; i < files.length; i++) {
-        fileName = path.join(files[i], 'webresource/' + url);
-
+    for (var i = 0; i < dirs.length; i++) {
+        fileName = path.join(dirs[i], url);
         if (fs.existsSync(fileName)) {
-            return fileName;
-        } else if (url.indexOf('images/') == 0) {
-            fileName = path.join(files[i], 'webresource/images.m' + url.substr(6));
-            if (fs.existsSync(fileName)) {
-                return fileName;
-            }
+            return path.relative(root, fileName).replace(/\\/g, '/');
         }
     }
 };
 
-var getJsPath = function (dir, url, callback) {
-    var files = [dir, './', '../', '../../wehug_node/'];
+var getJsPath = function (root, dir, url, callback) {
+    var dirs = [path.join(root, dir), root, path.join(__dirname, '../webresource/js'), path.join(__dirname, '../webresource/js.m')];
     var fileName;
 
-    for (var i = 0; i < files.length; i++) {
-        fileName = path.join(files[i], 'webresource/js/' + url);
+    for (var i = 0; i < dirs.length; i++) {
+        fileName = path.join(dirs[i], url + '.js');
         if (fs.existsSync(fileName)) {
-            return fileName;
-        } else {
-            fileName = path.join(files[i], 'webresource/js.m' + url);
-            if (fs.existsSync(fileName)) {
-                return fileName;
-            }
+            return path.relative(root, fileName).replace(/\\/g, '/');
         }
     }
 };
 
-module.exports = function (projectPath, env, callback) {
+module.exports = function (root, env, isMobile, callback) {
+    if (typeof isMobile == 'function') callback = isMobile, isMobile = true;
 
-    configloader(path.join(projectPath, 'config'), env, function (config, routes) {
+    configloader(path.join(root, 'config'), env, function (config, routes) {
 
         var combine = {};
         var requires = {};
 
-        config.node_dest = path.join(projectPath, config.node_dest);
-        config.dest = path.join(projectPath, config.dest);
+        config.node_dest = path.join(root, config.node_dest);
+        config.dest = path.join(root, config.dest);
 
         config.projects.forEach(function (project) {
             if (project.css) {
                 for (var key in project.css) {
-                    var cssPath = path.join(project.path, key);
-                    var fileList = combine[cssPath];
-                    if (!fileList) combine[cssPath] = fileList = [];
+                    var fileList = combine[key];
+                    if (!fileList) combine[key] = fileList = [];
 
                     var cssList = project.css[key];
                     var requireList = requires[project.root];
@@ -121,7 +117,30 @@ module.exports = function (projectPath, env, callback) {
                     }
 
                     cssList.forEach(function (css) {
-                        var file = getWebsourcePath(project.path, css);
+                        var file = getWebsourcePath(root, project.path, css);
+                        if (file && fileList.indexOf(file) == -1) {
+                            fileList.push(file);
+                        }
+                    });
+                }
+            }
+
+            if (project.js) {
+                for (var key in project.js) {
+                    var fileList = combine[key];
+                    if (!fileList) combine[key] = fileList = [];
+
+                    var jsList = project.js[key];
+                    var requireList = requires[project.root];
+                    if (!requireList) requires[project.root] = requireList = [];
+
+                    if (requireList.indexOf(key) == -1) {
+                        requireList.push(key);
+                    }
+
+                    jsList.forEach(function (js) {
+                        console.log(project.path);
+                        var file = getJsPath(root, project.path, js);
                         if (file && fileList.indexOf(file) == -1) {
                             fileList.push(file);
                         }
@@ -130,7 +149,7 @@ module.exports = function (projectPath, env, callback) {
             }
         });
 
-        var home = require(path.join(projectPath, './index'));
+        var home = require(path.join(root, './index'));
 
         Tools.save(path.join(config.dest, 'index.html'), home.html({
             routes: routes,
@@ -141,14 +160,14 @@ module.exports = function (projectPath, env, callback) {
             js: {}
         }));
 
-        var tools = new Tools(projectPath, config.dest);
+        var tools = new Tools(root, config.dest);
         tools.combine(combine);
 
         build(config, routes, requires);
 
         var fsc = require('./fs');
 
-        fsc.copy('../webresource/images.m', path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+        fsc.copy('../webresource/images' + (isMobile ? '.m' : ''), path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
             config.projects.forEach(function (proj) {
                 fsc.copy(path.join(proj.path, '/webresource/images'), path.join(config.dest, proj.path, 'images'), '*.(jpg|png)', function (err, result) { });
             });

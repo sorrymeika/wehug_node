@@ -169,6 +169,9 @@
                                 data: res.data
                             });
                         } else {
+                            res.data[0].data = [{
+                                ID: 'adsfasfd'
+                            }]
                             self.model.set("data" + index, res.data);
                         }
                         if (!res.data) {
