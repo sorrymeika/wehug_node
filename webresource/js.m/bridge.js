@@ -64,6 +64,9 @@
             tip: function (msg) {
                 hybrid('tip', msg + "");
             },
+            open: function (url) {
+                hybrid('open', url + '');
+            },
             pickImage: function (f) {
                 hybrid('pickImage', f);
             },

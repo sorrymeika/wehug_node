@@ -7,6 +7,7 @@
     var menu = require('common/menu');
     var Form = require('components/form');
     var Grid = require('components/grid');
+    var adtypes = require('settings/data/adtypes');
 
     return Page.extend({
         events: {
@@ -26,6 +27,16 @@
 
                     }, 'json');
                 }
+            },
+            'click .js_click': function (e) {
+                var id = e.currentTarget.getAttribute('data-id');
+                var url = e.currentTarget.getAttribute('data-url');
+
+                util.store('current_ad', util.first(this.grid.data(), function (item) {
+                    return item.ID == id;
+                }))
+
+                this.forward(url);
             }
         },
 
@@ -33,7 +44,7 @@
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                title: '目的地管理'
+                title: '广告位管理'
             });
 
             this.onResult('ad_change', function () {
@@ -47,16 +58,15 @@
                     beforeSend: function () {
                     },
                     data: {
-                        keywords: {
-                            label: '关键字',
-                            type: 'text'
+                        name: {
+                            label: '广告位置',
+                            type: 'select',
+                            options: adtypes
                         }
                     }
                 },
                 onSelectRow: function () {
                 },
-                pageEnabled: true,
-                pageSize: 20,
                 columns: [{
                     text: "编号",
                     bind: "ID",
@@ -66,15 +76,11 @@
                     bind: "Title",
                     width: 10
                 }, {
-                    text: "广告位置",
-                    bind: "Name",
-                    width: 10
-                }, {
                     text: "广告图片",
-                    bind: "Pic",
+                    bind: "Src",
                     width: 10,
                     render: function (data) {
-                        this.append('<a href="' + data.Pic + '" target="_blank">' + data.Pic + '</a>');
+                        this.append('<a href="' + data.Src + '" target="_blank">' + data.Src + '</a>');
                     }
                 }, {
                     text: "操作",
@@ -82,7 +88,10 @@
                     align: 'center',
                     valign: 'center',
                     render: function (data) {
-                        this.append('<a href="/modify_ad/' + data.ID + '" >[修改]</a> <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
+
+                        this.append($('<a href="javascript:;" class="js_click" data-id="' + data.ID + '" data-url="/settings/modify_ad/' + self.$('[name="name"]').val() + '/' + data.ID + '">[修改]</a>'))
+
+                        this.append(' <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
                     }
                 }]
 

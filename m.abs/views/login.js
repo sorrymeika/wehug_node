@@ -84,21 +84,38 @@ define(function (require, exports, module) {
                 back: this.route.query.from || '/'
             });
 
+            this.getUser = new Loading({
+                url: '/api/user/get',
+                check: false,
+                checkData: false,
+                $el: this.$el,
+                success: function () {
+                }
+            });
+
             this.loading = new Loading({
                 url: '/api/user/login',
                 method: 'POST',
                 check: false,
                 checkData: false,
                 $el: this.$el,
-                xhrFields: {
-                    withCredentials: true
-                },
                 success: function (res) {
                     if (!res.success)
                         sl.tip(res.msg);
                     else {
                         util.store('user', res.data);
-                        self.back(self.route.query.success || '/');
+
+                        self.getUser.setParam({
+                            UserID: res.data.UserID,
+                            Auth: res.data.Auth
+
+                        }).load(function (err, user) {
+                            if (user) {
+                                util.store('user', $.extend(res.data, user.data));
+                            }
+                            self.back(self.route.query.success || '/');
+                        });
+
                     }
                 },
                 error: function (res) {

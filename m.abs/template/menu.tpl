@@ -2,10 +2,10 @@
     <div class="menu_user" sn-binding="data-back:memberUrl">
         <div class="menu_username">
             <h1>
-                <text sn-binding="html:user.NickName|or:user.Mobile">adfasdf</text>
+                <text sn-binding="html:user.UserName|or:user.Mobile"></text>
                 <span>补全信息</span>
             </h1>
-            <h2 sn-binding="html:user.BirthDay">1988/12/9</h2>
+            <h2 sn-binding="html:user.BirthDay|date:'yyyy/MM/dd'"></h2>
         </div>
     </div>
     <ul class="menu_list menu_my">

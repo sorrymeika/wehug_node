@@ -4,7 +4,7 @@
 </header>
 <div class="main settings">
     <div class="hello">
-        <div class="name">xxx</div>
+        <div class="name" sn-binding="html:user.UserName|or:'亲爱的用户'"></div>
         <div class="text">你好！</div>
     </div>
     <ul class="con">

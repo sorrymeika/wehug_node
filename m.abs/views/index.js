@@ -3,6 +3,7 @@
     var $ = require('$');
     var util = require('util');
     var Activity = require('activity');
+    var bridge = require('bridge');
     var Loading = require('../widget/loading');
     var Slider = require('../widget/slider');
     var model = require('../core/model');
@@ -65,12 +66,18 @@
                 menu: 'head_menu',
                 titleClass: 'head_title',
                 title: 'ABS + CLUB',
-                isLogin: false
+                isLogin: false,
+                open: function (e,url) {
+                    bridge.open(url);
+                }
             });
 
             var $main = this.$main = this.$('.main');
 
-            Scroll.bind($main);
+            Scroll.bind($main.filter('.js_usescroll'), {
+                useScroll: true
+            });
+            Scroll.bind($main.filter(':not(.js_usescroll)'));
 
             var loading = new Loading({
                 url: "",
@@ -87,6 +94,60 @@
 
             this.$points = this.$('.home_points');
             this.$cursor = this.$('.home_points_cursor');
+
+            this.userLoading = new Loading({
+                url: '/api/user/get',
+                check: false,
+                checkData: false,
+                $el: this.$el,
+                success: function (res) {
+                    $.extend(self.user, res.data);
+                    util.store('user', self.user);
+                    self.model.set({
+                        user: self.user
+                    });
+                    self.showPoints();
+                }
+            });
+
+            this.adLoading = new Loading({
+                url: '/api/settings/ad_list?name=index1',
+                check: false,
+                checkData: false,
+                $el: this.$el.find('.home_ad'),
+                success: function (res) {
+                    self.model.set({
+                        ads: res.data
+                    });
+
+                    var items = self.$('.home_ad > li');
+                    items.each(function (i) {
+                        var el = this;
+                        setTimeout(function () {
+                            el.className = 'toggle';
+                        }, (i + 1) * 100);
+                    })
+                }
+            });
+
+            this.adLoading.load();
+
+            var $launchImgs = this.$('.launch img');
+            var $mask = this.$('.home_mask').on($.fx.transitionEnd, function (e) {
+                if ($mask.hasClass('toggle')) {
+                    $mask.removeClass('toggle');
+
+                    var $el = $launchImgs.filter(':not(.launch_hide)').addClass('launch_hide');
+
+                    $launchImgs.eq($el.index() + 1 == $launchImgs.length ? 0 : ($el.index() + 1)).removeClass('launch_hide');
+                }
+            });
+
+            setTimeout(function () {
+                $mask.addClass('toggle');
+
+                setTimeout(arguments.callee, 4000)
+            }, 4000);
         },
 
         setRainbow: function () {
@@ -97,7 +158,7 @@
             var level;
             var nextLevel;
 
-            self.model.set('vip', total < 1000 ? (level = 0, nextLevel = 1000 - total, '银卡会员') : total < 5000 ? (level = 1, nextLevel = 5000 - total, '金卡会员') : total < 10000 ? (level = 2, nextLevel = 10000 - total, '钻石会员') : total < 50000 ? (level = 3, nextLevel = 50000 - total, 'VIP会员') : (level = 4, nextLevel = 0, 'SVIP会员'));
+            self.model.set('vip', total < 1000 ? (level = 0, nextLevel = 1000 - total, '金卡会员') : total < 5000 ? (level = 1, nextLevel = 5000 - total, '钻石会员') : total < 10000 ? (level = 2, nextLevel = 10000 - total, 'VIP会员') : total < 50000 ? (level = 3, nextLevel = 50000 - total, 'SVIP会员') : (level = 4, nextLevel = '∞', '无敌会员'));
 
             this.$('.rainbow_vip :nth-child(' + (level + 1) + ')').addClass('curr');
 
@@ -138,6 +199,7 @@
                 this.$points.eq(0).animate({
                     rotate: '0deg'
                 }, 300, 'ease-out');
+            } else {
             }
             this.$points.eq(1).animate({
                 rotate: deg + 'deg'
@@ -155,6 +217,11 @@
             if (isLogin) {
                 self.showPoints();
                 self.model.set('barcode', barcode.code93(self.user.Mobile).replace(/0/g, '<em></em>').replace(/1/g, '<i></i>'))
+
+                if (!this.userLoaded && (this.userLoaded = true)) this.userLoading.setParam({
+                    UserID: self.user.ID,
+                    Auth: self.user.Auth
+                }).load();
             }
         },
 
@@ -163,6 +230,10 @@
             this.setRainbow(this.user.Amount);
 
             this.$('.point_tip').addClass('show');
+        },
+
+        onPause: function () {
+            //this.$('.point_tip').removeClass('show');
         },
 
         onLoad: function () {

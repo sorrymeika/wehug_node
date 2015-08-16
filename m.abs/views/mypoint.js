@@ -23,36 +23,33 @@ define(function (require, exports, module) {
                 back: '/',
                 title: '我的积分'
             });
-
-            var loading = new Loading({
-                url: "/api/user/activity_list",
-                $el: this.$el,
-                success: function (res) {
-
-                    self.model.set("data", res.data);
-                },
-                append: function (res) {
-                    self.model.get('data').append(res.data);
-                }
-            });
-
-            self.user = util.store('user');
-
-            if (self.user) {
-                loading.setParam({
-                    UserID: self.user.ID,
-                    Auth: self.user.Auth
-                });
-            }
         },
 
         onShow: function () {
             var self = this;
 
-            self.user = util.store('user');
+            var self = this;
+            var user = util.store('user');
+            if (user) {
+                self.user = user;
 
-            if (!self.user) {
-                self.forward('/login?success=' + this.route.url + "&from=" + this.route.url);
+                this.loading = new Loading({
+                    url: '/api/user/get_points',
+                    check: false,
+                    checkData: false,
+                    params: {
+                        UserID: user.ID,
+                        Auth: user.Auth
+                    },
+                    $el: this.$el,
+                    success: function (res) {
+                        self.model.set(res);
+                    }
+                });
+                this.loading.load();
+
+            } else {
+                this.forward('/login');
             }
         },
 

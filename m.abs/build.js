@@ -35,6 +35,7 @@ module.exports = function () {
                 'widget/dialog': '../webresource/js/widget/dialog',
                 'widget/loading': '../webresource/js.m/widget/loading',
                 'widget/slider': '../webresource/js.m/widget/slider',
+                'widget/barcode': '../webresource/js/widget/barcode',
                 'anim/default': '../webresource/js.m/anim/default'
             }
         });

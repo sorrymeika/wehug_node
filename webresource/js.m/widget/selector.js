@@ -10,9 +10,10 @@
 
         $.extend(this, util.pick(options, ['itemHeight', 'template']));
 
+        if (typeof this.template == 'string') this.template = util.template(this.template);
+
         options = this.options;
         var data = options.data || [];
-        !data.length && data.push({ text: '无数据' });
 
         options.onChange && this.on("Change", options.onChange);
 
@@ -32,7 +33,7 @@
         init: function () {
         },
 
-        el: '<div class="selector"></div>',
+        el: '<div></div>',
 
         template: util.template('<li><%=text%></li>'),
 
@@ -46,6 +47,7 @@
             this.data = data;
             this.currentData = data && data.length ? data[0] : {};
             this.$content.html(html);
+            this.index(0);
         },
 
         beforeMomentum: function () {
@@ -69,7 +71,7 @@
             if (typeof index === 'undefined') return this._index;
             if (this._index != index) {
                 this.currentData = this.data[index];
-                this.trigger('Change', [index, this.currentData]);
+                this.trigger('Change', index, this.currentData);
                 this._index = index;
 
                 var y = index * this.itemHeight;
@@ -101,7 +103,8 @@
         this.$container = $container;
 
         this.$mask = $('<div style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background: rgba(0,0,0,.3);z-index:999;display:none"></div>').appendTo('body');
-        this.$el = $('<div class="selectorwrap" style="display:none"><div class="selectorbar"><b class="js_click">完成</b></div></div>').appendTo($container);
+        this.$el = $('<div class="selectorwrap" style="display:none"><div class="selectorbar"><b class="js_click">完成</b></div><div class="selector"></div></div>').appendTo($container);
+        this.$selector = this.$el.find('.selector');
         this.selectors = [];
 
         $container.on('tap', function (e) {
@@ -139,7 +142,7 @@
         add: function (options) {
             var sel = new SelectorItem(options);
             this.selectors.push(sel);
-            this.$el.append(sel.$el);
+            this.$selector.append(sel.$el);
         },
         hide: function () {
             var that = this;

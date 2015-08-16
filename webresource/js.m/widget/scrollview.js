@@ -11,7 +11,7 @@
     var ScrollView = function (el, options) {
         var that = this;
 
-        that.options = options = $.extend(that.options, options)
+        that.options = options = $.extend({}, that.options, options);
 
         that.$el = $(el).css({ overflow: 'hidden' });
         that.el = that.$el[0];

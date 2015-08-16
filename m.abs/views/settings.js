@@ -34,12 +34,14 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
+            var user = util.store('user');
+
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
-                title: '设置'
+                title: '设置',
+                user: user
             });
 
-            var user = util.store('user');
             if (user) {
                 this.model.set('logout', '退出')
             } else {

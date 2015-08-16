@@ -5,7 +5,7 @@
         <i>3</i>
     </div>
 </header>
-<div class="main" data-index="0">
+<div class="main js_usescroll" data-index="0" sn-binding="class:isLogin|equal:true:'':'isnotlogin'">
     <div sn-binding="display:isLogin" class="home_bd">
         <div class="home_vip">
             <div class="rainbow">
@@ -28,7 +28,7 @@
                     <div class="desc" sn-binding="html:vip"></div>
                     <div class="point_tip">
                         <span sn-binding="html:nextLevel"></span><b>活力值</b>
-                        <p>即可享有<em>钻石会员</em>特权</p>
+                        <p>即可享有<em sn-binding="html:vip"></em>特权</p>
                     </div>
                 </div>
             </div>
@@ -38,6 +38,11 @@
                 <div class="home_points_cursor"></div>
             </div>
         </div>
+        <ul class="home_ad">
+            <li sn-repeat="item in ads">
+                <img sn-binding="src:item.Src" sn-on="tap:open:item.Url" />
+            </li>
+        </ul>
     </div>
     <div sn-binding="display:isLogin|not" class="home_notlogin">
         <div class="home_mask"></div>
@@ -49,6 +54,8 @@
         </div>
         <div class="launch">
             <img src="images/launch0.png" />
+            <img src="images/launch1.png" class="launch_hide" />
+            <img src="images/launch2.png" class="launch_hide" />
         </div>
     </div>
 </div>

@@ -43,6 +43,21 @@
         equal: function (val, compare, a, b) {
             return arguments.length == 2 ? val == compare : (val == compare ? a : b);
         },
+        eval: function (str) {
+            return [eval(str)][0];
+        },
+        lt: function (a, b) {
+            return a < b;
+        },
+        lte: function (a, b) {
+            return a <= b;
+        },
+        gt: function (a, b) {
+            return a > b;
+        },
+        gte: function (a, b) {
+            return a >= b;
+        },
         choose: function (flag, a, b) {
             return flag ? a : b;
         },
@@ -60,6 +75,9 @@
         },
         uppercase: function (str) {
             return str.toUpperCase();
+        },
+        currency: function (str, p) {
+            return (p || '') + Math.round(parseFloat(str) * 100) / 100;
         },
         concat: function () {
             return slice.call(arguments).join('');
@@ -193,7 +211,7 @@
 
     var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}/g;
     var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'[^']*?')\){0,1})*)*)(\s|,|$)/g;
-    var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.-]+|'[^']*?'))*)(\s|,|$)/g;
+    var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.]+|'[^']*?'))*|\s*=\s*(?:[a-zA-Z_0-9\.]+|'[^']*?'))(\s|,|$)/g;
 
     var $filterEl = function ($el, selector) {
         return $el.filter(selector).add($el.find(selector));
@@ -215,10 +233,17 @@
     }
 
     var getArgs = function (args) {
-        var result = [];
-        args.replace(rparams, function (match, param) {
-            result.push(param);
-        });
+        var result = {
+            isExp: args[0] == '=',
+            args: []
+        };
+        if (!result.isExp)
+            args.replace(rparams, function (match, param) {
+                result.args.push(param);
+            });
+        else
+            result.args.push(args.substr(1));
+
         return result;
     };
 
@@ -354,11 +379,10 @@
                             if (eventNames.indexOf(event) == -1) eventNames[eventNames.length] = event;
                             if (!actions) actions = events[eventid] = {};
                             var variable = name + key;
-                            actions[event] = {
+                            actions[event] = $.extend(getArgs(args), {
                                 name: getVariable(listItem, variable) || variable,
-                                args: getArgs(args),
                                 repeat: listItem
-                            };
+                            });
                         });
                         eventid++;
                     }
@@ -413,10 +437,9 @@
                 on.replace(revents, function (match, event, name, key, args) {
                     if (eventNames.indexOf(event) == -1) eventNames[eventNames.length] = event;
                     if (!actions) actions = events[eventid] = {};
-                    actions[event] = {
-                        name: name + key,
-                        args: getArgs(args)
-                    };
+                    actions[event] = $.extend(getArgs(args), {
+                        name: name + key
+                    });
                 });
                 eventid++;
             }
@@ -512,7 +535,7 @@
             }
         },
 
-        _syncView: function (key, value) {
+        _syncView: function (key, value, $container) {
             var bindings = this.root.finder.bindings[key && this.key ? this.key + '.' + key : (this.key || key)],
                 binding,
                 el,
@@ -531,7 +554,7 @@
                     } else
                         val = value;
 
-                    this._attr(el, prop, val);
+                    this._attr(el, prop, val, $container);
                 }
             }
             return this;
@@ -550,9 +573,9 @@
             return this;
         },
 
-        _attr: function (el, attr, val) {
+        _attr: function (el, attr, val, $container) {
             if (typeof el === 'number') {
-                $filterEl(this.$el, '[sn-id="' + el + '"]').each(function () {
+                $filterEl($container || this.$el, '[sn-id="' + el + '"]').each(function () {
                     setAttribute(this, attr, val);
                 });
             } else {
@@ -722,6 +745,7 @@
 
         this.selector = '[sn-placeholder="' + this.placeHolderName + '"]';
         if (!this.placeHolder && this.collection.parent.$el) this.placeHolder = this.collection.parent.$el.find(this.selector)[0];
+
         this.isInCollection = !$.contains(document.body, this.placeHolder);
     }
 
@@ -805,7 +829,8 @@
 
         syncIndex: function () {
             for (var i = this.list.length - 1; i >= 0; i--) {
-                this.list[i].model._syncView('^' + this.template.snIndexAlias, i);
+                var item = this.list[i];
+                item.model._syncView('^' + this.template.snIndexAlias, i, $(item.el));
             }
         },
 
@@ -830,7 +855,7 @@
         },
 
         appendChild: function (el) {
-            !this.isInCollection ? this.placeHolder.parentNode.insertBefore(el, this.placeHolder) : this.collection.root.$el.find(this.selector).add(this.placeHolder).before(el);
+            !this.isInCollection ? this.placeHolder.parentNode.insertBefore(el, this.placeHolder) : this.collection.parent.$el.find(this.selector).add(this.placeHolder).before(el);
         },
 
         remove: function (model) {
@@ -1105,7 +1130,7 @@
                     var model = this;
 
                     if (rvalue.test(arg)) {
-                        args.push(arg);
+                        args.push(eval(arg));
 
                     } else {
                         if (option.repeat) {
@@ -1125,15 +1150,20 @@
 
                 if (typeof fn == 'string') {
                     modelName = fn;
-                    fn = this.get(fn);
                     ctx = this;
                 } else {
                     ctx = closestModel(target, fn.collection);
                     modelName = fn.variable;
-                    fn = ctx.get(modelName);
                 }
-                index = modelName.lastIndexOf('.');
-                fn && fn.apply(index == -1 ? ctx : ctx.get(modelName.substr(0, index)), args);
+
+                if (option.isExp) {
+                    ctx.set(modelName, args[1]);
+
+                } else {
+                    fn = ctx.get(modelName);
+                    index = modelName.lastIndexOf('.');
+                    fn && fn.apply(index == -1 ? ctx : ctx.get(modelName.substr(0, index)), args);
+                }
             }
         },
 

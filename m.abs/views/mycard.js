@@ -19,31 +19,37 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
+            model.Filter.cardClass = function (price) {
+                return price <= 10 ? 'price10' : price <= 50 ? 'price50' : '';
+            }
+
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
-                title: '我的卡券'
+                title: '我的卡券',
+                isOverdue: false
             });
 
-            var loading = new Loading({
-                url: "/api/user/activity_list",
-                $el: this.$el,
-                success: function (res) {
-
-                    self.model.set("data", res.data);
+            self.loading = new Loading({
+                url: "/api/user/voucher_list",
+                params: {
+                    status: 0
                 },
-                append: function (res) {
-                    self.model.get('data').append(res.data);
+                $el: this.$el,
+                checkData: false,
+                success: function (res) {
+                    if (!res.data || res.data.length == 0) {
+                        this.dataNotFound(res);
+                    }
+                    self.model.set("data", util.find(res.data, function (item) {
+                        return !item.IsOverdue;
+                    }));
+                    self.model.set("data1", util.find(res.data, function (item) {
+                        return item.IsOverdue;
+                    }));
                 }
             });
 
             self.user = util.store('user');
-
-            if (self.user) {
-                loading.setParam({
-                    UserID: self.user.ID,
-                    Auth: self.user.Auth
-                });
-            }
         },
 
         onShow: function () {
@@ -53,6 +59,12 @@ define(function (require, exports, module) {
 
             if (!self.user) {
                 self.forward('/login?success=' + this.route.url + "&from=" + this.route.url);
+            } else {
+                self.loading.setParam({
+                    UserID: self.user.ID,
+                    Auth: self.user.Auth
+
+                }).load();
             }
         },
 

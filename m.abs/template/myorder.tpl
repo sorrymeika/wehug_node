@@ -4,61 +4,30 @@
 </header>
 <div class="main myorder">
     <ul class="hd">
-        <li class="curr">全部</li>
-        <li>待付款</li>
-        <li>待发货</li>
-        <li>配送中</li>
-        <li>已完成</li>
+        <li class="curr" sn-on="tap:select:0">全部</li>
+        <li sn-on="tap:select:1">待付款</li>
+        <li sn-on="tap:select:2">待发货</li>
+        <li sn-on="tap:select:3">配送中</li>
+        <li sn-on="tap:select:4">已完成</li>
     </ul>
     <ul class="con">
-        <li>
-            <div class="hd"><b class="from">手机</b><span class="status">待收货</span></div>
-            <div class="bd">
-                <img />
+        <li sn-repeat="item in data">
+            <div class="hd"><b class="from" sn-binding="html:item.PTY_DESC"></b><span class="status" sn-binding="html:item.PUS_DESC"></span></div>
+            <div class="bd" sn-repeat="prd in item.Children">
+                <img sn-binding="src:prd.WPP_LIST_PIC" />
                 <div class="con">
-                    <h2>商品名称</h2>
-                    <h3>颜色：</h3>
-                    <h4>尺寸：</h4>
+                    <h2 sn-binding="html:prd.PRD_NAME"></h2>
+                    <h3>颜色：<span sn-binding="html:prd.PRD_COLOR"></span></h3>
+                    <h4>尺寸：<span sn-binding="html:prd.PRD_SPEC"></span></h4>
                 </div>
                 <p class="priceinfo">
-                    <span class="price">￥200</span>
-                    <span class="qty">x1</span>
-                </p>
-            </div>
-            <div class="bd">
-                <img />
-                <div class="con">
-                    <h2>商品名称</h2>
-                    <h3>颜色：</h3>
-                    <h4>尺寸：</h4>
-                </div>
-                <p class="priceinfo">
-                    <span class="price">￥200</span>
-                    <span class="qty">x1</span>
+                    <span class="price" sn-binding="html:prd.PRD_MEMBER_PRICE|currency:'￥'"></span>
+                    <span class="qty" sn-binding="html:prd.LPK_QTY|format:'x{0}'"></span>
                 </p>
             </div>
             <div class="ft">
-                总价：<span>￥000</span>
-                <b class="btn_sml">查看物流</b>
-            </div>
-        </li>
-        <li class="from1">
-            <div class="hd"><b class="from">门店</b><span class="status">待收货</span></div>
-            <div class="bd">
-                <img />
-                <div class="con">
-                    <h2>商品名称</h2>
-                    <h3>颜色：</h3>
-                    <h4>尺寸：</h4>
-                </div>
-                <p class="priceinfo">
-                    <span class="price">￥200</span>
-                    <span class="qty">x1</span>
-                </p>
-            </div>
-            <div class="ft">
-                总价：<span>￥000</span>
-                <b class="btn_sml">查看物流</b>
+                总价：<span sn-binding="html:item.PUR_AMOUNT|currency:'￥'"></span>
+                <b class="btn_sml" sn-binding="display:item.XPU_EXPRESS_CODE|equal:null|not">查看物流</b>
             </div>
         </li>
     </ul>
