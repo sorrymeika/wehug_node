@@ -14,6 +14,9 @@
                 children: [{
                     title: '添加推荐',
                     url: '/add_recommend'
+                }, {
+                    title: '评论管理',
+                    url: '/recommend_comments'
                 }]
             }, {
                 url: '/',
@@ -21,6 +24,9 @@
                 children: [{
                     title: '添加目的地',
                     url: '/add_destination'
+                }, {
+                    title: '评论管理',
+                    url: '/destination_comments'
                 }]
             }, {
                 url: '/activity_list',
@@ -28,6 +34,9 @@
                 children: [{
                     title: '添加活动',
                     url: '/add_activity'
+                }, {
+                    title: '评论管理',
+                    url: '/activity_comments'
                 }]
             }, {
                 id: 'user',

@@ -100,13 +100,13 @@
             var areaId = util.store('global_area');
             var city_list = [{
                 city_id: 1,
-                city_name: '福州'
+                city_name: '北京'
             }, {
                 city_id: 2,
                 city_name: '厦门'
             }, {
                 city_id: 3,
-                city_name: '三江'
+                city_name: '江门'
             }];
 
             this.model = new model.ViewModel(this.$el, {

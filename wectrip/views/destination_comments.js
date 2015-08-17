@@ -36,7 +36,7 @@
                 title: '驴友圈管理'
             });
 
-            this.onResult('quan_change', function () {
+            this.onResult('activity_change', function () {
                 this.grid.load();
             });
 
@@ -71,7 +71,6 @@
                 onSelectRow: function () {
                 },
                 pageEnabled: true,
-                rowHeight: 100,
                 pageSize: 20,
                 columns: [{
                     text: "编号",
@@ -99,25 +98,12 @@
                         this.append(!data.Content || data.Content.length < 15 ? data.Content : data.Content.substr(0, 15));
                     }
                 }, {
-                    text: "图片",
-                    bind: "Content",
-                    width: 10,
-                    render: function (data) {
-                        this.append(util.template('<div style="overflow-y:auto;height:100%;"><%if (Pictures) {for(var i=0;i<Pictures.length;i++){var pic=Pictures[i];%><img src="<%=pic.Src%>" style="max-width:49%;float:left;max-height:90px;"><%}}%></div>', data));
-                    }
-                }, {
                     text: "操作",
                     width: 10,
                     align: 'center',
                     valign: 'center',
                     render: function (data) {
-                        if (data.Status != 1) {
-                            this.append('<a href="javascript:;" data-id="' + data.ID + '" class="js_grid_resolve">[通过]</a>');
-                        }
-                        if (data.Status != 2) {
-                            this.append('<a href="javascript:;" data-id="' + data.ID + '" class="js_grid_reject">[拒绝]</a>');
-                        }
-                        this.append('<a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
+                        this.append(' <a href="javascript:;" data-id="' + data.ID + '" class="js_grid_delete">[删除]</a>');
                     }
                 }]
 

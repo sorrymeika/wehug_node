@@ -46,12 +46,12 @@
                 validator: 'formValid',
                 enctype: '',
                 fields: [{
-                    label: '标题',
+                    label: '老师姓名',
                     field: 'Title',
                     emptyAble: false,
                     emptyText: '必填'
                 }, {
-                    label: '副标题',
+                    label: '签名(两行签名用|隔开)',
                     field: 'SubTitle',
                     emptyAble: false,
                     emptyText: '必填'
@@ -80,6 +80,15 @@
                         }, {
                             text: '吉他',
                             value: '4'
+                        }, {
+                            text: '奥数',
+                            value: '5'
+                        }, {
+                            text: '绘画',
+                            value: '6'
+                        }, {
+                            text: '网球',
+                            value: '7'
                         }]
                     }
                 }, {
@@ -91,7 +100,7 @@
                     label: '续课率',
                     field: 'ContinueRate'
                 }, {
-                    label: '关联ID',
+                    label: '课程ID',
                     field: 'RelativeID',
                     type: 'number',
                     regex: /^\d+$/,
@@ -123,24 +132,24 @@
                     regex: /^\d+$/,
                     regexText: '必填数字'
                 }, {
-                    label: '正文',
+                    label: '寄语or成果',
                     field: 'Content',
                     vAlign: 'top',
                     type: 'textarea',
                     emptyAble: false,
                     emptyText: '不可为空'
                 }, {
-                    label: '文案1',
+                    label: '简介',
                     field: 'Content1',
                     vAlign: 'top',
                     type: 'textarea'
                 }, {
-                    label: '文案2',
+                    label: '寄语',
                     field: 'Content2',
                     vAlign: 'top',
                     type: 'textarea'
                 }, {
-                    label: '文案3',
+                    label: '经历',
                     field: 'Content3',
                     vAlign: 'top',
                     type: 'textarea'

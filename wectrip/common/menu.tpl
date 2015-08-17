@@ -1,9 +1,9 @@
 ﻿<div class="menu">
     <div class="menu_hd">
         菜单<select class="js_select_area" style="margin-left: 10px;vertical-align: 3px;" sn-model="area" sn-binding="value:area">
-            <option value="1">福州</option>
+            <option value="1">北京</option>
             <option value="2">厦门</option>
-            <option value="3">三江</option>
+            <option value="3">江门</option>
         </select>
     </div>
     <div class="menu_sub_hd"><a href="/login">退出系统</a></div>

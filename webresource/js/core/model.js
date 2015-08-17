@@ -18,6 +18,9 @@
         join: function (arr, split) {
             return (arr instanceof Collection) ? arr.data.join(split) : arr.join(split);
         },
+        replace: function (str, reg, replacement) {
+            return str.replace(reg, replacement)
+        },
         is: function (val, type) {
             switch (type) {
                 case 'array':
@@ -43,8 +46,8 @@
         equal: function (val, compare, a, b) {
             return arguments.length == 2 ? val == compare : (val == compare ? a : b);
         },
-        eval: function (str) {
-            return [eval(str)][0];
+        eval: function (str, format) {
+            return [eval(format ? this.format(str, format) : str)][0];
         },
         lt: function (a, b) {
             return a < b;
@@ -146,9 +149,9 @@
         }
     };
 
-    var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\')\){0,1})*)/g;
-    var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|\'[^\']*?\')/g;
-    var rvalue = /^((-)*\d+|true|false|undefined|null|'[^']*')$/;
+    var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)/g;
+    var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')/g;
+    var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
 
     var filterFn = function (filters, listItem) {
         var code = '';
@@ -195,23 +198,11 @@
         });
 
         code += 'return V;';
-        /*{
-            F: 'Filter',
-            M: 'model',
-            V: 'value',
-            K: 'key',
-            E: 'el',
-            P: 'parent',
-            S: this
-        }
+        /*{ F: 'Filter', M: 'model', V: 'value',  K: 'key', E: 'el', P: 'parent', S: this }
         return new Function('Filter', 'model', 'value', 'key', 'el', before + code);
         */
         return new Function('F', 'M', 'V', 'K', 'E', before + code);
     };
-
-    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}/g;
-    var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'[^']*?')\){0,1})*)*)(\s|,|$)/g;
-    var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.]+|'[^']*?'))*|\s*=\s*(?:[a-zA-Z_0-9\.]+|'[^']*?'))(\s|,|$)/g;
 
     var $filterEl = function ($el, selector) {
         return $el.filter(selector).add($el.find(selector));
@@ -247,21 +238,9 @@
         return result;
     };
 
-    var getCollectionName = function (modelAlias, collectionName) {
-        var names = collectionName.split('.');
-        var namesLength = names.length;
-        var alia;
-
-        if (namesLength !== 1) {
-            alia = modelAlias[names[0]];
-
-            if (alia) {
-                names[0] = alia + '^child';
-                collectionName = names.join('.');
-            }
-        }
-        return collectionName;
-    }
+    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}/g;
+    var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)*)(\s|,|$)/g;
+    var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))*|\s*=\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))(\s|,|$)/g;
 
     var Finder = function ($elem) {
         this.count = 0;
@@ -304,7 +283,18 @@
 
             repeat.replace(rrepeat, function (match, modelName, indexAlias, collectionName, filter, comparator, orderBy, reverse) {
 
-                collectionName = getCollectionName(modelAlias, collectionName);
+                var names = collectionName.split('.');
+                var namesLength = names.length;
+                var alia;
+
+                if (namesLength !== 1) {
+                    alia = modelAlias[names[0]];
+
+                    if (alia) {
+                        names[0] = alia + '^child';
+                        collectionName = names.join('.');
+                    }
+                }
 
                 el.setAttribute('sn-repeat-alias', modelName);
                 el.setAttribute('sn-repeat-name', collectionName);
