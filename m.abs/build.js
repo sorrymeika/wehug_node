@@ -33,9 +33,10 @@ module.exports = function () {
                 'widget/scroll': '../webresource/js.m/widget/scroll',
                 'widget/tip': '../webresource/js/widget/tip',
                 'widget/dialog': '../webresource/js/widget/dialog',
+                'util/barcode': '../webresource/js/util/barcode',
                 'widget/loading': '../webresource/js.m/widget/loading',
                 'widget/slider': '../webresource/js.m/widget/slider',
-                'widget/barcode': '../webresource/js/widget/barcode',
+                'widget/selector': '../webresource/js.m/widget/selector',
                 'anim/default': '../webresource/js.m/anim/default'
             }
         });

@@ -67,7 +67,7 @@
                 titleClass: 'head_title',
                 title: 'ABS + CLUB',
                 isLogin: false,
-                open: function (e,url) {
+                open: function (e, url) {
                     bridge.open(url);
                 }
             });
@@ -157,12 +157,14 @@
             var deg = percent / 50 * 117 - 117;
             var level;
             var nextLevel;
-
-            self.model.set('vip', total < 1000 ? (level = 0, nextLevel = 1000 - total, '金卡会员') : total < 5000 ? (level = 1, nextLevel = 5000 - total, '钻石会员') : total < 10000 ? (level = 2, nextLevel = 10000 - total, 'VIP会员') : total < 50000 ? (level = 3, nextLevel = 50000 - total, 'SVIP会员') : (level = 4, nextLevel = '∞', '无敌会员'));
+            var currentLevel;
+            var levels = ['银卡会员', '金卡会员', '钻石会员', 'VIP会员', 'SVIP会员', '无敌会员'];
+            self.model.set('vip', total < 1000 ? (level = 0, nextLevel = 1000 - total, levels[1]) : total < 5000 ? (level = 1, nextLevel = 5000 - total, levels[2]) : total < 10000 ? (level = 2, nextLevel = 10000 - total, levels[3]) : total < 50000 ? (level = 3, nextLevel = 50000 - total, levels[4]) : (level = 4, nextLevel = '∞', levels[5]));
 
             this.$('.rainbow_vip :nth-child(' + (level + 1) + ')').addClass('curr');
 
             self.model.set('nextLevel', "+" + nextLevel);
+            self.model.set('currentLevel', levels[level]);
 
             animation.animate(function (d) {
                 var curr = animation.step(-117, deg, d);

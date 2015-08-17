@@ -35,17 +35,23 @@ define(function (require, exports, module) {
                     status: 0
                 },
                 $el: this.$el,
+                check: false,
                 checkData: false,
                 success: function (res) {
-                    if (!res.data || res.data.length == 0) {
-                        this.dataNotFound(res);
+                    if (!res || !res.data || res.data.length == 0) {
+                        this.dataNotFound('暂无数据');
+                    } else if (!res) {
+                        self.model.set("data", []);
+                        self.model.set("data1", []);
                     }
-                    self.model.set("data", util.find(res.data, function (item) {
-                        return !item.IsOverdue;
-                    }));
-                    self.model.set("data1", util.find(res.data, function (item) {
-                        return item.IsOverdue;
-                    }));
+                    else {
+                        self.model.set("data", util.find(res.data, function (item) {
+                            return !item.IsOverdue;
+                        }));
+                        self.model.set("data1", util.find(res.data, function (item) {
+                            return item.IsOverdue;
+                        }));
+                    }
                 }
             });
 

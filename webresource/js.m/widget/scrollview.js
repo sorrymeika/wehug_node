@@ -55,7 +55,6 @@
             that._startTop = that.startTop = that.y;
 
             if ((!that.options.hScroll || that.wrapperW >= that.scrollW) && touch.isDirectionX || (!that.options.vScroll || that.wrapperH >= that.scrollH) && touch.isDirectionY) {
-                console.log('stop');
                 touch.stop();
                 return;
             }
