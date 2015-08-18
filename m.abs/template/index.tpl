@@ -25,7 +25,7 @@
                 </ul>
                 <div class="rainbow_bd">
                     <div class="point" sn-binding="html:point"></div>
-                    <div class="desc" sn-binding="html:vip"></div>
+                    <div class="desc" sn-binding="html:currentLevel"></div>
                     <div class="point_tip">
                         <span sn-binding="html:nextLevel"></span><b>活力值</b>
                         <p>即可享有<em sn-binding="html:vip"></em>特权</p>
@@ -67,13 +67,13 @@
     <div class="my">
         <div class="card">
             <div class="level">
-                <span sn-binding="html:vip"></span>
+                <span sn-binding="html:currentLevel"></span>
                 <span sn-binding="html:point"></span>
             </div>
             <div class="point" sn-binding="html:id|format:'ID:{0}'"></div>
             <div class="barcode" sn-binding="html:barcode">
             </div>
-            <div class="mobile">12347895345</div>
+            <div class="mobile" sn-binding="html:user.Mobile"></div>
         </div>
         <ul class="myabs">
             <li data-forward="/month">

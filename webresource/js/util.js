@@ -167,6 +167,8 @@
                 d = new Function("return new " + d.replace(/\//g, ''))();
             } else if (typeof d === 'number')
                 d = new Date(d);
+            else if (!d)
+                return '';
 
             var y = d.getFullYear() + "", M = d.getMonth() + 1, D = d.getDate(), H = d.getHours(), m = d.getMinutes(), s = d.getSeconds(), mill = d.getMilliseconds() + "0000";
             return (f || 'yyyy-MM-dd HH:mm:ss').replace(/\y{4}/, y)

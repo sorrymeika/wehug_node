@@ -7,7 +7,7 @@
 
     var Dialog = view.extend({
         events: {
-            'tap .js_dialog_btn': 'action',
+            'click .js_dialog_btn': 'action',
             'tap .js_close_dialog': function () {
                 this.hide();
             },
@@ -17,7 +17,7 @@
         },
         className: 'dialog',
         el: '<div></div>',
-        template: util.template('<%if(isShowClose){%><div class="dialog-close js_close_dialog"></div><%}%><%if(isShowTitle){%><div class="dialog-title"><h3 class="js_title"><%=title%></h3></div><%}%><div class="dialog-content js_content"><%=content%></div><div class="dialog-btns"><%for(var i=0,len=buttons.length,button;i<n;i++){button=buttons[i];%><a class="dialog-btn js_dialog_btn<%=button.className?" "+button.className:" "%>"><%=button.text%></a><%}%></div>'),
+        template: util.template('<%if(isShowClose){%><div class="dialog-close js_close_dialog"></div><%}%><%if(isShowTitle){%><div class="dialog-title"><h3 class="js_title"><%=title%></h3></div><%}%><div class="dialog-content js_content"><%=content%></div><div class="dialog-btns"><%for(var i=0,len=buttons.length,button;i<len;i++){button=buttons[i];%><a class="dialog-btn js_dialog_btn<%=button.className?" "+button.className:" "%>"><%=button.text%></a><%}%></div>'),
 
         options: {
             isShowClose: false,
@@ -38,7 +38,7 @@
         initialize: function () {
             var that = this;
 
-            var options = util.pick(that.options, ['isShowClose', 'isShowTitle', 'title', 'content', 'buttons']);
+            var options = util.pick(that.options, ['top', 'isShowClose', 'isShowTitle', 'title', 'content', 'buttons']);
             that.$el.html(that.template(options));
 
             that.$title = that.$('.js_title');
@@ -71,12 +71,10 @@
 
         },
 
-        show: function (target) {
+        show: function () {
             var that = this;
             if (that._visible) return;
             that._visible = true;
-
-            target = $(target);
 
             if (!mask) {
                 mask = $('<div style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background: #888;opacity: 0.5;z-index:2000;display:none"></div>').appendTo(document.body);
@@ -88,7 +86,7 @@
             that.$el.css({
                 '-webkit-transform': '',
                 display: 'block',
-                top: '50%'
+                top: this.options.top || '50%'
             });
 
             that.$el.css({

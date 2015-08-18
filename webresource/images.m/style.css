@@ -1,5 +1,5 @@
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { margin: 0; padding: 0; font-style: normal; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); list-style: none; box-sizing: border-box; }
-body, html { width: 100%; overflow-x: hidden; font-size: 16px; }
+body, html { width: 100%; overflow-x: hidden; font-size: 16px; font-family: Arial,Helvetica,sans-serif; }
 img { background: #e7e7e7 url(imgbg.png) center center no-repeat; background-size: 60% auto; }
 a { text-decoration: none; color: #333; }
 input { -webkit-appearance: none; outline: none; }
@@ -71,9 +71,9 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 .selectorwrap { display: -webkit-box; position: absolute; z-index: 1000; bottom: 0px; width: 100%; height: 210px; }
 .selectorbar { border-bottom: 1px solid #ccc; height: 38px; z-index: 3; background: #fff; position: absolute; top: 0; left: 0; right: 0; line-height: 38px; }
 .selectorbar b { width: 80px; float: right; height: 100%; font-weight: normal; text-align: center; color: #0079FF; }
-.selector {display:-webkit-box; background: #fff; text-align: center; height: 100%; }
+.selector { display: -webkit-box; background: #fff; text-align: center; height: 100%; }
 .selector > :nth-child(n) { -webkit-box-flex: 1; width: 0; }
-.selector > :nth-child(n+2) {border-left: 1px solid #ddd; }
+.selector > :nth-child(n+2) { border-left: 1px solid #ddd; }
 .selector:before { content: ''; display: block; background: -webkit-linear-gradient(top, rgb(255, 255, 255) 5%, rgba(255, 255, 255, 0) 50%, rgb(255, 255, 255) 95%); position: absolute; width: 100%; top: 36px; left: 0; bottom: 0px; z-index: 2; pointer-events: none; }
 .selectorcon { position: relative; }
 .selector:after { content: ''; display: block; margin-top: 1px; position: absolute; left: 0; top: 50%; height: 32px; border-top: .5px solid #ddd; border-bottom: .5px solid #ddd; width: 100%; z-index: 100; pointer-events: none; }

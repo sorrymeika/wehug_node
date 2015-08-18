@@ -2,7 +2,8 @@
 
     var Page = require('./page'),
         util = require('util'),
-        Scroll = require('../widget/scroll'),
+        Scroll = require('widget/scroll'),
+        Dialog = require('widget/dialog'),
         slice = Array.prototype.slice;
 
     var Activity = Page.extend({
@@ -79,43 +80,43 @@
             });
         },
 
-        prompt: function (title, val, fn, target) {
-            target = typeof fn !== 'function' ? fn : target;
+        prompt: function (title, val, fn) {
             fn = typeof val === 'function' ? val : fn;
             val = typeof val === 'function' ? '' : val;
-
-            !this._prompt && (this._prompt = this.createDialog({
-                content: '<input type="text" class="prompt-text" />',
-                buttons: [{
-                    text: '取消',
-                    click: function () {
-                        this.hide();
-                    }
-                }, {
-                    text: '确认',
-                    click: function () {
-                        this.hide();
-                        this.ok && this.ok(this.$('.prompt-text').val());
-                    }
-                }]
-            }));
-
             var prompt = this._prompt;
 
-            prompt.title(title || '请输入').show(target);
-            prompt.$('.prompt-text').val(val).focus();
+            if (!prompt) {
+                this._prompt = prompt = this.createDialog({
+                    top: '25%',
+                    content: '<input type="text" class="prompt-text" />',
+                    buttons: [{
+                        text: '取消',
+                        click: function () {
+                            this.hide();
+                        }
+                    }, {
+                        text: '确认',
+                        click: function () {
+                            this.hide();
+                            this.ok && this.ok(this.$input.val());
+                        }
+                    }]
+                });
+                prompt.$input = prompt.$('.prompt-text');
+            }
+
+            prompt.title(title || '请输入').show();
+            prompt.$input.val(val).focus();
             prompt.ok = $.proxy(fn, this);
         },
 
         createDialog: function (options) {
             var that = this;
             var dialog = new Dialog(options);
-
             that.bindQueryAction('dialog', dialog, {
                 show: 'show',
                 "": 'hide'
             });
-
             return dialog;
         },
 

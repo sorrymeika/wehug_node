@@ -1112,7 +1112,7 @@
                 modelName;
             var args = [e];
 
-            if (events) {
+            if (option) {
                 fn = option.name;
 
                 for (var i = 0; i < option.args.length; i++) {

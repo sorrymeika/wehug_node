@@ -219,6 +219,7 @@
             if (isLogin) {
                 self.showPoints();
                 self.model.set('barcode', barcode.code93(self.user.Mobile).replace(/0/g, '<em></em>').replace(/1/g, '<i></i>'))
+                .set('user', self.user);
 
                 if (!this.userLoaded && (this.userLoaded = true)) this.userLoading.setParam({
                     UserID: self.user.ID,
