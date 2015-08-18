@@ -5,10 +5,13 @@ a { text-decoration: none; color: #333; }
 input { -webkit-appearance: none; outline: none; }
 input::-webkit-input-placeholder { font-size: 13px; line-height: 14px; }
 
-header { position: absolute; top: 0px; left: 0px; width: 100%; height: 43px; line-height: 44px; background: #292929; text-align: center; color: #fff; font-weight: bold; z-index: 200; overflow: hidden; font-size: 18px; overflow: hidden; }
+header { position: absolute; top: 0px; left: 0px; width: 100%; height: 47px; line-height: 47px; background: #292929; text-align: center; color: #fff; font-weight: bold; z-index: 200; overflow: hidden; font-size: 18px; overflow: hidden; }
 footer { position: absolute; bottom: 0px; left: 0px; width: 100%; z-index: 200; overflow: hidden; }
 .head_title { text-align: center; margin: 0px 50px; position: absolute; right: 0px; left: 0px; top: 0px; z-index: -1; font-size: 18px; letter-spacing: 1px; overflow: hidden; }
 .fix_statusbar { padding-top: 20px; box-sizing: content-box; }
+
+.has_status_bar header { border-top: 20px solid #fff; border-top-style: solid; box-sizing: content-box !important; }
+.has_status_bar .main { top: 67px; }
 
 .viewport { position: absolute; overflow: hidden; width: 100%; background: #fff; bottom: 0px; top: 0px; right: 0; left: 0; z-index: 1; }
 .view { position: absolute; width: 100%; top: 0; left: 0; bottom: 0; background: #fff; -webkit-transform: translate(0px,0px) translateZ(0); overflow: hidden; -webkit-box-shadow: -3px 2px 5px rgba(49,60,75,.35); box-shadow: -3px 2px 5px rgba(49,60,75,.35); }
@@ -18,6 +21,9 @@ footer { position: absolute; bottom: 0px; left: 0px; width: 100%; z-index: 200; 
 .view.active .main { z-index: 100; }
 .view.transparent { background: rgba(0,0,0,0); border: 0; -webkit-box-shadow: none; box-shadow: none; }
 
+.main { position: absolute; bottom: 0px; right: 0px; left: 0px; top: 47px; overflow: hidden; overflow-y: auto; z-index: 1; }
+.content { width: 100%; padding: 10px 3%; border-top: 2px solid #d31145; margin-top: 5px; background: #fff; }
+
 .virtualdom { position: absolute; top: 0px; left: 0px; -webkit-transform: translate(0px,0px) translateZ(0); background: rgba(0,0,0,0); }
 .virtualdom-hide { display: none; display: none !important; }
 
@@ -26,8 +32,6 @@ footer { position: absolute; bottom: 0px; left: 0px; width: 100%; z-index: 200; 
 
 .scrollview { overflow: hidden; }
 
-.main { position: absolute; bottom: 0px; right: 0px; left: 0px; top: 43px; overflow: hidden; overflow-y: auto; z-index: 1; }
-.content { width: 100%; padding: 10px 3%; border-top: 2px solid #d31145; margin-top: 5px; background: #fff; }
 
 .clearfix:after { height: 0px; display: block; font-size: 0px; content: ''; clear: both; }
 
@@ -68,18 +72,19 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 .refreshing { line-height: 50px; height: 50px; background: #fff; color: #808080; text-align: center; width: 100%; z-index: 1; -webkit-transition: height 300ms ease 0ms; }
 
 
-.selectorwrap { display: -webkit-box; position: absolute; z-index: 1000; bottom: 0px; width: 100%; height: 210px; }
+.selectorwrap { display: -webkit-box; position: absolute; z-index: 1000; bottom: 0px; width: 100%; height: 210px; -webkit-transform: translate(0px,100%); -webkit-transition: all 300ms ease-out 0ms; }
+.selectorwrap.show { -webkit-transform: translate(0px,0px); }
+.selectorwrap.show .selectorcon > ul { -webkit-transform: translate(0px,0px); }
 .selectorbar { border-bottom: 1px solid #ccc; height: 38px; z-index: 3; background: #fff; position: absolute; top: 0; left: 0; right: 0; line-height: 38px; }
 .selectorbar b { width: 80px; float: right; height: 100%; font-weight: normal; text-align: center; color: #0079FF; }
-.selector { display: -webkit-box; background: #fff; text-align: center; height: 100%; }
+.selector { display: -webkit-box; background: #fff; text-align: center; height: 172px; position: relative; z-index: 1; margin: 38px 0 0 0; width: 100%; }
 .selector > :nth-child(n) { -webkit-box-flex: 1; width: 0; }
 .selector > :nth-child(n+2) { border-left: 1px solid #ddd; }
-.selector:before { content: ''; display: block; background: -webkit-linear-gradient(top, rgb(255, 255, 255) 5%, rgba(255, 255, 255, 0) 50%, rgb(255, 255, 255) 95%); position: absolute; width: 100%; top: 36px; left: 0; bottom: 0px; z-index: 2; pointer-events: none; }
-.selectorcon { position: relative; }
-.selector:after { content: ''; display: block; margin-top: 1px; position: absolute; left: 0; top: 50%; height: 32px; border-top: .5px solid #ddd; border-bottom: .5px solid #ddd; width: 100%; z-index: 100; pointer-events: none; }
+.selector:before { content: ''; display: block; background: -webkit-linear-gradient(top, rgb(255, 255, 255) 5%, rgba(255, 255, 255, 0) 50%, rgb(255, 255, 255) 95%); position: absolute; width: 100%; top: 0; left: 0; bottom: 0px; z-index: 2; pointer-events: none; }
+.selectorcon { position: relative; z-index: 1; }
+.selector:after { content: ''; display: block; margin-top: -7px; position: absolute; left: 0; top: 50%; height: 32px; border-top: .5px solid #ddd; border-bottom: .5px solid #ddd; width: 100%; z-index: 100; pointer-events: none; }
 .selectorcon > ul > li { height: 30px; font-size: 16px; }
-.selectorcon > ul { padding: 114px 0 66px 0; }
-
+.selectorcon > ul { padding: 86px 0 56px 0; -webkit-transform: translate(0px,100%); -webkit-transition: all 300ms ease-out 0ms; }
 
 .slidebar { position: relative; }
 .slidebar:before { width: 50%; position: absolute; top: 0px; height: 100%; background: #ffd24f; -webkit-box-shadow: #999 0px 0px 16px inset; box-shadow: #999 0px 0px 16px inset; left: 25%; z-index: 0; content: ''; display: block; }

@@ -42,13 +42,17 @@
             },
             'tap .footer li': function (e) {
                 var $target = $(e.currentTarget);
-                if (!$target.hasClass('curr')) {
-                    var index = $target.index();
+                var index = $target.index();
+                if (index == 1) {
+                    bridge.open('http://m.abs.cn');
+
+                } else if (!$target.hasClass('curr')) {
                     $target.addClass('curr').siblings('.curr').removeClass('curr');
                     this.$main.eq(index).show().siblings('.main').hide();
 
-                    switch (index) {
-
+                    if (index == 2 && !this.model.data.baiduMap) {
+                        this.model.set('baiduMap', '<iframe class="js_baidu_map" src="baiduMap.html" frameborder="0" ></iframe>');
+                        this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: 300 });
                     }
                 }
             }
@@ -67,6 +71,7 @@
                 titleClass: 'head_title',
                 title: 'ABS + CLUB',
                 isLogin: false,
+                msg: 0,
                 open: function (e, url) {
                     bridge.open(url);
                 }
@@ -225,6 +230,17 @@
                     UserID: self.user.ID,
                     Auth: self.user.Auth
                 }).load();
+
+                $.get(bridge.url('/api/user/get_unread_msg_count'), {
+                    UserID: self.user.ID,
+                    Auth: self.user.Auth
+
+                }, function (res) {
+                    if (res.success) {
+                        self.model.set('msg', res.count);
+                    }
+
+                }, 'json');
             }
         },
 

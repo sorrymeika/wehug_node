@@ -2,7 +2,7 @@
     <div sn-binding="class:menu"></div>
     <div sn-binding="html:title,class:titleClass"></div>
     <div class="head_msg" data-forward="/messages">
-        <i>3</i>
+        <i sn-binding="html:msg,display:msg|equal:0|not"></i>
     </div>
 </header>
 <div class="main js_usescroll" data-index="0" sn-binding="class:isLogin|equal:true:'':'isnotlogin'">
@@ -62,6 +62,9 @@
 <div class="main" style="display:none" data-index="1">
 </div>
 <div class="main" style="display:none" data-index="2">
+    <div class="baiduMap" sn-binding="html:baiduMap">
+
+    </div>
 </div>
 <div class="main home_my" style="display:none" data-index="3">
     <div class="my">
@@ -78,19 +81,22 @@
         <ul class="myabs">
             <li data-forward="/month">
                 <b>我的月礼</b>
-                <span>您当前享有<em>12个月</em>会员礼免费领特权。</span>
+                <span sn-binding="display:user.FreeMonths|not|equal:0">您当前享有<em sn-binding="html:user.FreeMonths|concat:'个月'"></em>会员礼免费领特权。</span>
+                <span sn-binding="display:user.FreeMonths|equal:0">继续努力，马上就可以获得免费领取特权了。</span>
             </li>
             <li data-forward="/mycard">
                 <b>我的卡券</b>
-                <span>您现在拥有优惠券<em>8</em>张。</span>
+                <span>您现在拥有优惠券<em sn-binding="html:user.CouponsCount"></em>张。</span>
             </li>
             <li data-forward="/mypoint">
                 <b>我的积分</b>
-                <span>您当前积分为<em>8</em>。</span>
+                <span>您当前积分为<em sn-binding="html:point"></em>。</span>
             </li>
             <li data-forward="/myorder">
                 <b>我买到的</b>
-                <span>您目前在ABS共完成<em>8</em>次购物。</span>
+                <span sn-binding="display:user.OrderCount|not|equal:0">您目前在ABS共完成<em sn-binding="html:user.OrderCount"></em>次购物。</span>
+                <span sn-binding="display:user.OrderCount|equal:0"> 您还未购买过商品，立即开启您的购物之旅。</span>
+
             </li>
         </ul>
     </div>

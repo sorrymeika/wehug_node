@@ -1,6 +1,7 @@
-﻿header { border-top-color: #d6415c; background: #d6415c; height: 47px; line-height: 47px; }
+﻿header { background: #d6415c; }
+.has_status_bar header { border-top-color: #d6415c; }
 .footer { position: absolute; bottom: 0px; width: 100%; height: 50px; border-top: 1px solid #ccc; background: #fff; z-index: 1000; display: -webkit-box; text-align: center; color: #666; }
-.footer li { width: 0px; -webkit-box-flex: 1; font-size: .8em; }
+.footer li { width: 0px; -webkit-box-flex: 1; font-size: .75em; }
 .footer li:before { display: block; background: url(icon.png) no-repeat 0px -30px; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 2px auto 0 auto; }
 .footer li.curr { color: #fff; background-color: #d6415c; }
 .footer li.curr:before { background-position-y: -60px; }
@@ -18,19 +19,19 @@
 .head_search_btn { min-width: 60px; position: absolute; right: 0px; top: 0px; }
 .head_search_btn .btn_small { background: #74c0f3; height: 30px; line-height: 31px; color: #fff; font-size: 14px; display: block; margin: 9px 6px 0 6px; border-radius: 4px; padding: 0 10px; }
 
-.main { top: 47px; background: #eeefef; padding-top: .1px; }
+.main { background: #eeefef; padding-top: .1px; }
 .btn_large { height: 40px; line-height: 40px; background-color: #d4003b; font-size: 1.2em; }
 .btn_middle { background-color: #d4003b; height: 35px; line-height: 35px; display: block; border-radius: 4px; color: #fff; padding: 0 5px; }
 
 .form { margin-top: 10px; padding-top: .1px; }
 .form li { margin: 15px 10% 0 10%; display: -webkit-box; }
-.form li input { display: block; height: 40px; border: 0px; border-radius: 5px; padding-left: 10px; }
+.form li input { display: block; height: 40px; border: 0px; border-radius: 5px; padding-left: 10px; font-size: 14px; }
 .form li input::-webkit-input-placeholder { font-size: 14px; }
 .form li :nth-child(n+2) { margin-left: 10px; }
 .form_mobile { position: relative; }
 .form_mobile:before { content: '+86'; padding-left: 9px; line-height: 40px; position: absolute; }
 .form .form_mobile input { padding-left: 40px; }
-.form .btn_middle { height: 40px; line-height: 40px; }
+.form .btn_middle { height: 40px; line-height: 40px; font-size: 14px; }
 
 .login_form input { -webkit-box-flex: 1; }
 .login_btn { margin-top: 20px; }
@@ -75,7 +76,7 @@
 
 .home_vip { position: relative; width: 100%; height: 220px; overflow: hidden; padding-top: 20px; }
 .rainbow { width: 234px; height: 177px; left: 50%; margin-left: -117px; background: url(home_vip.png) no-repeat; background-size: 100% auto; position: absolute; z-index: 11; }
-.rainbow_points li { color: #999; position: absolute; font-size: .9em; }
+.rainbow_points li { color: #999; position: absolute; font-size: .75em; }
 .rainbow_points li:nth-child(1) { top: 161px; left: -2px; -webkit-transform: rotate(-117deg); }
 .rainbow_points li:nth-child(2) { top: 50px; left: -12px; -webkit-transform: rotate(-65deg); }
 .rainbow_points li:nth-child(3) { top: -18px; left: 104px; -webkit-transform: rotate(0deg); }
@@ -108,6 +109,7 @@
 .home_points_cursor { width: 30px; height: 30px; background: url(icon.png) no-repeat 0px -90px; background-size: 320px auto; position: absolute; z-index: 1000; -webkit-transform-origin: 50% 50%; -webkit-transform: rotate(-117deg); left: 10px; top: 132px; margin-top: -15px; margin-left: -15px; }
 
 .menu { background: #eeefef; }
+.has_status_bar .menu_bd { padding-top: 20px; }
 .menu_username { margin: 20px 0 0 10px; }
 .menu_username h1 { font-size: 1.3em; }
 .menu_username h1 span { font-size: .6em; color: #666; margin-left: 20px; text-decoration: underline; }
@@ -140,7 +142,7 @@
 .myabs li:nth-child(3):before, .menu_my li:nth-child(3):before { background-position-x: -80px; }
 .myabs li:nth-child(4):before, .menu_my li:nth-child(4):before { background-position-x: -120px; }
 .myabs li b { display: block; margin-top: 19px; font-size: .9em; }
-.myabs li span { display: block; font-size: .8em; margin-top: 5px; }
+.myabs li span { display: block; font-size: .7em; margin-top: 5px; }
 .myabs li em { color: #d4003b; }
 
 .month_present { padding: 6px; background: #fff; }
@@ -148,13 +150,13 @@
 .month_notice { font-size: .8em; text-align: center; margin-top: 10px; }
 .month_notice em { color: #d6415c; }
 .month li { float: left; width: 25%; margin-left: 6%; background: #d6415c; margin-top: 20px; text-align: center; position: relative; border-radius: 4px; color: #fff; }
-.month .flag { position: absolute; top: 6px; left: 0px; font-size: .6em; background: #c00; padding: 1px; z-index: 2; }
+.month .flag { position: absolute; top: 6px; left: 0px; font-size: .5em; background: #c00; padding: 1px; z-index: 2; }
 .month li:before { padding-top: 85.71%; content: ''; display: block; }
 .month li img { position: absolute; width: 100%; min-height: 69px; top: 0px; border-radius: 4px; display: block; z-index: 1; }
 .month li span { position: absolute; top: 50%; left: 0; width: 100%; margin-top: -7px; font-size: 14px; z-index: 2; }
 .month .lastmonth ~ li { background: #f4ca3c; }
 
-.month .curr em { position: absolute; display: block; width: 106%; margin-left: -3%; background: #c00; color: #fff; bottom: -5px; font-size: 1em; padding: 6px; border-radius: 4px; }
+.month .curr em { position: absolute; display: block; width: 106%; margin-left: -3%; background: #c00; color: #fff; bottom: -5px; font-size: .7em; padding: 5px; border-radius: 4px; }
 .month .curr em:before { content: ''; display: block; background: #c00; width: 7px; height: 7px; position: absolute; top: -3px; left: 20%; -webkit-transform: rotate(45deg); }
 
 .mycard { background: #fff; }

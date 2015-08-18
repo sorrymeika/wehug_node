@@ -39,7 +39,7 @@ define(function (require, exports, module) {
                             status: 19,
                             payStatus: 0
                         } : {
-                            status: 20,
+                            status: 8,
                             payStatus: 0
                         }).reload();
                     }

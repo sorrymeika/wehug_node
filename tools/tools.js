@@ -263,6 +263,15 @@ Tools.prototype = {
                         self.save(path.join(self.destDir, fileName), compressCss(text), promise.resolveSelf);
                     });
 
+                } else if (/\.html/.test(fileName)) {
+
+                    fs.readFile(path.join(self.baseDir, readPath || fileName), {
+                        encoding: 'utf-8'
+
+                    }, function (err, text) {
+                        self.save(path.join(self.destDir, fileName), compressHTML(text), promise.resolveSelf);
+                    });
+
                 } else {
                     var jsFileName = fileName + '.js';
 

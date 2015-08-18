@@ -120,6 +120,19 @@
             that.add(item);
         });
 
+        this.$el.on($.fx.transitionEnd, function () {
+
+            that._visible = that.$el.hasClass('show');
+            if (!that._visible) {
+                that.$el.hide();
+                that.$container.hide();
+            } else {
+                that.each(function () {
+                    this.scrollTo(0, this._index * this.itemHeight);
+                });
+            }
+        });
+
         this.$click = this.$el.find('.js_click').on('tap', function () {
             var result = [];
             $.each(that.selectors, function (i, sel) {
@@ -154,16 +167,7 @@
                     that.$mask.hide().css({ backgroundColor: 'rgba(0,0,0,.3)' });
                 });
 
-                this.$el.css({
-                    '-webkit-transform': 'translate(0px,0%)'
-                })
-                .animate({
-                    'translate': '0px,100%'
-                }, 300, 'ease-out', function () {
-                    that._visible = false;
-                    that.$el.hide();
-                    that.$container.hide();
-                });
+                this.$el.removeClass('show');
             }
 
             return that;
@@ -171,18 +175,17 @@
         show: function () {
             var that = this;
 
-            !that._visible && (that.$container.show(), that.$mask.show(), that.$el.css({
-                'display': 'block',
-                '-webkit-transform': 'translate(0px,100%)'
-            })
-            .animate({
-                'translate': '0px,0%'
-            }, 300, 'ease-out', function () {
-                that._visible = true;
-                that.each(function () {
-                    this.scrollTo(0, this._index * this.itemHeight);
-                });
-            }));
+            if (!that._visible) {
+                var $scroll = that.$selector.find('.sl_scroller').css({ color: "#fff" });
+                that.$container.show();
+                that.$mask.show();
+                that.$el.show();
+                $scroll[0].clientHeight;
+                
+                that.$el.addClass('show');
+
+                $scroll.animate({ color: "#333" }, 100, 'ease-out');
+            }
 
             return that;
         },

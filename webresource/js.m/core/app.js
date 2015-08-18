@@ -244,12 +244,12 @@
             var $win = $(window);
             var hash = location.hash || '/';
 
-            if (bridge.hasStatusBar) {
-                util.style('header{border-top-width:20px;border-top-style:solid;box-sizing:content-box !important;}header~.main{margin-top:20px;}');
-            }
-
             that.$el.appendTo(document.body);
             that.$el = $(that.el);
+
+            if (bridge.hasStatusBar) {
+                that.$el.addClass('has_status_bar');
+            }
 
             that.hash = hash = standardizeHash(hash);
 

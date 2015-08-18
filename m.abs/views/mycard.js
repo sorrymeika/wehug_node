@@ -32,7 +32,7 @@ define(function (require, exports, module) {
             self.loading = new Loading({
                 url: "/api/user/voucher_list",
                 params: {
-                    status: 0
+                    status: 1
                 },
                 $el: this.$el,
                 check: false,

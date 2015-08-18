@@ -29,7 +29,8 @@
 
             this.model = new model.ViewModel(this.$el, {
                 title: '我的月礼',
-                back: this.route.query.from || '/'
+                back: this.route.query.from || '/',
+                user: util.store('user')
             });
 
             this.loading = new Loading({
@@ -49,7 +50,16 @@
             //this.loading.load();
         },
 
-        onLoad: function () {
+        onShow: function () {
+            var self = this;
+
+            self.user = this.model.data.user || util.store('user');
+
+            if (!self.user) {
+                self.forward('/login?success=' + this.route.url + "&from=/");
+            } else {
+                self.model.set({ user: self.user })
+            }
         },
 
         onDestory: function () {
