@@ -4,7 +4,7 @@
 </header>
 <div class="main">
     <ul class="quan_list">
-        <li class="quan_item" sn-repeat="item in comments" sn-binding="data-id:item.ID">
+        <li class="quan_item" sn-repeat="item in comments" sn-binding="data-id:item.ID,data-type:item.Type">
             <div class="quan_user">
                 <img sn-binding="src:item.Avatars" />
                 <div class="bd">
@@ -13,11 +13,10 @@
                 </div>
                 <div class="ft">
                     <span class="quanli_reply" sn-binding="html:item.Reply|length"></span>
-                    <span class="quanli_up" sn-binding="html:item.Up"></span>
                 </div>
             </div>
             <div class="quan_con" sn-binding="html:item.Content"></div>
-            <div class="quan_item quan_reply" sn-repeat="reply in item.Reply" sn-binding="data-id:item.ID,data-at:reply.NickName|or:reply.Mobile">
+            <div class="quan_item quan_reply" sn-repeat="reply in item.Reply" sn-binding="data-id:item.ID,data-type:item.Type,data-at:reply.NickName|or:reply.Mobile">
                 <div class="quan_user">
                     <img sn-binding="src:reply.Avatars" />
                     <div class="bd">

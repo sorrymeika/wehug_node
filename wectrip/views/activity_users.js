@@ -52,7 +52,7 @@
                     bind: "JoinTime",
                     width: 10,
                     render: function (data) {
-                        this.append(util.formateDate(data.JoinTime));
+                        this.append(util.formatDate(data.JoinTime));
                     }
                 }, {
                     text: "性别",

@@ -15,7 +15,7 @@
             </li>
         </ul>
     </div>
-    <div class="my_nodata" sn-binding="display:points|equal:0">
+    <div class="my_nodata" sn-binding="display:points|equal:0" style="display:none">
         <div class="icon"></div>
         <div class="text">您目前还没有积分记录哦！</div>
         <div class="btn" sn-on="tap:open">去逛逛吧</div>

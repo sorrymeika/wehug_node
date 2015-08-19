@@ -20,12 +20,31 @@
                     }, function (res) {
                         if (res.success) {
                             self.grid.load()
+                            sl.tip('删除成功')
                         } else {
                             sl.tip(res.msg)
                         }
 
                     }, 'json');
                 }
+            },
+            'click .js_grid_resolve,.js_grid_reject': function (e) {
+                var id = e.currentTarget.getAttribute('data-id');
+                var self = this;
+
+                $.post('/api/manage/modify_quan', {
+                    id: id,
+                    status: $(e.currentTarget).hasClass('js_grid_resolve') ? 1 : 2
+
+                }, function (res) {
+                    if (res.success) {
+                        self.grid.load()
+                        sl.tip("设置成功");
+                    } else {
+                        sl.tip(res.msg)
+                    }
+
+                }, 'json');
             }
         },
 
@@ -52,6 +71,9 @@
                             label: '状态',
                             type: 'select',
                             options: [{
+                                text: '全部',
+                                value: ''
+                            }, {
                                 text: '未审批',
                                 value: '0'
                             }, {
@@ -90,6 +112,8 @@
                     width: 10,
                     render: function (data) {
                         this.append(util.formatDate(data.InsertTime));
+                        this.append('<br>');
+                        this.append(data.Status == 0 ? '未审批' : data.Status == 1 ? '已通过' : '已拒绝');
                     }
                 }, {
                     text: "内容",

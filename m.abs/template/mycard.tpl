@@ -25,7 +25,7 @@
             <div class="time"><div class="hd">有效期</div><div class="con" sn-binding="html:item.CSV_END_DT|date:'yyyy/MM/dd'"></div></div>
         </li>
     </ul>
-    <div class="my_nodata" sn-binding="display:data|eval:'$1?!$2.length:!$0.length':isOverdue:data1">
+    <div class="my_nodata" sn-binding="display:data|eval:'$1?!$2.length:!$0.length':isOverdue:data1" style="display:none">
         <div class="icon"></div>
         <div class="text">您目前还没有卡券哦！</div>
         <div class="btn" sn-on="tap:open">去逛逛吧</div>

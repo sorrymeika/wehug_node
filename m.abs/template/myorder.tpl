@@ -31,7 +31,7 @@
             </div>
         </li>
     </ul>
-    <div class="my_nodata" sn-binding="display:data|not">
+    <div class="my_nodata" sn-binding="display:data|not" style="display:none">
         <div class="icon"></div>
         <div class="text">您目前还没有购物记录哦！</div>
         <div class="btn" sn-on="tap:open">去逛逛吧</div>

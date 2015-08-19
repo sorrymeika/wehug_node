@@ -15,10 +15,12 @@ define(function (require, exports, module) {
                 var $target = $(e.currentTarget);
                 var $el = $target.closest('[data-id]');
                 var id = $el.data('id');
+                var type = $el.data('type');
+                var at = $el.data('at');
 
-                util.store('replyAt', '@' + $el.data('at'));
+                util.store('replyAt', at ? '@' + at : null);
 
-                this.forward('/reply/' + id + "?from=" + this.route.url);
+                this.forward('/reply/' + id + "?type=" + type + "&from=" + this.route.url);
             }
         },
         swipeRightBackAction: '/',
@@ -36,7 +38,7 @@ define(function (require, exports, module) {
             });
 
             var loading = new Loading({
-                url: "/api/user/comment_list",
+                url: "/api/user/comment_list?status=1",
                 $el: this.$el,
                 success: function (res) {
 
@@ -54,6 +56,10 @@ define(function (require, exports, module) {
 
                 }).load();
             }
+
+            self.onResult('comment_success', function () {
+                loading.reload();
+            });
         },
 
         onShow: function () {

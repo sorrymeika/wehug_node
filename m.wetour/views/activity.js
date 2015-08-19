@@ -117,7 +117,7 @@
 
             this.comments.load();
 
-            self.onResult('actcomment_success', function () {
+            self.onResult('comment_success', function () {
                 self.comments.reload();
             });
         },

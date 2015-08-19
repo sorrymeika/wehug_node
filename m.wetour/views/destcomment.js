@@ -50,7 +50,7 @@ define(function (require, exports, module) {
                     if (res.success) {
                         sl.tip('评论成功');
 
-                        self.setResult('destcomment_success');
+                        self.setResult('comment_success');
                         self.back('/destination/' + self.route.data.id);
                     }
                 }

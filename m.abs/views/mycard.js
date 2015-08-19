@@ -12,6 +12,8 @@ define(function (require, exports, module) {
     return Activity.extend({
         events: {},
 
+        swipeRightBackAction: '/',
+
         onCreate: function () {
             var self = this;
 

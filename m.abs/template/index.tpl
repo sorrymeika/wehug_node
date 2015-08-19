@@ -90,7 +90,7 @@
             </li>
             <li data-forward="/mypoint">
                 <b>我的积分</b>
-                <span>您当前积分为<em sn-binding="html:point"></em>。</span>
+                <span>您当前积分为<em sn-binding="html:user.Points"></em>。</span>
             </li>
             <li data-forward="/myorder">
                 <b>我买到的</b>

@@ -16,7 +16,7 @@
     </ul>
     <ul class="menu_list menu_service">
         <li data-forward="/guide">新手指南</li>
-        <li><a href="tel:4208205077">联系客服</a></li>
+        <li><a href="tel:4008205077">联系客服</a></li>
     </ul>
     <ul class="menu_list menu_settings">
         <li data-forward="/settings">设置</li>

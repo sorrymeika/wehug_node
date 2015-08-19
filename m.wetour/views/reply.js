@@ -13,7 +13,7 @@
         events: {
             'tap': function (e) {
                 if (e.target == this.el) {
-                    this.back('/');
+                    this.back(this.route.queries.from || '/');
                 }
             },
             'tap .js_reply:not(.disabled)': function () {
@@ -45,11 +45,11 @@
             this.swipeRightBackAction = self.route.queries.from || '/';
 
             this.model = new model.ViewModel(this.$el, {
-                content: util.store('replyAt') + ' '
+                content: util.store('replyAt') ? util.store('replyAt') + ' ' : ''
             });
 
             this.loading = new Loading({
-                url: '/api/quan/reply',
+                url: '/api/' + (self.route.query.type == 0 ? 'quan' : self.route.query.type == 1 ? 'recommend' : self.route.query.type == 2 ? 'destination' : 'activity') + '/reply_comment',
                 $el: this.$el,
                 checkData: false,
                 success: function (res) {

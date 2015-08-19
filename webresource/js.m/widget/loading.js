@@ -28,7 +28,7 @@
         DATAKEY_TOTAL: 'total',
         DATAKEY_PAGENUM: '',
 
-        method: "GET",
+        method: "POST",
         dataType: 'json',
 
         pageIndex: 1,

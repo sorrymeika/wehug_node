@@ -52,7 +52,7 @@
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                title: '目的地评论管理'
+                title: '推荐评论管理'
             });
 
             this.onResult('quan_change', function () {

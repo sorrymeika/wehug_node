@@ -51,10 +51,13 @@
             var cache = this._evalCache || (this._evalCache = {});
             var fn = cache[format] || (cache[format] = new Function("$args", "with($args){ return " + format + "}"));
 
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                args['$' + i] = arguments[i];
+            for (var i = 0, j = 0, len = arguments.length; i < len; i++) {
+                if (i != 1) {
+                    args['$' + j] = arguments[i];
+                    j++;
+                }
             }
-            return fn.call(this,args);
+            return fn.call(this, args);
         },
         lt: function (a, b) {
             return a < b;
