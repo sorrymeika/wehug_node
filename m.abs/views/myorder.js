@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
-
+    var bridge = require('bridge');
 
     return Activity.extend({
         events: {},
@@ -43,6 +43,9 @@ define(function (require, exports, module) {
                             payStatus: 0
                         }).reload();
                     }
+                },
+                open: function () {
+                    bridge.open('http://m.abs.cn');
                 }
             });
 
@@ -51,9 +54,6 @@ define(function (require, exports, module) {
                 $el: this.$el,
                 checkData: false,
                 success: function (res) {
-                    if (!res.data || res.data.length == 0) {
-                        this.dataNotFound(res);
-                    }
                     self.model.set("data", res.data);
                 },
                 append: function (res) {

@@ -3,6 +3,7 @@
     var LinkList = require("./linklist");
     var Matrix2D = require("graphics/matrix2d");
     var tween = require("graphics/tween");
+    var util = require("util");
 
     var vendors = ['webkit'/*,'moz','o','ms'*/];
 
@@ -14,9 +15,7 @@
 
     if (!window.requestAnimationFrame) {
         window.requestAnimationFrame = function (callback) {
-            return setTimeout(function () {
-                callback(currTime + timeToCall);
-            }, 16.7);
+            return setTimeout(callback, 16.7);
         };
         window.cancelAnimationFrame = function (id) {
             clearTimeout(id);

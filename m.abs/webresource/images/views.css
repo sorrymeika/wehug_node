@@ -14,7 +14,7 @@
 .head_back:before { background-position: -30px 0px; }
 .head_msg { width: 50px; position: absolute; right: 0px; top: 0px; height: 47px; z-index: 1000; }
 .head_msg:before { background-position: -60px 0px; }
-.head_msg i { position: absolute; top: 7px; left: 23px; background: #fff; color: #d6415c; border-radius: 8px; height: 14px; font-size: 12px; line-height: 14px; font-weight: normal; padding: 0 4px; }
+.head_msg i { position: absolute; top: 4px; left: 29px; background: #fff; color: #d6415c; border-radius: 8px; height: 14px; font-size: 12px; line-height: 14px; font-weight: normal; padding: 0 4px; }
 
 .head_search_btn { min-width: 60px; position: absolute; right: 0px; top: 0px; }
 .head_search_btn .btn_small { background: #74c0f3; height: 30px; line-height: 31px; color: #fff; font-size: 14px; display: block; margin: 9px 6px 0 6px; border-radius: 4px; padding: 0 10px; }
@@ -127,7 +127,7 @@
 
 .home .main { bottom: 50px; }
 .home .main.isnotlogin { bottom: 0; }
-.home_my .card { background: #fff; border-radius: 5px; margin: 10px; padding: 10px; color: #000; }
+.home_my .card { background: #fff; border-radius: 5px; margin: 10px; padding: 20px 10px; color: #000; }
 .home_my .mobile { margin-top: 6px; margin-bottom: 5px; text-align: center; }
 
 .barcode { height: 60px; display: block; width: 100px; display: -webkit-box; margin: 15px 0 0 6px; }
@@ -253,6 +253,17 @@
 .message_card .hd h3 { font-size: .7em; margin-top: 3px; color: #999; }
 .message_card .bd { font-size: .82em; margin: 10px; background: #eeefef; border-radius: 4px; position: relative; padding: 10px; line-height: 1.5; }
 .message_card .bd:before { background: #eeefef; width: 7px; height: 7px; content: ''; display: block; position: absolute; top: -4px; left: 20px; -webkit-transform: rotate(45deg); }
+.message_card .bd img { display: block; width: 100%; }
+
+.my_nodata { margin-top: 50px; text-align: center; }
+.my_nodata .icon { width: 104px; height: 104px; position: relative; background: #ccc; border-radius: 50%; margin: 0 auto; }
+.my_nodata .icon:before { content: ''; display: block; top: 50%; left: 50%; margin: -37px 0 0 -37px; width: 75px; height: 75px; position: absolute; background: url(icon.png) no-repeat 0px -310px; background-size: 320px auto; }
+.my_nodata .text { text-align: center; margin: 15px 0; }
+.my_nodata .btn { text-align: center; margin: 10px auto; padding: 4px 25px; height: auto; border-radius: 6px; border: 1px solid #ddd; background: transparent; color: #999; }
+
+.mypoint .my_nodata .icon:before { background-position-x: -75px; }
+.mycard .my_nodata .icon:before { background-position-x: -150px; }
+.mymonth .my_nodata .icon:before { background-position-x: -225px; }
 
 .guide_hd { padding: 10px; line-height: 1.5; font-size: .9em; }
 .guide_bd { background: #fff; padding: 5px; }
@@ -260,7 +271,8 @@
 .guide_bd > .hd li { -webkit-box-flex: 1; width: 0px; text-align: center; color: #fff; font-weight: bold; border-right: 2px solid #fff; }
 .guide_bd > .hd li:nth-child(2) { line-height: 32px; }
 .guide_bd > .row { display: -webkit-box; margin-top: 2px; }
-.guide_bd > .row li { -webkit-box-flex: 1; width: 0px; text-align: center; background: #eeefef; border-right: 2px solid #fff; padding: 5px; font-size: .8em; }
+.guide_bd > .row li { -webkit-box-flex: 1; width: 0px; text-align: center; background: #eeefef; border-right: 2px solid #fff; padding: 5px; font-size: .75em; }
+.guide_bd > .row li p { font-size: .7rem; }
 .guide_bd > .row li:nth-child(1) span { color: #d4003b; font-weight: bold; margin: 10px 0 5px 0; display: block; }
 .guide_bd > .row li:nth-child(2) { color: #333; }
 .guide_bd > .row li:nth-child(2):before, .guide_bd > .row li:nth-child(3):before, .guide_bd > .row li:nth-child(4):before { content: ''; display: block; background: url(icon.png) no-repeat -80px -190px; background-size: 320px auto; width: 40px; height: 40px; margin: 2px auto; }
@@ -273,4 +285,5 @@
 .guide_bd > .row li.none:nth-child(2):after { position: absolute; display: block; content: ''; top: 9px; left: 50%; margin-left: -5px; height: 12px; width: 12px; background: #d4003b; }
 .guide_bd > .row li.none:nth-child(2) p { overflow: hidden; height: 12px; position: absolute; top: -3px; left: 50%; margin-left: -11px; width: 24px; }
 .guide_bd > .row li.none:nth-child(2) p:before { content: ''; display: block; width: 18px; height: 18px; background: #d4003b; -webkit-transform: rotate(45deg); margin-top: 4px; margin-left: 3px; }
-.guide_bd .more { padding: 8px 5px; line-height: 1.5; font-size: .8em; }
+.guide_bd .more { padding: 8px 5px; line-height: 1.5; font-size: .8rem; }
+.guide_bd .more p { font-size: .7rem; color:#999; }

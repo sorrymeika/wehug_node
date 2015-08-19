@@ -67,7 +67,7 @@
 
         log: function (msg) {
             if (!this.$log) {
-                this.$log = $('<div style="height:40px;position:fixed;top:0;left:0;right:0;z-index:100000;background:#fff;"></div>').appendTo('body');
+                this.$log = $('<div style="height:40px;position:fixed;top:0;left:0;right:0;z-index:100000;background:#fff;overflow:auto"></div>').appendTo('body');
             }
             this.$log.html(msg + '|' + this.$log.html());
         },

@@ -135,8 +135,6 @@
                 }
             });
 
-            this.adLoading.load();
-
             var $launchImgs = this.$('.launch img');
             var $mask = this.$('.home_mask').on($.fx.transitionEnd, function (e) {
                 if ($mask.hasClass('toggle')) {
@@ -229,7 +227,8 @@
                 if (!this.userLoaded && (this.userLoaded = true)) this.userLoading.setParam({
                     UserID: self.user.ID,
                     Auth: self.user.Auth
-                }).load();
+
+                }).load(), this.adLoading.load();
 
                 $.get(bridge.url('/api/user/get_unread_msg_count'), {
                     UserID: self.user.ID,

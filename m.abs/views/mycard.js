@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
-
+    var bridge = require('bridge');
 
     return Activity.extend({
         events: {},
@@ -26,7 +26,10 @@ define(function (require, exports, module) {
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
                 title: '我的卡券',
-                isOverdue: false
+                isOverdue: false,
+                open: function () {
+                    bridge.open('http://m.abs.cn');
+                }
             });
 
             self.loading = new Loading({
@@ -39,8 +42,6 @@ define(function (require, exports, module) {
                 checkData: false,
                 success: function (res) {
                     if (!res || !res.data || res.data.length == 0) {
-                        this.dataNotFound('暂无数据');
-                    } else if (!res) {
                         self.model.set("data", []);
                         self.model.set("data1", []);
                     }

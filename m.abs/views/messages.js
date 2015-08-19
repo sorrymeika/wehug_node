@@ -24,26 +24,20 @@ define(function (require, exports, module) {
                 title: '消息中心'
             });
 
-            var loading = new Loading({
-                url: "/api/user/activity_list",
+            this.loading = new Loading({
+                url: "/api/user/get_msg",
                 $el: this.$el,
+                checkData: false,
                 success: function (res) {
-
+                    if (!res.data) {
+                        this.showError('暂无消息');
+                    }
                     self.model.set("data", res.data);
                 },
                 append: function (res) {
                     self.model.get('data').append(res.data);
                 }
             });
-
-            self.user = util.store('user');
-
-            if (self.user) {
-                loading.setParam({
-                    UserID: self.user.ID,
-                    Auth: self.user.Auth
-                });
-            }
         },
 
         onShow: function () {
@@ -53,6 +47,11 @@ define(function (require, exports, module) {
 
             if (!self.user) {
                 self.forward('/login?success=' + this.route.url + "&from=/");
+            } else {
+                self.loading.setParam({
+                    UserID: self.user.ID,
+                    Auth: self.user.Auth
+                }).load();
             }
         },
 

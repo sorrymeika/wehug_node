@@ -3,11 +3,11 @@
     <div sn-binding="html:title" class="head_title"></div>
 </header>
 <div class="main message_center">
-    <div class="message_card">
+    <div class="message_card" sn-repeat="item in data">
         <div class="hd">
-            <h2>文字文字文字文字文字文字</h2>
-            <h3>2015.06.30</h3>
+            <h2 sn-binding="html:item.MSG_TITLE"></h2>
+            <h3 sn-binding="html:item.MSG_DT|date:'yyyy.MM.dd'"></h3>
         </div>
-        <div class="bd">文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字</div>
+        <div class="bd" sn-binding="html:item.MSG_CONTENT"></div>
     </div>
 </div>

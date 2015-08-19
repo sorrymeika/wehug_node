@@ -2,7 +2,7 @@
     <div class="head_back" sn-binding="data-back:back"></div>
     <div sn-binding="html:title" class="head_title"></div>
 </header>
-<div class="main">
+<div class="main mymonth">
     <div sn-binding="display:user.FreeMonths|not|equal:0">
         <div class="month_present">
             <img />
@@ -26,6 +26,9 @@
             <li><span>2月</span></li>
         </ul>
     </div>
-    <div sn-binding="display:user.FreeMonths|equal:0" class="month_no_free">
+    <div class="my_nodata" sn-binding="display:user.FreeMonths|equal:0">
+        <div class="icon"></div>
+        <div class="text">您目前还没有免费领取特权哦！</div>
+        <div class="btn" sn-on="tap:open">去逛逛吧</div>
     </div>
 </div>

@@ -31,12 +31,16 @@ var build = function (config, routes, projectsRequires) {
             viewInfo.records[buildConfig.template] = true;
 
             fs.readFile(templatePath, { encoding: 'utf-8' }, function (err, data) {
-                var nodeCode = Tools.compressJs(razor.node(data));
-                var code = Tools.compressJs(Tools.replaceDefine(buildConfig.template, razor.web(data)));
+                if (err) {
+                    console.log(err);
+                } else {
+                    var nodeCode = Tools.compressJs(razor.node(data));
+                    var code = Tools.compressJs(Tools.replaceDefine(buildConfig.template, razor.web(data)));
 
-                Tools.save(path.join(config.node_dest, buildConfig.template + '.js'), nodeCode);
+                    Tools.save(path.join(config.node_dest, buildConfig.template + '.js'), nodeCode);
 
-                viewInfo.code += code;
+                    viewInfo.code += code;
+                }
                 callback();
             });
         } else {
@@ -44,14 +48,18 @@ var build = function (config, routes, projectsRequires) {
         }
 
         fs.readFile(viewPath, { encoding: 'utf-8' }, function (err, data) {
-            var requires,
-                tmpRequire;
-            if (projectsRequires && (tmpRequire = projectsRequires[buildConfig.root]) && tmpRequire.length) {
-                requires = tmpRequire;
-            }
-            var code = Tools.compressJs(Tools.replaceDefine(buildConfig.view, data, requires));
+            if (err) {
+                console.log(err);
+            } else {
+                var requires,
+                    tmpRequire;
+                if (projectsRequires && (tmpRequire = projectsRequires[buildConfig.root]) && tmpRequire.length) {
+                    requires = tmpRequire;
+                }
+                var code = Tools.compressJs(Tools.replaceDefine(buildConfig.view, data, requires));
 
-            viewInfo.code += code;
+                viewInfo.code += code;
+            }
             callback();
         });
     })

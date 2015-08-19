@@ -3,6 +3,7 @@
         animation = require('core/animation'),
         event = require('core/event'),
         Touch = require('core/touch');
+    var util = require('util');
 
     var addScroller = function ($el) {
         return $('<div class="sl_scroller" style="width:100%;"></div>').append($el.children()).appendTo($el.html(''));
@@ -100,7 +101,8 @@
         },
         momentum: function (a, b) {
             this.x = a.current;
-            this.y = b.current;
+            this.y = b ? (b.current || 0) : 0;
+
             this.$scroller.css({ '-webkit-transform': 'translate(' + (-this.x) + 'px,' + (-this.y) + 'px) translateZ(0)' });
         },
         scrollTo: function (x, y, duration) {

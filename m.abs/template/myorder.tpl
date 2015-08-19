@@ -10,7 +10,7 @@
         <li sn-on="tap:select:3">配送中</li>
         <li sn-on="tap:select:4">已完成</li>
     </ul>
-    <ul class="con">
+    <ul class="con" sn-binding="display:data">
         <li sn-repeat="item in data">
             <div class="hd"><b class="from" sn-binding="html:item.PTY_DESC"></b><span class="status" sn-binding="html:item.PUS_DESC"></span></div>
             <div class="bd" sn-repeat="prd in item.Children">
@@ -31,4 +31,9 @@
             </div>
         </li>
     </ul>
+    <div class="my_nodata" sn-binding="display:data|not">
+        <div class="icon"></div>
+        <div class="text">您目前还没有购物记录哦！</div>
+        <div class="btn" sn-on="tap:open">去逛逛吧</div>
+    </div>
 </div>
