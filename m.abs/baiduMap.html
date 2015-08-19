@@ -51,8 +51,7 @@
         address += e.addressComponent.streetNumber;
         //alert("当前定位地址为：" + address);
 
-        var current = new BMap.Circle(e.point, {
-            fillColor: "#c00"
+        var current = new BMap.Marker(e.point, {
         });
 
         map.addOverlay(current);
