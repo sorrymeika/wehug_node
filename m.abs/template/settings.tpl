@@ -11,4 +11,7 @@
         <li data-forward="/member?from=/settings">账户信息</li>
         <li>隐私政策</li>
     </ul>
+    <div class="ft">
+        <b class="btn_large" sn-on="tap:logout" sn-binding="html:user|equal:null:'立即登录':'退出登录'"></b>
+    </div>
 </div>

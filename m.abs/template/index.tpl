@@ -24,11 +24,17 @@
                     <li>SVIP</li>
                 </ul>
                 <div class="rainbow_bd">
-                    <div class="point" sn-binding="html:point"></div>
+                    <div class="point" sn-binding="html:Point"></div>
                     <div class="desc" sn-binding="html:currentLevel"></div>
                     <div class="point_tip">
-                        <span sn-binding="html:nextLevel"></span><b>活力值</b>
-                        <p>即可享有<em sn-binding="html:vip"></em>特权</p>
+                        <div sn-binding="display:nextLevel|equal:0" class="max">
+                            <p>活力值爆棚啦！</p>
+                            <p>继续努力哦！</p>
+                        </div>
+                        <div sn-binding="display:nextLevel|equal:0|not">
+                            <span sn-binding="html:nextLevel"></span><b>活力值</b>
+                            <p>即可享有<em sn-binding="html:vip"></em>特权</p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -24,6 +24,7 @@ define(function (require, exports, module) {
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
                 title: '我买到的',
+                currentType: 0,
                 select: function (e, type) {
                     if (!$(e.currentTarget).hasClass('curr')) {
                         $(e.currentTarget).addClass('curr').siblings('.curr').removeClass('curr');
@@ -44,6 +45,8 @@ define(function (require, exports, module) {
                             status: 8,
                             payStatus: 0
                         }).reload();
+
+                        self.model.set('currentType', type)
                     }
                 },
                 open: function () {

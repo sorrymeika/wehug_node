@@ -375,7 +375,6 @@
                     activity.referrer = currentActivity.url;
                     activity.referrerDir = currentActivity.swipeRightForwardAction == url ? "Left" : "Right";
                 }
-
                 var finishExecuted = false;
                 var finish = function () {
                     if (finishExecuted) return;

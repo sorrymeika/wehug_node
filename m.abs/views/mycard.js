@@ -9,8 +9,45 @@ define(function (require, exports, module) {
     var animation = require('animation');
     var bridge = require('bridge');
 
+    var cardAnimation = function (items) {
+
+        if (items.eq(0).hasClass('show') || !items.length) return;
+
+        var count = items.length;
+        var index = count - 1;
+        items.parent().css({ height: 100 * count });
+        items.each(function (j, item) {
+            item.style.zIndex = j;
+        });
+        setTimeout(function () {
+            var next = arguments.callee;
+            var item = items.eq(index);
+            item[0].clientHeight;
+            item.addClass('show').one($.fx.transitionEnd, function () { });
+
+            setTimeout((function (i) {
+                return function () {
+                    item.animate({
+                        opacity: 1,
+                        translate: '0px,' + 100 * i + 'px'
+
+                    }, i * 450, 'ease-out');
+
+                    index--;
+                    if (index >= 0) {
+                        next();
+                    }
+                }
+
+            })(index), 300);
+
+        }, 200)
+    };
+
     return Activity.extend({
-        events: {},
+        events: {
+
+        },
 
         swipeRightBackAction: '/',
 
@@ -54,7 +91,18 @@ define(function (require, exports, module) {
                         self.model.set("data1", util.find(res.data, function (item) {
                             return item.IsOverdue;
                         }));
+                        var $items = self.$('.js_not_overdue').children('li');
+
+                        cardAnimation($items);
                     }
+                }
+            });
+
+            self.model.on('change:isOverdue', function () {
+                if (self.model.data.isOverdue) {
+                    var $items = self.$('.js_overdue').children('li');
+
+                    cardAnimation($items);
                 }
             });
 
@@ -69,11 +117,13 @@ define(function (require, exports, module) {
             if (!self.user) {
                 self.forward('/login?success=' + this.route.url + "&from=" + this.route.url);
             } else {
-                self.loading.setParam({
-                    UserID: self.user.ID,
-                    Auth: self.user.Auth
 
-                }).load();
+                if (!self.isLoad && (self.isLoad = true))
+                    self.loading.setParam({
+                        UserID: self.user.ID,
+                        Auth: self.user.Auth
+
+                    }).load();
             }
         },
 

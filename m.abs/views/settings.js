@@ -13,15 +13,6 @@ define(function (require, exports, module) {
         events: {
             'tap .js_bind:not(.disabled)': function () {
 
-            },
-
-            'tap .logout': function () {
-                if (localStorage.getItem('user')) {
-                    localStorage.removeItem('user');
-                    this.back('/');
-                } else {
-                    this.forward('/login');
-                }
             }
         },
 
@@ -39,14 +30,16 @@ define(function (require, exports, module) {
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
                 title: '设置',
-                user: user
+                user: user,
+                logout: function () {
+                    if (localStorage.getItem('user')) {
+                        util.store('user', null);
+                        self.back('/');
+                    } else {
+                        self.forward('/login');
+                    }
+                }
             });
-
-            if (user) {
-                this.model.set('logout', '退出')
-            } else {
-                this.model.set('logout', '立即登录')
-            }
         },
 
         onShow: function () {

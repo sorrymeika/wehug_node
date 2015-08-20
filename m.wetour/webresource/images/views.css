@@ -1,4 +1,7 @@
-﻿header { border-top-color: #46abef; background: #46abef; height: 47px; line-height: 47px; }
+﻿.has_status_bar header { border-top-color: #46abef; }
+.has_status_bar .menu_user { padding-top: 20px; box-sizing: content-box; }
+.has_status_bar .citylistwrap { top: 67px; }
+header { background: #46abef; height: 47px; line-height: 47px; }
 .footer { position: absolute; bottom: 0px; width: 100%; height: 49px; border-top: 1px solid #ccc; background: #fff; z-index: 140; display: -webkit-box; text-align: center; color: #666; }
 .footer li { width: 0px; -webkit-box-flex: 1; font-size: .8em; }
 .footer li:before { display: block; background: url(site.png) no-repeat 0px -30px; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 0px auto; }

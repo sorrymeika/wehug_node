@@ -3,7 +3,7 @@
     <div sn-binding="html:title" class="head_title"></div>
 </header>
 <div class="main myorder">
-    <ul class="hd">
+    <ul class="hd" sn-binding="display:data|eval:'$0&&$0.length&&(currentType==0)':'currentType'">
         <li class="curr" sn-on="tap:select:0">全部</li>
         <li sn-on="tap:select:1">待付款</li>
         <li sn-on="tap:select:2">待发货</li>
@@ -11,8 +11,12 @@
         <li sn-on="tap:select:4">已完成</li>
     </ul>
     <ul class="con" sn-binding="display:data">
-        <li sn-repeat="item in data">
-            <div class="hd"><b class="from" sn-binding="html:item.PTY_DESC"></b><span class="status" sn-binding="html:item.PUS_DESC"></span></div>
+        <li sn-repeat="item in data" sn-binding="class:item.CNL_CLT_ID|format:'type{0}'">
+            <div class="hd"><b class="from" sn-binding="html:item.CNL_DESC"></b><span class="status" sn-binding="html:item.PUS_DESC"></span></div>
+            <div class="info">
+                <span sn-binding="html:item.PUR_CODE|format:'订单号：{0}'"></span>
+                <span sn-binding="html:item.PUR_DT|date"></span>
+            </div>
             <div class="bd" sn-repeat="prd in item.Children">
                 <img sn-binding="src:prd.WPP_LIST_PIC" />
                 <div class="con">
@@ -31,9 +35,14 @@
             </div>
         </li>
     </ul>
-    <div class="my_nodata" sn-binding="display:data|not" style="display:none">
+    <div class="my_nodata" sn-binding="display:data|eval:'$1==0&&(!$0||!$0.length)':currentType" style="display:none">
         <div class="icon"></div>
         <div class="text">您目前还没有购物记录哦！</div>
+        <div class="btn" sn-on="tap:open">去逛逛吧</div>
+    </div>
+    <div class="my_nodata" sn-binding="display:data|eval:'$1!=0&&(!$0||!$0.length)':currentType" style="display:none">
+        <div class="icon"></div>
+        <div class="text">您还没有相关的订单！</div>
         <div class="btn" sn-on="tap:open">去逛逛吧</div>
     </div>
 </div>

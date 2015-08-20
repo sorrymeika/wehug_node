@@ -3,7 +3,7 @@
         <div class="menu_username">
             <h1>
                 <text sn-binding="html:user.UserName|or:user.Mobile"></text>
-                <span>补全信息</span>
+                <span>编辑信息</span>
             </h1>
             <h2 sn-binding="html:user.BirthDay|date:'yyyy/MM/dd'"></h2>
         </div>

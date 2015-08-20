@@ -181,7 +181,7 @@
                 that.$mask.show();
                 that.$el.show();
                 $scroll[0].clientHeight;
-                
+
                 that.$el.addClass('show');
 
                 $scroll.animate({ color: "#333" }, 100, 'ease-out');
