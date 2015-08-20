@@ -30,9 +30,16 @@
             return ++guid;
         },
 
+        isFalse: function (value) {
+            return !value || ($.isArray(value) && !value) || (typeof value == 'object' && util.isEmptyObject(value));
+        },
+
+        isTrue: function (value) {
+            return !this.isFalse(value);
+        },
+
         isEmptyObject: function (obj) {
-            var name;
-            for (name in obj) {
+            for (var name in obj) {
                 return false;
             }
             return true;

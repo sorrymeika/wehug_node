@@ -75,7 +75,7 @@ define(function (require, exports, module) {
             self.user = util.store('user');
 
             if (!self.user) {
-                self.forward('/login?success=' + this.route.url + "&from=" + this.route.url);
+                self.forward('/login?success=' + this.route.url + "&from=/");
             } else {
                 self.loading.setParam({
                     UserID: self.user.ID,

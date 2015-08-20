@@ -5,13 +5,13 @@ a { text-decoration: none; color: #333; }
 input { -webkit-appearance: none; outline: none; box-sizing: border-box;}
 input::-webkit-input-placeholder { font-size: 13px; }
 
-header { position: absolute; top: 0px; left: 0px; width: 100%; height: 47px; line-height: 47px; background: #292929; text-align: center; color: #fff; font-weight: bold; z-index: 200; overflow: hidden; font-size: 18px; overflow: hidden; }
+header { position: absolute; top: 0px; left: 0px; width: 100%; height: 44px; line-height: 44px; background: #292929; text-align: center; color: #fff; font-weight: bold; z-index: 200; overflow: hidden; font-size: 18px; overflow: hidden; }
 footer { position: absolute; bottom: 0px; left: 0px; width: 100%; z-index: 200; overflow: hidden; }
 .head_title { text-align: center; margin: 0px 50px; position: absolute; right: 0px; left: 0px; top: 0px; z-index: -1; font-size: 18px; letter-spacing: 1px; overflow: hidden; font-weight: normal; }
 .fix_statusbar { padding-top: 20px; box-sizing: content-box; }
 
 .has_status_bar header { border-top: 20px solid #fff; border-top-style: solid; box-sizing: content-box !important; }
-.has_status_bar .main { top: 67px; }
+.has_status_bar .main { top: 64px; }
 
 .viewport { position: absolute; overflow: hidden; width: 100%; background: #fff; bottom: 0px; top: 0px; right: 0; left: 0; z-index: 1; }
 .view { position: absolute; width: 100%; top: 0; left: 0; bottom: 0; background: #fff; -webkit-transform: translate(0px,0px) translateZ(0); overflow: hidden; -webkit-box-shadow: -3px 2px 5px rgba(49,60,75,.35); box-shadow: -3px 2px 5px rgba(49,60,75,.35); }
@@ -21,7 +21,7 @@ footer { position: absolute; bottom: 0px; left: 0px; width: 100%; z-index: 200; 
 .view.active .main { z-index: 100; }
 .view.transparent { background: rgba(0,0,0,0); border: 0; -webkit-box-shadow: none; box-shadow: none; }
 
-.main { position: absolute; bottom: 0px; right: 0px; left: 0px; top: 47px; overflow: hidden; overflow-y: auto; z-index: 1; }
+.main { position: absolute; bottom: 0px; right: 0px; left: 0px; top: 44px; overflow: hidden; overflow-y: auto; z-index: 1; }
 .content { width: 100%; padding: 10px 3%; border-top: 2px solid #d31145; margin-top: 5px; background: #fff; }
 
 .virtualdom { position: absolute; top: 0px; left: 0px; -webkit-transform: translate(0px,0px) translateZ(0); background: rgba(0,0,0,0); }

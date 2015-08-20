@@ -1,8 +1,8 @@
 ﻿header { background: #d6415c; }
 .has_status_bar header { border-top-color: #d6415c; }
-.footer { position: absolute; bottom: 0px; width: 100%; height: 50px; border-top: 1px solid #ccc; background: #fff; z-index: 1000; display: -webkit-box; text-align: center; color: #666; }
+.footer { position: absolute; bottom: 0px; width: 100%; height: 47px; border-top: 1px solid #ccc; background: #fff; z-index: 1000; display: -webkit-box; text-align: center; color: #666; }
 .footer li { width: 0px; -webkit-box-flex: 1; font-size: .7em; }
-.footer li:before { display: block; background: url(icon.png) no-repeat 0px -30px; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 2px auto 0 auto; }
+.footer li:before { display: block; background: url(icon.png) no-repeat 0px -30px; content: ''; width: 30px; height: 29px; background-size: 320px auto; margin: 1px auto 0 auto; }
 .footer li.curr { color: #fff; background-color: #d6415c; }
 .footer li.curr:before { background-position-y: -60px; }
 .footer li:nth-child(2):before { background-position-x: -30px; }
@@ -10,7 +10,7 @@
 .footer li:nth-child(4):before { background-position-x: -90px; }
 
 .head_back, .head_menu { width: 60px; height: 47px; z-index: 1000; }
-.head_back:before, .head_menu:before, .head_msg:before { display: block; background: url(icon.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 8px 0 0 8px; }
+.head_back:before, .head_menu:before, .head_msg:before { display: block; background: url(icon.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 7px 0 0 8px; }
 .head_back:before { background-position: -30px 0px; }
 .head_msg { width: 50px; position: absolute; right: 0px; top: 0px; height: 47px; z-index: 1000; }
 .head_msg:before { background-position: -60px 0px; }
@@ -56,7 +56,8 @@
 .sector_center b { font-weight: bold; display: block; margin-top: 32px; }
 .sector_center span { display: block; font-size: .9em; margin-top: 3px; }
 
-.launch { width: 100%; position: absolute; top: 0; left: 0; bottom: 0; right: 0; overflow: hidden; z-index: 1; }
+.has_status_bar .launch { top: 64px; }
+.launch { width: 100%; position: absolute; top: 44px; left: 0; bottom: 0; right: 0; overflow: hidden; z-index: 1; }
 .launch img { width: 100%; display: block; min-height: 500px; position: absolute; top: 0; left: 0; -webkit-transition: all 450ms ease-out 0ms; }
 .launch img.launch_hide { opacity: 0; }
 
@@ -65,7 +66,8 @@
 .home_ad > li img { width: 100%; }
 .home_ad > li.toggle { -webkit-transform: translate(0%,0px); }
 
-.home_mask { position: absolute; z-index: 2; top: 0; left: 0; bottom: 0; right: 0; background: rgba(0,0,0,.5); -webkit-transition: all 450ms ease-out 0ms; }
+.has_status_bar .home_mask { top: 64px; }
+.home_mask { position: absolute; z-index: 2; top: 44px; left: 0; bottom: 0; right: 0; background: rgba(0,0,0,.5); -webkit-transition: all 450ms ease-out 0ms; }
 .home_mask.toggle { background: rgba(0,0,0,.7); }
 
 .home_text { width: 100%; position: absolute; top: 50%; margin-top: -80px; z-index: 2; color: #fff; text-align: center; padding-bottom: 10px; }
@@ -83,7 +85,7 @@
 .rainbow_points li:nth-child(4) { top: 50px; left: 215px; -webkit-transform: rotate(64deg); }
 .rainbow_points li:nth-child(5) { top: 161px; left: 215px; -webkit-transform: rotate(114deg); }
 
-.rainbow_vip li { color: #999; position: absolute; font-size: .8em; z-index: 100; }
+.rainbow_vip li { color: #999; position: absolute; font-size: .7em; z-index: 100; }
 .rainbow_vip li:nth-child(1) { top: 130px; left: 28px; -webkit-transform: rotate(-108deg); }
 .rainbow_vip li:nth-child(2) { top: 73px; left: 37px; -webkit-transform: rotate(-65deg); }
 .rainbow_vip li:nth-child(3) { top: 37px; left: 104px; -webkit-transform: rotate(0deg); }
@@ -94,10 +96,10 @@
 .rainbow_bd { text-align: center; margin-top: 70px; z-index: 10000; position: relative; }
 .rainbow_bd .point { font-size: 35px; color: #d6415c; font-weight: bold; }
 .rainbow_bd .desc { font-size: 1em; color: #d6415c; }
-.rainbow_bd .point_tip { font-size: .8em; margin-top: 8px; -webkit-transition: -webkit-transform 600ms cubic-bezier(.45,1.28,.65,1.24) 0ms; -webkit-transform: perspective(400px) rotateX(90deg) rotateY(0deg); -webkit-transform-origin: 50% 100%; }
-.rainbow_bd .point_tip .max p { font-size: .8rem;}
+.rainbow_bd .point_tip { font-size: .8em; margin-top: 10px; -webkit-transition: -webkit-transform 600ms cubic-bezier(.45,1.28,.65,1.24) 0ms; -webkit-transform: perspective(400px) rotateX(90deg) rotateY(0deg); -webkit-transform-origin: 50% 100%; }
+.rainbow_bd .point_tip .max p { font-size: .75em; }
 .rainbow_bd .point_tip span { color: #d6415c; font-weight: bold; }
-.rainbow_bd p { font-size: .75em; color: #333; margin-top: 5px; }
+.rainbow_bd p { font-size: .75em; color: #333; margin-top: 0px; }
 .rainbow_bd .point_tip.show { -webkit-transform: perspective(400px) rotateX(0deg); }
 .rainbow_bd .point_tip em { background: #d6415c; color: #fff; line-height: 1.4; display: inline-block; padding: 0 2px; margin: 0 1px; }
 
@@ -126,7 +128,7 @@
 
 .menu_settings li:nth-child(1):before { background-position-x: -240px; }
 
-.home .main { bottom: 50px; }
+.home .main { bottom: 47px; }
 .home .main.isnotlogin { bottom: 0; }
 .home_my .card { background: #fff; border-radius: 5px; margin: 10px; padding: 20px 10px; color: #000; }
 .home_my .mobile { margin-top: 6px; margin-bottom: 5px; text-align: center; }
@@ -205,23 +207,24 @@
 .myorder > .hd li { -webkit-box-flex: 1; width: 0px; background: #eeefef; color: #666; height: 36px; line-height: 36px; }
 .myorder > .hd li.curr { background: #d6415c; color: #fff; }
 
-.myorder > .con { }
-.myorder .con li { border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; margin-top: 10px; background: #fff; }
+.myorder > .con { margin-bottom: 10px; }
+.myorder .con li { border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; margin-bottom: 10px; background: #fff; }
 .myorder .con li .hd { border-bottom: .5px solid #ccc; margin: 0 5px; height: 30px; line-height: 30px; font-size: .9em; }
+.myorder .con li .hd b { font-weight: normal; }
 .myorder .con li .hd:before { content: ''; width: 30px; height: 30px; display: inline-block; background: #fff url(icon.png) no-repeat -120px -90px; background-size: 320px auto; vertical-align: -10px; margin: 0 0 0 6px; }
 .myorder .con li.type2 .hd:before { background-position-x: -60px; }
 .myorder .con li.type3 .hd:before { background-position-x: -30px; }
 .myorder .con li.type4 .hd:before, .myorder .con li.type5 .hd:before { background-position-x: -150px; }
 .myorder .con li.type6 .hd:before { background-position-x: -90px; }
-.myorder .con li .hd .status { float: right; margin-right: 6px; }
+.myorder .con li .hd .status { float: right; margin-right: 6px; font-weight: bold; }
 .myorder .con li .info { font-size: .7rem; padding: 0px 10px; line-height: 25px; }
 .myorder .con li .info :nth-child(2) { float: right; }
 .myorder .con li .bd { border-bottom: .5px solid #ccc; display: -webkit-box; }
 .myorder .con li .bd img { display: block; width: 60px; height: 60px; margin: 10px; }
 .myorder .con li .bd .con { -webkit-box-flex: 1; overflow: hidden; }
-.myorder .con li .bd h2 { font-size: .9em; margin-top: 10px; }
+.myorder .con li .bd h2 { font-size: .8em; margin-top: 10px; font-weight: normal; }
 .myorder .con li .bd h3 { font-size: .7em; font-weight: normal; margin-top: 8px; }
-.myorder .con li .bd h4 { font-size: .7em; font-weight: normal; margin-top: 4px; }
+.myorder .con li .bd h4 { font-size: .7em; font-weight: normal; margin-top: 2px; }
 .myorder .con .priceinfo { margin: 20px 10px 0 0; text-align: right; }
 .myorder .con .priceinfo span { display: block; }
 .myorder .con .priceinfo .price { font-size: 1.2em; }
@@ -268,7 +271,7 @@
 .my_nodata { margin-top: 50px; text-align: center; }
 .my_nodata .icon { width: 104px; height: 104px; position: relative; background: #ccc; border-radius: 50%; margin: 0 auto; }
 .my_nodata .icon:before { content: ''; display: block; top: 50%; left: 50%; margin: -37px 0 0 -37px; width: 75px; height: 75px; position: absolute; background: url(icon.png) no-repeat 0px -310px; background-size: 320px auto; }
-.my_nodata .text { text-align: center; margin: 15px 0; }
+.my_nodata .text { text-align: center; margin: 15px 0; font-size: .8rem;}
 .my_nodata .btn { text-align: center; margin: 10px auto; padding: 4px 25px; height: auto; border-radius: 6px; border: 1px solid #ddd; background: transparent; color: #999; }
 
 .mypoint .my_nodata .icon:before { background-position-x: -75px; }

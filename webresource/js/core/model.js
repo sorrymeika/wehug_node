@@ -9,6 +9,8 @@
 
     var Filter = {
         date: util.formatDate,
+        isFalse: util.isFalse,
+        isTrue: util.isTrue,
         json: function (data) {
             return (data instanceof Model || data instanceof Collection) ? JSON.stringify(data.data) : JSON.stringify(data);
         },
@@ -27,18 +29,6 @@
                     return $.isArray(val);
                 case 'object':
                     return $.isPlainObject(val);
-                case 'empty':
-                    if (!val)
-                        return true;
-                    else if ($.isArray(val)) {
-                        return !val.length;
-                    } else if ($.isPlainObject(val)) {
-                        for (var key in val) {
-                            return false;
-                        }
-                        return true;
-                    }
-                    return false;
                 default:
                     return typeof val == type;
             }
@@ -99,6 +89,7 @@
             return Math.round(number)
         },
         max: Math.max,
+        min: Math.min,
         mul: function (str, num) {
             return parseFloat(str) * parseFloat(num);
         },
@@ -133,20 +124,12 @@
             return len % 2 == 0 ? undefined : args[len - 1];
         },
         listen: function (parent, model, key, el, self, param, count) {
-            var flag = false,
-                fkey;
+            var fkey;
 
             if (el) {
                 fkey = "_bind_filter" + self.prop + (typeof el === "number" ? el : '') + '_' + count;
 
-                if (!model[fkey]) {
-                    model[fkey] = flag = true;
-                } else {
-                    if (!el[fkey]) {
-                        el[fkey] = flag = true;
-                    }
-                }
-                if (flag) {
+                if (!model[fkey] && (model[fkey] = true) || !el[fkey] && (el[fkey] = true)) {
                     param = param.split('.');
                     var attr = param.pop();
                     var m = (param.length <= 0 ? parent : (parent.get(param.join('.')) || parent.set(param.join('.'), {}).get(param)));
@@ -208,9 +191,7 @@
         });
 
         code += 'return V;';
-        /*{ F: 'Filter', M: 'model', V: 'value',  K: 'key', E: 'el', P: 'parent', S: this }
-        return new Function('Filter', 'model', 'value', 'key', 'el', before + code);
-        */
+        /*{ F: 'Filter', M: 'model', V: 'value',  K: 'key', E: 'el', P: 'parent', S: this }*/
         return new Function('F', 'M', 'V', 'K', 'E', before + code);
     };
 
@@ -447,10 +428,8 @@
     };
 
     var setAttribute = function (el, prop, value) {
-        var attr;
         if (prop.indexOf('style.') == 0) {
-            (attr = {})[prop.substr(6)] = value;
-            $(el).css(attr);
+            el.style[prop.substr(6)] = value;
 
         } else {
             switch (prop) {
@@ -461,7 +440,7 @@
                     el.innerHTML = value;
                     break;
                 case 'display':
-                    el.style.display = value === undefined || value === null || value === false || value == 'none' ? 'none' : value == 'block' || value == 'inline' || value == 'inline-block' ? value : '';
+                    el.style.display = util.isFalse(value) ? 'none' : value == 'block' || value == 'inline' || value == 'inline-block' ? value : '';
                     break;
                 case 'value':
                     if (el.value != value) el.value = value;

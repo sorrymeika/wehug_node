@@ -70,7 +70,7 @@
                 menu: 'head_menu',
                 titleClass: 'head_title',
                 title: 'ABS + CLUB',
-                isLogin: false,
+                isLogin: !!util.store('user'),
                 msg: 0,
                 open: function (e, url) {
                     bridge.open(url);
@@ -161,13 +161,15 @@
             var level;
             var nextLevel;
             var currentLevel;
+            var levelAmounts;
             var levels = ['银卡会员', '金卡会员', '钻石会员', 'VIP会员', 'SVIP会员', '无敌会员'];
-            self.model.set('vip', total < 1000 ? (level = 0, nextLevel = 1000 - total, levels[1]) : total < 5000 ? (level = 1, nextLevel = 5000 - total, levels[2]) : total < 10000 ? (level = 2, nextLevel = 10000 - total, levels[3]) : total < 50000 ? (level = 3, nextLevel = 50000 - total, levels[4]) : (level = 4, nextLevel = '0', levels[5]));
+            self.model.set('vip', total < (levelAmounts = 1000) ? (level = 0, nextLevel = 1000 - total, levels[1]) : total < (levelAmounts = 5000) ? (level = 1, nextLevel = 5000 - total, levels[2]) : total < (levelAmounts = 10000) ? (level = 2, nextLevel = 10000 - total, levels[3]) : total < (levelAmounts = 50000) ? (level = 3, nextLevel = 50000 - total, levels[4]) : (level = 4, nextLevel = '0', levels[5]));
 
             this.$('.rainbow_vip :nth-child(' + (level + 1) + ')').addClass('curr');
 
             self.model.set('nextLevel', "+" + nextLevel);
             self.model.set('currentLevel', levels[level]);
+            self.model.set('levelAmounts', levelAmounts);
 
             if (total != self.model.data.point) {
                 self.model.set('point', total);
@@ -223,8 +225,6 @@
             var isLogin = !!self.user;
             self.model.set('isLogin', isLogin);
 
-            console.log(self.user)
-
             if (isLogin) {
                 self.showPoints();
                 self.model.set('barcode', barcode.code93(self.user.Mobile).replace(/0/g, '<em></em>').replace(/1/g, '<i></i>'))
@@ -258,9 +258,6 @@
 
         onPause: function () {
             //this.$('.point_tip').removeClass('show');
-        },
-
-        onLoad: function () {
         },
 
         onDestory: function () {
