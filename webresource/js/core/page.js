@@ -78,12 +78,14 @@
 
             that.application = that.options.application;
 
-            that.on('Start', that.onStart);
-            that.on('Resume', that.onResume);
-            that.on('Show', that.onShow);
-            that.on('Pause', that.onPause);
-            that.on('QueryChange', that.onQueryChange);
-            that.on('QueryChange', that.checkQuery);
+            that.on('Start', that.onStart)
+                .on('Resume', that.onResume)
+                .on('Show', that.onShow)
+                .on('Show', that._statusChange)
+                .on('Pause', that.onPause)
+                .on('Pause', that._statusChange)
+                .on('QueryChange', that.onQueryChange)
+                .on('QueryChange', that.checkQuery);
 
             if (!that.$el.data('path')) {
                 that.$el.data('url', that.url).data('path', that.path);
@@ -108,6 +110,13 @@
 
         //离开动画结束时触发
         onPause: noop,
+
+        _statusChange: function (e) {
+            if (this._status == 'Pause') {
+                this.trigger('Resume');
+            }
+            this._status = e.type;
+        },
 
         onQueryChange: noop,
 

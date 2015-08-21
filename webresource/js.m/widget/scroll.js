@@ -237,7 +237,7 @@
                     })
                 }
                 else if (util.android) {
-                    $el.css({ overflowY: 'scroll' });
+                    $el.css({ overflowY: 'auto' });
                 }
                 $el.on('scroll', scroll)
                     .on('touchstart', touchStart)

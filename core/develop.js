@@ -63,6 +63,7 @@ var mapViews = function (project, config, routes) {
             css: combine
         });
 
+        cfg.option = option;
         cfg.html = Tools.compressHTML(home.html(option));
     }
 
@@ -77,7 +78,7 @@ var mapViews = function (project, config, routes) {
                 cfg = config.projects[i];
 
                 if (cfg.root == data.root) {
-                    res.send(cfg.html.replace('</head>', '<script>if(!location.hash)location.hash="' + data.url + '";</script></head>'));
+                    res.send(Tools.compressHTML(home.html(cfg.option)).replace('</head>', '<script>if(!location.hash)location.hash="' + data.url + '";</script></head>'));
                     break;
                 }
             }

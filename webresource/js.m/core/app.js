@@ -176,7 +176,7 @@
                         var href = target.attr('href');
                         if (!/^#/.test(href)) href = '#' + href;
 
-                        target.attr('forward') != null ? that.forward(href) : target.attr('back') != null ? that.back(href) : that.to(href);
+                        target.attr('back') != null ? that.back(href) : that.forward(href);
                     }
 
                 } else {
@@ -196,7 +196,6 @@
             }
         },
 
-        _history: [],
         _historyCursor: -1,
         isHistoryBack: false,
 
@@ -215,6 +214,9 @@
             that.el = that.$el[1];
             that.canvas = that.$el[2];
             that.$input = that.$el[3];
+            that._history = [];//window.name && window.name[0] == '[' && window.name[window.name.length - 1] == ']' ? JSON.parse(window.name) : [];
+
+            that.history = [];
 
             if (that.backGesture) bindBackGesture(this);
 
@@ -234,7 +236,7 @@
                     }
 
                 } else {
-                    history.back();
+                    that.back();
                 }
             });
         },
@@ -262,17 +264,38 @@
                 activity.$el.transform(require('anim/' + activity.toggleAnim).openEnterAnimationTo);
                 activity.then(function () {
                     activity.$el.addClass('active');
-                    activity.trigger('Resume').trigger('Show');
+                    activity.trigger('Appear').trigger('Show');
 
                     that.trigger('start');
                     that.turning();
                 });
 
                 $win.on('hashchange', function () {
+                    var hashIndex;
                     hash = that.hash = standardizeHash(location.hash);
 
+                    if (that.hashChangeType == 1) {
+                        that.history.push(hash);
+
+                    } else if (that.hashChangeType == -1) {
+                        hashIndex = lastIndexOf(that.history, hash);
+                        that.history.length = hashIndex == -1 ? 0 : hashIndex;
+
+                    } else {
+                        hashIndex = lastIndexOf(that.history, hash);
+
+                        if (hashIndex == -1) {
+                            //that.forward(hash);
+
+                        } else {
+                            //that.back(hash);
+                        }
+                    }
+
+                    console.log(that.history);
+
                     var index = lastIndexOf(that._history, hash),
-                    isForward = (that._skipRecordHistory || index == -1) && !that.isHistoryBack;
+                        isForward = (that._skipRecordHistory || index == -1) && !that.isHistoryBack;
 
                     if (that._skipRecordHistory !== true) {
                         if (index == -1) {
@@ -285,7 +308,7 @@
                         that._skipRecordHistory = false;
 
                     if (that.skip == 0) {
-                        that[isForward ? 'forward' : 'back'](hash);
+                        isForward ? that.forward(hash) : that.back(hash);
 
                     } else if (that.skip > 0)
                         that.skip--;
@@ -293,6 +316,14 @@
                         that.skip = 0;
 
                     that.isHistoryBack = false;
+
+                    if (that.historyGoUrl && location.hash != that.historyGoUrl) {
+                        that.skip++;
+                        location.hash = that.historyGoUrl;
+                        that.historyGoUrl = null;
+                    }
+
+                    //window.name = JSON.stringify(that._history);
                 });
 
             }], that.get, that);
@@ -331,15 +362,13 @@
             }
         },
 
-        _animationTo: function (url, duration, toggleAnim, type, callback) {
+        _toggle: function (route, duration, toggleAnim, type, callback) {
 
             var that = this,
                 currentActivity = that._currentActivity,
-                route = typeof url == "string" ? that.route.match(url) : url;
+                url = route.url;
 
-            url = route.url;
-
-            if (!duration) duration = 300;
+            if (duration == null || duration == undefined) duration = 300;
 
             if (url != standardizeHash(location.hash) && that._queue.length == 1) {
                 var args = that._queue.first().args;
@@ -353,17 +382,12 @@
             }
 
             that.get(route, function (activity) {
-                if (activity.path == currentActivity.path) {
-                    checkQueryString(activity, route);
-                    that.turning();
-                    return;
-                }
                 that._currentActivity = activity;
 
                 adjustActivity(currentActivity, activity);
 
                 activity.then(function () {
-                    activity.trigger('Resume');
+                    activity.trigger('Appear');
                 });
 
                 var isOpen = type == 'open',
@@ -375,6 +399,8 @@
                     activity.referrer = currentActivity.url;
                     activity.referrerDir = currentActivity.swipeRightForwardAction == url ? "Left" : "Right";
                 }
+                route.referrer = currentActivity.url;
+
                 var finishExecuted = false;
                 var finish = function () {
                     if (finishExecuted) return;
@@ -399,22 +425,12 @@
             });
         },
 
-        to: function (url) {
-            this.queue(function () {
-                this._navigate(url);
-                this.turning();
-            }, this);
-        },
-
-        _navigate: function (url, skip) {
-            url = standardizeHash(url);
-
+        //改变当前hash但不触发viewchange
+        navigate: function (url) {
             var that = this,
                 index = lastIndexOf(that._history, url);
 
-            if (skip === true) {
-                that.skip++;
-            }
+            that.skip++;
 
             if (index == -1) {
                 that._history.splice(that._historyCursor + 1, 0, url);
@@ -426,54 +442,43 @@
 
             } else {
                 if (index != that._historyCursor) {
+                    that.historyGoUrl = url;
                     history.go(index - that._historyCursor);
                 }
-                if (skip === true) {
-                    that._history.length = index + 1;
-                    that._historyCursor = index;
-                }
+                that._history.length = index + 1;
+                that._historyCursor = index;
             }
-        },
-
-        navigate: function (url) {
-            this._navigate(url, true);
         },
 
         forward: function (url, duration, toggleAnim) {
             var route = this.route.match(url);
-            if (route)
+            if (route) {
                 this.queue([route.url], function () {
                     var currentActivity = this._currentActivity;
 
-                    this._animationTo(url, duration, toggleAnim, 'open', function () {
+                    this._toggle(route, duration, toggleAnim, 'open', function () {
                         currentActivity.trigger('Pause');
                     });
                 }, this);
+            }
         },
 
         back: function (url, duration, toggleAnim) {
             var route = this.route.match(url);
-            if (route)
+            if (route) {
                 this.queue([route.url], function () {
                     var that = this,
                         currentActivity = that._currentActivity;
 
-                    if (!route) {
-                        currentActivity.startExit();
-                        that.isHistoryBack = true;
-                        history.back();
-                        that.turning();
-
-                    } else {
-                        if (typeof duration === 'string') {
-                            toggleAnim = duration;
-                            duration = null;
-                        }
-                        that._animationTo(route, duration, toggleAnim, 'close', function () {
-                            currentActivity.destroy();
-                        });
+                    if (typeof duration === 'string') {
+                        toggleAnim = duration;
+                        duration = null;
                     }
+                    that._toggle(route, duration, toggleAnim, 'close', function () {
+                        currentActivity.destroy();
+                    });
                 }, this);
+            }
         }
     });
 

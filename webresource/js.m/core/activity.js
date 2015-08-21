@@ -61,24 +61,6 @@
                 that.trigger('Show');
             });
         },
-        //onShow后才可调用
-        redirect: function (url) {
-            var that = this,
-                application = that.application;
-
-            application.get(url, function (activity, route) {
-                activity.el.className = activity.className + ' active';
-                application.$el.append(activity.$el);
-                application._currentActivity = activity;
-                that.$el.remove();
-                that.trigger('Pause');
-
-                activity.then(function () {
-                    activity.trigger('Resume');
-                    activity.trigger('Show');
-                });
-            });
-        },
 
         prompt: function (title, val, fn) {
             fn = typeof val === 'function' ? val : fn;

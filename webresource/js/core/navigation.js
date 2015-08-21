@@ -114,7 +114,6 @@
                     promise.resolve();
                     return;
                 }
-
                 that.get(route, function (activity) {
                     if (activity.path == currentActivity.path) {
                         checkQueryString(activity, route);
