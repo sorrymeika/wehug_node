@@ -278,12 +278,9 @@
                 $win.on('hashchange', function () {
                     var hash = that.hash = standardizeHash(location.hash);
                     var hashIndex;
-                    if (that.hashChangeType == 1) {
-                        that.hashChangeType = 0;
-                        that.historyPromise.resolve();
 
-                    } else if (that.hashChangeType == -1) {
-                        that.hashChangeType = 0;
+                    if (that.hashChanged) {
+                        that.hashChanged = false;
                         that.historyPromise.resolve();
 
                     } else {
@@ -295,7 +292,6 @@
                             } else {
                                 that.back(hash);
                             }
-                            return that.queue;
                         });
                     }
                 });
@@ -373,14 +369,14 @@
                 var index,
                     hashChanged = url !== standardizeHash(location.hash);
 
+                that.hashChanged = hashChanged;
+
                 if (isForward) {
-                    that.hashChangeType = hashChanged ? 1 : 0;
                     that.history.push(url);
                     location.hash = url;
 
                 } else {
                     index = lastIndexOf(that.history, url);
-                    that.hashChangeType = hashChanged ? -1 : 0;
 
                     if (index == -1) {
                         that.history.length = 0;
@@ -389,7 +385,6 @@
 
                     } else {
                         var go = index + 1 - that.history.length;
-
                         hashChanged && go && history.go(go);
                         that.history.length = index + 1;
                     }
