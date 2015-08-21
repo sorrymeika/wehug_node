@@ -130,7 +130,7 @@
 
                 if (that.swiperPromise) {
                     that.swiperPromise.then(function () {
-                        that.queue([200, that.isCancelSwipe ? 0 : 100, function () {
+                        that.queue.then([200, that.isCancelSwipe ? 0 : 100, function () {
                             var activity = that.swipeActivity,
                             currentActivity = that._currentActivity;
 
@@ -142,7 +142,7 @@
                             } else {
 
                                 that._currentActivity = that.swipeActivity;
-                                that.navigate(activity.url);
+                                that.navigate(activity.url, that.isSwipeOpen);
 
                                 activity.finishEnterAnimation();
 
@@ -154,7 +154,8 @@
                                     currentActivity.destroy();
                                 }
                             }
-                            that.turning();
+                            that.queue.resolve();
+
                         }], that.swiper.animate, that.swiper);
 
                         that.swiperPromise = null;
@@ -207,8 +208,6 @@
             var that = this,
                 preventEvents = 'tap click touchend touchmove touchstart';
 
-            that._queue = new LinkList();
-
             that.mask = $(that.$el[0]).off(preventEvents).on(preventEvents, false);
 
             that.el = that.$el[1];
@@ -255,7 +254,13 @@
 
             that.hash = hash = standardizeHash(hash);
 
-            that.queue([hash, function (activity) {
+            that.queue = new Promise();
+            that.historyPromise = new Promise().resolve();
+
+            that.get(hash, function (activity) {
+
+                that.history.push(hash);
+
                 activity.$el.appendTo(that.el);
                 that._currentActivity = activity;
                 that._history.push(activity.url);
@@ -267,117 +272,53 @@
                     activity.trigger('Appear').trigger('Show');
 
                     that.trigger('start');
-                    that.turning();
+                    that.queue.resolve();
                 });
 
                 $win.on('hashchange', function () {
+                    var hash = that.hash = standardizeHash(location.hash);
                     var hashIndex;
-                    hash = that.hash = standardizeHash(location.hash);
-
                     if (that.hashChangeType == 1) {
-                        that.history.push(hash);
+                        that.hashChangeType = 0;
+                        that.historyPromise.resolve();
 
                     } else if (that.hashChangeType == -1) {
-                        hashIndex = lastIndexOf(that.history, hash);
-                        that.history.length = hashIndex == -1 ? 0 : hashIndex;
+                        that.hashChangeType = 0;
+                        that.historyPromise.resolve();
 
                     } else {
-                        hashIndex = lastIndexOf(that.history, hash);
+                        that.historyPromise.then(function () {
 
-                        if (hashIndex == -1) {
-                            //that.forward(hash);
-
-                        } else {
-                            //that.back(hash);
-                        }
+                            hashIndex = lastIndexOf(that.history, hash);
+                            if (hashIndex == -1) {
+                                that.forward(hash);
+                            } else {
+                                that.back(hash);
+                            }
+                            return that.queue;
+                        });
                     }
-
-                    console.log(that.history);
-
-                    var index = lastIndexOf(that._history, hash),
-                        isForward = (that._skipRecordHistory || index == -1) && !that.isHistoryBack;
-
-                    if (that._skipRecordHistory !== true) {
-                        if (index == -1) {
-                            that.isHistoryBack ? that._history.splice(that._historyCursor, 0, hash) : (that._history.push(hash), that._historyCursor++);
-                        } else {
-                            that._history.length = index + 1;
-                            that._historyCursor = index;
-                        }
-                    } else
-                        that._skipRecordHistory = false;
-
-                    if (that.skip == 0) {
-                        isForward ? that.forward(hash) : that.back(hash);
-
-                    } else if (that.skip > 0)
-                        that.skip--;
-                    else
-                        that.skip = 0;
-
-                    that.isHistoryBack = false;
-
-                    if (that.historyGoUrl && location.hash != that.historyGoUrl) {
-                        that.skip++;
-                        location.hash = that.historyGoUrl;
-                        that.historyGoUrl = null;
-                    }
-
-                    //window.name = JSON.stringify(that._history);
                 });
-
-            }], that.get, that);
+            });
 
             $(window).on('load', function () {
                 if (!location.hash) location.hash = '/';
             });
         },
 
-        _queue: null,
-
-        queue: function (args, fn, context) {
-            var queue = this._queue;
-
-            if (typeof args == 'function') context = fn, fn = args, args = undefined;
-
-            queue.append({
-                context: context,
-                fn: fn,
-                args: args
-            });
-
-            if (queue.length == 1)
-                fn.apply(context, args);
-        },
-
-        turning: function () {
-            var queue = this._queue;
-
-            if (queue.length) {
-                queue.shift();
-                if (queue.length) {
-                    queue = queue.first();
-                    queue.fn.apply(queue.context, queue.args);
-                }
-            }
-        },
-
-        _toggle: function (route, duration, toggleAnim, type, callback) {
+        _toggle: function (route, options, callback) {
 
             var that = this,
                 currentActivity = that._currentActivity,
-                url = route.url;
+                url = route.url,
+                isOpen = options.isForward,
+                duration = options.duration || 300;
 
-            if (duration == null || duration == undefined) duration = 300;
-
-            if (url != standardizeHash(location.hash) && that._queue.length == 1) {
-                var args = that._queue.first().args;
-                if (args && args[0] === url) that.navigate(url);
-            }
+            that.navigate(url, isOpen);
 
             if (currentActivity.path == route.path) {
                 checkQueryString(currentActivity, route);
-                that.turning();
+                that.queue.resolve();
                 return;
             }
 
@@ -390,9 +331,8 @@
                     activity.trigger('Appear');
                 });
 
-                var isOpen = type == 'open',
-                    ease = type == 'open' ? 'ease-out' : 'ease-out',
-                    anims = getToggleAnimation(isOpen, currentActivity, activity, toggleAnim),
+                var ease = isOpen ? 'ease-out' : 'ease-out',
+                    anims = getToggleAnimation(isOpen, currentActivity, activity, options.toggleAnim),
                     anim;
 
                 if (isOpen) {
@@ -408,7 +348,7 @@
                     clearTimeout(finishTimer);
                     callback && callback(activity);
                     activity.finishEnterAnimation();
-                    that.turning();
+                    that.queue.resolve();
                 }
                 var finishTimer = setTimeout(finish, duration + 100);
 
@@ -426,57 +366,71 @@
         },
 
         //改变当前hash但不触发viewchange
-        navigate: function (url) {
-            var that = this,
-                index = lastIndexOf(that._history, url);
+        navigate: function (url, isForward) {
+            var that = this;
 
-            that.skip++;
+            that.historyPromise.then(function () {
+                var index,
+                    hashChanged = url !== standardizeHash(location.hash);
 
-            if (index == -1) {
-                that._history.splice(that._historyCursor + 1, 0, url);
-                that._history.length = that._historyCursor + 2;
-                that._historyCursor++;
-                that._skipRecordHistory = true;
+                if (isForward) {
+                    that.hashChangeType = hashChanged ? 1 : 0;
+                    that.history.push(url);
+                    location.hash = url;
 
-                location.hash = url;
+                } else {
+                    index = lastIndexOf(that.history, url);
+                    that.hashChangeType = hashChanged ? -1 : 0;
 
-            } else {
-                if (index != that._historyCursor) {
-                    that.historyGoUrl = url;
-                    history.go(index - that._historyCursor);
+                    if (index == -1) {
+                        that.history.length = 0;
+                        that.history.push(url);
+                        location.hash = url;
+
+                    } else {
+                        var go = index + 1 - that.history.length;
+
+                        hashChanged && go && history.go(go);
+                        that.history.length = index + 1;
+                    }
                 }
-                that._history.length = index + 1;
-                that._historyCursor = index;
-            }
+                return hashChanged ? this : null;
+            });
+
         },
 
-        forward: function (url, duration, toggleAnim) {
+        forward: function (url, options) {
+
             var route = this.route.match(url);
             if (route) {
-                this.queue([route.url], function () {
+                this.queue.then(function () {
                     var currentActivity = this._currentActivity;
+                    (options || (options = {})).isForward = true;
 
-                    this._toggle(route, duration, toggleAnim, 'open', function () {
+                    this._toggle(route, options, function () {
                         currentActivity.trigger('Pause');
                     });
+
+                    return this.queue;
                 }, this);
             }
         },
 
-        back: function (url, duration, toggleAnim) {
+        back: function (url, options) {
             var route = this.route.match(url);
             if (route) {
-                this.queue([route.url], function () {
+                this.queue.then(function () {
                     var that = this,
                         currentActivity = that._currentActivity;
 
-                    if (typeof duration === 'string') {
-                        toggleAnim = duration;
-                        duration = null;
-                    }
-                    that._toggle(route, duration, toggleAnim, 'close', function () {
+                    (options || (options = {})).isForward = false;
+
+                    that._toggle(route, options, function () {
                         currentActivity.destroy();
                     });
+
+                    return this.queue;
+
                 }, this);
             }
         }
