@@ -1,8 +1,8 @@
 ﻿.has_status_bar header { border-top-color: #46abef; }
 .has_status_bar .menu_user { padding-top: 20px; box-sizing: content-box; }
-.has_status_bar .citylistwrap { top: 67px; }
-header { background: #46abef; height: 47px; line-height: 47px; }
-.footer { position: absolute; bottom: 0px; width: 100%; height: 49px; border-top: 1px solid #ccc; background: #fff; z-index: 140; display: -webkit-box; text-align: center; color: #666; }
+.has_status_bar .citylistwrap { top: 64px; }
+header { background: #46abef; height: 44px; line-height: 44px; }
+.footer { position: absolute; bottom: 0px; width: 100%; height: 47px; border-top: 1px solid #ccc; background: #fff; z-index: 140; display: -webkit-box; text-align: center; color: #666; }
 .footer li { width: 0px; -webkit-box-flex: 1; font-size: .8em; }
 .footer li:before { display: block; background: url(site.png) no-repeat 0px -30px; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 0px auto; }
 .footer li.curr { color: #46abef; }
@@ -17,18 +17,18 @@ header { background: #46abef; height: 47px; line-height: 47px; }
 .head_search_btn { min-width: 60px; position: absolute; right: 0px; top: 0px; }
 .head_search_btn .btn_small { background: #74c0f3; height: 30px; line-height: 31px; color: #fff; font-size: 14px; display: block; margin: 9px 6px 0 6px; border-radius: 4px; padding: 0 10px; }
 
-.main { top: 47px; background: #eee; padding-top: .1px; }
+.main { top: 44px; background: #eee; padding-top: .1px; }
 
 .recommend_list { padding-bottom: 10px; }
 .recommend_item { width: 96%; margin: 10px 2% 0 2%; position: relative; }
-.recommend_item img { display: block; width: 100%; margin: 0; min-height: 100px; border-radius: 4px; }
+.recommend_item img { display: block; width: 100%; margin: 0; min-height: 100px; border-radius: 4px; max-height: 260px; }
 .recommend_name { position: absolute; bottom: 10px; left: 15px; color: #fff; font-size: 1.2em; font-weight: bold; }
 .recommend_fav { position: absolute; right: 10px; top: 10px; color: #fff; }
 .recommend_fav:before, .destfav:before { display: inline-block; background: url(site.png) no-repeat -120px -60px; content: ''; width: 25px; height: 25px; background-size: 320px auto; vertical-align: -4px; }
 
 .fav_current:before { background-position-x: -150px; }
 
-.home .main { bottom: 50px; }
+.home .main { bottom: 47px; }
 .home .slider { margin-top: 50px; }
 
 .slider-pre, .slider-next { background: rgba(0,0,0,.5) url(site.png) no-repeat -30px 5px; background-size: 320px auto; width: 30px; height: 40px; }
@@ -100,6 +100,13 @@ header { background: #46abef; height: 47px; line-height: 47px; }
 .radio.checked:before { background-position-x: -210px; }
 
 .txt_comment { width: 100%; border: 0px; padding: 6px; box-sizing: border-box; height: 200px; }
+.comment_pic { }
+.comment_pic li { float: left; width: 96px; height: 96px; margin-left: 8px; margin-top: 10px; border: 1px solid #ddd; background: #fff; }
+.comment_pic ul > :last-child { position: relative; }
+.comment_pic ul > li img { width: 100%; height: 100%; display: block; }
+.comment_pic ul > :last-child input { position: absolute; opacity: 0; width: 100%; height: 100%; top: 0; left: 0; }
+.comment_pic ul > :last-child:before, .comment_pic ul > :last-child:after { background: #eee; position: absolute; content: ''; display: block; width: 6px; height: 60px; left: 50%; top: 50%; margin: -30px 0 0 -3px; }
+.comment_pic ul > :last-child:before { width: 60px; height: 6px; margin: -3px 0 0 -30px; }
 
 .quan_item { background: #fff; border-bottom: 1px solid #dadada; border-top: 1px solid #dadada; margin-bottom: 5px; }
 .quan_item:first-child { border-top: 0; }
@@ -118,6 +125,11 @@ header { background: #46abef; height: 47px; line-height: 47px; }
 .quan_con + .quan_reply:after { display: block; content: ''; position: absolute; width: 20px; height: 10px; background: #fafafa; top: 0px; left: 6px; }
 
 .quan_reply { margin-bottom: 0px; border-bottom: 0px; background: #fafafa; position: relative; }
+.quan_images { padding: 0 10px; overflow: hidden; }
+.quan_images li { float: left; margin-left: 10px; margin-bottom: 10px; width: 68px; height: 68px; }
+.quan_images li.quan_images_1 { float: none; width: 100%; height: 100%; margin-left: 0px; }
+.quan_images :not(.quan_images_1) img { width: 100%; height: 100%; }
+.quan_images_1 img { width: auto; max-width: 100%; height: auto; }
 
 .reply { position: absolute; bottom: 0px; right: 0px; left: 0px; height: 49px; border-top: 1px solid #ccc; background: #fff; display: -webkit-box; }
 .reply input { -webkit-box-flex: 1; display: block; margin: 8px; border: 1px solid #ccc; border-radius: 4px; padding-left: 5px; height: 28px; }
@@ -159,3 +171,5 @@ header { background: #46abef; height: 47px; line-height: 47px; }
 
 .citylistwrap.show { background: rgba(0,0,0,.5); }
 .citylistwrap.show .city_list { -webkit-transform: translate(0%,0%); }
+
+.picviewer { position: absolute; top: 0; left: 0; z-index: 1000; bottom: 0; right: 0; background: #000; }

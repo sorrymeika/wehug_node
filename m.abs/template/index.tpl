@@ -61,7 +61,7 @@
             </div>
             <ul class="home_ad">
                 <li sn-repeat="item in ads">
-                    <img sn-binding="src:item.Src" sn-on="tap:open:item.Url" />
+                    <img sn-binding="src:item.Src" sn-on="tap:openUrl:item.Url" />
                 </li>
             </ul>
         </div>

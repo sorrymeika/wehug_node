@@ -80,6 +80,10 @@ define(function (require, exports, module) {
                 check: false,
                 checkData: false,
                 success: function (res) {
+                    if (res.closeNumber) {
+                        alert("您有" + res.closeNumber + '张优惠券马上就要过期啦，\r尽快使用哦');
+                    }
+
                     if (!res || !res.data || res.data.length == 0) {
                         self.model.set("data", []);
                         self.model.set("data1", []);

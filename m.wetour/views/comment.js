@@ -18,13 +18,37 @@ define(function (require, exports, module) {
                     sl.tip('请填写评论');
 
                 } else {
+                    var images = self.model.get('images').data;
                     self.loading.setParam({
                         UserID: self.user.ID,
                         Auth: self.user.Auth,
-                        Content: self.model.data.content
-                    })
-                    .load();
+                        Content: self.model.data.content,
+                        Pictures: images && JSON.stringify(images)
+                    }).load();
                 }
+            },
+            'change input[type="file"]': function (e) {
+                var self = this;
+
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext("2d");
+
+                var fr = new FileReader();
+                fr.onload = function (evt) {
+                    var img = new Image();
+                    img.onload = function () {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0, img.width, img.height);
+                        var dataURL = canvas.toDataURL('image/jpeg');
+                    }
+                    //img.src = evt.target.result;
+
+                    self.model.get('images').add({
+                        Src: evt.target.result
+                    })
+                };
+                fr.readAsDataURL(e.target.files[0]);
             }
         },
         swipeRightBackAction: '/',
@@ -38,7 +62,9 @@ define(function (require, exports, module) {
 
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
-                title: '评论'
+                title: '评论',
+                showPic: true,
+                images: []
             });
 
             this.loading = new Loading({

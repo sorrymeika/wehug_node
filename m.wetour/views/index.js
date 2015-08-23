@@ -87,37 +87,58 @@
                 this.$('.citylistwrap').trigger('tap');
 
                 this.setResult('global_area_change', id);
+            },
+            'tap .js_picviewer': function (e) {
+                $(e.currentTarget).hide();
             }
         },
 
         swipeRightForwardAction: '/menu',
 
         className: 'home',
-        titles: ['Let\'s go', '目的地', '活动', '驴友圈'],
+        titles: ['来次go', '目的地', '活动', '驴友圈'],
 
         onCreate: function () {
             var self = this;
             var areaId = util.store('global_area');
             var city_list = [{
                 city_id: 1,
-                city_name: '北京'
+                city_name: '北京',
+                code: '101010100'
             }, {
                 city_id: 2,
-                city_name: '厦门'
+                city_name: '厦门',
+                code: '101230201'
             }, {
                 city_id: 3,
-                city_name: '江门'
+                city_name: '江门',
+                code: '101281101'
             }];
 
+            util.style('.js_destination .slider img{max-height:' + (window.innerHeight - 64 - 47) + 'px}')
+
+            self.picView = new Slider(this.$('.js_picviewer'), {
+                itemTemplate: '<img src="<%=Src%>">',
+                data: []
+            });
+
+            var city = util.first(city_list, function (item) {
+                return item.city_id == areaId
+            });
             this.model = new model.ViewModel(this.$el, {
                 menu: 'head_menu',
                 titleClass: 'head_title',
-                title: 'Let\'s go',
-                city: util.first(city_list, function (item) {
-                    return item.city_id == areaId
-                }).city_name,
-                city_list: city_list
+                title: '来次go',
+                city: city.city_name,
+                city_list: city_list,
+                showPic: function (e, pictures, index) {
+                    self.$('.js_picviewer').show();
+                    self.picView.set(pictures.data);
+                    self.picView.index(index);
+                }
             });
+
+            self.getWeather(city.code);
 
             this.$citylist = this.$('.citylistwrap');
             this.listenTo(this.$citylist, $.fx.transitionEnd, function () {
@@ -190,10 +211,10 @@
             });
 
             self.onResult('global_area_change', function (e, id) {
-                self.model.set('city', util.first(city_list, function (item) {
+                var city = util.first(city_list, function (item) {
                     return item.city_id == id
-                }).city_name);
-
+                });
+                self.model.set('city', city.city_name);
 
                 self.loading.forEach(function (item) {
                     item.setParam({
@@ -201,7 +222,19 @@
                     }).reload();
                 })
 
+                self.getWeather(city.code);
             });
+        },
+
+        getWeather: function (code) {
+            var self = this;
+            $.get((sl.isDebug ? '' : 'http://m.weather.com.cn') + '/mweather/' + code + '.shtml', function (res) {
+                var match = res.match(/<table width="98%" border="0">\s*<tr>\s*<td width="20%"><img src="(.+?)" width="70" alt=".*?"><\/td>\s*<td width="50%" class="wd">(.+?)<\/td>/m);
+
+                if (match) {
+                    self.model.set('weather', ' <img src="' + match[1] + '" style=" width: 30px; height: 30px; background: none; vertical-align: -10px;"/> ' + match[2] + '');
+                }
+            })
         },
 
         onShow: function () {

@@ -5,4 +5,12 @@
 </header>
 <div class="main">
     <textarea class="txt_comment" sn-model="content" placeholder="写评论..."></textarea>
+    <div class="comment_pic" sn-binding="display:showPic" style="display:none">
+        <ul>
+            <li sn-repeat="item in images">
+                <img sn-binding="src:item.Src" />
+            </li>
+            <li><input type="file" /></li>
+        </ul>
+    </div>
 </div>

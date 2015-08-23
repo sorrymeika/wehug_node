@@ -809,7 +809,8 @@
         syncIndex: function () {
             for (var i = this.list.length - 1; i >= 0; i--) {
                 var item = this.list[i];
-                item.model._syncView('^' + this.template.snIndexAlias, i, $(item.el));
+                var alias = this.template.snIndexAlias;
+                item.model._syncView('^' + alias, i, $(item.el).attr('sn-index-' + alias, i));
             }
         },
 
@@ -1091,6 +1092,7 @@
 
         handleEvent: function (e) {
             var target = e.currentTarget;
+            var $target = $(target);
             var event = e.type;
             var eventid = target.getAttribute('sn-on');
             var events = this.finder.events[eventid];
@@ -1115,12 +1117,16 @@
                         if (option.repeat) {
                             var names = arg.split('.');
                             var name = names.shift();
+                            var $closest;
                             if (option.repeat.alias == name) {
                                 model = closestModel(target, option.repeat.collectionName);
                                 arg = names;
                             } else if (option.repeat.modelAlias[name]) {
                                 model = closestModel(target, option.repeat.modelAlias[name]);
                                 arg = names;
+                            } else if ($closest = $target.closest('[sn-index-' + arg + ']')) {
+                                args.push($closest.attr('sn-index-' + arg));
+                                continue;
                             }
                         }
                         args.push(model.get(arg));

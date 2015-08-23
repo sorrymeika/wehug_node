@@ -32,7 +32,7 @@
                 var id = e.currentTarget.getAttribute('data-id');
                 var self = this;
 
-                $.post('/api/manage/modify_quan', {
+                $.post('/api/manage/modify_destination_comment', {
                     id: id,
                     status: $(e.currentTarget).hasClass('js_grid_resolve') ? 1 : 2
 

@@ -241,10 +241,15 @@
             var hash = location.hash || '/';
             var $el = that.$el;
 
+            that.queue = new Promise();
+
             if (delay) {
                 setTimeout(function () {
                     $el.appendTo(document.body);
+                    delay.resolve();
                 }, delay);
+
+                delay = new Promise();
             } else {
                 $el.appendTo(document.body);
             }
@@ -257,7 +262,6 @@
 
             that.hash = hash = standardizeHash(hash);
 
-            that.queue = new Promise();
             that.historyPromise = new Promise().resolve();
 
             that.get(hash, function (activity) {
@@ -268,7 +272,7 @@
                 that._currentActivity = activity;
 
                 activity.$el.transform(require('anim/' + activity.toggleAnim).openEnterAnimationTo);
-                activity.then(function () {
+                activity.then(delay).then(function () {
                     activity.$el.addClass('active');
                     activity.trigger('Appear').trigger('Show');
 

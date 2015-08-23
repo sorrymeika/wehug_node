@@ -89,6 +89,9 @@
                 msg: 0,
                 open: function () {
                     bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
+                },
+                openUrl: function (e, url) {
+                    bridge.open(url || 'http://m.abs.cn');
                 }
             });
 

@@ -19,25 +19,18 @@
 
         var that = this,
             data = options.data,
-            items = [],
+            itemsHtml = '',
             item,
             $slider;
 
         if (typeof that.itemTemplate === 'string') that.itemTemplate = _.template(that.itemTemplate);
         if (typeof that.width == 'string') that.width = parseInt(that.width.replace('%', ''));
 
-        if (!$.isArray(data)) data = [data];
-        that._data = data;
-        that.length = data.length;
 
         if (options.index != undefined) options.index = options.index;
 
-        for (var i = 0, n = data.length; i < n; i++) {
-            items.push(that.render(data[i]));
-        }
-
         ScrollView.call(this, $(that.template({
-            items: items.join(''),
+            items: '',
             navs: ''
         })).appendTo($(el)), options);
 
@@ -46,22 +39,6 @@
         that.touch.on('stop', that.stop, that);
 
         $slider = that.$slider = that.$el.find('.js_slider');
-        that.$items = $slider.children();
-        that.slider = $slider[0];
-
-        //that.index=index== -1?that.length%2==0?that.length/2-1:Math.floor(that.length/2):index;
-        if (that.length < 2) that.loop = false;
-        else if (that.width < 100) that.loop = false;
-
-        var length;
-        if (that.loop) {
-            $slider.prepend(that.$items.eq(that.length - 1).clone());
-            $slider.append(that.$items.eq(0).clone());
-            that.$items = $slider.children();
-            options.index++;
-        } else {
-            length = that.length;
-        }
 
         if (options.imagelazyload) {
             that.bind("Change", function () {
@@ -84,8 +61,7 @@
 
         $(window).on('ortchange', $.proxy(that._adjustWidth, that));
 
-        that._adjustWidth();
-        that.index(options.index);
+        that.set(data);
 
         if (options.autoLoop) {
             that.startAutoLoop();
@@ -94,6 +70,41 @@
 
     $.extend(Slider.prototype, ScrollView.prototype, {
         loop: false,
+
+        set: function (data) {
+            var that = this,
+                itemsHtml = '',
+                $slider,
+                options = that.options;
+
+            if (!$.isArray(data)) data = [data];
+            that._data = data;
+            that.length = data.length;
+
+            for (var i = 0, n = data.length; i < n; i++) {
+                itemsHtml += that.render(data[i]);
+            }
+            $slider = that.$slider.html(itemsHtml);
+            that.$items = $slider.children();
+            that.slider = $slider[0];
+
+            //that.index=index== -1?that.length%2==0?that.length/2-1:Math.floor(that.length/2):index;
+            if (that.length < 2) that.loop = false;
+            else if (that.width < 100) that.loop = false;
+
+            var length;
+            if (that.loop) {
+                $slider.prepend(that.$items.eq(that.length - 1).clone());
+                $slider.append(that.$items.eq(0).clone());
+                that.$items = $slider.children();
+                options.index++;
+            } else {
+                length = that.length;
+            }
+
+            that._adjustWidth();
+            that.index(options.index);
+        },
 
         startAutoLoop: function () {
             var that = this;
@@ -152,7 +163,6 @@
                 this._change();
                 options.index = index;
             }
-
 
             x = index * this.wrapperW;
             this.scrollTo(x, 0, duration);

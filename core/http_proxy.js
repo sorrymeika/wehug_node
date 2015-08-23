@@ -6,6 +6,8 @@ module.exports = function (host, port, replace) {
     return function (request, response) {
         var url = replace ? replace(request.url) : request.url;
 
+        console.log(url);
+
         var options = {
             hostname: host,
             port: port,

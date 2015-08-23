@@ -1,27 +1,27 @@
 ﻿.viewport.applaunch { background: url(launch.jpg) no-repeat; background-size: auto 100%; }
 
-header { background: #d6415c; }
+header { background: #d6415c; height: 44px; line-height: 44px; }
 .has_status_bar header { border-top-color: #d6415c; }
 .footer { position: absolute; bottom: 0px; width: 100%; height: 47px; border-top: .5px solid #ccc; background: #fff; z-index: 1000; display: -webkit-box; text-align: center; color: #666; }
 .footer li { width: 0px; -webkit-box-flex: 1; font-size: .7em; }
-.footer li:before { display: block; background: url(icon.png) no-repeat 0px -30px; content: ''; width: 30px; height: 29px; background-size: 320px auto; margin: 3px auto 0 auto; }
+.footer li:before { display: block; background: url(icon.png) no-repeat 0px -30px; content: ''; width: 30px; height: 29px; background-size: 320px auto; margin: 4px auto 0 auto; }
 .footer li.curr { color: #fff; background-color: #d6415c; }
 .footer li.curr:before { background-position-y: -60px; }
 .footer li:nth-child(2):before { background-position-x: -30px; }
 .footer li:nth-child(3):before { background-position-x: -60px; }
 .footer li:nth-child(4):before { background-position-x: -90px; }
 
-.head_back, .head_menu { width: 60px; height: 47px; z-index: 1000; }
+.head_back, .head_menu { width: 60px; height: 44px; z-index: 1000; }
 .head_back:before, .head_menu:before, .head_msg:before { display: block; background: url(icon.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 7px 0 0 8px; }
 .head_back:before { background-position: -30px 0px; }
-.head_msg { width: 50px; position: absolute; right: 0px; top: 0px; height: 47px; z-index: 1000; }
+.head_msg { width: 50px; position: absolute; right: 0px; top: 0px; height: 4px; z-index: 1000; }
 .head_msg:before { background-position: -60px 0px; }
 .head_msg i { position: absolute; top: 5px; left: 27px; background: #fff; color: #d6415c; border-radius: 8px; height: 14px; font-size: 12px; line-height: 14px; font-weight: normal; padding: 0 4px; }
 
 .head_search_btn { min-width: 60px; position: absolute; right: 0px; top: 0px; }
 .head_search_btn .btn_small { background: #74c0f3; height: 30px; line-height: 31px; color: #fff; font-size: 14px; display: block; margin: 9px 6px 0 6px; border-radius: 4px; padding: 0 10px; }
 
-.main { background: #eeefef; padding-top: .1px; }
+.main { background: #eeefef; padding-top: .1px; top: 40px; }
 .btn_large { height: 40px; line-height: 40px; background-color: #d4003b; font-size: 1.2em; }
 .btn_middle { background-color: #d4003b; height: 35px; line-height: 35px; display: block; border-radius: 4px; color: #fff; padding: 0 5px; }
 
@@ -125,20 +125,20 @@ header { background: #d6415c; }
 .menu_list li { border-bottom: .5px solid #ccc; overflow: hidden; line-height: 50px; }
 .menu_list li:before { margin: 6px 5px 5px 5px; }
 
-.menu_username .btn_mid { background:#d4003b; color:#fff; width: 80px; height: 38px; text-align: center; line-height: 38px; border-radius: 4px; margin-left: 40px;}
+.menu_username .btn_mid { background: #d4003b; color: #fff; width: 80px; height: 38px; text-align: center; line-height: 38px; border-radius: 4px; margin-left: 40px; }
 
 .menu_service li:nth-child(1):before { background-position-x: -160px; }
 .menu_service li:nth-child(2):before { background-position-x: -200px; }
 
 .menu_settings li:nth-child(1):before { background-position-x: -240px; }
 
-.home .main { bottom: 47px; }
+.home .main { bottom: 44px; }
 .home .main.isnotlogin { bottom: 0; }
 .home_my .card { background: #fff; border-radius: 5px; margin: 10px; padding: 20px 10px; color: #000; }
 .home_my .card .level span:last-child { color: #d6415c; }
 .home_my .mobile { margin-top: 6px; margin-bottom: 5px; text-align: center; }
 
-.barcode { height: 60px; display: block; width: 100px; display: -webkit-box; margin: 15px 0 0 6px; }
+.barcode { height: 60px; width: 290px; display: -webkit-box; margin: 15px auto 0 auto; }
 .barcode i, .barcode em { height: 100%; display: block; width: 2px; }
 .barcode i { background: #000; }
 
@@ -169,11 +169,11 @@ header { background: #d6415c; }
 
 .mycard { background: #fff; }
 
-.mycard_hd { display: -webkit-box; margin-top: 2px; text-align: center; }
+.mycard_hd { display: -webkit-box; padding-top: 2px; background:#fff; text-align: center; top: 44px; position: fixed; left: 0; width: 100%; z-index: 1000; }
 .mycard_hd li { -webkit-box-flex: 1; width: 0px; background: #eeefef; color: #666; height: 40px; line-height: 40px; }
 .mycard_hd .curr { background: #d6415c; color: #fff; }
 
-.mycard_con { margin-top: 10px; position: relative; }
+.mycard_con { margin-top: 10px; position: relative; top: 42px; }
 .mycard_con li { height: 95px; margin: 0 0 5px 0; overflow: hidden; position: absolute; top: 0px; left: 1%; background: #f36a39; -webkit-transition: all 300ms ease-out 0ms; opacity: 0; width: 98%; -webkit-transform: scale(.8); }
 .mycard_con li.show { opacity: 1; -webkit-transform: scale(1); }
 .mycard_con li:after, .mycard_con .free:before { background: url(site.png) no-repeat 0px -30px; background-size: 320px auto; position: absolute; right: 0px; bottom: 0px; content: ''; display: block; width: 139px; height: 55px; z-index: 0; }
@@ -208,13 +208,14 @@ header { background: #d6415c; }
 .mypoint_list .points.minus { color: #000; }
 
 .myorder { }
-.myorder > .hd { display: -webkit-box; padding-top: 2px; background: #eeefef; text-align: center; font-size: .9em; position: fixed; width: 100%; }
+.has_status_bar .myorder > .hd { top: 64px; }
+.myorder > .hd { display: -webkit-box; padding-top: 2px; background: #eeefef; text-align: center; font-size: .9em; position: fixed; width: 100%; top: 44px; left: 0px; }
 .myorder > .hd li { -webkit-box-flex: 1; width: 0px; background: #eeefef; color: #666; height: 36px; line-height: 36px; }
 .myorder > .hd li.curr { background: #d6415c; color: #fff; }
 
-.myorder > .con { margin-bottom: 10px; margin-top: 36px; }
+.myorder > .con { margin-bottom: 10px; margin-top: 42px; }
 .myorder .con li { border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; margin-bottom: 10px; background: #fff; }
-.myorder .con li .hd { border-bottom: .5px solid #ccc; margin: 0 5px; height: 30px; line-height: 30px; font-size: .9em; }
+.myorder .con li .hd { border-bottom: .5px solid #ccc; margin: 0 5px; height: 30px; line-height: 30px; font-size: .9em; overflow: hidden; }
 .myorder .con li .hd b { font-weight: normal; }
 .myorder .con li .hd:before { content: ''; width: 30px; height: 30px; display: inline-block; background: #fff url(icon.png) no-repeat -120px -90px; background-size: 320px auto; vertical-align: -10px; margin: 0 0 0 6px; }
 .myorder .con li.type2 .hd:before { background-position-x: -60px; }
@@ -232,8 +233,8 @@ header { background: #d6415c; }
 .myorder .con li .bd h4 { font-size: .7em; font-weight: normal; margin-top: 2px; }
 .myorder .con .priceinfo { margin: 20px 10px 0 0; text-align: right; }
 .myorder .con .priceinfo span { display: block; }
-.myorder .con .priceinfo .price { font-size: 1em; color: #d6415c; }
-.myorder .con .priceinfo .qty { color: #999; }
+.myorder .con .priceinfo .price { font-size: 1em; color: #000; }
+.myorder .con .priceinfo .qty { color: #999; font-size: .9em; }
 
 .myorder .con li.from1 .hd:before { background-position-x: -150px; }
 .myorder .con li .ft { height: 30px; line-height: 30px; padding-left: 6px; font-size: .9em; }
@@ -281,6 +282,8 @@ header { background: #d6415c; }
 
 .mypoint .my_nodata .icon:before { background-position-x: -75px; }
 .mycard .my_nodata .icon:before { background-position-x: -150px; }
+.mycard .my_nodata { margin-top: 90px; }
+.myorder .my_nodata { margin-top: 90px; }
 .mymonth .my_nodata .icon:before { background-position-x: -225px; }
 
 .guide_hd { padding: 10px; line-height: 1.5; font-size: .9em; }

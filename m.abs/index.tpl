@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="api-base-url" content="@html(debug?"http://192.168.0.104:5559":"http://m.abs.cn:7788")" />
@@ -47,8 +47,8 @@
         .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top; background-size:  auto 100%; }
         .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top; background-size: auto 100%; }
         @@media screen and (max-height:480px) {
-            .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top; background-size: 100% auto; }
-            .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top; background-size: 100% auto; }
+            .viewport.applaunch { background: url(images/launch_480.jpg) no-repeat center top; }
+            .viewport.applaunch1 { background: url(images/launch101_480.jpg) no-repeat center top;}
         }
     </style>
 </head>
@@ -70,7 +70,7 @@
             sl.isDebug=@debug;
             sl.buildVersion=@(Date.now());
             sl.appVersion='1.0.0';
-            new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(util.isInApp?2000:2000);
+            new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(util.isInApp?2000:0);
         });
     </script>
 </body>

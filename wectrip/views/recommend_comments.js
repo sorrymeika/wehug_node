@@ -32,7 +32,7 @@
                 var id = e.currentTarget.getAttribute('data-id');
                 var self = this;
 
-                $.post('/api/manage/modify_quan', {
+                $.post('/api/manage/modify_recommend_comment', {
                     id: id,
                     status: $(e.currentTarget).hasClass('js_grid_resolve') ? 1 : 2
 
@@ -62,7 +62,7 @@
             this.grid = new Grid({
                 multiSelect: true,
                 search: {
-                    url: '/api/destination/comment_list?areaid=' + util.store('global_area'),
+                    url: '/api/recommend/comment_list?areaid=' + util.store('global_area'),
                     type: 'GET',
                     beforeSend: function () {
                     },

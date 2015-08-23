@@ -1,7 +1,7 @@
 <header>
     <div sn-binding="class:menu"></div>
     <div sn-binding="html:title,class:titleClass"></div>
-    <div class="head_city"><text sn-binding="html:city"></text><i></i></div>
+    <div class="head_city"><text sn-binding="html:city"></text><span sn-binding="html:weather"></span><i></i></div>
     <div class="head_search_btn"><b class="btn_small js_comment" style="display:none">发表评论</b></div>
 </header>
 <div class="main" data-index="0">
@@ -25,7 +25,7 @@
         </ul>
     </div>
 </div>
-<div class="main" style="display:none" data-index="1">
+<div class="main js_destination" style="display:none" data-index="1">
 </div>
 <div class="main" style="display:none" data-index="2">
     <ul class="recommend_list activity_list">
@@ -53,6 +53,11 @@
                 </div>
             </div>
             <div class="quan_con" sn-binding="html:item.Content"></div>
+            <ul class="quan_images">
+                <li sn-repeat="pic,i in item.Pictures" sn-binding="class:item.Pictures|length|format:'quan_images_{0}'">
+                    <img sn-binding="src:pic.Src" sn-on="tap:showPic:item.Pictures:i" />
+                </li>
+            </ul>
             <div class="quan_item quan_reply" sn-repeat="reply in item.Reply" sn-binding="data-id:item.ID,data-at:reply.NickName|or:reply.Mobile">
                 <div class="quan_user">
                     <img sn-binding="src:reply.Avatars" />
@@ -68,6 +73,9 @@
             </div>
         </li>
     </ul>
+</div>
+
+<div class="picviewer js_picviewer" style="display:none">
 </div>
 
 <ul class="footer">

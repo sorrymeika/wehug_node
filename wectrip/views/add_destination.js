@@ -35,7 +35,10 @@
                     click: function () {
                         form.reset();
                     }
-                }]
+                }],
+                user: {
+                    areaId: util.store('global_area')
+                }
             });
 
             var form = new Form({
@@ -48,8 +51,7 @@
                 enctype: '',
                 fields: [{
                     field: 'areaId',
-                    type: 'hidden',
-                    value: util.store('global_area')
+                    type: 'hidden'
                 }, {
                     label: '目的地名称',
                     field: 'name',
