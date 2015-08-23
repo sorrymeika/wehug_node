@@ -43,9 +43,22 @@
             <script src="@(webresource)@(key).js"></script>
         }
     }
+    <style>
+        .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top; background-size:  auto 100%; }
+        .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top; background-size: auto 100%; }
+        @@media screen and (max-height:480px) {
+            .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top; background-size: 100% auto; }
+            .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top; background-size: 100% auto; }
+        }
+    </style>
 </head>
 <body>
+    <div class="viewport applaunch"></div>
     <script>
+        if (Date.now()>=1443628800000){
+            var viewport=document.querySelector('.viewport');
+            viewport.className="viewport applaunch1";
+        }
         seajs.config({
             alias: {
                 "$": "zepto",
@@ -53,10 +66,11 @@
                 'activity': 'core/activity'
             }
         });
-        seajs.use(['$','core/app'],function($,App) {
+        seajs.use(['$','util','core/app'],function($,util,App) {
             sl.isDebug=@debug;
             sl.buildVersion=@(Date.now());
-            new App().mapRoute(@html(JSON.stringify(routes)),@debug).start();
+            sl.appVersion='1.0.0';
+            new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(util.isInApp?2000:2000);
         });
     </script>
 </body>

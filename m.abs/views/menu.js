@@ -30,31 +30,29 @@
             }
 
             this.model = new model.ViewModel(this.$el, {
-                memberUrl: '/member'
             });
+            this.onShow();
+        },
 
-            var user = localStorage.getItem('user');
+        onShow: function () {
+            var self = this;
+
+            var user = util.store('user');
             if (user) {
-                this.user = user = JSON.parse(user);
+                this.user = user;
                 this.model.set({
+                    memberUrl: '/member',
                     logoutOrLogin: '退出',
                     user: user
                 });
 
             } else {
                 this.model.set({
+                    memberUrl: '/login',
                     logoutOrLogin: '登录',
-                    user: {
-                        NickName: '未登录'
-                    }
+                    user: null
                 });
             }
-        },
-
-        onShow: function () {
-            var self = this;
-            if (self.user)
-                self.user.Avatars && self.model.set('user.Avatars', self.user.Avatars + '?v=' + localStorage.getItem('avatars_ver'));
         },
 
         onDestory: function () {

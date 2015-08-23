@@ -68,7 +68,7 @@
             var prompt = this._prompt;
 
             if (!prompt) {
-                this._prompt = prompt = this.createDialog({
+                this._prompt = prompt = this.createDialog('prompt', {
                     top: '25%',
                     content: '<input type="text" class="prompt-text" />',
                     buttons: [{
@@ -92,10 +92,36 @@
             prompt.ok = $.proxy(fn, this);
         },
 
-        createDialog: function (options) {
+        confirm: function (title, content, fn) {
+            if (typeof content === 'function') fn = content, content = title, title = '提示';
+            var confirm = this._confirm;
+
+            if (!confirm) {
+                this._confirm = confirm = this.createDialog("confirm", {
+                    buttons: [{
+                        text: '取消',
+                        click: function () {
+                            this.hide();
+                        }
+                    }, {
+                        text: '确认',
+                        click: function () {
+                            this.hide();
+                            this.ok && this.ok();
+                        }
+                    }]
+                });
+            }
+
+            confirm.title(title).show();
+            confirm.content(content);
+            confirm.ok = $.proxy(fn, this);
+        },
+
+        createDialog: function (name, options) {
             var that = this;
             var dialog = new Dialog(options);
-            that.bindQueryAction('dialog', dialog, {
+            that.bindQueryAction(name, dialog, {
                 show: 'show',
                 "": 'hide'
             });

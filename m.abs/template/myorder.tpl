@@ -17,7 +17,7 @@
                 <span sn-binding="html:item.PUR_CODE|format:'订单号：{0}'"></span>
                 <span sn-binding="html:item.PUR_DT|date"></span>
             </div>
-            <div class="bd" sn-repeat="prd in item.Children">
+            <div class="bd" sn-repeat="prd in item.Children" sn-on="tap:openPrd:prd.Url">
                 <img sn-binding="src:prd.WPP_LIST_PIC" />
                 <div class="con">
                     <h2 sn-binding="html:prd.PRD_NAME"></h2>

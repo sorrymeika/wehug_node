@@ -135,7 +135,7 @@
                 this.route.queries[key] = val || '';
 
             var queries = $.param(this.route.queries);
-            this.application.to(this.route.path + (queries ? '?' + queries : ''));
+            location.hash = this.route.path + (queries ? '?' + queries : '');
         },
 
         _queryActions: {},

@@ -250,6 +250,7 @@ var parse = function (templateStr) {
 
             } else {
                 str += '@';
+                i++;
             }
 
         } else {

@@ -50,7 +50,12 @@ define(function (require, exports, module) {
                     }
                 },
                 open: function () {
-                    bridge.open('http://m.abs.cn');
+                    bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
+                },
+                openPrd: function (e, url) {
+                    if (url) {
+                        bridge.open(url);
+                    }
                 }
             });
 

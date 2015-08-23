@@ -9,7 +9,7 @@
         <div class="hd">积分记录</div>
         <ul class="mypoint_list">
             <li sn-repeat="item in data">
-                <p class="from" sn-binding="html:item.CNL_DESC"></p>
+                <p class="from" sn-binding="html:item.HPT_PIT_ID|equal:1:item.CNL_DESC:item.POT_DESC"></p>
                 <p class="date" sn-binding="html:item.HPT_DT|date:'yyyy.MM.dd'"></p>
                 <p class="points" sn-binding="html:item.HPT_POINT_AMOUNT|round|eval:'$0>0?\'+\'+$0:$0',class:item.HPT_POINT_AMOUNT|lt:0|equal:true:'minus':''"></p>
             </li>

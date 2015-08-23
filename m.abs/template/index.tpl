@@ -14,9 +14,9 @@
         <h4>LIFE STARTS HERE</h4>
     </div>
     <div class="launch">
-        <img src="images/launch0.png" />
-        <img src="images/launch1.png" class="launch_hide" />
-        <img src="images/launch2.png" class="launch_hide" />
+        <img src="images/launch0.jpg" />
+        <img src="images/launch1.jpg" class="launch_hide" />
+        <img src="images/launch2.jpg" class="launch_hide" />
     </div>
 </div>
 <div sn-binding="display:isLogin">
@@ -78,7 +78,7 @@
             <div class="card">
                 <div class="level">
                     <span sn-binding="html:currentLevel"></span>
-                    <span sn-binding="html:point|format:'({0}/{1})':levelAmounts"></span>
+                    <span sn-binding="html:cardAmounts"></span>
                 </div>
                 <div class="point" sn-binding="html:id|format:'ID:{0}'"></div>
                 <div class="barcode" sn-binding="html:barcode">
@@ -115,3 +115,6 @@
     <li>附近门店</li>
     <li>我</li>
 </ul>
+<div class="open_msg" style="display:none">
+    <div class="msg_bd" sn-binding="html:message"></div>
+</div>

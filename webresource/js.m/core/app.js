@@ -49,7 +49,6 @@
     var adjustActivity = function (currentActivity, activity) {
         currentActivity.startExit();
         currentActivity.$el.siblings('.view:not([data-path="' + activity.path + '"])').hide();
-
         if (activity.el.parentNode === null) activity.$el.appendTo(currentActivity.application.el);
     };
 
@@ -89,6 +88,7 @@
 
                     that.mask.show();
                     that.get(action, function (activity) {
+                        that.needRemove = activity.el.parentNode === null;
                         adjustActivity(currentActivity, activity);
 
                         that.isSwipeOpen = isOpen;
@@ -137,7 +137,7 @@
                             if (that.isCancelSwipe) {
                                 currentActivity.isPrepareExitAnimation = false;
                                 currentActivity.$el.addClass('active');
-                                activity.$el.remove();
+                                that.needRemove && activity.$el.remove();
                                 that.mask.hide();
                             } else {
 
@@ -197,9 +197,6 @@
             }
         },
 
-        _historyCursor: -1,
-        isHistoryBack: false,
-
         el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div><canvas class="imagecanvas"></canvas><input type="text" style="position:absolute;height:20px;top: -20px;left:0px;box-sizing: border-box;">',
 
         backGesture: true,
@@ -213,8 +210,6 @@
             that.el = that.$el[1];
             that.canvas = that.$el[2];
             that.$input = that.$el[3];
-            that._history = [];//window.name && window.name[0] == '[' && window.name[window.name.length - 1] == ']' ? JSON.parse(window.name) : [];
-
             that.history = [];
 
             if (that.backGesture) bindBackGesture(this);
@@ -235,17 +230,25 @@
                     }
 
                 } else {
-                    that.back();
+                    that.back(that.history[that.history.length - 1]);
                 }
             });
         },
 
-        start: function () {
+        start: function (delay) {
             var that = this;
             var $win = $(window);
             var hash = location.hash || '/';
+            var $el = that.$el;
 
-            that.$el.appendTo(document.body);
+            if (delay) {
+                setTimeout(function () {
+                    $el.appendTo(document.body);
+                }, delay);
+            } else {
+                $el.appendTo(document.body);
+            }
+
             that.$el = $(that.el);
 
             if (bridge.hasStatusBar) {
@@ -263,8 +266,6 @@
 
                 activity.$el.appendTo(that.el);
                 that._currentActivity = activity;
-                that._history.push(activity.url);
-                that._historyCursor++;
 
                 activity.$el.transform(require('anim/' + activity.toggleAnim).openEnterAnimationTo);
                 activity.then(function () {
@@ -297,9 +298,7 @@
                 });
             });
 
-            $(window).on('load', function () {
-                if (!location.hash) location.hash = '/';
-            });
+            $win.one('load', function () { if (!location.hash) location.hash = '/'; });
         },
 
         _toggle: function (route, options, callback) {
@@ -308,7 +307,7 @@
                 currentActivity = that._currentActivity,
                 url = route.url,
                 isOpen = options.isForward,
-                duration = options.duration || 300;
+                duration = options.duration || 400;
 
             that.navigate(url, isOpen);
 
@@ -327,7 +326,7 @@
                     activity.trigger('Appear');
                 });
 
-                var ease = isOpen ? 'ease-out' : 'ease-out',
+                var ease = isOpen ? 'cubic-bezier(.34,.86,.54,.99)' : 'cubic-bezier(.34,.86,.54,.99)',
                     anims = getToggleAnimation(isOpen, currentActivity, activity, options.toggleAnim),
                     anim;
 
@@ -337,23 +336,18 @@
                 }
                 route.referrer = currentActivity.url;
 
-                var finishExecuted = false;
-                var finish = function () {
-                    if (finishExecuted) return;
-                    finishExecuted = true;
-                    clearTimeout(finishTimer);
-                    callback && callback(activity);
+                setTimeout(function () {
                     activity.finishEnterAnimation();
+                    callback && callback(activity);
                     that.queue.resolve();
-                }
-                var finishTimer = setTimeout(finish, duration + 100);
+                }, duration + 48);
 
                 for (var i = 0, n = anims.length; i < n; i++) {
                     anim = anims[i];
                     anim.ease = ease;
                     anim.duration = duration;
 
-                    anim.el.css(animation.transform(anim.start).css).animate(anim.css, duration, ease, finish);
+                    anim.el.css(animation.transform(anim.start).css).animate(anim.css, duration, ease);
                 }
 
                 //anim.finish = finish;
@@ -373,7 +367,7 @@
 
                 if (isForward) {
                     that.history.push(url);
-                    location.hash = url;
+                    hashChanged && (location.hash = url);
 
                 } else {
                     index = lastIndexOf(that.history, url);
@@ -381,7 +375,7 @@
                     if (index == -1) {
                         that.history.length = 0;
                         that.history.push(url);
-                        location.hash = url;
+                        hashChanged && (location.hash = url);
 
                     } else {
                         var go = index + 1 - that.history.length;
@@ -415,12 +409,11 @@
             var route = this.route.match(url);
             if (route) {
                 this.queue.then(function () {
-                    var that = this,
-                        currentActivity = that._currentActivity;
+                    var currentActivity = this._currentActivity;
 
                     (options || (options = {})).isForward = false;
 
-                    that._toggle(route, options, function () {
+                    this._toggle(route, options, function () {
                         currentActivity.destroy();
                     });
 

@@ -5,25 +5,18 @@
 <div class="main mymonth">
     <div sn-binding="display:user.FreeMonths|not|equal:0">
         <div class="month_present">
-            <img />
+            <img sn-binding="src:currentMonth.FRE_PIC1" />
         </div>
         <div class="month_notice">
             亲，不要忘记啦！您还有<em sn-binding="html:user.FreeMonths"></em>个月的会员礼可以领取哟！
         </div>
         <ul class="month">
-            <li class="overdue">
-                <i class="flag">2015年</i>
-                <img />
+            <li sn-repeat="item in data" sn-binding="class:item|eval:'$0.Overdue&&$0.CanGet?\'overdue curr\':$0.Overdue?\'overdue\':$0.CanGet?\'curr\':\'\''">
+                <i class="flag" sn-binding="html:item.Year|concat:'年',display:item.Year" style="display:none">2015年</i>
+                <img sn-binding="src:item.FRE_PIC1,display:item.FRE_PIC1" />
+                <span sn-binding="html:item.Month|concat:'月'"></span>
+                <em sn-binding="display:item.CanGet" style="display:none">立即领取</em>
             </li>
-            <li class="get"></li>
-            <li class="curr"><em>立即领取</em></li>
-            <li><span>11月</span></li>
-            <li class="lastmonth"><span>12月</span></li>
-            <li>
-                <i class="flag">2016年</i>
-                <span>1月</span>
-            </li>
-            <li><span>2月</span></li>
         </ul>
     </div>
     <div class="my_nodata" sn-binding="display:user.FreeMonths|equal:0" style="display:none">

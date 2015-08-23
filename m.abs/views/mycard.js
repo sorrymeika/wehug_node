@@ -67,7 +67,7 @@ define(function (require, exports, module) {
                 title: '我的卡券',
                 isOverdue: false,
                 open: function () {
-                    bridge.open('http://m.abs.cn');
+                    bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
                 }
             });
 
@@ -85,12 +85,23 @@ define(function (require, exports, module) {
                         self.model.set("data1", []);
                     }
                     else {
-                        self.model.set("data", util.find(res.data, function (item) {
+                        var data = util.find(res.data, function (item) {
                             return !item.IsOverdue;
-                        }));
-                        self.model.set("data1", util.find(res.data, function (item) {
+                        });
+                        data.sort(function (a, b) {
+                            return a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
+                        });
+
+                        self.model.set("data", data);
+
+                        var data1 = util.find(res.data, function (item) {
                             return item.IsOverdue;
-                        }));
+                        });
+                        data1.sort(function (a, b) {
+                            return a.CSV_END_DT > b.CSV_END_DT ? -1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : 1;
+                        })
+
+                        self.model.set("data1", data1);
                         var $items = self.$('.js_not_overdue').children('li');
 
                         cardAnimation($items);

@@ -23,7 +23,10 @@ define(function (require, exports, module) {
 
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
-                title: '我的积分'
+                title: '我的积分',
+                open: function () {
+                    bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
+                }
             });
         },
 

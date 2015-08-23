@@ -1,11 +1,14 @@
 <div class="menu_bd">
     <div class="menu_user" sn-binding="data-back:memberUrl">
-        <div class="menu_username">
+        <div class="menu_username" sn-binding="display:user">
             <h1>
                 <text sn-binding="html:user.UserName|or:user.Mobile"></text>
                 <span>编辑信息</span>
             </h1>
             <h2 sn-binding="html:user.BirthDay|date:'yyyy/MM/dd'"></h2>
+        </div>
+        <div class="menu_username" sn-binding="display:user|isFalse" style="display:none">
+            <div class="btn_mid">登录</div>
         </div>
     </div>
     <ul class="menu_list menu_my">

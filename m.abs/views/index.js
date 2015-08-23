@@ -32,7 +32,12 @@
         events: {
             'tap': function (e) {
                 if (e.target == this.el) {
-                    this.back('/')
+                    this.back('/');
+                }
+            },
+            'tap .open_msg': function (e) {
+                if ($(e.target).hasClass('open_msg')) {
+                    $(e.target).removeClass('show');
                 }
             },
             'tap .head_menu': function (e) {
@@ -44,7 +49,7 @@
                 var $target = $(e.currentTarget);
                 var index = $target.index();
                 if (index == 1) {
-                    bridge.open('http://m.abs.cn');
+                    bridge.open(this.user.OpenUrl || 'http://m.abs.cn');
 
                 } else if (!$target.hasClass('curr')) {
                     $target.addClass('curr').siblings('.curr').removeClass('curr');
@@ -52,7 +57,7 @@
 
                     if (index == 2 && !this.model.data.baiduMap) {
                         this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html") + '" frameborder="0" ></iframe>');
-                        this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: 300 });
+                        this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - util.isInApp ? 20 : 0 });
                     }
                 }
             }
@@ -66,14 +71,24 @@
         onCreate: function () {
             var self = this;
 
+            $.get(bridge.url('/api/settings/update?version=' + sl.appVersion), function (res) {
+                if (res.success && res.updateUrl) {
+                    self.confirm(res.text, function () {
+                        bridge.open(res.updateUrl, {
+                            target: 'browser'
+                        });
+                    });
+                }
+            }, 'json');
+
             this.model = new model.ViewModel(this.$el, {
                 menu: 'head_menu',
                 titleClass: 'head_title',
                 title: 'ABS + CLUB',
                 isLogin: !!util.store('user'),
                 msg: 0,
-                open: function (e, url) {
-                    bridge.open(url);
+                open: function () {
+                    bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
                 }
             });
 
@@ -84,21 +99,14 @@
             });
             Scroll.bind($main.filter(':not(.js_usescroll)'));
 
-            var loading = new Loading({
-                url: "",
-                $el: $main.eq(3),
-                $content: $main.eq(3).children(":first-child"),
-                $scroll: $main.eq(3),
-                success: function (res) {
-                    self.model.set("data" + index, res.data);
-                },
-                append: function (res) {
-                    self.model.get('data' + index).append(res.data);
-                }
-            });
-
             this.$points = this.$('.home_points');
             this.$cursor = this.$('.home_points_cursor');
+            self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function (e) {
+                if (!self.$open_msg.hasClass('show')) {
+                    self.$open_msg.hide();
+                }
+            });
+            Scroll.bind(self.$open_msg.find('.msg_bd'));
 
             this.userLoading = new Loading({
                 url: '/api/user/get',
@@ -112,6 +120,18 @@
                         user: self.user
                     });
                     self.showPoints();
+                    self.getUnreadMsg();
+
+                    if (res.vdpMessage) {
+
+                        self.$open_msg.show();
+                        self.$open_msg[0].clientHeight;
+                        self.$open_msg.addClass('show');
+
+                        self.model.set({
+                            message: res.vdpMessage
+                        });
+                    }
                 }
             });
 
@@ -149,8 +169,8 @@
             setTimeout(function () {
                 $mask.addClass('toggle');
 
-                setTimeout(arguments.callee, 4000)
-            }, 4000);
+                setTimeout(arguments.callee, 3200)
+            }, 3200);
         },
 
         setRainbow: function () {
@@ -170,6 +190,7 @@
             self.model.set('nextLevel', "+" + nextLevel);
             self.model.set('currentLevel', levels[level]);
             self.model.set('levelAmounts', levelAmounts);
+            self.model.set('cardAmounts', '(' + total + (total > 50000 ? '' : ('/' + levelAmounts)) + ')');
 
             if (total != self.model.data.point) {
                 self.model.set('point', total);
@@ -218,6 +239,21 @@
             }
         },
 
+        getUnreadMsg: function () {
+            var self = this;
+
+            $.get(bridge.url('/api/user/get_unread_msg_count'), {
+                UserID: self.user.ID,
+                Auth: self.user.Auth
+
+            }, function (res) {
+                if (res.success) {
+                    self.model.set('msg', res.count);
+                }
+
+            }, 'json');
+        },
+
         onShow: function () {
             var self = this;
 
@@ -232,20 +268,12 @@
 
                 if (!this.userLoaded && (this.userLoaded = true)) this.userLoading.setParam({
                     UserID: self.user.ID,
-                    Auth: self.user.Auth
+                    Auth: self.user.Auth,
+                    IMEI: 'CAN_NOT_GET'
 
                 }).load(), this.adLoading.load();
-
-                $.get(bridge.url('/api/user/get_unread_msg_count'), {
-                    UserID: self.user.ID,
-                    Auth: self.user.Auth
-
-                }, function (res) {
-                    if (res.success) {
-                        self.model.set('msg', res.count);
-                    }
-
-                }, 'json');
+                else
+                    this.getUnreadMsg();
             }
         },
 

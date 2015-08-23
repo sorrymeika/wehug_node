@@ -11,15 +11,15 @@
         <ul class="hd">
             <li></li>
             <li>免费礼</li>
-            <li>终身<br>免费定制</li>
-            <li>终身<br>免费礼</li>
+            <li>免费定制</li>
+            <li>免费邮</li>
         </ul>
         <ul class="row">
             <li>
                 <span>SVIP会员</span>
                 <p>累计金额<br>≥￥50000</p>
             </li>
-            <li><p>终身<br>免费礼</p></li>
+            <li><p>600个月<br>免费礼</p></li>
             <li></li>
             <li></li>
         </ul>
@@ -59,8 +59,7 @@
             <li></li>
             <li class="none"></li>
         </ul>
-        <div class="more">
-            更多会员权益，请关注ABS官方微信或登录官网www.abs.cn咨询。<p>ABS会员专享权益，最终解释权归上海爱彼此家居用品股份有限公司所有。</p>
+        <div class="more"><p>ABS会员专享权益，最终解释权归上海爱彼此家居用品股份有限公司所有。</p>
         </div>
     </div>
 </div>
