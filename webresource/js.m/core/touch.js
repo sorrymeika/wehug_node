@@ -140,7 +140,8 @@
             if ((!that.isTouchMoved || that.isTouchStop) && that._isClickStopAni) {
                 that.momentum.finish();
                 that._isClickStopAni = false;
-                return !that.isClickStopMomentum;
+                e.cancelTap = true;
+                return;// !that.isClickStopMomentum;
             }
 
             if (!that.isTouchMoved) return;

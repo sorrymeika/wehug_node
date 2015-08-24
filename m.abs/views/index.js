@@ -57,7 +57,7 @@
 
                     if (index == 2 && !this.model.data.baiduMap) {
                         this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html") + '" frameborder="0" ></iframe>');
-                        this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - util.isInApp ? 20 : 0 });
+                        this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
                     }
                 }
             }
@@ -178,7 +178,7 @@
 
         setRainbow: function () {
             var self = this;
-            var total = this.user.Amount;
+            var total = Math.round(this.user.Amount);
             var percent = pointPercent(total);
             var deg = percent / 50 * 117 - 117;
             var level;

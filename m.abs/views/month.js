@@ -50,7 +50,9 @@
                     self.model.set({
                         currentMonth: res.currentMonth,
                         data: res.data
-                    })
+                    });
+
+                    //self.$('.month').find('')
                 }
             });
 

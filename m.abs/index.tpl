@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="api-base-url" content="@html(debug?"http://192.168.0.104:5559":"http://m.abs.cn:7788")" />
+    <meta name="api-base-url" content="@html(debug?"http://192.168.10.129:5559":"http://m.abs.cn:7788")" />
     <title></title>
     @for(var key in css){
         var items=css[key],
@@ -70,7 +70,7 @@
             sl.isDebug=@debug;
             sl.buildVersion=@(Date.now());
             sl.appVersion='1.0.0';
-            new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(util.isInApp?2000:0);
+            new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(@debug?0:2000);
         });
     </script>
 </body>

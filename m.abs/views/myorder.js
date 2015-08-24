@@ -10,7 +10,13 @@ define(function (require, exports, module) {
     var bridge = require('bridge');
 
     return Activity.extend({
-        events: {},
+        events: {
+            'tap .open_msg': function (e) {
+                if ($(e.target).hasClass('open_msg')) {
+                    $(e.target).removeClass('show');
+                }
+            }
+        },
 
         swipeRightBackAction: '/',
 
@@ -52,10 +58,24 @@ define(function (require, exports, module) {
                 open: function () {
                     bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
                 },
-                openPrd: function (e, url) {
-                    if (url) {
-                        bridge.open(url);
+                openPrd: function (e, prd) {
+                    if (prd.data.PRD_DISCONTINUED_FLAG) {
+                        self.$open_msg.show();
+                        self.$open_msg[0].clientHeight;
+                        self.$open_msg.addClass('show');
+
+                    } else if (prd.data.Url) {
+                        bridge.open(prd.data.Url);
                     }
+                },
+                showExpress: function (e, item) {
+                    item.set('showExpress', !item.data.showExpress);
+                }
+            });
+
+            self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function (e) {
+                if (!self.$open_msg.hasClass('show')) {
+                    self.$open_msg.hide();
                 }
             });
 

@@ -39,7 +39,7 @@
                         <li>SVIP</li>
                     </ul>
                     <div class="rainbow_bd">
-                        <div class="point" sn-binding="html:Point"></div>
+                        <div class="point" sn-binding="html:Point|round"></div>
                         <div class="desc" sn-binding="html:currentLevel"></div>
                         <div class="point_tip">
                             <div sn-binding="display:nextLevel|equal:0" class="max">

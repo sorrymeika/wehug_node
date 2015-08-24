@@ -23,7 +23,7 @@ define(function (require, exports, module) {
             var next = arguments.callee;
             var item = items.eq(index);
             item[0].clientHeight;
-            item.addClass('show').one($.fx.transitionEnd, function () { });
+            item.addClass('show');
 
             setTimeout((function (i) {
                 return function () {
@@ -58,8 +58,8 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
-            model.Filter.cardClass = function (price) {
-                return price <= 10 ? 'price10' : price <= 50 ? 'price50' : '';
+            model.Filter.cardClass = function (price, VCA_VCT_ID) {
+                return VCA_VCT_ID == 4 ? 'free' : VCA_VCT_ID == 2 ? 'price10' : VCA_VCT_ID == 1 ? 'price50' : '';
             }
 
             this.model = new model.ViewModel(this.$el, {

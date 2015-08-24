@@ -8,13 +8,13 @@
             <img sn-binding="src:currentMonth.FRE_PIC1" />
         </div>
         <div class="month_notice">
-            亲，不要忘记啦！您还有<em sn-binding="html:user.FreeMonths"></em>个月的会员礼可以领取哟！
+            不要忘记啦！您还有<em sn-binding="html:user.FreeMonths"></em>个月的会员礼可以领取哟！
         </div>
         <ul class="month">
-            <li sn-repeat="item in data" sn-binding="class:item|eval:'$0.Overdue&&$0.CanGet?\'overdue curr\':$0.Overdue?\'overdue\':$0.CanGet?\'curr\':\'\''">
-                <i class="flag" sn-binding="html:item.Year|concat:'年',display:item.Year" style="display:none">2015年</i>
+            <li sn-repeat="item in data" sn-binding="class:item|eval:'$0.Overdue&&$0.CanGet?\'overdue curr\':$0.Overdue?\'overdue\':$0.CanGet?\'curr\':\'\'',data-year:item.Year">
+                <i class="flag" sn-binding="html:item.Year|concat:'年',display:item.Year" style="display:none"></i>
                 <img sn-binding="src:item.FRE_PIC1,display:item.FRE_PIC1" />
-                <span sn-binding="html:item.Month|concat:'月'"></span>
+                <span sn-binding="html:item|eval:'$0.Overdue?\'过期\':$0.LPF_PUR_ID?\'已领\':($0.Month+\'月\')'"></span>
                 <em sn-binding="display:item.CanGet" style="display:none">立即领取</em>
             </li>
         </ul>
