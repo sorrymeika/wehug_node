@@ -21,7 +21,12 @@ header { background: #46abef; height: 44px; line-height: 44px; }
 
 .recommend_list { padding-bottom: 10px; }
 .recommend_item { width: 96%; margin: 10px 2% 0 2%; position: relative; }
-.recommend_item img { display: block; width: 100%; margin: 0; min-height: 100px; border-radius: 4px; max-height: 260px; }
+.recommend_item img { display: block; width: 100%; margin: 0; border-radius: 4px; height: 230px; }
+
+@media screen and (min-width:375px) {
+    .destimg img, .recommend_item img { height: 299px; }
+}
+
 .recommend_name { position: absolute; bottom: 10px; left: 15px; color: #fff; font-size: 1.2em; font-weight: bold; }
 .recommend_fav { position: absolute; right: 10px; top: 10px; color: #fff; }
 .recommend_fav:before, .destfav:before { display: inline-block; background: url(site.png) no-repeat -120px -60px; content: ''; width: 25px; height: 25px; background-size: 320px auto; vertical-align: -4px; }
@@ -63,7 +68,8 @@ header { background: #46abef; height: 44px; line-height: 44px; }
 .login_notice { text-align: center; margin-top: 20px; }
 
 .destimg { position: relative; }
-.destimg img { width: 100%; }
+.destimg img { width: 100%; height: 230px; }
+
 .destimg h1 { position: absolute; bottom: 12px; left: 12px; font-size: 1em; color: #fff; }
 .destimg .destfav { position: absolute; right: 12px; top: 6px; font-size: 1em; color: #fff; }
 .destinfo { background: #fff; border-top: 1px solid #ddd; color: #333; margin-top: 10px; }
@@ -135,7 +141,8 @@ header { background: #46abef; height: 44px; line-height: 44px; }
 .reply input { -webkit-box-flex: 1; display: block; margin: 8px; border: 1px solid #ccc; border-radius: 4px; padding-left: 5px; height: 28px; }
 .reply b { color: #fff; background: #46abef; display: block; margin: 8px 8px 8px 0; line-height: 32px; padding: 0 5px; border-radius: 4px; }
 
-.activity_list .recommend_name { color: #333; position: unset; line-height: 1.2; padding: 6px 10px; background: #fff; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
+.activity_list .recommend_name { color: #333; line-height: 1.2; padding: 6px 10px; background: #fff; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; width: 100%; left: 0px; bottom: 0px; }
+.activity_list .recommend_item { padding-bottom: 34px; }
 .activity_list img { border-bottom-left-radius: 0px; border-bottom-right-radius: 0px; }
 
 .actwrap { padding-bottom: 60px; }

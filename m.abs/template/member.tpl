@@ -33,7 +33,6 @@
         </dl>
         <div class="member_bar">
             <b class="btn_mid" sn-on="tap:submit" sn-binding="class:submiting|equal:true:'disabled':''">修改</b>
-            <b class="btn_cancel">取消</b>
         </div>
     </div>
 </div>

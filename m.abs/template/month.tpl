@@ -5,16 +5,16 @@
 <div class="main mymonth">
     <div sn-binding="display:user.FreeMonths|not|equal:0">
         <div class="month_present">
-            <img sn-binding="src:currentMonth.FRE_PIC1" />
+            <img sn-binding="src:currentMonth.FRE_PIC1" sn-on="tap:openPresent:currentMonth"/>
         </div>
         <div class="month_notice">
             不要忘记啦！您还有<em sn-binding="html:user.FreeMonths"></em>个月的会员礼可以领取哟！
         </div>
         <ul class="month">
-            <li sn-repeat="item in data" sn-binding="class:item|eval:'$0.Overdue&&$0.CanGet?\'overdue curr\':$0.Overdue?\'overdue\':$0.CanGet?\'curr\':\'\'',data-year:item.Year">
+            <li sn-repeat="item in data" sn-binding="class:item|eval:'($0.Overdue||$0.LPF_PUR_ID)&&$0.CanGet?\'overdue curr\':($0.Overdue||$0.LPF_PUR_ID)?\'overdue\':$0.CanGet?\'curr\':\'\'',data-year:item.Year" sn-on="tap:openPresent:item">
                 <i class="flag" sn-binding="html:item.Year|concat:'年',display:item.Year" style="display:none"></i>
-                <img sn-binding="src:item.FRE_PIC1,display:item.FRE_PIC1" />
-                <span sn-binding="html:item|eval:'$0.Overdue?\'过期\':$0.LPF_PUR_ID?\'已领\':($0.Month+\'月\')'"></span>
+                <img sn-binding="src:item.FRE_TITLE_PIC,display:item.FRE_TITLE_PIC" />
+                <span sn-binding="html:item|eval:'$0.Overdue||$0.LPF_PUR_ID?\'\':($0.Month+\'月\')',class:item|eval:'$0.Overdue?\'over\':$0.LPF_PUR_ID?\'get\':\'\''"></span>
                 <em sn-binding="display:item.CanGet" style="display:none">立即领取</em>
             </li>
         </ul>

@@ -12,7 +12,7 @@
             <li></li>
             <li>免费礼</li>
             <li>免费定制</li>
-            <li>免费邮</li>
+            <li>免邮费</li>
         </ul>
         <ul class="row">
             <li>

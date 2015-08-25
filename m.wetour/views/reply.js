@@ -49,7 +49,7 @@
             });
 
             this.loading = new Loading({
-                url: '/api/' + (self.route.query.type == 0 ? 'quan' : self.route.query.type == 1 ? 'recommend' : self.route.query.type == 2 ? 'destination' : 'activity') + '/reply_comment',
+                url: '/api/' + (self.route.query.type == 0 || !self.route.query.type ? 'quan' : self.route.query.type == 1 ? 'recommend' : self.route.query.type == 2 ? 'destination' : 'activity') + '/reply_comment',
                 $el: this.$el,
                 checkData: false,
                 success: function (res) {

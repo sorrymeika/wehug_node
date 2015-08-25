@@ -12,7 +12,6 @@
     var barcode = require('../util/barcode');
     var animation = require('animation');
 
-
     var points = [1000, 4000, 5000, 45000];
     var pointPercent = function (point) {
         var result = 0;
@@ -45,11 +44,14 @@
             },
             'tap .js_comment_list [data-id]': function (e) {
             },
+            'tap .rainbow_bd': function (e) {
+                this.$('.footer li').eq(3).trigger('tap');
+            },
             'tap .footer li': function (e) {
                 var $target = $(e.currentTarget);
                 var index = $target.index();
                 if (index == 1) {
-                    bridge.open(this.user.OpenUrl || 'http://m.abs.cn');
+                    bridge.openInApp(this.user.OpenUrl || 'http://m.abs.cn');
 
                 } else if (!$target.hasClass('curr')) {
                     $target.addClass('curr').siblings('.curr').removeClass('curr');
@@ -88,10 +90,10 @@
                 isLogin: !!util.store('user'),
                 msg: 0,
                 open: function () {
-                    bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
+                    bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 },
                 openUrl: function (e, url) {
-                    bridge.open(url || 'http://m.abs.cn');
+                    bridge.openInApp(url || 'http://m.abs.cn');
                 }
             });
 
@@ -269,12 +271,21 @@
                 self.model.set('barcode', barcode.code93(self.user.Mobile).replace(/0/g, '<em></em>').replace(/1/g, '<i></i>'))
                 .set('user', self.user);
 
-                if (!this.userLoaded && (this.userLoaded = true)) this.userLoading.setParam({
-                    UserID: self.user.ID,
-                    Auth: self.user.Auth,
-                    IMEI: 'CAN_NOT_GET'
+                if (!this.userLoaded && (this.userLoaded = true)) {
 
-                }).load(), this.adLoading.load();
+                    var load = function (token) {
+                        self.userLoading.setParam({
+                            UserID: self.user.ID,
+                            Auth: self.user.Auth,
+                            IMEI: token || 'CAN_NOT_GET'
+
+                        }).load();
+                    }
+
+                    util.isInApp ? bridge.getDeviceToken(load) : load();
+
+                    this.adLoading.load();
+                }
                 else
                     this.getUnreadMsg();
             }

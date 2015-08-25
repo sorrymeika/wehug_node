@@ -191,6 +191,7 @@
                 data: that.params,
                 type: that.method,
                 dataType: that.dataType,
+                cache: false,
                 error: function (xhr) {
                     that._xhr = null;
                     that.isLoading = false;

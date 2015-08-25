@@ -88,7 +88,7 @@
             <ul class="myabs">
                 <li data-forward="/month">
                     <b>我的月礼</b>
-                    <span sn-binding="display:user.FreeMonths|isTrue" style="display:none">您当前享有<em sn-binding="html:user.FreeMonths|concat:'个月'"></em>会员礼免费领特权。</span>
+                    <span sn-binding="display:user.FreeMonths|isTrue" style="display:none">您还有<em sn-binding="html:user.FreeMonths|concat:'个月'"></em>会员礼可以领取。</span>
                     <span sn-binding="display:user.FreeMonths|isFalse">继续努力，马上就可以获得免费领取特权了。</span>
                 </li>
                 <li data-forward="/mycard">
@@ -103,7 +103,6 @@
                     <b>我买到的</b>
                     <span sn-binding="display:user.OrderCount|isTrue" style="display:none">您目前在ABS共完成<em sn-binding="html:user.OrderCount"></em>次购物。</span>
                     <span sn-binding="display:user.OrderCount|isFalse"> 您还未购买过商品，立即开启您的购物之旅。</span>
-
                 </li>
             </ul>
         </div>

@@ -158,15 +158,17 @@ header { background: #d6415c; height: 44px; line-height: 44px; }
 .month_notice { font-size: .8em; text-align: center; margin-top: 10px; }
 .month_notice em { color: #d6415c; }
 .month li { float: left; width: 25%; margin-left: 6%; background: #d6415c; margin-top: 20px; text-align: center; position: relative; border-radius: 4px; color: #fff; }
-.month .flag { position: absolute; top: 6px; left: 0px; font-size: .5em; background: #c00; padding: 1px; z-index: 2; }
+.month .flag { position: absolute; top: 6px; left: 0px; font-size: .5em; background: #c00; padding: 1px; z-index: 3; }
 .month li:before { padding-top: 85.71%; content: ''; display: block; }
 .month li img { position: absolute; width: 100%; min-height: 69px; top: 0px; border-radius: 4px; display: block; z-index: 1; }
-.month li span { position: absolute; top: 50%; left: 0; width: 100%; margin-top: -7px; font-size: 14px; z-index: 2; }
+.month li span { position: absolute; top: 50%; left: 0; width: 100%; margin-top: -7px; font-size: 14px; z-index: 3; }
+.month li span.over:before, .month li span.get:before { width: 75px; display: inline-block; content: ''; height: 55px; margin-top: -19px; background: url(icon.png) no-repeat 0px -385px; background-size: 320px auto; }
+.month li span.get:before { background-position-x: -75px; }
 .month [data-year] ~ [data-year] ~ li, .month [data-year] ~ [data-year] { background: #f4ca3c; }
-.month li.overdue:after { content: ''; display: block; position: absolute; text-align: center; top: 0; left: 0; bottom: 0; right: 0; background: rgba(0,0,0,.5); border-radius: 4px; }
+.month li.overdue:after { content: ''; display: block; position: absolute; text-align: center; top: 0; left: 0; bottom: 0; right: 0; background: rgba(0,0,0,.4); border-radius: 4px; z-index: 2; }
 
 
-.month .curr em { position: absolute; display: block; width: 106%; margin-left: -3%; background: #c00; color: #fff; bottom: -5px; font-size: .7em; padding: 5px; border-radius: 4px; }
+.month .curr em { position: absolute; display: block; width: 106%; margin-left: -3%; background: #c00; color: #fff; bottom: -5px; font-size: .8em; padding: 5px; border-radius: 4px; z-index: 4; }
 .month .curr em:before { content: ''; display: block; background: #c00; width: 7px; height: 7px; position: absolute; top: -3px; left: 20%; -webkit-transform: rotate(45deg); }
 
 .mycard { background: #fff; }
@@ -321,12 +323,15 @@ header { background: #d6415c; height: 44px; line-height: 44px; }
 .open_msg.show .msg_bd { -webkit-transform: scale(1); }
 .open_msg.show .msg_bd img { width: 100%; display: block; }
 .open_msg .msg_alert { height: 150px; margin-top: -75px; padding-top: 40px; text-align: center; }
-.msg_alert .btn_go { background:#ddd; color:#fff; height: 36px; line-height: 36px; width: 120px; text-align: center; border-radius: 4px; margin: 15px auto 0 auto; }
+.msg_alert .btn_go { background: #bbb; color: #fff; height: 36px; line-height: 36px; width: 120px; text-align: center; border-radius: 4px; margin: 15px auto 0 auto; }
 
 @media screen and (min-width:375px) {
-    .home_bd { padding-top: 80px; }
+    .home_bd { padding-top: 55px; }
     .home_vip { -webkit-transform: scale(1.25); margin-bottom: 40px; }
 
     .barcode { width: 340px; height: 80px; }
     .barcode i, .barcode em { width: 2.5px; }
 }
+
+
+.aboutus { font-size: .9em; padding: 15px; line-height: 1.5; }

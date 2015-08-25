@@ -67,7 +67,7 @@ define(function (require, exports, module) {
                 title: '我的卡券',
                 isOverdue: false,
                 open: function () {
-                    bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
+                    bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 }
             });
 

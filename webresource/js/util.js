@@ -20,6 +20,7 @@
     };
 
     var util = {
+        isInApp: /SLApp/.test(ua),
         ios: !!ios,
         ie: !!ie,
         android: isAndroid,

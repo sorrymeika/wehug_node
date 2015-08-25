@@ -64,6 +64,9 @@
             tip: function (msg) {
                 hybrid('tip', msg + "");
             },
+            openInApp: function (url) {
+                hybrid('openInApp', url + '');
+            },
             open: function (url) {
                 hybrid('open', url + '');
             },
@@ -80,6 +83,9 @@
             },
             pickColor: function (f) {
                 hybrid('pickColor', f);
+            },
+            getDeviceToken: function (f) {
+                hybrid('getDeviceToken', f);
             },
             pay: function (data, f) {
                 hybrid('pay', data, f);

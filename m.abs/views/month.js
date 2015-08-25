@@ -8,6 +8,7 @@
     var Promise = require('../core/promise');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
+    var bridge = require('bridge');
 
 
     return Activity.extend({
@@ -31,8 +32,13 @@
                 title: '我的月礼',
                 back: this.route.query.from || '/',
                 user: util.store('user'),
+                openPresent: function (e, item) {
+                    if (item.data.CanGet) {
+                        bridge.openInApp('http://m.abs.cn123/free/' + item.data.FRE_ID + '.html');
+                    }
+                },
                 open: function () {
-                    bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
+                    bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 }
             });
 

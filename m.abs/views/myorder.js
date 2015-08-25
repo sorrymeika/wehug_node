@@ -15,6 +15,9 @@ define(function (require, exports, module) {
                 if ($(e.target).hasClass('open_msg')) {
                     $(e.target).removeClass('show');
                 }
+            },
+            'tap .btn_go': function () {
+                bridge.openInApp(this.user.OpenUrl);
             }
         },
 
@@ -56,7 +59,7 @@ define(function (require, exports, module) {
                     }
                 },
                 open: function () {
-                    bridge.open(self.user.OpenUrl || 'http://m.abs.cn');
+                    bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 },
                 openPrd: function (e, prd) {
                     if (prd.data.PRD_DISCONTINUED_FLAG) {
@@ -65,7 +68,7 @@ define(function (require, exports, module) {
                         self.$open_msg.addClass('show');
 
                     } else if (prd.data.Url) {
-                        bridge.open(prd.data.Url);
+                        bridge.openInApp(prd.data.Url);
                     }
                 },
                 showExpress: function (e, item) {

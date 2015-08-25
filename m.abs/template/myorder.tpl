@@ -18,7 +18,7 @@
                 <span sn-binding="html:item.PUR_DT|date"></span>
             </div>
             <div class="bd" sn-repeat="prd in item.Children" sn-on="tap:openPrd:prd">
-                <img sn-binding="src:prd.WPP_LIST_PIC" />
+                <img sn-binding="src:prd.WPP_LIST_PIC|or:'images/default.jpg'" src="images/default.jpg" onerror="this.src='images/default.jpg'" />
                 <div class="con">
                     <h2 sn-binding="html:prd.PRD_NAME"></h2>
                     <h3>颜色：<span sn-binding="html:prd.PRD_COLOR"></span></h3>
