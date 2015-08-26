@@ -45,16 +45,58 @@ var compressJs = function (code) {
     return code;
 };
 
+var concat = function () {
+    var res = [],
+        arr;
+
+    for (var i = 0; i < arguments.length; i++) {
+        arr = arguments[i];
+        arr.forEach(function (item) {
+            if (res.indexOf(item) == -1) {
+                res.push(item);
+            }
+        });
+    }
+    return res;
+};
+
+var REQUIRE_RE = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*require|(?:^|[^$])\brequire\s*\(\s*(["'])(.+?)\1\s*\)/g
+var SLASH_RE = /\\\\/g;
+
+function parseDependencies(code) {
+    var ret = [];
+    //var m = code.match(REQUIRE_NAME_RE);
+    //var requireRe;
+    //requireRe = new RegExp("\\b" + m[1] + "\\s*\\(\\s*([\"'])(.+?)\\1\\s*\\)", 'g');
+
+    code.replace(SLASH_RE, "")
+        .replace(REQUIRE_RE, function (m, m1, m2) {
+            if (m2) {
+                ret.push(m2)
+            }
+        })
+
+    return ret
+}
+
 var replaceDefine = function (id, code, requires, append) {
+    var m = code.match(/\bdefine\(/g);
+    if (m && m.length > 1) {
+        return code;
+    }
+
     if (typeof requires == 'string') append = requires, requires = undefined;
-    return code.replace(/\bdefine\((?:\s*|\s*(\[[^\]]*\]{0,1})\s*,\s*)function(.*?){/m, function (match, param, fn) {
+
+    return code.replace(/\bdefine\((?:\s*|\s*(\[[^\]]*\]{0,1})\s*,\s*)function\s*\((([^,\)]+)[^\)]*|[^\)]*)\)\s*{/m, function (match, param, fn, req) {
+        param = param ? JSON.parse(param.replace(/\'/g, '"')) : [];
+
         if (requires && requires.length) {
-            param = JSON.stringify(requires.concat(param ? JSON.parse(param) : [])) + ',';
-        } else if (param) {
-            param += ','
+            param = concat(requires, param);
         }
-        return 'define(' + '"' + id + '",' + (param || '') + 'function' + fn + '{' + (append || '');
-    })
+        param = concat(param, parseDependencies(code));
+
+        return 'define(' + '"' + id + '",' + (JSON.stringify(param) + ',') + 'function(' + fn + '){' + (append || '');
+    });
 }
 
 var compressHTML = function (html) {

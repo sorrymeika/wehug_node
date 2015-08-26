@@ -324,7 +324,7 @@
         else {
             node.async = true
             //<--debug
-            url+='?v'+Date.now();
+            url += '?v' + Date.now();
             //debug-->
             node.src = url
         }
@@ -450,10 +450,14 @@
      */
 
     var REQUIRE_RE = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*require|(?:^|[^$])\brequire\s*\(\s*(["'])(.+?)\1\s*\)/g
-    var SLASH_RE = /\\\\/g
+    var SLASH_RE = /\\\\/g;
+    var REQUIRE_NAME_RE = /^function\s+\(([^,\)]+)/;
 
     function parseDependencies(code) {
-        var ret = []
+        var ret = [];
+        //var m = code.match(REQUIRE_NAME_RE);
+        //var requireRe;
+        //requireRe = new RegExp("\\b" + m[1] + "\\s*\\(\\s*([\"'])(.+?)\\1\\s*\\)", 'g');
 
         code.replace(SLASH_RE, "")
             .replace(REQUIRE_RE, function (m, m1, m2) {
