@@ -26,10 +26,10 @@
                 <div class="rainbow">
                     <ul class="rainbow_points">
                         <li>0</li>
-                        <li>1000</li>
-                        <li>5000</li>
-                        <li>10000</li>
-                        <li>50000</li>
+                        <li>1,000</li>
+                        <li>5,000</li>
+                        <li>10,000</li>
+                        <li>50,000</li>
                     </ul>
                     <ul class="rainbow_vip">
                         <li>银卡</li>
@@ -39,15 +39,15 @@
                         <li>SVIP</li>
                     </ul>
                     <div class="rainbow_bd">
-                        <div class="point" sn-binding="html:Point|round"></div>
+                        <div class="point" sn-binding="html:Point|round|formatMoney"></div>
                         <div class="desc" sn-binding="html:currentLevel"></div>
                         <div class="point_tip">
                             <div sn-binding="display:nextLevel|equal:0" class="max">
-                                <p>活力值爆棚啦</p>
-                                <p>继续努力哦</p>
+                                <p>活力值爆棚</p>
+                                <p>感谢您的⽀持和惠顾</p>
                             </div>
                             <div sn-binding="display:nextLevel|equal:0|not">
-                                <span sn-binding="html:nextLevel"></span><b>活力值</b>
+                                <span sn-binding="html:nextLevel|formatMoney"></span><b>活力值</b>
                                 <p>即可享有<em sn-binding="html:vip"></em>特权</p>
                             </div>
                         </div>
@@ -93,11 +93,11 @@
                 </li>
                 <li data-forward="/mycard">
                     <b>我的卡券</b>
-                    <span>您现在拥有优惠券<em sn-binding="html:user.CouponsCount"></em>张。</span>
+                    <span>您现在拥有免邮卡<em sn-binding="html:user.FreeCouponsCount"></em>张，抵用券<em sn-binding="html:user.CouponsCount"></em>张。</span>
                 </li>
                 <li data-forward="/mypoint">
                     <b>我的积分</b>
-                    <span>您当前积分为<em sn-binding="html:user.Points"></em>。</span>
+                    <span>您当前积分为<em sn-binding="html:user.Points|formatMoney"></em>。</span>
                 </li>
                 <li data-forward="/myorder">
                     <b>我买到的</b>

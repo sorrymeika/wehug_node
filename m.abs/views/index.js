@@ -48,6 +48,7 @@
                 this.$('.footer li').eq(3).trigger('tap');
             },
             'tap .footer li': function (e) {
+                var self = this;
                 var $target = $(e.currentTarget);
                 var index = $target.index();
                 if (index == 1) {
@@ -60,6 +61,10 @@
                     if (index == 2 && !this.model.data.baiduMap) {
                         this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html") + '" frameborder="0" ></iframe>');
                         this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
+
+                        bridge.getLocation(function (longitude, b) {
+                            self.$baiduMap.src = bridge.url("/baiduMap.html#longitude=" + longitude + "&latitude=" + latitude);
+                        });
                     }
                 }
             }
@@ -82,6 +87,8 @@
                     });
                 }
             }, 'json');
+
+            model.Filter.formatMoney = util.formatMoney;
 
             this.model = new model.ViewModel(this.$el, {
                 menu: 'head_menu',
@@ -195,7 +202,7 @@
             self.model.set('nextLevel', "+" + nextLevel);
             self.model.set('currentLevel', levels[level]);
             self.model.set('levelAmounts', levelAmounts);
-            self.model.set('cardAmounts', '(' + total + (total > 50000 ? '' : ('/' + levelAmounts)) + ')');
+            self.model.set('cardAmounts', '(' + util.formatMoney(total) + (total > 50000 ? '' : ('/' + util.formatMoney(levelAmounts))) + ')');
 
             if (total != self.model.data.point) {
                 self.model.set('point', total);

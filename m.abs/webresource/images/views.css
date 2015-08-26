@@ -174,9 +174,9 @@ header { background: #d6415c; height: 44px; line-height: 44px; }
 .mycard { background: #fff; }
 
 .has_status_bar .mycard_hd { top: 64px; }
-.mycard_hd { display: -webkit-box; padding-top: 2px; background: #fff; text-align: center; top: 44px; position: fixed; left: 0; width: 100%; z-index: 1000; }
-.mycard_hd li { -webkit-box-flex: 1; width: 0px; background: #eeefef; color: #666; height: 40px; line-height: 40px; }
-.mycard_hd .curr { background: #d6415c; color: #fff; }
+.mycard_hd { display: -webkit-box; padding-top: 0px; background: #fff; text-align: center; top: 44px; position: fixed; left: 0; width: 100%; z-index: 1000; }
+.mycard_hd li { -webkit-box-flex: 1; width: 0px; background: #eeefef; color: #666; height: 40px; line-height: 40px; font-size: .9em; }
+.mycard_hd .curr { color: #d6415c; border-bottom: 2px solid #d6415c; }
 
 .mycard_con { margin-top: 10px; position: relative; top: 42px; }
 .mycard_con li { height: 95px; margin: 0 0 5px 0; overflow: hidden; position: absolute; top: 0px; left: 1%; background: #f36a39; -webkit-transition: all 300ms ease-out 0ms; opacity: 0; width: 98%; -webkit-transform: scale(.8); }
@@ -185,11 +185,13 @@ header { background: #d6415c; height: 44px; line-height: 44px; }
 .mycard_con li.free { background: #5096f7; }
 .mycard_con li.free:before { width: 100px; height: 69px; background-position: 0px -85px; left: 20px; top: 17px; }
 .mycard_con li.free .name { font-size: 2em; color: #fff; margin: 40px 0 0 130px; }
-.mycard_con .time { padding-top: 0; color: #fff; font-size: .8em; width: 100px; position: absolute; text-align: center; right: -10px; top: 50%; margin-top: -19px; -webkit-transform-origin: 50% 50%; -webkit-transform: rotate(-90deg); }
+.mycard_con .time { padding-top: 0; color: #fff; font-size: .8em; width: 100px; position: absolute; text-align: center; right: -10px; top: 50%; margin-top: -28px; -webkit-transform-origin: 50% 50%; -webkit-transform: rotate(-90deg); }
+.mycard_con .time .hd { margin-bottom: 5px; }
 .mycard_con .time .hd:before, .mycard_con .time .hd:after { display: inline-block; content: ''; border-top: 1px solid #fff; width: 27px; height: 5px; }
 .mycard_con .time .hd:before { margin-right: 3px; }
 .mycard_con .time .hd:after { margin-left: 3px; }
-.mycard_con .time .con { margin-top: 10px; }
+.mycard_con .time .con { margin-top: 5px; }
+.mycard_con .overdue { height: 32px; padding-top: 5px; font-size: 16px; }
 
 .mycard_con .name { font-size: .84em; color: #fff; margin: -5px 0 0 20px; }
 .mycard_con .price:before { content: '￥'; display: inline-block; font-size: 12px; vertical-align: 2px; }
@@ -214,9 +216,9 @@ header { background: #d6415c; height: 44px; line-height: 44px; }
 
 .myorder { }
 .has_status_bar .myorder_hd { top: 64px; }
-.myorder_hd { display: -webkit-box; padding-top: 2px; background: #eeefef; text-align: center; font-size: .9em; position: fixed; width: 100%; top: 44px; left: 0px; z-index: 1000; }
-.myorder_hd li { -webkit-box-flex: 1; width: 0px; background: #eeefef; color: #666; height: 36px; line-height: 36px; }
-.myorder_hd li.curr { background: #d6415c; color: #fff; }
+.myorder_hd { display: -webkit-box; padding-top: 0px; background: #eeefef; text-align: center; font-size: .9em; position: fixed; width: 100%; top: 44px; left: 0px; z-index: 1000; }
+.myorder_hd li { -webkit-box-flex: 1; width: 0px; background: #eeefef; color: #666; height: 36px; line-height: 36px; font-size: .9em; }
+.myorder_hd li.curr { color: #d6415c; border-bottom: 2px solid #d6415c; }
 
 .myorder > .con { margin-bottom: 10px; margin-top: 42px; }
 .myorder .con li { border-top: 1px solid #ccc; margin-bottom: 10px; background: #fff; }

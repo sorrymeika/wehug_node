@@ -81,7 +81,8 @@ define(function (require, exports, module) {
                 checkData: false,
                 success: function (res) {
                     if (res.closeNumber) {
-                        alert("您有" + res.closeNumber + '张优惠券马上就要过期啦，\r尽快使用哦');
+                        self.confirm("您有" + res.closeNumber + '张优惠券马上就要过期啦，<br>尽快使用哦', function () {
+                        });
                     }
 
                     if (!res || !res.data || res.data.length == 0) {
@@ -90,19 +91,20 @@ define(function (require, exports, module) {
                     }
                     else {
                         var data = util.find(res.data, function (item) {
-                            return !item.IsOverdue;
+                            return item.VCA_VCT_ID != 4;
                         });
+
                         data.sort(function (a, b) {
-                            return a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
+                            return a.isOverdue && !b.isOverdue ? 1 : !a.isOverdue && b.isOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
                         });
 
                         self.model.set("data", data);
 
                         var data1 = util.find(res.data, function (item) {
-                            return item.IsOverdue;
+                            return item.VCA_VCT_ID == 4;
                         });
                         data1.sort(function (a, b) {
-                            return a.CSV_END_DT > b.CSV_END_DT ? -1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : 1;
+                            return a.isOverdue && !b.isOverdue ? 1 : !a.isOverdue && b.isOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
                         })
 
                         self.model.set("data1", data1);

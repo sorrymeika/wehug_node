@@ -87,6 +87,9 @@
             getDeviceToken: function (f) {
                 hybrid('getDeviceToken', f);
             },
+            getLocation: function (f) {
+                hybrid('getLocation', f);
+            },
             pay: function (data, f) {
                 hybrid('pay', data, f);
             },

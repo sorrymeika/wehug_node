@@ -152,6 +152,10 @@
 
         pad: pad,
 
+        formatMoney: function (number) {
+            return (number + '').replace(/(\d{3})+(\.|$)/, function (match, a) { return match.replace(/\d{3}/g, function (a) { return ',' + a }) }).replace(/^,/, '');
+        },
+
         deepValue: function (data, names) {
             if (typeof names === 'string')
                 names = names.split('.');
