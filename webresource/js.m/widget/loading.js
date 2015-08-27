@@ -6,7 +6,7 @@
 
     var records = [];
 
-    var extend = ['$el', 'url', 'method', 'headers', 'dataType', 'xhrFields', 'success', 'complete', 'pageIndex', 'pageSize', 'append', '$content', '$scroll', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
+    var extend = ['$el', 'method', 'headers', 'dataType', 'xhrFields', 'success', 'complete', 'pageIndex', 'pageSize', 'append', '$content', '$scroll', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
 
     var Loading = function (options) {
         $.extend(this, _.pick(options, extend));
@@ -19,6 +19,8 @@
         this.error = options.error || this.showError;
         this.$content = options.$content || this.$el;
         this.$scroll = options.$scroll || this.$el;
+
+        this.setUrl(options.url);
     }
 
     Loading.prototype = {
@@ -125,7 +127,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else
+            else 
                 (attrs = {})[key] = val;
 
             if (this.headers === undefined) this.headers = {};
@@ -140,7 +142,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else
+            else 
                 (attrs = {})[key] = val;
 
             for (var attr in attrs) {
@@ -159,6 +161,11 @@
         getParam: function (key) {
             if (key) return this.params[key];
             return this.params;
+        },
+
+        setUrl: function (url) {
+            this.url = app.url(url);
+            return this;
         },
 
         reload: function (options, callback) {
@@ -185,7 +192,7 @@
             if (!options || options.showLoading !== false) that.showLoading();
 
             that._xhr = $.ajax({
-                url: app.url(that.url),
+                url: that.url,
                 headers: that.headers,
                 xhrFields: that.xhrFields,
                 data: that.params,

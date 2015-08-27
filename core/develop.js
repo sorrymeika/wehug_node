@@ -117,8 +117,6 @@ var mapControllers = function (config) {
         app.get(devPath + '/*/*.js', function (req, res, next) {
             res.set('Content-Type', 'text/javascript');
 
-            console.log(req.params)
-
             fs.readFile('.' + root + '/' + req.params[0] + '/' + req.params[1] + '.js', { encoding: 'utf-8' }, function (err, text) {
                 if (err) {
                     //res.send(err);

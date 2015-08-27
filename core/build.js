@@ -175,7 +175,8 @@ module.exports = function (root, env, isMobile, callback) {
 
         var fsc = require('./fs');
 
-        fsc.copy('../webresource/images' + (isMobile ? '.m' : ''), path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+        fsc.copy(path.join(__dirname, '../webresource/images' + (isMobile ? '.m' : '')), path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+
             config.projects.forEach(function (proj) {
                 fsc.copy(path.join(proj.path, '/webresource/images'), path.join(config.dest, proj.path, 'images'), '*.(jpg|png)', function (err, result) { });
             });

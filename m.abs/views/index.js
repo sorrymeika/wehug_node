@@ -199,7 +199,7 @@
 
             this.$('.rainbow_vip :nth-child(' + (level + 1) + ')').addClass('curr');
 
-            self.model.set('nextLevel', "+" + nextLevel);
+            self.model.set('nextLevel', nextLevel);
             self.model.set('currentLevel', levels[level]);
             self.model.set('levelAmounts', levelAmounts);
             self.model.set('cardAmounts', '(' + util.formatMoney(total) + (total > 50000 ? '' : ('/' + util.formatMoney(levelAmounts))) + ')');

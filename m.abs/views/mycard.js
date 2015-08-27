@@ -58,8 +58,8 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
-            model.Filter.cardClass = function (price, VCA_VCT_ID) {
-                return VCA_VCT_ID == 4 ? 'free' : VCA_VCT_ID == 2 ? 'price10' : VCA_VCT_ID == 1 ? 'price50' : '';
+            model.Filter.cardClass = function (item) {
+                return (item.VCA_VCT_ID == 4 ? 'free' : item.VCA_VCT_ID == 2 ? 'price10' : item.VCA_VCT_ID == 1 ? 'price50' : '') + (item.IsOverdue ? ' dis' : '');
             }
 
             this.model = new model.ViewModel(this.$el, {
@@ -95,7 +95,7 @@ define(function (require, exports, module) {
                         });
 
                         data.sort(function (a, b) {
-                            return a.isOverdue && !b.isOverdue ? 1 : !a.isOverdue && b.isOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
+                            return a.IsOverdue && !b.IsOverdue ? 1 : !a.IsOverdue && b.IsOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
                         });
 
                         self.model.set("data", data);
@@ -104,7 +104,7 @@ define(function (require, exports, module) {
                             return item.VCA_VCT_ID == 4;
                         });
                         data1.sort(function (a, b) {
-                            return a.isOverdue && !b.isOverdue ? 1 : !a.isOverdue && b.isOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
+                            return a.IsOverdue && !b.IsOverdue ? 1 : !a.IsOverdue && b.IsOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
                         })
 
                         self.model.set("data1", data1);

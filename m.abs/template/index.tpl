@@ -47,7 +47,7 @@
                                 <p>感谢您的⽀持和惠顾</p>
                             </div>
                             <div sn-binding="display:nextLevel|equal:0|not">
-                                <span sn-binding="html:nextLevel|formatMoney"></span><b>活力值</b>
+                                <span sn-binding="html:nextLevel|formatMoney|format:'+{0}'"></span><b>活力值</b>
                                 <p>即可享有<em sn-binding="html:vip"></em>特权</p>
                             </div>
                         </div>
@@ -97,7 +97,7 @@
                 </li>
                 <li data-forward="/mypoint">
                     <b>我的积分</b>
-                    <span>您当前积分为<em sn-binding="html:user.Points|formatMoney"></em>。</span>
+                    <span>您当前积分为<em sn-binding="html:user.Points"></em>。</span>
                 </li>
                 <li data-forward="/myorder">
                     <b>我买到的</b>
