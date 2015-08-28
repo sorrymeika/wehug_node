@@ -190,7 +190,10 @@
             return that;
         },
         destory: function () {
-            this.$click.off('click').off('tap')
+            this.$el.off($.fx.transitionEnd);
+            this.$click.off('click').off('tap');
+            this.$mask.remove();
+            this.$container.off('tap').remove();
         }
     };
 

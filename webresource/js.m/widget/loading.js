@@ -6,7 +6,7 @@
 
     var records = [];
 
-    var extend = ['$el', 'method', 'headers', 'dataType', 'xhrFields', 'success', 'complete', 'pageIndex', 'pageSize', 'append', '$content', '$scroll', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
+    var extend = ['$el', 'method', 'headers', 'dataType', 'xhrFields', 'beforeSend', 'success', 'complete', 'pageIndex', 'pageSize', 'append', '$content', '$scroll', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
 
     var Loading = function (options) {
         $.extend(this, _.pick(options, extend));
@@ -27,6 +27,7 @@
         KEY_PAGE: 'page',
         KEY_PAGESIZE: 'pageSize',
 
+        DATAKEY_MSG: 'msg',
         DATAKEY_TOTAL: 'total',
         DATAKEY_PAGENUM: '',
 
@@ -101,11 +102,8 @@
                 if (!that.$loading) {
                     that.$loading = $(that.template);
                 }
-
-                that.$loading.css({
-                    display: 'block'
-                })
-                .appendTo(that.$el);
+                that.$loading.show().appendTo(that.$el)[0].clientHeight;
+                that.$loading.addClass('show');
 
                 that.$refreshing && that.$refreshing.hide();
 
@@ -120,14 +118,14 @@
         hideLoading: function () {
             this.$error && this.$error.hide();
             this.$refreshing && this.$refreshing.hide();
-            this.$loading.hide();
+            this.$loading.removeClass('show');
         },
 
         setHeaders: function (key, val) {
             var attrs;
             if (!val)
                 attrs = key
-            else 
+            else
                 (attrs = {})[key] = val;
 
             if (this.headers === undefined) this.headers = {};
@@ -142,7 +140,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else 
+            else
                 (attrs = {})[key] = val;
 
             for (var attr in attrs) {
@@ -191,6 +189,8 @@
 
             if (!options || options.showLoading !== false) that.showLoading();
 
+            that.beforeSend && that.beforeSend();
+
             that._xhr = $.ajax({
                 url: that.url,
                 headers: that.headers,
@@ -200,17 +200,13 @@
                 dataType: that.dataType,
                 cache: false,
                 error: function (xhr) {
-                    that._xhr = null;
-                    that.isLoading = false;
-                    that.error({ msg: '网络错误' }, xhr);
-                    callback && callback.call(that, { msg: '网络错误' }, null);
+                    var res = {};
+                    res[that.DATAKEY_MSG] = '网络错误'
+                    that.error(res, xhr);
+                    callback && callback.call(that, res, null);
                 },
                 success: function (res, status, xhr) {
-                    that._xhr = null;
-                    that.isLoading = false;
-
                     if (!that.check || that.check(res)) {
-                        that.hideLoading();
 
                         if (that.checkData === false || that.hasData(res)) {
                             if (that.pageIndex == 1 || !that.append) that.success(res, status, xhr);
@@ -218,17 +214,22 @@
 
                             callback && callback.call(that, null, res);
 
-                            that.checkAutoRefreshing(res);
+                            if (that.append) that.checkAutoRefreshing(res);
+
                         } else {
                             that.dataNotFound(res);
                         }
                     } else {
-                        that.isLoading = false;
                         that.error(res);
                         callback && callback.call(that, res, null);
                     }
                 },
-                complete: $.proxy(that.complete, that)
+                complete: function () {
+                    that._xhr = null;
+                    that.isLoading = false;
+                    that.hideLoading();
+                    that.complete();
+                }
             });
         },
 

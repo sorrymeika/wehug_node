@@ -9,8 +9,12 @@
 
     var Filter = {
         date: util.formatDate,
-        isFalse: util.isFalse,
-        isTrue: util.isTrue,
+        isFalse: function (val, a, b) {
+            return arguments.length == 1 ? util.isFalse(val) : util.isFalse(val) ? a : b;
+        },
+        isTrue: function (val, a, b) {
+            return arguments.length == 1 ? util.isTrue(val) : util.isTrue(val) ? a : b;
+        },
         json: function (data) {
             return (data instanceof Model || data instanceof Collection) ? JSON.stringify(data.data) : JSON.stringify(data);
         },
@@ -195,7 +199,7 @@
         return new Function('F', 'M', 'V', 'K', 'E', before + code);
     };
 
-    var $filterEl = function ($el, selector) {
+    var filter$El = function ($el, selector) {
         return $el.filter(selector).add($el.find(selector));
     };
 
@@ -254,7 +258,7 @@
         var count = this.count;
         var eventid = this.eventid;
 
-        var $repeats = $filterEl($elem, '[sn-repeat]').each(function () {
+        var $repeats = filter$El($elem, '[sn-repeat]').each(function () {
             var $el = $(this);
             var el = this;
             var repeat = this.getAttribute('sn-repeat');
@@ -335,7 +339,7 @@
                 var listItem = list[i];
                 var $el = $(listItem.template);
 
-                $filterEl($el, '[sn-binding],[sn-model],[sn-on]').each(function () {
+                filter$El($el, '[sn-binding],[sn-model],[sn-on]').each(function () {
                     var el = this;
                     var binding = this.getAttribute('sn-binding');
                     var model = this.getAttribute('sn-model');
@@ -394,7 +398,7 @@
             }
         }
 
-        $filterEl($elem, '[sn-binding],[sn-on]').each(function () {
+        filter$El($elem, '[sn-binding],[sn-on]').each(function () {
             var binding = this.getAttribute('sn-binding');
             var on = this.getAttribute('sn-on');
             var el = this;
@@ -494,12 +498,10 @@
         this.created = true;
     };
 
-    Model.prototype = {
+    Model.prototype = Object.create(Event);
+
+    $.extend(Model.prototype, {
         constructor: Model,
-        one: Event.one,
-        on: Event.on,
-        off: Event.off,
-        trigger: Event.trigger,
 
         _redraw: function () {
             var model;
@@ -546,7 +548,7 @@
                 if (this.created && this.parent instanceof Model)
                     this.parent.trigger('change:' + this._key, this.data);
 
-                if (this.parent.needUpdateView)
+                if (this.parent.shouldUpdateView)
                     this.parent._syncOwnView();
             }
             return this;
@@ -554,7 +556,7 @@
 
         _attr: function (el, attr, val, $container) {
             if (typeof el === 'number') {
-                $filterEl($container || this.$el, '[sn-id="' + el + '"]').each(function () {
+                filter$El($container || this.$el, '[sn-id="' + el + '"]').each(function () {
                     setAttribute(this, attr, val);
                 });
             } else {
@@ -581,6 +583,20 @@
             return this.model[key];
         },
 
+        dirty: function () {
+            var value,
+                result = {};
+
+            for (var key in this.data) {
+                value = this.data[key];
+                if (this.originalData[key] != value) {
+                    result[key] = value;
+                }
+            }
+
+            return result;
+        },
+
         set: function (key, val) {
             var self = this,
                 origin,
@@ -588,7 +604,7 @@
                 attrs,
                 model = this.model;
 
-            self.needUpdateView = false;
+            self.shouldUpdateView = false;
 
             if ($.isPlainObject(key)) {
                 attrs = key;
@@ -605,6 +621,9 @@
             } else {
                 (attrs = {})[key] = val;
             }
+
+            if (!this.originalData)
+                this.originalData = attrs;
 
             var collections = [],
                 models = [],
@@ -698,7 +717,7 @@
                 }
             }
 
-            self.needUpdateView = true;
+            self.shouldUpdateView = true;
 
             return this;
         },
@@ -714,7 +733,7 @@
         toJSON: function () {
             return $.extend(true, {}, this.data);
         }
-    };
+    });
 
     var Repeat = function (options, collection) {
         this.list = [];
@@ -930,7 +949,7 @@
         },
 
         add: function (data, useFragment) {
-            this.needUpdateView = false;
+            this.shouldUpdateView = false;
             var $els;
             var model = new this.model();
             var length = this.data.length;
@@ -968,7 +987,7 @@
             if (!useFragment) {
                 this._syncOwnView();
             }
-            this.needUpdateView = true;
+            this.shouldUpdateView = true;
             return model;
         },
 
@@ -977,7 +996,7 @@
             if (this.created)
                 this.parent.trigger('change:' + this._key, this.data);
 
-            if (this.parent.needUpdateView) {
+            if (this.parent.shouldUpdateView) {
                 this.parent._syncOwnView();
             }
             return this;
@@ -999,7 +1018,7 @@
         },
 
         set: function (data) {
-            this.needUpdateView = false;
+            this.shouldUpdateView = false;
             this.fragment(function () {
 
                 var item,
@@ -1023,7 +1042,7 @@
                     }
                 }
             });
-            this.needUpdateView = true;
+            this.shouldUpdateView = true;
             return this;
         },
 
@@ -1056,7 +1075,7 @@
         }
     };
 
-    var closestModel = function (target, collectionName) {
+    var getClosestModel = function (target, collectionName) {
         return (target.getAttribute('sn-repeat-name') == collectionName ? target : $(target).closest('[sn-repeat-name="' + collectionName + '"]')[0]).snModel;
     }
 
@@ -1119,10 +1138,10 @@
                             var name = names.shift();
                             var $closest;
                             if (option.repeat.alias == name) {
-                                model = closestModel(target, option.repeat.collectionName);
+                                model = getClosestModel(target, option.repeat.collectionName);
                                 arg = names;
                             } else if (option.repeat.modelAlias[name]) {
-                                model = closestModel(target, option.repeat.modelAlias[name]);
+                                model = getClosestModel(target, option.repeat.modelAlias[name]);
                                 arg = names;
                             } else if ($closest = $target.closest('[sn-index-' + arg + ']')) {
                                 args.push($closest.attr('sn-index-' + arg));
@@ -1137,7 +1156,7 @@
                     modelName = fn;
                     ctx = this;
                 } else {
-                    ctx = closestModel(target, fn.collection);
+                    ctx = getClosestModel(target, fn.collection);
                     modelName = fn.variable;
                 }
 
@@ -1203,7 +1222,7 @@
             if (!collectionName) {
                 this.set(modelName, target.value);
             } else {
-                closestModel(target, collectionName).set(modelName, target.value);
+                getClosestModel(target, collectionName).set(modelName, target.value);
             }
         },
 
