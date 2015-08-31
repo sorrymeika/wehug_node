@@ -21,9 +21,13 @@
         this.$content = $('<ul></ul>').appendTo(this.$scroller);
 
         this.set(data);
+
+        if (options.value) this.val(options.value);
     };
 
-    $.extend(SelectorItem.prototype, Scroll.prototype, {
+    SelectorItem.prototype = Object.create(Scroll.prototype);
+
+    $.extend(SelectorItem.prototype, {
         options: {
             bounce: false,
             hScroll: false,
@@ -45,9 +49,9 @@
             });
 
             this.data = data;
-            this.currentData = data && data.length ? data[0] : {};
+            this.selectedData = data && data.length ? data[0] : {};
             this.$content.html(html);
-            this.index(0);
+            return this.index(0);
         },
 
         beforeMomentum: function () {
@@ -69,23 +73,29 @@
         _index: 0,
         index: function (index) {
             if (typeof index === 'undefined') return this._index;
-            if (this._index != index) {
-                this.currentData = this.data[index];
-                this.trigger('Change', index, this.currentData);
+
+            if (index >= this.data.length) {
+                index = this.data.length - 1;
+            }
+
+            if (index != -1 && this._index != index) {
+                this.selectedData = this.data[index];
+                this.trigger('Change', index, this.selectedData);
                 this._index = index;
 
                 var y = index * this.itemHeight;
                 y != this.y && this.scrollTo(0, y, 200);
             }
+            return this;
         },
 
         val: function (val) {
             if (typeof val === 'undefined')
-                return this.currentData.value;
+                return this.selectedData.value;
 
-            var index = util.indexOf(this.data, typeof val !== "function" ? function (item) {
+            var index = util.indexOf(this.data, function (item) {
                 return item.value == val;
-            } : val);
+            });
 
             this.index(index);
         }
@@ -136,7 +146,7 @@
         this.$click = this.$el.find('.js_click').on('tap', function () {
             var result = [];
             $.each(that.selectors, function (i, sel) {
-                result.push(sel.currentData);
+                result.push(sel.selectedData);
             });
 
             options.complete && options.complete.call(that, result);

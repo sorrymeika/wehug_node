@@ -80,7 +80,15 @@ function parseDependencies(code) {
 }
 
 var replaceDefine = function (id, code, requires, append) {
-    var m = code.match(/\bdefine\(/g);
+
+    console.log(id);
+
+    if (id == 'components/form') {
+        console.log(code);
+    }
+
+    code = replaceBOM(code);
+    var m = code.match(/(^|\s|[&])define\(/g);
     if (m && m.length > 1) {
         return code;
     }
