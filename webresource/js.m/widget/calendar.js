@@ -55,9 +55,7 @@
             }],
 
             complete: function (res) {
-                console.log(res);
-
-                self.onChange(res[0].value + '-' + res[1].value + '-' + res[2].value);
+                self.onChange(res[0].value + '-' + util.pad(res[1].value) + '-' + util.pad(res[2].value));
             }
         });
 
