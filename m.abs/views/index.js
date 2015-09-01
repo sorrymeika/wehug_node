@@ -8,7 +8,6 @@
     var Slider = require('../widget/slider');
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
-    var barcode1 = require('../widget/barcode');
     var barcode = require('../util/barcode');
     var animation = require('animation');
 

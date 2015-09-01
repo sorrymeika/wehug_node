@@ -193,11 +193,12 @@
         },
 
         onResult: function (event, fn) {
-            this.listenTo(this.application, event, fn);
+            return this.listenTo(this.application, event, fn);
         },
 
         setResult: function () {
             this.application.trigger.apply(this.application, arguments);
+            return this;
         },
 
         compareUrl: function (url) {
