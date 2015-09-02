@@ -66,6 +66,7 @@
             var that = this;
 
             if (this.pageIndex == 1) {
+
                 this.$loading.animate({
                     opacity: 0
                 }, 300, 'ease-out', function () {
@@ -125,7 +126,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else
+            else 
                 (attrs = {})[key] = val;
 
             if (this.headers === undefined) this.headers = {};
@@ -140,7 +141,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else
+            else 
                 (attrs = {})[key] = val;
 
             for (var attr in attrs) {
@@ -200,12 +201,14 @@
                 dataType: that.dataType,
                 cache: false,
                 error: function (xhr) {
+                    that.hideLoading();
                     var res = {};
                     res[that.DATAKEY_MSG] = '网络错误'
                     that.error(res, xhr);
                     callback && callback.call(that, res, null);
                 },
                 success: function (res, status, xhr) {
+                    that.hideLoading();
                     if (!that.check || that.check(res)) {
 
                         if (that.checkData === false || that.hasData(res)) {
@@ -227,7 +230,6 @@
                 complete: function () {
                     that._xhr = null;
                     that.isLoading = false;
-                    that.hideLoading();
                     that.complete();
                 }
             });
