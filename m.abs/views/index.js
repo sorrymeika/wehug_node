@@ -57,12 +57,14 @@
                     $target.addClass('curr').siblings('.curr').removeClass('curr');
                     this.$main.eq(index).show().siblings('.main').hide();
 
-                    if (index == 2 && !this.model.data.baiduMap) {
-                        this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html") + '" frameborder="0" ></iframe>');
-                        this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
+                    if (index == 2) {
+                        if (!this.model.data.baiduMap) {
+                            this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html?v2") + '" frameborder="0" ></iframe>');
+                            this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
+                        }
 
                         bridge.getLocation(function (longitude, latitude) {
-                            self.$baiduMap.src = bridge.url("/baiduMap.html#longitude=" + longitude + "&latitude=" + latitude);
+                            self.$baiduMap.src = bridge.url("/baiduMap.html?v2#longitude=" + longitude + "&latitude=" + latitude);
                         });
                     }
                 }

@@ -96,7 +96,7 @@
                     <span>您现在拥有免邮卡<em sn-binding="html:user.FreeCouponsCount"></em>张，抵用券<em sn-binding="html:user.CouponsCount"></em>张。</span>
                 </li>
                 <li data-forward="/mypoint">
-                    <b>我的积分</b>
+                    <b>积分钱包</b>
                     <span>您当前积分为<em sn-binding="html:user.Points"></em>。</span>
                 </li>
                 <li data-forward="/myorder">
