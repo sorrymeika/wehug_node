@@ -61,7 +61,7 @@
                         this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html") + '" frameborder="0" ></iframe>');
                         this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
 
-                        bridge.getLocation(function (longitude, b) {
+                        bridge.getLocation(function (longitude, latitude) {
                             self.$baiduMap.src = bridge.url("/baiduMap.html#longitude=" + longitude + "&latitude=" + latitude);
                         });
                     }
@@ -125,7 +125,15 @@
                 checkData: false,
                 $el: this.$el,
                 success: function (res) {
-                    $.extend(self.user, res.data);
+                    if (res.success == false) {
+                        if (res.error_code == 503) {
+                            self.user = null;
+                            self.model.set('isLogin', false);
+                        }
+                    } else {
+                        $.extend(self.user, res.data);
+                    }
+
                     util.store('user', self.user);
                     self.model.set({
                         user: self.user
@@ -185,6 +193,8 @@
         },
 
         setRainbow: function () {
+            if (!this.user) return;
+
             var self = this;
             var total = Math.round(this.user.Amount);
             var percent = pointPercent(total);
