@@ -126,4 +126,4 @@
 <div class="open_msg" style="display:none">
     <div class="msg_bd" sn-binding="html:message"></div>
 </div>
-<div class="home_mask" sn-binding="display:isLogin|and:isFirstOpen,html:isFirstOpen"></div>
+<div class="home_tip_mask" sn-binding="display:isLogin|and:isFirstOpen,html:isFirstOpen"></div>

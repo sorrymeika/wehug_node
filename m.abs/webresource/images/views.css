@@ -348,5 +348,5 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .home_offline .txt_sub { margin-top: 4px; font-size: .7em; color: #999; }
 .home_offline .btn { margin-top: 15px; color: #999; border: 1px solid #ccc; padding: 0 20px; font-size: .8em; background: #fff; border-radius: 4px; }
 
-.home_mask { position: absolute; top: 0; z-index: 2000; bottom: 0; right: 0; top: 0; background: rgba(0,0,0,.7); }
-.home_mask:before { position: absolute; right: 20px; bottom: 40px; display: block; background: url(home_tip.png) no-repeat; content: ''; width: 117px; height: 96px; background-size: 100% auto; margin: 22px auto 2px auto;}
+.home_tip_mask { position: absolute; top: 0; z-index: 2000; bottom: 0; right: 0; top: 0; background: rgba(0,0,0,.7); }
+.home_tip_mask:before { position: absolute; right: 20px; bottom: 40px; display: block; background: url(home_tip.png) no-repeat; content: ''; width: 117px; height: 96px; background-size: 100% auto; margin: 22px auto 2px auto;}

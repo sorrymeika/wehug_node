@@ -33,7 +33,7 @@
                     this.back('/');
                 }
             },
-            'tap .home_mask': function (e) {
+            'tap .home_tip_mask': function (e) {
                 util.store('isFirstOpen', false);
                 this.model.set({ isFirstOpen: false });
             },
