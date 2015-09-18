@@ -282,7 +282,7 @@
 
                     context.beginPath();
 
-                    context.arc(centerX, centerX, radius, cend, 2.15, false);
+                    context.arc(centerX, centerX, radius, cend, 2.15 * Math.PI, false);
                     context.lineWidth = 5;
                     context.strokeStyle = '#ddd';
                     context.stroke();
