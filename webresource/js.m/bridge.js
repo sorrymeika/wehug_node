@@ -47,12 +47,7 @@
                 };
             }
 
-            if (ios) {
-                alert('slapp://' + JSON.stringify(data));
-
-            } else if (isAndroid) {
-                prompt(JSON.stringify(data));
-            }
+            alert('slapp://' + JSON.stringify(data));
         },
         bridge = {
             isInApp: /SLApp/.test(ua),

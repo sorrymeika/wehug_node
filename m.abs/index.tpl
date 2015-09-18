@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="api-base-url" content="@html(debug?"http://192.168.0.104:5559":"http://m.abs.cn:7788")" />
+    <meta name="api-base-url" content="@html(debug?"http://192.168.10.129:5559":"http://m.abs.cn:7788")" />
     <title></title>
     @for(var key in css){
         var items=css[key],
@@ -44,11 +44,11 @@
         }
     }
     <style>
-        .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top; background-size:  auto 100%; }
-        .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top; background-size: auto 100%; }
+        .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top !important; background-size:  auto 100% !important; }
+        .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top !important; background-size: auto 100% !important; }
         @@media screen and (max-height:480px) {
-            .viewport.applaunch { background: url(images/launch_480.jpg) no-repeat center top; }
-            .viewport.applaunch1 { background: url(images/launch101_480.jpg) no-repeat center top;}
+            .viewport.applaunch { background-image: url(images/launch_480.jpg) !important; }
+            .viewport.applaunch1 { background-image: url(images/launch101_480.jpg) !important; }
         }
     </style>
 </head>

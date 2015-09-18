@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
-
+    var bridge = require('bridge');
 
     return Activity.extend({
         events: {},

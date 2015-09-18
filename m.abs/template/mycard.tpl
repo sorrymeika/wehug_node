@@ -12,17 +12,17 @@
              <div class="name">免邮券</div>
              <div class="time"><div class="hd">有效期</div><div class="con">2015/07/30</div></div>
          </li>-->
-        <li sn-repeat="item in data" sn-binding="class:item.VCA_DEDUCT_AMOUNT|cardClass:item.VCA_VCT_ID,class:item.isOverdue|equal:true:'dis':''">
+        <li sn-repeat="item in data" sn-binding="class:item|cardClass">
             <div class="price" sn-binding="html:item.VCA_DEDUCT_AMOUNT|currency,display:item.VCA_VCT_ID|equal:4|not"></div>
             <div class="name" sn-binding="html:item.VCA_VCT_ID|equal:4:'免邮卡':item.VCA_NAME"><!--单笔订单满300可用--></div>
-            <div class="time"><div class="hd">有效期</div><div class="con" sn-binding="html:item.CSV_START_DT|date:'yyyy/MM/dd'|concat:'至',display:item.isOverdue|not"></div><div class="con" sn-binding="html:item.CSV_END_DT|date:'yyyy/MM/dd',display:item.isOverdue|not"></div><div class="overdue" sn-binding="display:item.isOverdue" style="display:none">已过期</div></div>
+            <div class="time"><div class="hd">有效期</div><div class="con" sn-binding="html:item.CSV_START_DT|date:'yyyy/MM/dd'|concat:'至',display:item.IsOverdue|not"></div><div class="con" sn-binding="html:item.CSV_END_DT|date:'yyyy/MM/dd',display:item.IsOverdue|not"></div><div class="overdue" sn-binding="display:item.IsOverdue" style="display:none">已过期</div></div>
         </li>
     </ul>
     <ul class="mycard_con js_overdue" sn-binding="display:isOverdue">
-        <li sn-repeat="item in data1" sn-binding="class:item.VCA_VCT_ID|equal:4:'free':'',class:item.isOverdue|equal:true:'dis':''">
+        <li sn-repeat="item in data1" class="free" sn-binding="class:item.IsOverdue|equal:true:'dis':''">
             <div class="price" sn-binding="html:item.VCA_DEDUCT_AMOUNT|currency,display:item.VCA_VCT_ID|equal:4|not"></div>
             <div class="name" sn-binding="html:item.VCA_VCT_ID|equal:4:'免邮卡':item.VCA_NAME"><!--单笔订单满300可用--></div>
-            <div class="time"><div class="hd">有效期</div><div class="con" sn-binding="html:item.CSV_START_DT|date:'yyyy/MM/dd'|concat:'至',display:item.isOverdue|not"></div><div class="con" sn-binding="html:item.CSV_END_DT|date:'yyyy/MM/dd',display:item.isOverdue|not"></div><div class="overdue" sn-binding="display:item.isOverdue" style="display:none">已过期</div></div>
+            <div class="time"><div class="hd">有效期</div><div class="con" sn-binding="html:item.CSV_START_DT|date:'yyyy/MM/dd'|concat:'至',display:item.IsOverdue|not"></div><div class="con" sn-binding="html:item.CSV_END_DT|date:'yyyy/MM/dd',display:item.IsOverdue|not"></div><div class="overdue" sn-binding="display:item.IsOverdue" style="display:none">已过期</div></div>
         </li>
     </ul>
     <div class="my_nodata" sn-binding="display:data|eval:'$1?!$2.length:!$0.length':isOverdue:data1" style="display:none">

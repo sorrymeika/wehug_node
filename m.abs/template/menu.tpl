@@ -14,7 +14,7 @@
     <ul class="menu_list menu_my">
         <li data-forward="/month">我的月礼</li>
         <li data-forward="/mycard">我的卡券</li>
-        <li data-forward="/mypoint">我的积分</li>
+        <li data-forward="/mypoint">积分钱包</li>
         <li data-forward="/myorder">我买到的</li>
     </ul>
     <ul class="menu_list menu_service">

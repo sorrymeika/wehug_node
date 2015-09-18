@@ -8,7 +8,6 @@
     var Slider = require('../widget/slider');
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
-    var barcode1 = require('../widget/barcode');
     var barcode = require('../util/barcode');
     var animation = require('animation');
 
@@ -58,12 +57,14 @@
                     $target.addClass('curr').siblings('.curr').removeClass('curr');
                     this.$main.eq(index).show().siblings('.main').hide();
 
-                    if (index == 2 && !this.model.data.baiduMap) {
-                        this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html") + '" frameborder="0" ></iframe>');
-                        this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
+                    if (index == 2) {
+                        if (!this.model.data.baiduMap) {
+                            this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html?v2") + '" frameborder="0" ></iframe>');
+                            this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
+                        }
 
-                        bridge.getLocation(function (longitude, b) {
-                            self.$baiduMap.src = bridge.url("/baiduMap.html#longitude=" + longitude + "&latitude=" + latitude);
+                        bridge.getLocation(function (longitude, latitude) {
+                            self.$baiduMap.src = bridge.url("/baiduMap.html?v2#longitude=" + longitude + "&latitude=" + latitude);
                         });
                     }
                 }
@@ -106,10 +107,7 @@
 
             var $main = this.$main = this.$('.main');
 
-            Scroll.bind($main.filter('.js_usescroll'), {
-                useScroll: true
-            });
-            Scroll.bind($main.filter(':not(.js_usescroll)'));
+            Scroll.bind($main);
 
             this.$points = this.$('.home_points');
             this.$cursor = this.$('.home_points_cursor');
@@ -120,13 +118,35 @@
             });
             Scroll.bind(self.$open_msg.find('.msg_bd'));
 
+            var canvas = this.$('.js_canvas')[0];
+            var context = canvas.getContext('2d');
+            canvas.width = 190;
+            var centerX = canvas.width / 2;
+            var centerY = canvas.height / 2;
+            var radius = 90;
+            this.context = context;
+
+            context.beginPath();
+            context.arc(centerX, centerX, radius, .85 * Math.PI, 2.15 * Math.PI, false);
+            context.lineWidth = 5;
+            context.strokeStyle = '#dddddd';
+            context.stroke();
+
             this.userLoading = new Loading({
                 url: '/api/user/get',
                 check: false,
                 checkData: false,
                 $el: this.$el,
                 success: function (res) {
-                    $.extend(self.user, res.data);
+                    if (res.success == false) {
+                        if (res.error_code == 503) {
+                            self.user = null;
+                            self.model.set('isLogin', false);
+                        }
+                    } else {
+                        $.extend(self.user, res.data);
+                    }
+
                     util.store('user', self.user);
                     self.model.set({
                         user: self.user
@@ -157,12 +177,15 @@
                         ads: res.data
                     });
 
-                    var items = self.$('.home_ad > li');
+                    var items = self.$('.home_ad > li').on($.fx.transitionEnd, function () {
+                    });
                     items.each(function (i) {
                         var el = this;
                         setTimeout(function () {
                             el.className = 'toggle';
                         }, (i + 1) * 100);
+
+                        this.clientHeight;
                     })
                 }
             });
@@ -199,6 +222,11 @@
         },
 
         setRainbow: function () {
+            if (!this.user) return;
+
+            var canvas = this.$('.js_canvas')[0];
+            var context = this.context;
+
             var self = this;
             var total = Math.round(this.user.Amount);
             var percent = pointPercent(total);
@@ -212,13 +240,15 @@
 
             this.$('.rainbow_vip :nth-child(' + (level + 1) + ')').addClass('curr');
 
-            self.model.set('nextLevel', "+" + nextLevel);
+            self.model.set('nextLevel', nextLevel);
             self.model.set('currentLevel', levels[level]);
             self.model.set('levelAmounts', levelAmounts);
             self.model.set('cardAmounts', '(' + util.formatMoney(total) + (total > 50000 ? '' : ('/' + util.formatMoney(levelAmounts))) + ')');
 
             if (total != self.model.data.point) {
                 self.model.set('point', total);
+
+                var circlePercent = percent * (2.15 - .85) / 100 + .85;
 
                 animation.animate(function (d) {
                     var curr = animation.step(-117, deg, d);
@@ -248,6 +278,28 @@
                         top: 91 - point.y,
                         left: 91 + point.x
                     });
+
+                    canvas.width = 190;
+                    var centerX = canvas.width / 2;
+                    var centerY = canvas.height / 2;
+                    var radius = 90;
+
+                    var cend = animation.step(.85, circlePercent, d) * Math.PI;
+
+                    context.beginPath();
+
+                    context.arc(centerX, centerX, radius, .85 * Math.PI, cend, false);
+                    context.lineWidth = 5;
+                    context.strokeStyle = '#d6415c';
+                    context.stroke();
+
+                    context.beginPath();
+
+                    context.arc(centerX, centerX, radius, cend, 2.15 * Math.PI, false);
+                    context.lineWidth = 5;
+                    context.strokeStyle = '#ddd';
+                    context.stroke();
+
 
                 }, 800, 'ease-out')
 

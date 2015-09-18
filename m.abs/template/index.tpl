@@ -47,12 +47,13 @@
                                 <p>感谢您的⽀持和惠顾</p>
                             </div>
                             <div sn-binding="display:nextLevel|equal:0|not">
-                                <span sn-binding="html:nextLevel|formatMoney"></span><b>活力值</b>
+                                <span sn-binding="html:nextLevel|formatMoney|format:'+{0}'"></span><b>活力值</b>
                                 <p>即可享有<em sn-binding="html:vip"></em>特权</p>
                             </div>
                         </div>
                     </div>
                 </div>
+                <canvas class="home_points_bg js_canvas"></canvas>
                 <div class="home_points_bg">
                     <div class="home_points"></div>
                     <div class="home_points"></div>
@@ -96,8 +97,8 @@
                     <span>您现在拥有免邮卡<em sn-binding="html:user.FreeCouponsCount"></em>张，抵用券<em sn-binding="html:user.CouponsCount"></em>张。</span>
                 </li>
                 <li data-forward="/mypoint">
-                    <b>我的积分</b>
-                    <span>您当前积分为<em sn-binding="html:user.Points|formatMoney"></em>。</span>
+                    <b>积分钱包</b>
+                    <span>您当前积分为<em sn-binding="html:user.Points"></em>。</span>
                 </li>
                 <li data-forward="/myorder">
                     <b>我买到的</b>

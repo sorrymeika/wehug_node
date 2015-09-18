@@ -97,18 +97,6 @@ var mapControllers = function (config) {
         var root = data.root == '/' ? '' : data.root,
             devPath = '/webresource/js' + root;
 
-        app.get(devPath + '/views/*.js', function (req, res) {
-            res.set('Content-Type', 'text/javascript');
-
-            fs.readFile('.' + root + '/views/' + req.params[0] + '.js', { encoding: 'utf-8' }, function (err, text) {
-                if (err) {
-                    res.send(err);
-                    return;
-                }
-                res.send(text);
-            });
-        });
-
         app.get(devPath + '/template/*.js', function (req, res) {
             res.set('Content-Type', 'text/javascript');
 
@@ -123,6 +111,19 @@ var mapControllers = function (config) {
                 text = text.replace(/^\uFEFF/i, '');
                 text = razor.web(text);
                 res.send(text);
+            });
+        });
+
+        app.get(devPath + '/*/*.js', function (req, res, next) {
+            res.set('Content-Type', 'text/javascript');
+
+            fs.readFile('.' + root + '/' + req.params[0] + '/' + req.params[1] + '.js', { encoding: 'utf-8' }, function (err, text) {
+                if (err) {
+                    //res.send(err);
+                    next();
+                } else {
+                    res.send(text);
+                }
             });
         });
     });

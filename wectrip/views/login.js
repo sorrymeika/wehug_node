@@ -28,7 +28,7 @@
                             } else {
                                 sl.tip(res.msg);
                                 self.model.set({
-                                    captcha: '/captcha/' + Date.now() + '.jpg'
+                                    captcha: '/captcha/' + Date.now()
                                 });
                             }
                         });
@@ -59,7 +59,7 @@
                     label: '验证码',
                     field: 'captcha',
                     type: 'captcha',
-                    captcha: '/captcha/1.jpg',
+                    captcha: '/captcha/1',
                     emptyAble: false,
                     emptyText: '不可为空',
                     render: function () {

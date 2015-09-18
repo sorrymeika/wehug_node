@@ -32,14 +32,14 @@ var compressor = UglifyJS.Compressor({
     global_defs: {}
 });
 
-var compressJs = function (code) {
+var compressJs = function (code, mangle_names) {
     code = replaceBOM(code).replace(/\/\/<--debug[\s\S]+?\/\/debug-->/img, '');
 
     var ast = UglifyJS.parse(code);
     ast.figure_out_scope();
     ast = ast.transform(compressor);
     ast.compute_char_frequency();
-    ast.mangle_names();
+    ast.mangle_names(mangle_names);
     code = ast.print_to_string();
 
     return code;
@@ -70,17 +70,19 @@ function parseDependencies(code) {
     //requireRe = new RegExp("\\b" + m[1] + "\\s*\\(\\s*([\"'])(.+?)\\1\\s*\\)", 'g');
 
     code.replace(SLASH_RE, "")
-        .replace(REQUIRE_RE, function (m, m1, m2) {
-            if (m2) {
-                ret.push(m2)
-            }
-        })
+         .replace(REQUIRE_RE, function (m, m1, m2) {
+             if (m2) {
+                 ret.push(m2)
+             }
+         })
 
     return ret
 }
 
 var replaceDefine = function (id, code, requires, append) {
-    var m = code.match(/\bdefine\(/g);
+
+    code = replaceBOM(code);
+    var m = code.match(/(^|\s|[&])define\(/g);
     if (m && m.length > 1) {
         return code;
     }

@@ -170,15 +170,18 @@
             'tap,click a[href]:not(.js-link-default)': function (e) {
                 var that = this,
                     target = $(e.currentTarget);
+                var href = target.attr('href');
 
-                if (!/^(http\:|https\:|javascript\:|mailto\:|tel\:)/.test(target.attr('href'))) {
+                if (!/^(http\:|https\:|javascript\:|mailto\:|tel\:)/.test(href)) {
                     e.preventDefault();
                     if (e.type == 'tap') {
-                        var href = target.attr('href');
                         if (!/^#/.test(href)) href = '#' + href;
 
                         target.attr('back') != null ? that.back(href) : that.forward(href);
                     }
+
+                } else if (sl.isInApp && href.indexOf('http') == 0) {
+                    bridge.openInApp(href);
 
                 } else {
                     target.addClass('js-link-default');
@@ -216,7 +219,8 @@
 
             var prepareExit = false;
 
-            this.on('back', function () {
+            $(window).on('back', function () {
+
                 var hash = location.hash;
                 if (hash == '' || hash === '#' || hash === "/" || hash === "#/") {
                     if (prepareExit) {
@@ -230,7 +234,7 @@
                     }
 
                 } else {
-                    that.back(that.history[that.history.length - 1]);
+                    that.back(that.history[that.history.length - 2]);
                 }
             });
         },
