@@ -167,6 +167,14 @@
                 }
             });
 
+            this.adLoading = new Loading({
+                url: '/api/settings/ad_list?name=index',
+                check: false,
+                checkData: false,
+                success: function (res) {
+                }
+            });
+
             var $launchImgs = this.$('.launch img');
             var $mask = this.$('.home_mask').on($.fx.transitionEnd, function (e) {
                 if ($mask.hasClass('toggle')) {
@@ -183,6 +191,11 @@
 
                 setTimeout(arguments.callee, 3200)
             }, 3200);
+
+            self.onResult("Login", function () {
+                self.userLoaded = false;
+            });
+
         },
 
         setRainbow: function () {
