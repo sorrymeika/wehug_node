@@ -44,11 +44,11 @@
         }
     }
     <style>
-        .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top; background-size:  auto 100%; }
-        .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top; background-size: auto 100%; }
+        .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top !important; background-size:  auto 100% !important; }
+        .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top !important; background-size: auto 100% !important; }
         @@media screen and (max-height:480px) {
-            .viewport.applaunch { background-image: url(images/launch_480.jpg); }
-            .viewport.applaunch1 { background-image: url(images/launch101_480.jpg); }
+            .viewport.applaunch { background-image: url(images/launch_480.jpg) !important; }
+            .viewport.applaunch1 { background-image: url(images/launch101_480.jpg) !important; }
         }
     </style>
 </head>

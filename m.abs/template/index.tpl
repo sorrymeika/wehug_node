@@ -53,6 +53,7 @@
                         </div>
                     </div>
                 </div>
+                <canvas class="home_points_bg js_canvas"></canvas>
                 <div class="home_points_bg">
                     <div class="home_points"></div>
                     <div class="home_points"></div>

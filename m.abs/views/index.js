@@ -118,6 +118,7 @@
             });
             Scroll.bind(self.$open_msg.find('.msg_bd'));
 
+
             this.userLoading = new Loading({
                 url: '/api/user/get',
                 check: false,
@@ -197,6 +198,7 @@
         setRainbow: function () {
             if (!this.user) return;
 
+            var canvas = this.$('.js_canvas')[0];
             var self = this;
             var total = Math.round(this.user.Amount);
             var percent = pointPercent(total);
@@ -218,10 +220,13 @@
             if (total != self.model.data.point) {
                 self.model.set('point', total);
 
+                var circlePercent = percent * (2.15 - .85) / 100 + .85;
+
                 animation.animate(function (d) {
                     var curr = animation.step(-117, deg, d);
                     var num = Math.round(animation.step(0, total, d));
                     var point = util.circlePoint(0, 0, 91, 90 - curr);
+
 
                     if (point.x > 0) {
                         if (deg == 0) {
@@ -246,6 +251,19 @@
                         top: 91 - point.y,
                         left: 91 + point.x
                     });
+
+
+                    var context = canvas.getContext('2d');
+                    canvas.width = 190;
+                    var centerX = canvas.width / 2;
+                    var centerY = canvas.height / 2;
+                    var radius = 90;
+
+                    context.beginPath();
+                    context.arc(centerX, centerX, radius, .85 * Math.PI, animation.step(.85, circlePercent, d) * Math.PI, false);
+                    context.lineWidth = 5;
+                    context.strokeStyle = '#d6415c';
+                    context.stroke();
 
                 }, 800, 'ease-out')
 
