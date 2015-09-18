@@ -199,7 +199,7 @@
                 }
             });
 
-            this.adLoading = new Loading({
+            this.ad1Loading = new Loading({
                 url: '/api/settings/ad_list?name=index',
                 check: false,
                 checkData: false,
