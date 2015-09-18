@@ -47,8 +47,8 @@
         .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top; background-size:  auto 100%; }
         .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top; background-size: auto 100%; }
         @@media screen and (max-height:480px) {
-            .viewport.applaunch { background: url(images/launch_480.jpg) no-repeat center top; }
-            .viewport.applaunch1 { background: url(images/launch101_480.jpg) no-repeat center top;}
+            .viewport.applaunch { background-image: url(images/launch_480.jpg); }
+            .viewport.applaunch1 { background-image: url(images/launch101_480.jpg); }
         }
     </style>
 </head>
