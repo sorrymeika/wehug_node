@@ -118,6 +118,19 @@
             });
             Scroll.bind(self.$open_msg.find('.msg_bd'));
 
+            var canvas = this.$('.js_canvas')[0];
+            var context = canvas.getContext('2d');
+            canvas.width = 190;
+            var centerX = canvas.width / 2;
+            var centerY = canvas.height / 2;
+            var radius = 90;
+            this.context = context;
+
+            context.beginPath();
+            context.arc(centerX, centerX, radius, .85 * Math.PI, 2.15 * Math.PI, false);
+            context.lineWidth = 5;
+            context.strokeStyle = '#dddddd';
+            context.stroke();
 
             this.userLoading = new Loading({
                 url: '/api/user/get',
@@ -199,6 +212,8 @@
             if (!this.user) return;
 
             var canvas = this.$('.js_canvas')[0];
+            var context = this.context;
+
             var self = this;
             var total = Math.round(this.user.Amount);
             var percent = pointPercent(total);
@@ -227,7 +242,6 @@
                     var num = Math.round(animation.step(0, total, d));
                     var point = util.circlePoint(0, 0, 91, 90 - curr);
 
-
                     if (point.x > 0) {
                         if (deg == 0) {
                             point.x = 0;
@@ -252,18 +266,27 @@
                         left: 91 + point.x
                     });
 
-
-                    var context = canvas.getContext('2d');
                     canvas.width = 190;
                     var centerX = canvas.width / 2;
                     var centerY = canvas.height / 2;
                     var radius = 90;
 
+                    var cend = animation.step(.85, circlePercent, d) * Math.PI;
+
                     context.beginPath();
-                    context.arc(centerX, centerX, radius, .85 * Math.PI, animation.step(.85, circlePercent, d) * Math.PI, false);
+
+                    context.arc(centerX, centerX, radius, .85 * Math.PI, cend, false);
                     context.lineWidth = 5;
                     context.strokeStyle = '#d6415c';
                     context.stroke();
+
+                    context.beginPath();
+
+                    context.arc(centerX, centerX, radius, cend, 2.15, false);
+                    context.lineWidth = 5;
+                    context.strokeStyle = '#ddd';
+                    context.stroke();
+
 
                 }, 800, 'ease-out')
 
