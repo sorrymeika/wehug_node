@@ -107,10 +107,7 @@
 
             var $main = this.$main = this.$('.main');
 
-            Scroll.bind($main.filter('.js_usescroll'), {
-                useScroll: true
-            });
-            Scroll.bind($main.filter(':not(.js_usescroll)'));
+            Scroll.bind($main);
 
             this.$points = this.$('.home_points');
             this.$cursor = this.$('.home_points_cursor');
@@ -166,12 +163,15 @@
                         ads: res.data
                     });
 
-                    var items = self.$('.home_ad > li');
+                    var items = self.$('.home_ad > li').on($.fx.transitionEnd, function () {
+                    });
                     items.each(function (i) {
                         var el = this;
                         setTimeout(function () {
                             el.className = 'toggle';
                         }, (i + 1) * 100);
+
+                        this.clientHeight;
                     })
                 }
             });
