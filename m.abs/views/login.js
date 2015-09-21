@@ -113,6 +113,8 @@ define(function (require, exports, module) {
                             if (user) {
                                 util.store('user', $.extend(res.data, user.data));
                             }
+
+                            self.setResult("Login");
                             self.back(self.route.query.success || '/');
                         });
 

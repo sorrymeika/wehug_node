@@ -108,6 +108,14 @@
             </ul>
         </div>
     </div>
+    <div class="main" sn-binding="display:isOffline">
+        <div class="home_offline">
+            <div class="ico"></div>
+            <div class="txt">您的网络不太顺畅哦</div>
+            <div class="txt_sub">请检查您的手机是否联网</div>
+            <div class="btn">重新加载</div>
+        </div>
+    </div>
 </div>
 <ul class="footer" sn-binding="display:isLogin">
     <li class="curr">首页</li>
@@ -118,3 +126,4 @@
 <div class="open_msg" style="display:none">
     <div class="msg_bd" sn-binding="html:message"></div>
 </div>
+<div class="home_tip_mask" sn-binding="display:isLogin|and:isFirstOpen"></div>

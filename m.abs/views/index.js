@@ -33,6 +33,10 @@
                     this.back('/');
                 }
             },
+            'tap .home_tip_mask': function (e) {
+                util.store('isFirstOpen', false);
+                this.model.set({ isFirstOpen: false });
+            },
             'tap .open_msg': function (e) {
                 if ($(e.target).hasClass('open_msg')) {
                     $(e.target).removeClass('show');
@@ -95,7 +99,9 @@
                 menu: 'head_menu',
                 titleClass: 'head_title',
                 title: 'ABS + CLUB',
+                isOffline: false,
                 isLogin: !!util.store('user'),
+                isFirstOpen: util.store('isFirstOpen') === null,
                 msg: 0,
                 open: function () {
                     bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
@@ -164,6 +170,9 @@
                             message: res.vdpMessage
                         });
                     }
+                },
+                error: function () {
+                    self.model.set('isOffline', true);
                 }
             });
 
@@ -190,6 +199,15 @@
                 }
             });
 
+            this.ad1Loading = new Loading({
+                url: '/api/settings/ad_list?name=index',
+                check: false,
+                checkData: false,
+                $el: $(''),
+                success: function (res) {
+                }
+            });
+
             var $launchImgs = this.$('.launch img');
             var $mask = this.$('.home_mask').on($.fx.transitionEnd, function (e) {
                 if ($mask.hasClass('toggle')) {
@@ -206,6 +224,11 @@
 
                 setTimeout(arguments.callee, 3200)
             }, 3200);
+
+            self.onResult("Login", function () {
+                self.userLoaded = false;
+            });
+
         },
 
         setRainbow: function () {
