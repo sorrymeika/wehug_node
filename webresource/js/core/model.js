@@ -127,6 +127,7 @@
             }
             return len % 2 == 0 ? undefined : args[len - 1];
         },
+
         listen: function (parent, model, key, el, self, param, count) {
             var fkey;
 
@@ -139,12 +140,13 @@
                     var m = (param.length <= 0 ? parent : (parent.get(param.join('.')) || parent.set(param.join('.'), {}).get(param)));
 
                     m.on("change" + (attr ? ':' + attr : ''), function () {
-                        model._attr(el, self.prop, self.filter(Filter, model, model.data[key]));
+                        model._elAttr(el, self.prop, self.filter(Filter, model, model.data[key]));
                     });
                 }
             }
         }
     };
+
 
     var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)/g;
     var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')/g;
@@ -233,7 +235,7 @@
         return result;
     };
 
-    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}(?:\s*\|\s*orderBy\s*\:\s*([a-zA-Z_0-9\.]+)(?:\s*\:\s*([a-zA-Z_0-9\.]+)){0,1}){0,1}/g;
+    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)*)(\s|$)/g;
     var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)*)(\s|,|$)/g;
     var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))*|\s*=\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))(\s|,|$)/g;
 
@@ -276,7 +278,7 @@
                 }
             });
 
-            repeat.replace(rrepeat, function (match, modelName, indexAlias, collectionName, filter, comparator, orderBy, reverse) {
+            repeat.replace(rrepeat, function (match, modelName, indexAlias, collectionName, filters) {
 
                 var names = collectionName.split('.');
                 var namesLength = names.length;
@@ -304,16 +306,13 @@
                 var placeHolderName;
                 var listItem = {
                     loopIndexAlias: loopIndexAlias,
-                    orderBy: orderBy,
-                    reverse: reverse,
-                    filterName: filter,
-                    comparator: comparator,
                     collectionName: collectionName,
                     alias: modelName,
                     modelAlias: modelAlias,
                     template: el
                 };
 
+                if (filters) listItem.filter = filterFn(filters, listItem);
                 if (collectionName.indexOf('.') == -1) listItem.placeHolder = placeHolder;
 
                 collection = repeats[collectionName];
@@ -535,7 +534,7 @@
                     } else
                         val = value;
 
-                    this._attr(el, prop, val, $container);
+                    this._elAttr(el, prop, val, $container);
                 }
             }
             return this;
@@ -554,7 +553,7 @@
             return this;
         },
 
-        _attr: function (el, attr, val, $container) {
+        _elAttr: function (el, attr, val, $container) {
             if (typeof el === 'number') {
                 filter$El($container || this.$el, '[sn-id="' + el + '"]').each(function () {
                     setAttribute(this, attr, val);
@@ -735,87 +734,23 @@
         }
     });
 
-    var Repeat = function (options, collection) {
+    var Repeat = function (collection, options) {
         this.list = [];
         this.collection = collection;
 
         $.extend(this, options);
 
         this.selector = '[sn-placeholder="' + this.placeHolderName + '"]';
-        if (!this.placeHolder && this.collection.parent.$el) this.placeHolder = this.collection.parent.$el.find(this.selector)[0];
+
+        if (!this.placeHolder && this.collection.parent.$el)
+            this.placeHolder = this.collection.parent.$el.find(this.selector)[0];
 
         this.isInCollection = !$.contains(document.body, this.placeHolder);
+
+        //this.filter(Filter, collection.parent, collection.data, collection.key, el);
     }
 
     Repeat.prototype = {
-
-        filter: function (data) {
-            var filter = this.filterName;
-            var comparator = this.comparator;
-            var flag = true;
-            var val;
-
-            if (filter) {
-                filter = this.deepValue(filter);
-
-                if (!filter) return true;
-
-                if (comparator == 'true' || comparator == '1') {
-                    comparator = true;
-                }
-
-                switch (typeof filter) {
-                    case 'function':
-                        flag = filter(data, comparator);
-                        break;
-                    case 'object':
-                        for (var key in data) {
-                            val = data[key];
-                        }
-                        break;
-                    case 'string':
-                    case 'number':
-                        flag = false;
-                        for (var key in data) {
-                            val = data[key];
-                            if (typeof val == 'string' || (typeof val == 'number' && (val += ''))) {
-                                flag |= comparator ? val == filter : (val.indexOf(filter) != -1);
-                                if (flag)
-                                    break;
-                            }
-                        }
-                        break;
-                    default:
-                        flag = data;
-                        break;
-                }
-            }
-
-            return flag;
-        },
-
-        sort: function (orderBy, reverse) {
-            if (reverse != this.reverse) {
-            }
-        },
-
-        deepValue: function (name) {
-            var names = name.split('.');
-            var collectionName = this.modelAlias[names.shift()];
-
-            if (collectionName) {
-                var parent = this.collection.parent;
-                while (parent) {
-                    if (parent.key == collectionName + '^child') {
-                        return util.deepValue(parent.data, names);
-                    }
-                }
-                return null;
-
-            } else {
-                return util.deepValue(this.collection.root.data, name);
-            }
-        },
 
         get: function (model) {
             for (var i = this.list.length - 1; i >= 0; i--) {
@@ -835,21 +770,15 @@
 
         add: function (model, el, useFragment) {
 
-            var list = this.list;
-            var orderBy = this.orderBy;
-            var reverse = this.reverse;
+            this.list.push({
+                model: model,
+                el: el
+            });
 
-            if (this.filter(model.data)) {
-                this.list.push({
-                    model: model,
-                    el: el
-                });
-
-                if (this.fragment) {
-                    this.fragment.appendChild(el);
-                } else {
-                    this.appendChild(el);
-                }
+            if (this.fragment) {
+                this.fragment.appendChild(el);
+            } else {
+                this.appendChild(el);
             }
         },
 
@@ -882,15 +811,11 @@
 
         this.root = parent.root;
         var repeats = this.root.finder.repeats[this.key];
-
-        var item,
-            repeat;
+        var item;
 
         if (repeats) {
             for (var i = 0, len = repeats.length; i < len; i++) {
-                repeat = new Repeat(repeats[i], this);
-
-                this.repeats.push(repeat);
+                this.repeats.push(new Repeat(this, repeats[i]));
             }
         }
 
@@ -960,20 +885,19 @@
 
             if (this.repeats) {
                 for (var i = 0, len = this.repeats.length; i < len; i++) {
-                    var item = this.repeats[i];
+                    var repeat = this.repeats[i];
 
-                    var el = item.template.cloneNode(true);
+                    var el = repeat.template.cloneNode(true);
                     var $el = $(el);
 
                     el.snModel = model;
-                    item.add(model, el);
+                    repeat.add(model, el);
 
-                    if (item.template.snIndexAlias) {
-                        (repeats || (repeats = [])).push(item);
+                    if (repeat.template.snIndexAlias) {
+                        (repeats || (repeats = [])).push(repeat);
                     }
 
-                    if (!$els) $els = $el;
-                    else $els = $els.add($el);
+                    $els = $els ? $els.add($el) : $el;
                 }
             }
             model.constructor(data, length, this, $els);
