@@ -85,6 +85,12 @@ define(function (require, exports, module) {
                         });
                     }
 
+                    self.model.set({
+                        test: [{
+                            data: res.data
+                        }]
+                    });
+
                     if (!res || !res.data || res.data.length == 0) {
                         self.model.set("data", []);
                         self.model.set("data1", []);

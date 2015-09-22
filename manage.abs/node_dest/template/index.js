@@ -1,1 +1,1 @@
-var util=require("util"),T={html:function($data){var __="";with($data||{})__+='\ufeff<div class="main"> <h1 sn-binding="html:title"></h1> <div style="font-size:30px; margin: 30px" sn-binding="html:content"> </div> </div> ';return __},helpers:{}};T.template=T.html,module.exports=T;
+var util=require("util"),T={html:function($data){var __="";with($data||{})__+='<div class="main"> <h1 sn-binding="html:title"></h1> <div style="font-size:30px; margin: 30px" sn-binding="html:content"> </div> </div> ';return __},helpers:{}};T.template=T.html,module.exports=T;

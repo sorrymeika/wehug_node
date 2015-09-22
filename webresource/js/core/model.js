@@ -234,7 +234,7 @@
         return result;
     };
 
-    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*filter\s*\:\s*.+?){0,1})(\s*\|\s*orderBy\:.+){0,1}(\s|$)/g;
+    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*filter\s*\:\s*.+?){0,1})(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/g;
     var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)*)(\s|,|$)/g;
     var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))*|\s*=\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))(\s|,|$)/g;
 
@@ -689,7 +689,8 @@
                         model[attr] = value;
                         if (this.created) {
                             this.trigger('change:' + attr, value);
-                            this.root.trigger('change:' + this.key, this, attr, value);
+
+                            this.root.trigger('change:' + (this.key ? this.key + '.' + attr : attr), this, attr, value);
                         }
                     }
 
@@ -736,22 +737,9 @@
     });
 
 
-
     var repeatFilter = {
-        filter: function (source, keywords) {
+        contains: function (source, keywords) {
             return source.indexOf(keywords) != -1;
-        },
-
-        or: function (str, source, keywords) {
-            return str || this.filter(source, keywords);
-        },
-
-        and: function (str, source, keywords) {
-            return str && this.filter(source, keywords);
-        },
-
-        orderBy: function (a, b) {
-            return a > b ? 1 : a < b ? -1 : 0;
         }
     };
 
@@ -790,7 +778,7 @@
 
             strWith += this.alias + ':model.data}';
 
-            var code = 'var self=this,collection=this.collection;with($.extend(filter,collection.root.data,' + strWith + ')){';
+            var code = 'var self=this,collection=this.collection;with($.extend({},collection.root.data,' + strWith + ',filter)){';
             var filter = this.filter.replace(/^\s*\|\s*filter\s*\:/, '');
             //listItem.modelAlias[key]
 
@@ -800,9 +788,7 @@
             console.log(code);
 
             var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
-            var models = filter.split(/[\=\>\<\?\s\:]+/g);
-
-            console.log(models);
+            var models = filter.split(/[\=\>\<\?\s\:\(\),]+/g);
 
             for (var i = 0, len = models.length; i < len; i++) {
                 if (!rvalue.test(models[i])) {
@@ -810,18 +796,20 @@
                     var attrs = models[i].split('.');
                     var alias = attrs[0];
 
+                    if (!alias || repeatFilter[alias]) continue;
+
                     if (alias == this.alias) {
                         attrs[0] = collection.key + '^child';
 
                     } else {
                         var collectionName = this.modelAlias[alias];
                         if (collectionName) {
-
+                            attrs[0] = collectionName + '^child';
                         }
                     }
 
-                    collection.root.on('change:' + attrs.join(','), function () {
-                        //self.
+                    collection.root.on('change:' + attrs.join('.'), function () {
+                        self.update();
                     })
 
                     console.log(this.alias, attrs)
@@ -837,6 +825,39 @@
 
     Repeat.prototype = {
 
+        update: function () {
+            var fragment = document.createDocumentFragment();
+            var index = 0;
+            var list = this.list;
+            var orderBy = this.orderBy;
+
+            if (orderBy) {
+                list.sort(function (a, b) {
+                    a = a.model.data[orderBy];
+                    b = b.model.data[orderBy];
+                    return a > b ? 1 : a < b ? -1 : 0;
+                });
+            }
+
+            for (var i = 0, len = list.length; i < len; i++) {
+                var item = list[i];
+                if (!this.filter || this.filter(repeatFilter, item.model)) {
+                    fragment.appendChild(item.el);
+
+                    var alias = this.template.snIndexAlias;
+                    if (alias) {
+                        item.model._syncView('^' + alias, index, $(item.el).attr('sn-index-' + alias, index));
+                    }
+                    index++;
+
+                } else if (item.el.parentNode) {
+                    item.el.parentNode.removeChild(item.el);
+                }
+            }
+
+            this.appendChild(fragment);
+        },
+
         get: function (model) {
             for (var i = this.list.length - 1; i >= 0; i--) {
                 if (this.list[i].model == model) {
@@ -845,35 +866,28 @@
             }
         },
 
-        syncIndex: function () {
-            for (var i = this.list.length - 1; i >= 0; i--) {
-                var item = this.list[i];
-                var alias = this.template.snIndexAlias;
-                item.model._syncView('^' + alias, i, $(item.el).attr('sn-index-' + alias, i));
-            }
-        },
-
-        add: function (model, el, useFragment) {
-
+        add: function (model, el) {
             this.list.push({
                 model: model,
                 el: el
             });
-
-            if (this.fragment) {
-                this.fragment.appendChild(el);
-            } else {
-                this.appendChild(el);
-            }
         },
 
         appendChild: function (el) {
             !this.isInCollection ? this.placeHolder.parentNode.insertBefore(el, this.placeHolder) : this.collection.parent.$el.find(this.selector).add(this.placeHolder).before(el);
         },
 
+        clear: function () {
+            for (var i = this.list.length - 1; i >= 0; i--) {
+                this.list[i].el.parentNode.removeChild(this.list[i].el);
+            }
+            this.list.length = 0;
+        },
+
         remove: function (model) {
             for (var i = this.list.length - 1; i >= 0; i--) {
                 if (this.list[i].model == model) {
+                    this.list[i].el.parentNode.removeChild(this.list[i].el);
                     this.list.splice(i, 1);
                     break;
                 }
@@ -927,22 +941,22 @@
             for (var i = 0, len = this.models.length; i < len; i++) {
                 model = this.models[i];
 
-                if (this.repeats) {
-                    var repeat;
+                var repeat;
 
-                    for (var i = 0, len = this.repeats.length; i < len; i++) {
-                        repeat = this.repeats[i];
+                for (var i = 0, len = this.repeats.length; i < len; i++) {
+                    repeat = this.repeats[i];
 
-                        if (!repeat.get(model)) {
+                    if (!repeat.get(model)) {
 
-                            var el = item.template.cloneNode(true);
-                            var $el = $(el);
+                        var el = item.template.cloneNode(true);
+                        var $el = $(el);
 
-                            el.snModel = model;
-                            repeat.add(model, el);
+                        el.snModel = model;
+                        repeat.add(model, el);
 
-                            model.$el.push(el);
-                        }
+                        model.$el.push(el);
+
+                        repeat.update();
                     }
                 }
                 model._redraw();
@@ -950,27 +964,28 @@
 
         },
 
-        append: function (collection) {
-            this.fragment(function () {
-                for (var i = 0, len = collection.length; i < len; i++) {
-                    this.add(collection[i], true);
-                }
-            });
-        },
-
-        add: function (data, useFragment) {
-            this.shouldUpdateView = false;
-            var $els;
-            var model = new this.model();
-            var length = this.data.length;
+        add: function (data) {
+            var model;
+            var length;
             var repeats;
 
-            this.models[length] = model;
-            this.data[length] = data;
+            this.shouldUpdateView = false;
 
-            if (this.repeats) {
-                for (var i = 0, len = this.repeats.length; i < len; i++) {
-                    var repeat = this.repeats[i];
+            if (!$.isArray(data)) {
+                data = [data];
+            }
+
+            for (var i = 0, dataLen = data.length; i < dataLen; i++) {
+                var $els = null;
+                var dataItem = data[i];
+                model = new this.model();
+                length = this.data.length;
+
+                this.models[length] = model;
+                this.data[length] = dataItem;
+
+                for (var j = 0, len = this.repeats.length; j < len; j++) {
+                    var repeat = this.repeats[j];
 
                     var el = repeat.template.cloneNode(true);
                     var $el = $(el);
@@ -978,26 +993,18 @@
                     el.snModel = model;
                     repeat.add(model, el);
 
-                    if (repeat.template.snIndexAlias) {
-                        (repeats || (repeats = [])).push(repeat);
-                    }
-
                     $els = $els ? $els.add($el) : $el;
                 }
-            }
-            model.constructor(data, length, this, $els);
 
-            if (repeats) {
-                for (var i = 0, len = repeats.length; i < len; i++) {
-                    repeats[i].syncIndex();
-                }
+                model.constructor(dataItem, length, this, $els);
             }
 
-            if (!useFragment) {
-                this._syncOwnView();
+            for (var i = 0, len = this.repeats.length; i < len; i++) {
+                this.repeats[i].update();
             }
+
+            this._syncOwnView();
             this.shouldUpdateView = true;
-            return model;
         },
 
         _syncOwnView: function () {
@@ -1011,47 +1018,14 @@
             return this;
         },
 
-        fragment: function (fn) {
-            for (var i = 0, n = this.repeats.length; i < n; i++) {
-                this.repeats[i].fragment = document.createDocumentFragment();
-            }
-
-            fn.call(this);
-
-            var item;
-            for (var i = 0, n = this.repeats.length; i < n; i++) {
-                item = this.repeats[i];
-                item.appendChild(item.fragment);
-                item.fragment = null;
-            }
-        },
-
         set: function (data) {
-            this.shouldUpdateView = false;
-            this.fragment(function () {
+            this.data.length = 0;
 
-                var item,
-                    len = data.length,
-                    length = this.models.length;
+            for (var i = 0, len = this.repeats.length; i < len; i++) {
+                this.repeats[i].clear();
+            }
 
-                if (length > len) {
-                    for (var i = length - 1; i >= len; i--) {
-                        this.remove(i, true);
-                    }
-                }
-
-                for (var i = 0; i < len; i++) {
-                    item = data[i];
-
-                    if (i < length) {
-                        this.models[i].set(item);
-                    }
-                    else {
-                        this.add(item, true);
-                    }
-                }
-            });
-            this.shouldUpdateView = true;
+            this.add(data);
             return this;
         },
 
@@ -1059,7 +1033,7 @@
             return this.models[i];
         },
 
-        remove: function (i, useFragment) {
+        remove: function (i) {
             var item,
                 el;
 
@@ -1067,20 +1041,16 @@
                 i = this.models.indexOf(i);
             }
 
-            if (this.repeats) {
-                for (var j = 0, len = this.repeats.length; j < len; j++) {
-                    item = this.repeats[j];
+            for (var j = 0, len = this.repeats.length; j < len; j++) {
+                item = this.repeats[j];
 
-                    el = item.list[i].el;
-                    el.parentNode.removeChild(el);
-                    item.list.splice(i, 1);
-                }
-                this.models.splice(i, 1);
-                this.data.splice(i, 1);
-                if (!useFragment) {
-                    this._syncOwnView();
-                }
+                el = item.list[i].el;
+                el.parentNode.removeChild(el);
+                item.list.splice(i, 1);
             }
+            this.models.splice(i, 1);
+            this.data.splice(i, 1);
+            this._syncOwnView();
         }
     };
 
