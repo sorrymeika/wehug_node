@@ -785,9 +785,6 @@
             code += 'return ' + filter;
             code += '}';
 
-            console.log(code);
-
-            var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
             var models = filter.split(/[\=\>\<\?\s\:\(\),]+/g);
 
             for (var i = 0, len = models.length; i < len; i++) {
@@ -811,8 +808,6 @@
                     collection.root.on('change:' + attrs.join('.'), function () {
                         self.update();
                     })
-
-                    console.log(this.alias, attrs)
                 }
             }
 
