@@ -10,6 +10,12 @@
     <li sn-on="tap:select:4">已完成</li>
 </ul>
 <div class="main myorder">
+    <div sn-repeat="item in test">
+        asdf
+        <div sn-repeat="order in item.data|filter:item.CNL_CLT_ID==1|orderBy:CNL_CLT_ID">
+            asdfasf
+        </div>
+    </div>
     <ul class="con" sn-binding="display:data">
         <li sn-repeat="item in data" sn-binding="class:item.CNL_CLT_ID|format:'type{0}'">
             <div class="hd"><b class="from" sn-binding="html:item.CNL_DESC"></b><span class="status" sn-binding="html:item.PUS_DESC"></span></div>

@@ -147,12 +147,11 @@
         }
     };
 
-
     var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)/g;
     var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')/g;
     var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
 
-    var filterFn = function (filters, listItem) {
+    var createFilterFn = function (filters, listItem) {
         var code = '';
         var before = 'var S=this;';
         var count = 0;
@@ -197,7 +196,7 @@
         });
 
         code += 'return V;';
-        /*{ F: 'Filter', M: 'model', V: 'value',  K: 'key', E: 'el', P: 'parent', S: this }*/
+        //Filter, model,value,key,el,parent,this
         return new Function('F', 'M', 'V', 'K', 'E', before + code);
     };
 
@@ -235,7 +234,7 @@
         return result;
     };
 
-    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)*)(\s|$)/g;
+    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*filter\s*\:\s*.+?){0,1})(\s*\|\s*orderBy\:.+){0,1}(\s|$)/g;
     var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)*)(\s|,|$)/g;
     var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))*|\s*=\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))(\s|,|$)/g;
 
@@ -278,7 +277,7 @@
                 }
             });
 
-            repeat.replace(rrepeat, function (match, modelName, indexAlias, collectionName, filters) {
+            repeat.replace(rrepeat, function (match, modelName, indexAlias, collectionName, filters, orderBy) {
 
                 var names = collectionName.split('.');
                 var namesLength = names.length;
@@ -312,7 +311,8 @@
                     template: el
                 };
 
-                if (filters) listItem.filter = filterFn(filters, listItem);
+                if (filters) listItem.filter = filters;
+                if (orderBy) listItem.orderBy = orderBy;
                 if (collectionName.indexOf('.') == -1) listItem.placeHolder = placeHolder;
 
                 collection = repeats[collectionName];
@@ -388,7 +388,7 @@
                                 el: count,
                                 prop: !filters ? prop : {
                                     prop: prop,
-                                    filter: filterFn(filters, listItem)
+                                    filter: createFilterFn(filters, listItem)
                                 }
                             });
                         });
@@ -410,7 +410,7 @@
                         el: el,
                         prop: !filters ? prop : {
                             prop: prop,
-                            filter: filterFn(filters)
+                            filter: createFilterFn(filters)
                         }
                     });
                 });
@@ -689,6 +689,7 @@
                         model[attr] = value;
                         if (this.created) {
                             this.trigger('change:' + attr, value);
+                            this.root.trigger('change:' + this.key, this, attr, value);
                         }
                     }
 
@@ -734,7 +735,29 @@
         }
     });
 
+
+
+    var repeatFilter = {
+        filter: function (source, keywords) {
+            return source.indexOf(keywords) != -1;
+        },
+
+        or: function (str, source, keywords) {
+            return str || this.filter(source, keywords);
+        },
+
+        and: function (str, source, keywords) {
+            return str && this.filter(source, keywords);
+        },
+
+        orderBy: function (a, b) {
+            return a > b ? 1 : a < b ? -1 : 0;
+        }
+    };
+
     var Repeat = function (collection, options) {
+        var self = this;
+
         this.list = [];
         this.collection = collection;
 
@@ -747,8 +770,70 @@
 
         this.isInCollection = !$.contains(document.body, this.placeHolder);
 
+        if (this.filter) {
+
+            var strWith = '{';
+
+            for (var key in this.modelAlias) {
+                var collectionName = this.modelAlias[key];
+                strWith += key + ':model.parent.parent'
+                var model = collection.parent;
+                while (model) {
+                    if (model.key == collectionName + '^child') {
+                        break;
+                    }
+                    model = model.parent;
+                    strWith += '.parent';
+                }
+                strWith += '.data,'
+            }
+
+            strWith += this.alias + ':model.data}';
+
+            var code = 'var self=this,collection=this.collection;with($.extend(filter,collection.root.data,' + strWith + ')){';
+            var filter = this.filter.replace(/^\s*\|\s*filter\s*\:/, '');
+            //listItem.modelAlias[key]
+
+            code += 'return ' + filter;
+            code += '}';
+
+            console.log(code);
+
+            var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
+            var models = filter.split(/[\=\>\<\?\s\:]+/g);
+
+            console.log(models);
+
+            for (var i = 0, len = models.length; i < len; i++) {
+                if (!rvalue.test(models[i])) {
+                    var model;
+                    var attrs = models[i].split('.');
+                    var alias = attrs[0];
+
+                    if (alias == this.alias) {
+                        attrs[0] = collection.key + '^child';
+
+                    } else {
+                        var collectionName = this.modelAlias[alias];
+                        if (collectionName) {
+
+                        }
+                    }
+
+                    collection.root.on('change:' + attrs.join(','), function () {
+                        //self.
+                    })
+
+                    console.log(this.alias, attrs)
+                }
+            }
+
+            this.filter = new Function('filter', 'model', code);
+        }
+
         //this.filter(Filter, collection.parent, collection.data, collection.key, el);
     }
+
 
     Repeat.prototype = {
 
@@ -1159,7 +1244,7 @@
 
     /*
     function testCollectionItem() {
-
+    
     var $el=$('<div>\
     <input sn-model="name" />\
     <div sn-binding="html:name"></div>\
@@ -1173,36 +1258,36 @@
     </div>\
     </div>\
     </div>').appendTo('body');
-
+    
     now=Date.now();
     var vm=new ViewModel($el);
-
+    
     var data=[];
-
+    
     for(var i=0;i<1000;i++) {
     data.push({
     test: "item"+i
     });
     }
-
+    
     vm.set({
     name: 'asdf',
     data: data
     });
-
+    
     vm.get('data').get(1).set({
     children: [{
     asdf: 1
     }]
     })
-
+    
     console.log(Date.now()-now);
     }
-
+    
     //testCollectionItem();
-
+    
     function testFilter() {
-
+    
     var $el=$('<div sn-binding="test:name,title:node.test,tt:node.deep.end">\
     <input sn-model="name" />\
     <div sn-binding="html:name"></div>\
@@ -1217,13 +1302,13 @@
     </div>\
     </div>\
     </div>').appendTo('body');
-
+    
     //new
     now=Date.now();
     var vm=new ViewModel($el);
-
+    
     var data=[];
-
+    
     for(var i=0;i<1000;i++) {
     data.push({
     picture: 'xxx',
@@ -1235,7 +1320,7 @@
     }]
     });
     }
-
+    
     vm.set({
     reverse: true,
     name: 'asdf',
@@ -1254,19 +1339,19 @@
     }
     });
     console.log(Date.now()-now);
-
+    
     return;
     vm.get('data.0.children.0'.split('.')).set({
     picture: 'a',
     alt: 'b',
     title: 'cctv'
     });
-
+    
     console.log(vm.get('data').get(0))
     }
-
+    
     //testFilter();
-
+    
     function test2() {
     var b={
     a: {
@@ -1278,12 +1363,12 @@
     }
     }
     var a="a.b.c.d";
-
+    
     now=Date.now();
     for(var i=0;i<10000;i++) {
     }
     console.log(Date.now()-now);
-
+    
     now=Date.now();
     for(var i=0;i<10000;i++) {
     }

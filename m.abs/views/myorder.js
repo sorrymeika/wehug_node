@@ -89,6 +89,11 @@ define(function (require, exports, module) {
                 checkData: false,
                 success: function (res) {
                     self.model.set("data", res.data);
+                    self.model.set({
+                        test: [{
+                            data: res.data
+                        }]
+                    });
                 },
                 append: function (res) {
                     self.model.get('data').append(res.data);
