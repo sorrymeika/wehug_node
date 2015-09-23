@@ -4,18 +4,18 @@
         util = require('util'),
         Base = require('./base'),
         Event = require('./event');
+    var model = require('./model');
 
     var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)/g;
     var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')/g;
     var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
-    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)*)(\s|$)/g;
+    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*filter\s*\:\s*.+?){0,1})(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/g;
     var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)*)(\s|,|$)/g;
     var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))*|\s*=\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))(\s|,|$)/g;
-    return;
 
     var $el = $('<div>\
     <input sn-model="name" />\
-    <div>name:{{name}}</div>\
+    <div class="{{text}}">name:{{name}}</div>\
     <ol sn-repeat="item,i in data" class="item">\
     <li>item:{{i}},{{item}}</li>\
     </ol>\
@@ -25,65 +25,109 @@
         $el.append('<div data-id="' + i + '">t</div>')
     }
 
-    function ViewModel(el) {
-        this.scan(el);
-    }
-
-    ViewModel.prototype.scan = function (el) {
+    function eachElement(el, fn) {
 
         var childNodes = el.length ? el : [el];
 
         for (var i = 0, len = childNodes.length; ;) {
             var child = childNodes[i];
-            var nodes = child.childNodes;
+            var nodeType = child.nodeType;
+            var nodes;
 
-            if (child.nodeType == 1) {
-                // console.log(child.attributes);
-                if (child.attributes['data-id']) {
+            fn(child, i, nodeType);
+
+            if (nodeType == 1) {
+                if ((nodes = child.childNodes) && nodes.length) {
+                    if (i + 1 < len) {
+                        nodes.prevNodes = childNodes;
+                        nodes.prevIndex = i + 1;
+                        nodes.prevLength = len;
+                    }
+
+                    childNodes = nodes;
+                    len = childNodes.length;
+                    i = 0;
+                    continue;
                 }
-
-            } else if (child.nodeType == 3) {
-                //console.log(child.textContent);
             }
 
-            if (nodes && nodes.length) {
+            i++;
+            if (i == len) {
+                if (childNodes.prevNodes) {
+                    i = childNodes.prevIndex;
+                    len = childNodes.prevLength;
+                    childNodes = childNodes.prevNodes;
 
-                if (i + 1 < len) {
-                    nodes.prevNodes = childNodes;
-                    nodes.prevIndex = i + 1;
-                    nodes.prevLength = len;
+                } else {
+                    break;
                 }
+            }
+        }
+    }
 
-                childNodes = nodes;
-                len = childNodes.length;
-                i = 0;
+    function ViewModel(el) {
+        this.scan(el);
+    }
 
-            } else {
-                i++;
-                if (i == len) {
+    ViewModel.prototype.scan = function (el) {
+        var childNodes = el.length ? el : [el];
 
-                    if (childNodes.prevNodes) {
-                        i = childNodes.prevIndex;
-                        len = childNodes.prevLength;
-                        childNodes = childNodes.prevNodes;
+        var code = '';
 
-                    } else {
-                        break;
+        for (var i = 0, len = childNodes.length; ;) {
+            var child = childNodes[i];
+            var nodeType = child.nodeType;
+            var nodes;
+
+            if (nodeType == 1) {
+                // console.log(child.attributes);
+                for (var j = 0; j < child.attributes.length; j++) {
+                    var attr = child.attributes[j].name;
+                    var val = child.attributes[j].value;
+
+                    if (attr) {
+                        //new Function('model', '$()');
+
+                        code += '$();';
                     }
                 }
+
+                if ((nodes = child.childNodes) && nodes.length) {
+                    if (i + 1 < len) {
+                        nodes.prevNodes = childNodes;
+                        nodes.prevIndex = i + 1;
+                        nodes.prevLength = len;
+                    }
+
+                    childNodes = nodes;
+                    len = childNodes.length;
+                    i = 0;
+                    continue;
+                }
+
+            } else if (nodeType == 3) {
+                //console.log(child.textContent);
+                //child.textContent='bbb'
             }
 
+
+            i++;
+            if (i == len) {
+                if (childNodes.prevNodes) {
+                    i = childNodes.prevIndex;
+                    len = childNodes.prevLength;
+                    childNodes = childNodes.prevNodes;
+
+                } else {
+                    break;
+                }
+            }
         }
     }
 
     var now = Date.now();
 
-    $el.find('[data-id="1000"]')
-    $el.find('[data-id="1000"]')
-    console.log(Date.now() - now);
-
-    now = Date.now();
-    var vm = new ViewModel($el);
+    var elements = $el.find('*');
 
     console.log(Date.now() - now);
 
@@ -96,6 +140,13 @@
     var vm = new ViewModel($el);
 
     console.log(Date.now() - now);
+
+    now = Date.now();
+    var vm = new ViewModel($el);
+
+    console.log(Date.now() - now);
+
+
 
     now = Date.now();
     var vm = new ViewModel($el);

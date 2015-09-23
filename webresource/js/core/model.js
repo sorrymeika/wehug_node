@@ -515,8 +515,8 @@
             }
         },
 
-        _syncView: function (key, value, $container) {
-            var bindings = this.root.finder.bindings[key && this.key ? this.key + '.' + key : (this.key || key)],
+        _syncView: function (attr, value, $container) {
+            var bindings = this.root.finder.bindings[attr && this.key ? this.key + '.' + attr : (this.key || attr)],
                 binding,
                 el,
                 prop,
@@ -529,7 +529,7 @@
                     prop = binding.prop;
 
                     if (typeof prop !== 'string') {
-                        val = prop.filter(Filter, this, value, key, el);
+                        val = prop.filter(Filter, this, value, attr, el);
                         prop = prop.prop;
                     } else
                         val = value;
@@ -785,12 +785,14 @@
             code += 'return ' + filter;
             code += '}';
 
-            var models = filter.split(/[\=\>\<\?\s\:\(\),]+/g);
+            this.filter = new Function('filter', 'model', code);
 
-            for (var i = 0, len = models.length; i < len; i++) {
-                if (!rvalue.test(models[i])) {
+            var allAlias = filter.split(/[\=\>\<\?\s\:\(\),]+/g);
+
+            for (var i = 0, len = allAlias.length; i < len; i++) {
+                if (!rvalue.test(allAlias[i])) {
                     var model;
-                    var attrs = models[i].split('.');
+                    var attrs = allAlias[i].split('.');
                     var alias = attrs[0];
 
                     if (!alias || repeatFilter[alias]) continue;
@@ -811,7 +813,6 @@
                 }
             }
 
-            this.filter = new Function('filter', 'model', code);
         }
 
         //this.filter(Filter, collection.parent, collection.data, collection.key, el);
@@ -1048,6 +1049,8 @@
             this._syncOwnView();
         }
     };
+
+    Collection.prototype.append = Collection.prototype.add;
 
     var getClosestModel = function (target, collectionName) {
         return (target.getAttribute('sn-repeat-name') == collectionName ? target : $(target).closest('[sn-repeat-name="' + collectionName + '"]')[0]).snModel;
