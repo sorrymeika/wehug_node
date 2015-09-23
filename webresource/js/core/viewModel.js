@@ -9,9 +9,10 @@
     var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)/g;
     var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')/g;
     var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
-    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*filter\s*\:\s*.+?){0,1})(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/g;
+    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*filter\s*\:\s*.+?){0,1})(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
     var rbinding = /\b([a-zA-Z_0-9-\.]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\|\s*[a-zA-Z_0-9]+(?:\s*\:\s*\({0,1}\s*(?:[a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)*)(\s|,|$)/g;
     var revents = /\b([a-zA-Z\s]+)\s*\:\s*([a-zA-Z_0-9]+)((?:\.[a-zA-Z_0-9]+)*)((?:\s*\:\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))*|\s*=\s*(?:[a-zA-Z_0-9\.]+|'(?:\\'|[^'])*'))(\s|,|$)/g;
+    var rmatch = /\{\{(.+?)\}\}/g;
 
     var $el = $('<div>\
     <input sn-model="name" />\
@@ -20,6 +21,7 @@
     <li>item:{{i}},{{item}}</li>\
     </ol>\
     </div>').appendTo($('body').html(''));
+
 
     for (var i = 0; i < 10000; i++) {
         $el.append('<div data-id="' + i + '">t</div>')
@@ -34,95 +36,93 @@
             var nodeType = child.nodeType;
             var nodes;
 
-            fn(child, i, nodeType);
+            fn(child, i);
 
-            if (nodeType == 1) {
-                if ((nodes = child.childNodes) && nodes.length) {
-                    if (i + 1 < len) {
-                        nodes.prevNodes = childNodes;
-                        nodes.prevIndex = i + 1;
-                        nodes.prevLength = len;
-                    }
-
-                    childNodes = nodes;
-                    len = childNodes.length;
-                    i = 0;
-                    continue;
+            if (nodeType == 1 && (nodes = child.childNodes) && nodes.length) {
+                if (i + 1 < len) {
+                    nodes.prevNodes = childNodes;
+                    nodes.prevIndex = i + 1;
+                    nodes.prevLength = len;
                 }
-            }
 
-            i++;
-            if (i == len) {
-                if (childNodes.prevNodes) {
-                    i = childNodes.prevIndex;
-                    len = childNodes.prevLength;
-                    childNodes = childNodes.prevNodes;
+                childNodes = nodes;
+                len = childNodes.length;
+                i = 0;
 
-                } else {
-                    break;
+            } else {
+                i++;
+                if (i == len) {
+                    if (childNodes.prevNodes) {
+                        i = childNodes.prevIndex;
+                        len = childNodes.prevLength;
+                        childNodes = childNodes.prevNodes;
+
+                    } else {
+                        break;
+                    }
                 }
             }
         }
     }
 
-    function ViewModel(el) {
-        this.scan(el);
+    function closestElement(el, fn) {
     }
 
+    function parentElements(el, fn) {
+        var parentNode = el.parentNode;
+        var result = [];
+        while (parentNode) {
+            if (fn(parentNode, el)) {
+                result.push(parentNode);
+            }
+            el = parentNode;
+            parentNode = parentNode.parentNode;
+        }
+        return result;
+    }
+
+    function Repeat() {
+    }
+
+    Repeat.prototype.value = function () {
+    }
+
+    function ViewModel(template) {
+        this.data = {};
+        this.scan(template);
+    }
+
+    ViewModel.prototype = Object.create(Event);
+
     ViewModel.prototype.scan = function (el) {
-        var childNodes = el.length ? el : [el];
+        var self = this;
 
-        var code = '';
+        eachElement(el, function (child, i) {
+            if (child.nodeType == 1) {
+                var repeat = child.getAttribute('sn-repeat');
+                if (repeat != null) {
+                    var match = repeat.match(rrepeat),
+                        itemAlias = match[1],
+                        indexAlias = match[2],
+                        collectionName = match[3],
+                        filters = match[4],
+                        orderBy = match[5];
 
-        for (var i = 0, len = childNodes.length; ;) {
-            var child = childNodes[i];
-            var nodeType = child.nodeType;
-            var nodes;
+                    console.log(match);
+                }
 
-            if (nodeType == 1) {
-                // console.log(child.attributes);
                 for (var j = 0; j < child.attributes.length; j++) {
                     var attr = child.attributes[j].name;
                     var val = child.attributes[j].value;
 
-                    if (attr) {
-                        //new Function('model', '$()');
+                    if (attr != 'sn-repeat' && rmatch.test(val)) {
+                        //function(model){ with(model.root){} };
 
-                        code += '$();';
+                        self.on('change:')
                     }
                 }
-
-                if ((nodes = child.childNodes) && nodes.length) {
-                    if (i + 1 < len) {
-                        nodes.prevNodes = childNodes;
-                        nodes.prevIndex = i + 1;
-                        nodes.prevLength = len;
-                    }
-
-                    childNodes = nodes;
-                    len = childNodes.length;
-                    i = 0;
-                    continue;
-                }
-
-            } else if (nodeType == 3) {
-                //console.log(child.textContent);
-                //child.textContent='bbb'
             }
-
-
-            i++;
-            if (i == len) {
-                if (childNodes.prevNodes) {
-                    i = childNodes.prevIndex;
-                    len = childNodes.prevLength;
-                    childNodes = childNodes.prevNodes;
-
-                } else {
-                    break;
-                }
-            }
-        }
+        });
     }
 
     var now = Date.now();
