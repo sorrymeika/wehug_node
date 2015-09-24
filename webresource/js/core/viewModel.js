@@ -7,7 +7,7 @@
     var rfilter = /\s*\|\s*([a-zA-Z_0-9]+)((?:\s*(?:\:|;)\s*\({0,1}\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')\){0,1})*)/g;
     var rparams = /\s*\:\s*([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')/g;
     var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
-    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})((?:\s*\|\s*filter\s*\:\s*.+?){0,1})(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
+    var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*(.+?)){0,1}(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
     var rmatch = /\{\{(.+?)\}\}/g;
     var rvar = /(^|[\=\>\<\?\s\:\(\),\%\+\-\*\/\[\]]+)([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')/g;
 
@@ -223,9 +223,16 @@
         return false;
     }
 
+    var Filters = {
+        contains: function (source, keywords) {
+            return source.indexOf(keywords) != -1;
+        }
+    };
+
     var Repeat = function (options) {
         $.extend(this, options);
 
+        var self = this;
         var attrs = this.collectionName.split('.');
         var parent = this.parent;
         while (parent) {
@@ -242,17 +249,36 @@
         this.replacement = replacement;
         this.el.parentNode.insertBefore(replacement, this.el);
         this.el.parentNode.removeChild(this.el);
+        this.collectionRepeats = [];
+
+        if (this.filters) {
+            var code = this.viewModel.compileExpression('{{' + this.filters + '}}', this, function (e, model) {
+
+                for (var i = 0; i < self.collectionRepeats.length; i++) {
+                    var collectionRepeat = self.collectionRepeats[i];
+
+                    if (model.parent == collectionRepeat.collection || model.contains(collectionRepeat.collection)) {
+                        collectionRepeat.update();
+                    }
+                }
+            });
+
+            this.filter = this.viewModel.fns.length;
+
+            this.viewModel.fns.push(code);
+        }
     }
 
     var CollectionRepeat = function (collection, repeat) {
         this.collection = collection;
         this.repeat = repeat;
+        repeat.collectionRepeats[repeat.collectionRepeats.length] = this;
+
         this.el = this.cloneNode(repeat.el);
 
         if (!repeat.parent) {
             this.replacement = repeat.replacement;
         }
-
         this.elements = [];
     }
 
@@ -274,7 +300,7 @@
 
         for (var i = 0, len = list.length; i < len; i++) {
             var item = list[i];
-            if (!repeat.filter || repeat.filter(item.model)) {
+            if (repeat.filter === undefined || this.collection.root.fns[repeat.filter](item.model)) {
                 fragment.appendChild(item);
                 item.setAttribute('sn-index', index);
                 if (repeat.indexAlias) {
@@ -577,6 +603,7 @@
                     var match = repeat.match(rrepeat);
 
                     repeat = new Repeat({
+                        viewModel: self,
                         parent: childList.repeat,
                         alias: match[1],
                         indexAlias: match[2],
@@ -656,7 +683,7 @@
     <input sn-model="name" sn-tap="tap" value="{{test.asdf+\'asdf\'}}"/>\
     <div class="{{text}}" style="{{test.asdf}}">name:{{name}}</div>\
     <ol sn-repeat="item,i in data" class="item">\
-    <li>item:{{i}},{{item.value}}<br><span sn-repeat="child,j in item.children">{{item.value}}.{{child.value}}/</span><br></li>\
+    <li>item:{{i}},{{item.value}},{{item.test}}<br><span sn-repeat="child,j in item.children|filter:child.value==name">{{item.value}}.{{child.value}}/</span><br></li>\
     </ol>\
     </div>').appendTo($('body').html(''));
 
@@ -673,7 +700,7 @@
 
     now = Date.now();
     var vm = new ViewModel($el, {
-        name: 'tets',
+        name: '1',
         tap: function () {
             console.log(this)
         },
