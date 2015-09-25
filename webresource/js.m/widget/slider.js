@@ -11,7 +11,8 @@
             vScroll: false,
             width: '100%',
             index: 0,
-            autoLoop: false
+            autoLoop: false,
+            align: 'center'
 
         }, options);
 
@@ -66,6 +67,8 @@
         if (options.autoLoop) {
             that.startAutoLoop();
         }
+
+        that.$el.css({ overflow: '' })
     }
 
     $.extend(Slider.prototype, ScrollView.prototype, {
@@ -132,7 +135,7 @@
                 return;
             }
 
-            that.maxX = Math.min(that.scrollerW - that.wrapperW, (index + 1) * that.wrapperW);
+            that.maxX = Math.min(that.scrollerW - that.wrapperW, Math.min(index + 1, that.loop ? index + 1 : (that.length - Math.floor(that.containerW / that.wrapperW))) * that.wrapperW);
             that.minX = Math.max(0, (index - 1) * that.wrapperW);
             that._startLeft = that.startLeft = that.x;
 
@@ -160,8 +163,8 @@
 
             if (options.index != index) {
                 this.currentData = this._data[this.loop ? index - 1 : index];
-                this._change();
                 options.index = index;
+                this._change();
             }
 
             x = index * this.wrapperW;
@@ -239,10 +242,11 @@
                 children = slider.children(),
                 length = children.length;
 
-            that.wrapperW = that.el.clientWidth * that.width / 100;
+            that.containerW = that.el.clientWidth;
+            that.wrapperW = that.containerW * that.width / 100;
             that.scrollerW = that.wrapperW * length;
 
-            slider.css({ width: length * that.width + '%', marginLeft: (100 - that.width) / 2 + '%' });
+            slider.css({ width: length * that.width + '%', marginLeft: this.options.align == 'center' ? (100 - that.width) / 2 + '%' : '0%' });
 
             that.x = that.wrapperW * that.options.index;
             that.$scroller.css({ '-webkit-transform': 'translate(' + (-that.x) + 'px,0px) translateZ(0)' });

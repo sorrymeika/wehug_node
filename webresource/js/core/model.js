@@ -1107,7 +1107,7 @@
                     var model = this;
 
                     if (rvalue.test(arg)) {
-                        args.push(eval(arg));
+                        args.push(window.eval(arg));
 
                     } else {
                         if (option.repeat) {

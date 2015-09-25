@@ -28,36 +28,13 @@
 
         var childNodes = el.length ? el : [el];
 
-        for (var i = 0, len = childNodes.length; ;) {
+        for (var i = 0, len = childNodes.length; i < len; i++) {
             var child = childNodes[i];
-            var nodeType = child.nodeType;
-            var nodes;
 
             fn(child, i, childNodes);
 
-            if (nodeType == 1 && (nodes = child.childNodes) && nodes.length) {
-                if (i + 1 < len) {
-                    nodes.prevNodes = childNodes;
-                    nodes.prevIndex = i + 1;
-                    nodes.prevLength = len;
-                }
-
-                childNodes = nodes;
-                len = childNodes.length;
-                i = 0;
-
-            } else {
-                i++;
-                if (i == len) {
-                    if (childNodes.prevNodes) {
-                        i = childNodes.prevIndex;
-                        len = childNodes.prevLength;
-                        childNodes = childNodes.prevNodes;
-
-                    } else {
-                        break;
-                    }
-                }
+            if (child.nodeType == 1 && child.childNodes.length) {
+                eachElement(child.childNodes, fn)
             }
         }
     }
@@ -134,11 +111,14 @@
             (attrs = {})[key] = val;
         }
 
+        !this.root.init && $.extend(this.data, attrs);
+
         for (var attr in attrs) {
             origin = model[attr];
             value = attrs[attr];
 
             if (origin !== value) {
+
                 var keys = attr.split('.');
                 if (keys.length > 1) {
                     key = keys.pop();
@@ -184,7 +164,6 @@
                     model[attr] = new Collection(this, attr, value);
 
                 } else {
-                    this.data[attr] = value;
                     model[attr] = value;
 
                     if (!this.root.init) {
@@ -585,6 +564,7 @@
             });
         });
 
+
         for (var i = 0; i < snEvents.length; i++) {
             $el.on(snEvents[i], '[sn-' + snEvents[i] + ']', function (e) {
                 var target = e.currentTarget;
@@ -598,6 +578,7 @@
 
         eachElement(el, function (child, i, childList) {
             if (child.nodeType == 1) {
+
                 var repeat = child.getAttribute('sn-repeat');
                 if (repeat != null) {
                     var match = repeat.match(rrepeat);
@@ -617,7 +598,7 @@
                 } else {
                     repeat = childList.repeat;
                 }
-                child.childNodes.repeat = repeat;
+                repeat && (child.childNodes.repeat = repeat);
 
                 for (var j = 0; j < child.attributes.length; j++) {
                     var attr = child.attributes[j].name;
@@ -640,7 +621,7 @@
         });
 
         //console.log('[' + this.fns.join(',') + ']');
-        this.fns = eval('[' + this.fns.join(',') + ']');
+        this.fns = window.eval('[' + this.fns.join(',') + ']');
 
         for (var i = 0, len = elements.length; i < len; i++) {
             self.setElementAttribute(elements[i]);
@@ -678,6 +659,7 @@
         return model;
     }
 
+    /*
 
     var $el = $('<div>\
     <input sn-model="name" sn-tap="tap" value="{{test.asdf+\'asdf\'}}"/>\
@@ -731,6 +713,6 @@
     }).set('data.0.test', '333')
 
     console.log(Date.now() - now);
-
+    */
     exports.ViewModel = ViewModel;
 });
