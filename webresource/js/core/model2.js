@@ -9,7 +9,7 @@
     var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
     var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*(.+?)){0,1}(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
     var rmatch = /\{\{(.+?)\}\}/g;
-    var rvar = /(^|[\=\>\<\?\s\:\(\),\%\+\-\*\/\[\]]+)([a-zA-Z_0-9\.-]+|'(?:\\'|[^'])*')/g;
+    var rvar = /(^|[\=\>\<\?\s\:\(\),\%\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\()|'(?:\\'|[^'])*')/g;
 
     var isNull = function (str) {
         var arr = str.split('.');
@@ -22,7 +22,7 @@
             result[i] = result[i] + '!=null&&' + result[i] + '!=undefined';
         }
         return '(' + result.join('&&') + '?' + str + ':"")';
-    };
+    }
 
     var eachElement = function (el, fn) {
 
@@ -39,7 +39,7 @@
         }
     }
 
-    var Filter = {};
+    var Filters = {};
 
     var Model = function (parent, key, data, repeats) {
         if (parent instanceof Model) {
@@ -205,7 +205,8 @@
     var Filters = {
         contains: function (source, keywords) {
             return source.indexOf(keywords) != -1;
-        }
+        },
+        util: util
     };
 
     var Repeat = function (options) {
@@ -279,7 +280,7 @@
 
         for (var i = 0, len = list.length; i < len; i++) {
             var item = list[i];
-            if (repeat.filter === undefined || this.collection.root.fns[repeat.filter](item.model)) {
+            if (repeat.filter === undefined || this.collection.root.fns[repeat.filter](Filters, item.model)) {
                 fragment.appendChild(item);
                 item.setAttribute('sn-index', index);
                 if (repeat.indexAlias) {
@@ -329,12 +330,13 @@
 
             if (el.bindings) {
                 node.bindings = el.bindings;
+
                 if (model) {
                     node.model = model;
-                    el.origin.elements.push(node);
+                    el._origin._elements.push(node);
                     model.root.setElementAttribute(node);
                 } else {
-                    node.origin = el;
+                    node._origin = el;
                 }
             }
 
@@ -440,7 +442,7 @@
 
     ViewModel.prototype.compileExpression = function (expression, repeat, listen) {
         var self = this;
-        var code = 'function(model,el){var $el=$(el);var $data=$.extend({},model.root.data';
+        var code = 'function(Filters,model,el){var $el=$(el);var $data=$.extend({},Filters,model.root.data';
 
         if (repeat) {
             code += ',{';
@@ -464,13 +466,15 @@
              .replace(/'/g, '\\\'')
              .replace(rmatch, function (match, exp) {
 
-                 return '\'+' + exp.replace(/\\'/g, '\'').replace(rvar, function (match, prefix, name) {
-                     if (rvalue.test(name)) {
+
+                 return '\'+(' + exp.replace(/\\'/g, '\'').replace(rvar, function (match, prefix, name) {
+                     var attrs = name.split('.');
+                     var alias = attrs[0];
+
+                     if (rvalue.test(name) || !alias || Filters[alias]) {
                          return prefix + name;
                      }
 
-                     var attrs = name.split('.');
-                     var alias = attrs[0];
                      var indexAlias;
 
                      if (repeat) {
@@ -496,8 +500,9 @@
                      } else {
                          self.on('sync:' + indexAlias.collectionName + '/' + indexAlias.alias + '/' + indexAlias.indexAlias, listen);
                      }
+
                      return prefix + isNull(name);
-                 }) + '+\'';
+                 }) + ')+\'';
              });
 
         code += '\';}}';
@@ -510,11 +515,16 @@
         if (el.bindings) {
             var attrs = attr ? [attr] : el.bindings;
             for (var attr in el.bindings) {
-                var val = self.fns[el.bindings[attr]](el.model || self, el);
+                var val = self.fns[el.bindings[attr]](Filters, el.model || self, el);
 
                 if (attr == 'textContent') {
                     if (el.textContent != val) {
                         el.textContent = val;
+                    }
+
+                } else if (attr == 'value' && (el.tagName == 'INPUT' || el.tagName == 'TEXTAREA')) {
+                    if (el.value != val) {
+                        el.value = val;
                     }
 
                 } else if (el.getAttribute(attr) != val) {
@@ -536,17 +546,17 @@
                 self.setElementAttribute(node, attr);
 
             } else {
-                for (var i = 0; i < node.elements.length; i++) {
-                    var el = node.elements[i];
+                for (var i = 0; i < node._elements.length; i++) {
+                    var el = node._elements[i];
                     if (model == model.root || el.model == model || model.contains(el.model)) {
                         self.setElementAttribute(el, attr);
                     }
                 }
             }
         };
-        var code = this.compileExpression(expression, repeat, listen);
+        (node.bindings || (node._elements = [], node.bindings = {}))[attr] = self.fns.length;
 
-        (node.bindings || (node.elements = [], node.bindings = {}))[attr] = self.fns.length;
+        var code = this.compileExpression(expression, repeat, listen);
 
         self.fns.push(code);
     }
