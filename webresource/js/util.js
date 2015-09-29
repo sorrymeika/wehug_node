@@ -216,6 +216,10 @@
             return style;
         },
 
+        currency: function (str, p) {
+            return (p === undefined || p === null ? '￥' : p) + Math.round(parseFloat(str) * 100) / 100;
+        },
+
         template: function (str, data) {
             var tmpl = 'var __p=[];var $data=obj||{};with($data){__p.push(\'' +
                 str.replace(/\\/g, '\\\\')

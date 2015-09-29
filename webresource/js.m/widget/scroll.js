@@ -80,7 +80,7 @@
                         self.refreshAgain = false;
                         if (!self.isLoading && end != 0) {
                             self.isLoading = self.isDataLoading = true;
-                            self.$refresh.html('<div class="dataloading"></div>');
+                            self.$refresh.html('<div class="dataloading" style="opacity:1"></div>');
                             self.$.triggerHandler('refresh');
                         }
                     });
@@ -136,10 +136,13 @@
         el.__hasMomentum = false;
         el.__isMoved = false;
         el.__isStart = false;
-        el.__isScroll = now - el.__timestamp <= 16;
+        el.__isStop = false;
+        el.__isScroll = now - el.__timestamp <= 32;
     };
 
     var touchMove = function (e) {
+        if (this.__isStop) return;
+
         var el = this,
             point = e.touches[0],
             pointY = point.pageY,
@@ -149,17 +152,24 @@
         el.__oPointY = el.__pointY;
         el.__pointY = pointY;
         el.__isMoved = true;
+        el.__isScroll = true;
 
         if (!el.__isStart) {
             el.__isStart = true;
-            if (!el.options.hScroll && Math.abs(deltaX) > Math.abs(deltaY)) {
-                return false;
+            if ((el.options.vScroll && !el.options.hScroll && Math.abs(deltaX) > Math.abs(deltaY)) || (!el.options.vScroll && el.options.hScroll && Math.abs(deltaX) < Math.abs(deltaY))) {
+                el.__isStop = true;
+                return;
+            } else {
+                el.__isStop = false;
             }
         }
 
         if (util.ios && el.$refresh && el.scrollTop < 0) {
             el.isRefresh = el.scrollTop < -70;
         }
+
+        e.stopPropagation();
+        el.__timestamp = +new Date;
     };
 
     var scrollStop = function (el) {
@@ -196,6 +206,9 @@
             el.__hasMomentum = true;
 
         e.cancelTap = el.__isScroll;
+        if (el.__isScroll && !el.__isStop) {
+            e.stopPropagation();
+        }
         if (el.isRefresh) {
             el.isRefresh = false;
             el.$refresh.html('<div class="dataloading"></div>');
@@ -215,6 +228,11 @@
         }
         //debug-->*/
 
+        options = $.extend({
+            vScroll: true,
+            hScroll: false
+        }, options);
+
         var result = [];
 
         (typeof selector === 'string' ? $(selector) : selector).each(function () {
@@ -226,18 +244,21 @@
                 scrollView = new ScrollView(this, options);
                 result.push(scrollView);
             }
-
             else {
                 this.__timestamp = 0;
 
                 if (util.ios) {
                     $el.css({
                         '-webkit-overflow-scrolling': 'touch',
-                        overflowY: 'scroll'
+                        overflowY: options.vScroll ? 'scroll' : '',
+                        overflowX: options.hScroll ? 'scroll' : ''
                     })
-                }
-                else if (util.android) {
-                    $el.css({ overflowY: 'auto' });
+
+                } else if (util.android) {
+                    $el.css({
+                        overflowY: options.vScroll ? 'auto' : '',
+                        overflowX: options.hScroll ? 'auto' : ''
+                    });
                 }
                 $el.on('scroll', scroll)
                     .on('touchstart', touchStart)
@@ -245,9 +266,7 @@
                     .on('touchend', touchEnd)
                     .each(function () {
                         this._scrollTop = 0;
-                        this.options = $.extend({
-                            hScroll: false
-                        }, options);
+                        this.options = options;
                     }),
                     result.push({
                         destory: function () {

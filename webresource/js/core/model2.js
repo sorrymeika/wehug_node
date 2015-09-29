@@ -10,6 +10,7 @@
     var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*(.+?)){0,1}(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
     var rmatch = /\{\{(.+?)\}\}/g;
     var rvar = /(^|[\=\>\<\?\s\:\(\),\%\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\()|'(?:\\'|[^'])*')/g;
+    var rregex = /\/(?:\\\/|[^\/])*\/[img]+/g;
 
     var isNull = function (str) {
         var arr = str.split('.');
@@ -39,7 +40,12 @@
         }
     }
 
-    var Filters = {};
+    var Filters = {
+        contains: function (source, keywords) {
+            return source.indexOf(keywords) != -1;
+        },
+        util: util
+    };
 
     var Model = function (parent, key, data, repeats) {
         if (parent instanceof Model) {
@@ -201,13 +207,6 @@
         }
         return false;
     }
-
-    var Filters = {
-        contains: function (source, keywords) {
-            return source.indexOf(keywords) != -1;
-        },
-        util: util
-    };
 
     var Repeat = function (options) {
         $.extend(this, options);
@@ -406,6 +405,9 @@
         for (var i = 0, len = this.repeats.length; i < len; i++) {
             this.repeats[i].update();
         }
+        var key = this.key.replace(/\./g, '/');
+        this.root.trigger('sync:' + key, this.parent, this._key, this.data)
+            .trigger('sync:' + key + '/length', this.parent, this._key, this.data);
     }
 
     Collection.prototype.set = function (data) {
@@ -461,52 +463,53 @@
         }
 
         code += ');with($data){return \''
-            + expression.replace(/\\/g, '\\\\')
-             .replace(/'/g, '\\\'')
-             .replace(rmatch, function (match, exp) {
+            + expression.replace(rregex, function (match) {
+                console.log(match);
+            })
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, '\\\'')
+                .replace(rmatch, function (match, exp) {
+                    return '\'+(' + exp.replace(/\\\\/g, '\\').replace(/\\'/g, '\'').replace(rvar, function (match, prefix, name) {
+                        var attrs = name.split('.');
+                        var alias = attrs[0];
 
+                        if (alias == 'Math' || alias == '$' || rvalue.test(name) || !alias || Filters[alias]) {
+                            return prefix + name;
+                        }
 
-                 return '\'+(' + exp.replace(/\\'/g, '\'').replace(rvar, function (match, prefix, name) {
-                     var attrs = name.split('.');
-                     var alias = attrs[0];
+                        var indexAlias;
 
-                     if (rvalue.test(name) || !alias || Filters[alias]) {
-                         return prefix + name;
-                     }
+                        if (repeat) {
+                            if (alias == repeat.alias) {
+                                attrs[0] = repeat.collectionName + '^child';
 
-                     var indexAlias;
+                            } else if (alias == repeat.indexAlias) {
+                                indexAlias = repeat;
+                            } else {
+                                for (var parent = repeat.parent; parent != null; parent = parent.parent) {
+                                    if (parent.alias == alias) {
+                                        attrs[0] = parent.collectionName + '^child';
 
-                     if (repeat) {
-                         if (alias == repeat.alias) {
-                             attrs[0] = repeat.collectionName + '^child';
+                                    } else if (alias == parent.indexAlias) {
+                                        indexAlias = parent;
+                                    }
+                                }
+                            }
+                        }
 
-                         } else if (alias == repeat.indexAlias) {
-                             indexAlias = repeat;
-                         } else {
-                             for (var parent = repeat.parent; parent != null; parent = parent.parent) {
-                                 if (parent.alias == alias) {
-                                     attrs[0] = parent.collectionName + '^child';
+                        if (!indexAlias) {
+                            self.on('sync:' + attrs.join('/'), listen);
+                        } else {
+                            self.on('sync:' + indexAlias.collectionName + '/' + indexAlias.alias + '/' + indexAlias.indexAlias, listen);
+                        }
 
-                                 } else if (alias == parent.indexAlias) {
-                                     indexAlias = parent;
-                                 }
-                             }
-                         }
-                     }
-
-                     if (!indexAlias) {
-                         self.on('sync:' + attrs.join('/'), listen);
-                     } else {
-                         self.on('sync:' + indexAlias.collectionName + '/' + indexAlias.alias + '/' + indexAlias.indexAlias, listen);
-                     }
-
-                     return prefix + isNull(name);
-                 }) + ')+\'';
-             });
+                        return prefix + isNull(name);
+                    }) + ')+\'';
+                });
 
         code += '\';}}';
 
-        return code;
+        return code.replace('return \'\'+', 'return ').replace(/\+\'\'/g, '');
     };
 
     ViewModel.prototype.setElementAttribute = function (el, attr) {
@@ -525,6 +528,12 @@
                     if (el.value != val) {
                         el.value = val;
                     }
+
+                } else if (attr == 'html' || attr == 'sn-html') {
+                    el.innerHTML = val;
+
+                } else if (attr == 'display' || attr == 'sn-display') {
+                    el.style.display = util.isFalse(val) ? 'none' : val == 'block' || val == 'inline' || val == 'inline-block' ? val : '';
 
                 } else if (el.getAttribute(attr) != val) {
                     el.setAttribute(attr, val);
@@ -560,6 +569,35 @@
         self.fns.push(code);
     }
 
+
+    ViewModel.prototype.getModel = function (el, name, callback) {
+        var attrs = name.split('.');
+        var alias = attrs[0];
+        var closestModel;
+        var model;
+        var modelName;
+
+        for (var parent = el; parent != null && parent != document.body; parent = parent.parent) {
+            if (parent.model && !closestModel) {
+                closestModel = parent.model;
+            }
+            if (parent.repeat && (parent.repeat.alias == alias)) {
+                modelName = parent.repeat.collectionName + '^child';
+                model = parent.model;
+                attrs.shift();
+                break;
+            }
+        }
+
+        if (!model) {
+            model = this;
+        }
+
+        callback && callback(model, attrs.join('.'), closestModel);
+
+        return model;
+    }
+
     ViewModel.prototype.scan = function (el) {
         var self = this;
         var elements = [];
@@ -568,7 +606,7 @@
             var target = e.currentTarget;
             var name = target.getAttribute('sn-model');
 
-            self.getClosestModel(target, name, function (model, attr) {
+            self.getModel(target, name, function (model, attr) {
                 model.set(attr, target.value);
             });
         });
@@ -579,7 +617,8 @@
                 var target = e.currentTarget;
                 var name = target.getAttribute('sn-' + e.type);
 
-                self.getClosestModel(target, name, function (model, attr) {
+                self.getModel(target, name, function (model, attr, data) {
+                    e.model = data;
                     model.get(attr).call(model, e);
                 });
             });
@@ -613,7 +652,12 @@
                     var attr = child.attributes[j].name;
                     var val = child.attributes[j].value;
 
-                    if (attr.indexOf('sn-') != 0) {
+                    if (attr == 'sn-error') {
+                        attr = 'onerror'
+                    } else if (attr == 'sn-src') {
+                        attr = 'src'
+                    }
+                    if (attr == 'sn-display' || attr.indexOf('sn-') != 0) {
                         self.bindAttr(child, attr, val, repeat);
                     }
                 }
@@ -637,36 +681,6 @@
         }
     }
 
-    ViewModel.prototype.getClosestModel = function (el, name, callback) {
-        var attrs = name.split('.');
-        var alias = attrs[0];
-        var model;
-        var modelName;
-
-        for (var parent = el; parent != null && parent != document.body; parent = parent.parent) {
-            if (parent.model && !model) {
-                model = parent.model;
-            }
-            if (parent.repeat && (parent.repeat.alias == alias)) {
-                modelName = parent.repeat.collectionName + '^child';
-                attrs[0].shift();
-            }
-            if (model && modelName) {
-                break;
-            }
-        }
-
-        if (!model) {
-            model = this;
-
-        } else if (modelName) {
-            model = model.key == modelName ? model : model.closest(modelName);
-        }
-
-        callback && callback(model, attrs.join('.'));
-
-        return model;
-    }
 
     /*
     var $el = $('<div>\
@@ -723,4 +737,6 @@
     console.log(Date.now() - now);
     */
     exports.ViewModel = ViewModel;
+    exports.Filters = Filters;
+
 });
