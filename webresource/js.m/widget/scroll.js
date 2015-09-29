@@ -80,7 +80,7 @@
                         self.refreshAgain = false;
                         if (!self.isLoading && end != 0) {
                             self.isLoading = self.isDataLoading = true;
-                            self.$refresh.html('<div class="dataloading" style="opacity:1"></div>');
+                            self.$refresh.html('<div class="dataloading"></div>');
                             self.$.triggerHandler('refresh');
                         }
                     });

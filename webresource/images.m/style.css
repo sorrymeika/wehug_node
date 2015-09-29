@@ -65,7 +65,7 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 .dataloading { top: 50%; left: 50%; margin: -20px 0 0 -20px; position: absolute; width: 40px; height: 40px; text-indent: -10000px; background: url(dataloading.png) 0 0 no-repeat; background-size: 100% 100%; -webkit-animation-name: ui-loading-anim; -webkit-animation-duration: 1s; -webkit-animation-iteration-count: infinite; -webkit-animation-timing-function: step-start; z-index: 1000; opacity: 0; -webkit-transition: opacity 300ms ease-out 0ms; pointer-events: none; }
 .dataloading.show { opacity: 1; }
 .refresh { position: relative; }
-.refresh .dataloading { margin: -15px 0 0 -15px; width: 30px; height: 30px; }
+.refresh .dataloading { margin: -15px 0 0 -15px; width: 30px; height: 30px; opacity: 1; }
 
 .server_error { top: 50%; left: 0; margin: -20px 0 0 0; position: absolute; width: 100%; height: 40px; text-align: center; font-family: 微软雅黑; z-index: 2000; }
 .server_error .ico_reload { display: inline-block; background: url(reload.png) 0 0 no-repeat; background-size: 100% 100%; width: 40px; height: 40px; vertical-align: top; }
