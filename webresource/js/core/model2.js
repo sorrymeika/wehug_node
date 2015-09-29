@@ -309,14 +309,13 @@
                 }
             }
         }
-
         //console.log(list, this.replacement.parentNode);
         this.replacement.parentNode.insertBefore(fragment, this.replacement);
     }
 
 
     CollectionRepeat.prototype.cloneNode = function (el, model) {
-        var node = el.cloneNode();
+        var node = el.cloneNode(false);
         var len;
 
         if (el.nodeType == 8 && el.repeat) {
@@ -327,7 +326,6 @@
             }
 
         } else {
-
             if (el.bindings) {
                 node.bindings = el.bindings;
 
@@ -351,6 +349,7 @@
 
     CollectionRepeat.prototype.add = function (model) {
         var el = this.cloneNode(this.el, model);
+
         el.model = model;
         this.elements[this.elements.length] = el;
     }
@@ -670,7 +669,6 @@
     }
 
     /*
-
     var $el = $('<div>\
     <input sn-model="name" sn-tap="tap" value="{{test.asdf+\'asdf\'}}"/>\
     <div class="{{text}}" style="{{test.asdf}}">name:{{name}}</div>\
