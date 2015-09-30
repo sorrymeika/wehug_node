@@ -330,6 +330,7 @@
 
                 adjustActivity(currentActivity, activity);
 
+                checkQueryString(activity, route);
                 activity.then(function () {
                     activity.trigger('Appear');
                 });
