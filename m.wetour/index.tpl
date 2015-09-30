@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
-    <meta name="api-base-url" content="@html(debug?"http://192.168.10.129:5558":"http://lcgogogo.com")" />
+    <meta name="api-base-url" content="@html(debug?"http://127.0.0.1:5558":"http://lcgogogo.com")" />
     <title></title>
     @for(var key in css){
         var items=css[key],

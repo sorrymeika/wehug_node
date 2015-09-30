@@ -8,6 +8,7 @@
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
+    var bridge = require('bridge');
 
     return Activity.extend({
         events: {
@@ -50,6 +51,39 @@
                     if (!this.loading[index].isDataLoaded) {
                         this.loading[index].load();
                     }
+                }
+            },
+            'tap .quanli_up': function (e) {
+                var $target = $(e.currentTarget);
+                var $el = $target.closest('[data-id]');
+                var id = $el.data('id');
+                var user;
+
+                if (user = util.store('user')) {
+                    var quan_up = util.store('quan_up') || [];
+                    var isUp;
+
+                    if (quan_up.indexOf(id) == -1) {
+                        isUp = true;
+                        $target.html(parseInt($target.html()) + 1);
+                        quan_up.push(id);
+                    } else {
+                        isUp = false;
+                        $target.html(Math.max(parseInt($target.html()) - 1, 0));
+                        quan_up.splice(quan_up.indexOf(id), 1);
+                    }
+                    $.post(bridge.url('/api/user/update'), {
+                        UserID: user.ID,
+                        Auth: user.Auth,
+                        Favorite: user.Favorite,
+                        FavoriteID: id,
+                        FavoriteType: 'quan',
+                        IsFavorite: isUp
+                    });
+                    util.store('quan_up', quan_up);
+
+                } else {
+                    sl.tip('请先登录');
                 }
             },
             'tap .quanli_reply': function (e) {
@@ -115,8 +149,6 @@
                 code: '101281101'
             }];
 
-            util.style('.js_destination .slider img{max-height:' + (window.innerHeight - 64 - 47) + 'px}')
-
             self.picView = new Slider(this.$('.js_picviewer'), {
                 itemTemplate: '<img src="<%=Src%>">',
                 data: []
@@ -181,17 +213,8 @@
                     success: function (res) {
                         this.isDataLoaded = true;
 
-                        if (index == 1) {
-                            this.$content.html('');
+                        self.model.set("data" + index, res.data);
 
-                            self.slider = new Slider(this.$content, {
-                                arrow: true,
-                                itemTemplate: '<a href="/destination/<%=ID%>" forward><img src="<%=LargePic%>"><div class="recommend_name"><%=Name%></div><div class="recommend_fav"><%=Favorite%></div></a>',
-                                data: res.data
-                            });
-                        } else {
-                            self.model.set("data" + index, res.data);
-                        }
                         if (!res.data) {
                             this.showError('暂无数据');
                         }

@@ -26,6 +26,15 @@
     </div>
 </div>
 <div class="main js_destination" style="display:none" data-index="1">
+    <ul class="recommend_list activity_list">
+        <li class="recommend_item" sn-repeat="item in data1" sn-binding="data-id:item.ID">
+            <a sn-binding="href:item.ID|format:'/destination/{0}'" forward>
+                <img sn-binding="src:item.LargePic" />
+                <div class="recommend_name" sn-binding="html:item.Name"></div>
+                <div class="recommend_fav" sn-binding="html:item.Favorite"></div>
+            </a>
+        </li>
+    </ul>
 </div>
 <div class="main" style="display:none" data-index="2">
     <ul class="recommend_list activity_list">
@@ -40,7 +49,7 @@
 </div>
 <div class="main" style="display:none" data-index="3">
     <ul class="quan_list">
-        <li class="quan_item" sn-repeat="item in data3" sn-binding="data-id:item.ID">
+        <li class="quan_item" sn-repeat="item in data3" sn-binding="data-id:item.ID,data-at:item.NickName|or:item.Mobile">
             <div class="quan_user">
                 <img sn-binding="src:item.Avatars" />
                 <div class="bd">

@@ -71,6 +71,8 @@
                     sl.tip(res.msg);
                 } else {
                     self.model.set('user', data);
+
+                    util.store('user', $.extend(self.user, data));
                 }
                 self.loading.hideLoading();
             }, 'json');

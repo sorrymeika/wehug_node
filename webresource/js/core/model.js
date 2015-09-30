@@ -443,7 +443,7 @@
                     el.innerHTML = value;
                     break;
                 case 'display':
-                    el.style.display = util.isFalse(value) ? 'none' : value == 'block' || value == 'inline' || value == 'inline-block' ? value : '';
+                    el.style.display = util.isFalse(value) ? 'none' : value == 'block' || value == 'inline' || value == 'inline-block' || value == 'none' || value == '-webkit-box' ? value : '';
                     break;
                 case 'value':
                     if (el.value != value) el.value = value;
