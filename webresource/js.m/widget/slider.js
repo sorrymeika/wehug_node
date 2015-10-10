@@ -27,7 +27,6 @@
         if (typeof that.itemTemplate === 'string') that.itemTemplate = _.template(that.itemTemplate);
         if (typeof that.width == 'string') that.width = parseInt(that.width.replace('%', ''));
 
-
         if (options.index != undefined) options.index = options.index;
 
         ScrollView.call(this, $(that.template({

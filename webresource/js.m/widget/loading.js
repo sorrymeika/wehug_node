@@ -19,6 +19,7 @@
         this.error = options.error || this.showError;
         this.$content = options.$content || this.$el;
         this.$scroll = options.$scroll || this.$el;
+        this.pageEnabled = !!(options.pageEnabled || this.append);
 
         this.setUrl(options.url);
     }
@@ -176,21 +177,22 @@
         load: function (options, callback) {
             var that = this;
 
+            if (that.beforeSend && that.beforeSend() === false) return;
+
             if (that.isLoading) return;
             that.isLoading = true;
 
             if (typeof options == 'function') callback = options, options = null;
-
-            that.params[that.KEY_PAGE] = that.pageIndex;
-            that.params[that.KEY_PAGESIZE] = that.pageSize;
+            if (that.pageEnabled) {
+                that.params[that.KEY_PAGE] = that.pageIndex;
+                that.params[that.KEY_PAGESIZE] = that.pageSize;
+            }
 
             for (var i = records.length - 1; i >= 0; i--) {
                 records[i].disableAutoRefreshing();
             }
 
             if (!options || options.showLoading !== false) that.showLoading();
-
-            that.beforeSend && that.beforeSend();
 
             that._xhr = $.ajax({
                 url: that.url,

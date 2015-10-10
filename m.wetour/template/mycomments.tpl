@@ -5,6 +5,10 @@
 <div class="main">
     <ul class="quan_list">
         <li class="quan_item" sn-repeat="item in comments" sn-binding="data-id:item.ID,data-type:item.Type">
+            <div style="display:-webkit-box;padding:10px;border-bottom: 1px solid #ddd;" sn-binding="display:item.Name|isTrue:'-webkit-box':'none',data-forward:item|eval:'($0.Type==1?\'/recommend/\'+$0.RID:$0.Type==2?\'/destination/\'+$0.RID:$0.Type==1?\'/activity/\'+$0.RID:\'\')+\'?from=/mycomments\''">
+                <img sn-binding="src:item.Pic" style="display:block;height:60px;width:60px;" />
+                <b sn-binding="html:item.Name" style="display:block;margin-left: 10px;"></b>
+            </div>
             <div class="quan_user">
                 <img sn-binding="src:item.Avatars" />
                 <div class="bd">

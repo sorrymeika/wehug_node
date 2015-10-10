@@ -167,9 +167,11 @@
 
         })(function () {
             seajs.use(['components/umeditor/umeditor.config', 'components/umeditor/umeditor', 'components/umeditor/themes/default/css/umeditor.css'], function (a) {
-                var editor = UM.getEditor(self.id, {
-                    toolbar: ['source | undo redo | bold italic underline strikethrough | removeformat | justifyleft justifycenter justifyright justifyjustify | link unlink | image']
-                });
+                var editorOptions = {};
+                if (options.toolbar) editorOptions.toolbar = options.toolbar;
+                else if (options.simple) editorOptions.toolbar = ['source | undo redo | bold italic underline strikethrough | removeformat | justifyleft justifycenter justifyright justifyjustify | link unlink | image'];
+
+                var editor = UM.getEditor(self.id, editorOptions);
                 editor.addListener('blur', function () {
                     var content = editor.getContent();
                     var original = $input[0].value;

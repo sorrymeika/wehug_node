@@ -19,6 +19,8 @@
 		'/destination/{id:\\d+}': { controller: 'destination', template: 'destination' },
 		'/activity/{id:\\d+}': { controller: 'activity', template: 'activity' },
 		'/register': { controller: 'register', template: 'register' },
+		'/resetpwd': { controller: 'resetpwd', template: 'resetpwd' },
+		'/modifypwd': { controller: 'modifypwd', template: 'modifypwd' },
 		'/comment': { controller: 'comment', template: 'comment' },
 		'/reply/{id:\\d+}': { controller: 'reply', template: 'reply' },
 		'/destcomment/{id:\\d+}': { controller: 'destcomment', template: 'comment' },

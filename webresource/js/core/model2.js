@@ -10,7 +10,7 @@
     var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*(.+?)){0,1}(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
     var rmatch = /\{\{(.+?)\}\}/g;
     var rvar = /(^|[\=\>\<\?\s\:\(\),\%\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\()|'(?:\\'|[^'])*')/g;
-    var rregex = /\/(?:\\\/|[^\/])*\/[img]+/g;
+    var rtemp = /\/(?:\\\/|[^\/])*\/[img]+|"(?:\\"|[^"])*"/g;
 
     var isNull = function (str) {
         var arr = str.split('.');
@@ -462,50 +462,56 @@
             code += '}';
         }
 
+        var replacement = [];
+
         code += ');with($data){return \''
-            + expression.replace(rregex, function (match) {
-                console.log(match);
+            + expression.replace(rtemp, function (match) {
+                replacement[replacement.length] = match;
+                return '``' + (replacement.length - 1) + '~~';
             })
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, '\\\'')
-                .replace(rmatch, function (match, exp) {
-                    return '\'+(' + exp.replace(/\\\\/g, '\\').replace(/\\'/g, '\'').replace(rvar, function (match, prefix, name) {
-                        var attrs = name.split('.');
-                        var alias = attrs[0];
+            .replace(/\\/g, '\\\\')
+            .replace(/'/g, '\\\'')
+            .replace(rmatch, function (match, exp) {
+                return '\'+(' + exp.replace(/\\\\/g, '\\').replace(/\\'/g, '\'').replace(rvar, function (match, prefix, name) {
+                    var attrs = name.split('.');
+                    var alias = attrs[0];
 
-                        if (alias == 'Math' || alias == '$' || rvalue.test(name) || !alias || Filters[alias]) {
-                            return prefix + name;
-                        }
+                    if (alias == 'Math' || alias == '$' || rvalue.test(name) || !alias || Filters[alias]) {
+                        return prefix + name;
+                    }
 
-                        var indexAlias;
+                    var indexAlias;
 
-                        if (repeat) {
-                            if (alias == repeat.alias) {
-                                attrs[0] = repeat.collectionName + '^child';
+                    if (repeat) {
+                        if (alias == repeat.alias) {
+                            attrs[0] = repeat.collectionName + '^child';
 
-                            } else if (alias == repeat.indexAlias) {
-                                indexAlias = repeat;
-                            } else {
-                                for (var parent = repeat.parent; parent != null; parent = parent.parent) {
-                                    if (parent.alias == alias) {
-                                        attrs[0] = parent.collectionName + '^child';
+                        } else if (alias == repeat.indexAlias) {
+                            indexAlias = repeat;
+                        } else {
+                            for (var parent = repeat.parent; parent != null; parent = parent.parent) {
+                                if (parent.alias == alias) {
+                                    attrs[0] = parent.collectionName + '^child';
 
-                                    } else if (alias == parent.indexAlias) {
-                                        indexAlias = parent;
-                                    }
+                                } else if (alias == parent.indexAlias) {
+                                    indexAlias = parent;
                                 }
                             }
                         }
+                    }
 
-                        if (!indexAlias) {
-                            self.on('sync:' + attrs.join('/'), listen);
-                        } else {
-                            self.on('sync:' + indexAlias.collectionName + '/' + indexAlias.alias + '/' + indexAlias.indexAlias, listen);
-                        }
+                    if (!indexAlias) {
+                        self.on('sync:' + attrs.join('/'), listen);
+                    } else {
+                        self.on('sync:' + indexAlias.collectionName + '/' + indexAlias.alias + '/' + indexAlias.indexAlias, listen);
+                    }
 
-                        return prefix + isNull(name);
-                    }) + ')+\'';
-                });
+                    return prefix + isNull(name);
+                }) + ')+\'';
+            })
+            .replace(/``(\d+)~~/g, function (match, i) {
+                return replacement[i];
+            });
 
         code += '\';}}';
 

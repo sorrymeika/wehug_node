@@ -3,7 +3,6 @@
         <img class="menu_avatars" sn-binding="src:user.Avatars" />
         <div class="menu_username">
             <h1 sn-binding="html:user|equal:null:'未登录':user.NickName"></h1>
-            <h2 sn-binding="html:user.Mobile"></h2>
         </div>
     </div>
     <ul class="menu_list">
