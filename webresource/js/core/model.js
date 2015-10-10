@@ -609,8 +609,9 @@
                 attrs = key;
             } else if (typeof val == 'undefined') {
                 val = key, key = '';
+                console.log(this, key, val)
 
-                if (this.parent) {
+                if (this.parent && this.parent instanceof Collection) {
                     this.parent.data[this.parent.models.indexOf(this)] = val;
                 }
                 this.data = val;
@@ -690,7 +691,8 @@
                         if (this.created) {
                             this.trigger('change:' + attr, value);
 
-                            this.root.trigger('change:' + (this.key ? this.key + '.' + attr : attr), this, attr, value);
+                            if (this != this.root)
+                                this.root.trigger('change:' + (this.key ? this.key + '.' + attr : attr), this, attr, value);
                         }
                     }
 
