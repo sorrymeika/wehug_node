@@ -79,7 +79,7 @@ function parseDependencies(code) {
     return ret
 }
 
-var replaceDefine = function (id, code, requires, append) {
+var replaceDefine = function (id, code, requires, exclude, append) {
 
     code = replaceBOM(code);
     var m = code.match(/(^|\s|[&])define\(/g);
@@ -87,7 +87,7 @@ var replaceDefine = function (id, code, requires, append) {
         return code;
     }
 
-    if (typeof requires == 'string') append = requires, requires = undefined;
+    if (typeof requires == 'string') append = requires, requires = undefined, exclude = undefined;
 
     return code.replace(/\bdefine\((?:\s*|\s*(\[[^\]]*\]{0,1})\s*,\s*)function\s*\((([^,\)]+)[^\)]*|[^\)]*)\)\s*{/m, function (match, param, fn, req) {
         param = param ? JSON.parse(param.replace(/\'/g, '"')) : [];
@@ -96,6 +96,14 @@ var replaceDefine = function (id, code, requires, append) {
             param = concat(requires, param);
         }
         param = concat(param, parseDependencies(code));
+
+        if (exclude && exclude.length) {
+            for (var i = param.length - 1; i >= 0; i--) {
+                if (exclude.indexOf(param[i]) != -1) {
+                    param.splice(i, 1);
+                }
+            }
+        }
 
         return 'define(' + '"' + id + '",' + (JSON.stringify(param) + ',') + 'function(' + fn + '){' + (append || '');
     });

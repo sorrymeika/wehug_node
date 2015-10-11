@@ -17,6 +17,7 @@
                 </div>
                 <div class="ft">
                     <span class="quanli_reply" sn-binding="html:item.Reply|length"></span>
+                    <span class="quanli_del">×</span>
                 </div>
             </div>
             <div class="quan_con" sn-binding="html:item.Content"></div>

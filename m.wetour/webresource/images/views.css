@@ -125,6 +125,8 @@ header { background: #46abef; height: 44px; line-height: 44px; }
 .quan_user .ft span { display: inline-block; color: #969696; padding-right: 5px; height: 40px; }
 .quan_user .ft span:before { width: 20px; height: 20px; content: ""; display: inline-block; background: url(site.png) no-repeat -150px -30px; background-size: 320px auto; vertical-align: -5px; }
 .quan_user .ft span.quanli_up:before { background-position-x: -180px; }
+.quan_user .ft span.quanli_del { font-size: 18px; padding:0 10px; }
+.quan_user .ft span.quanli_del:before { display:none; }
 .quan_con { padding: 10px; line-height: 1.2; }
 
 .quan_con + .quan_reply:before { display: block; content: ''; position: absolute; width: 10px; height: 10px; border: 1px solid #ccc; background: #fafafa; -webkit-transform: rotate(45deg); top: -6px; left: 10px; }

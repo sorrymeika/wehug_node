@@ -56,7 +56,7 @@ var build = function (config, routes, projectsRequires) {
                 if (projectsRequires && (tmpRequire = projectsRequires[buildConfig.root]) && tmpRequire.length) {
                     requires = tmpRequire;
                 }
-                var code = Tools.compressJs(Tools.replaceDefine(buildConfig.view, data, requires));
+                var code = Tools.compressJs(Tools.replaceDefine(buildConfig.view, data, requires, requires.exclude));
 
                 viewInfo.code += code;
             }
@@ -106,11 +106,14 @@ module.exports = function (root, env, isMobile, callback) {
 
         var combine = {};
         var requires = {};
+        var commonCss = {};
+        var home = require(path.join(root, './index'));
 
         config.node_dest = path.join(root, config.node_dest);
         config.dest = path.join(root, config.dest);
 
         config.projects.forEach(function (project) {
+
             if (project.css) {
                 for (var key in project.css) {
                     var fileList = combine[key];
@@ -145,28 +148,32 @@ module.exports = function (root, env, isMobile, callback) {
                     if (requireList.indexOf(key) == -1) {
                         requireList.push(key);
                     }
+                    if (!requireList.exclude) requireList.exclude = [];
 
                     jsList.forEach(function (js) {
-                        console.log(project.path);
+                        console.log(project.path, js);
+                        requireList.exclude.push(js);
                         var file = getJsPath(root, project.path, js);
                         if (file && fileList.indexOf(file) == -1) {
+                            console.log(file);
                             fileList.push(file);
+                            requireList.exclude.push(file, file.replace(/\.js$/, ''));
                         }
                     });
                 }
             }
+
+            console.log('project.path', project.path);
+
+            Tools.save(path.join(config.dest, project.path, 'index.html'), home.html({
+                routes: routes,
+                isDebugFramework: false,
+                webresource: '',
+                debug: false,
+                css: project.css,
+                js: project.js
+            }));
         });
-
-        var home = require(path.join(root, './index'));
-
-        Tools.save(path.join(config.dest, 'index.html'), home.html({
-            routes: routes,
-            isDebugFramework: false,
-            webresource: '',
-            debug: false,
-            css: {},
-            js: {}
-        }));
 
         var tools = new Tools(root, config.dest);
         tools.combine(combine);

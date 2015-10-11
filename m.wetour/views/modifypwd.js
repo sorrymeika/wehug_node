@@ -25,7 +25,7 @@
                     return;
                 }
                 this.loading.setParam({
-                    userid: this.user.userid,
+                    userid: this.user.ID,
                     auth: this.user.Auth,
                     oldPassword: md5.md5(orig_password),
                     password: md5.md5(password)
@@ -55,6 +55,7 @@
                     if (!res.success)
                         sl.tip(res.msg);
                     else {
+                        sl.tip('修改成功！');
                         self.back(self.route.queries.success || '/');
                     }
                 },

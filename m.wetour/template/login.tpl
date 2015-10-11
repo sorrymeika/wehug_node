@@ -9,6 +9,6 @@
             <li><input placeholder="输入密码" sn-model="password" type="password" /></li>
         </ul>
         <div class="login_btn"><b class="btn_large js_login">登录</b> </div>
-        <div class="login_notice"><a href="/register" forward>我要注册</a> | <a href="/forget" forward>忘记密码？</a></div>
+        <div class="login_notice"><a href="/register" forward>我要注册</a> | <a href="/resetpwd" forward>忘记密码？</a></div>
     </div>
 </div>

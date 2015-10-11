@@ -85,13 +85,13 @@
             Scroll.bind($main);
 
             this.model = new model.ViewModel(this.$el, {
-                title: '注册',
+                title: '忘记密码',
                 valid: '获取验证码',
                 back: this.route.queries.from || '/login'
             });
 
             this.loading = new Loading({
-                url: '/api/user/register',
+                url: '/api/user/reset_pwd',
                 method: 'POST',
                 check: false,
                 checkData: false,
@@ -100,8 +100,8 @@
                     if (!res.success)
                         sl.tip(res.msg);
                     else {
-                        localStorage.setItem('user', JSON.stringify(res.data));
-                        self.back(self.route.queries.success || '/');
+                        sl.tip('重设密码成功');
+                        self.back(self.route.queries.success || '/login');
                     }
                 },
                 error: function (res) {
