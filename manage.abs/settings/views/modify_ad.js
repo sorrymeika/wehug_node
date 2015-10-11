@@ -22,8 +22,8 @@
                         form.submit(function (res) {
                             if (res.success) {
                                 sl.tip('修改成功');
-                                self.setResult('destination_change');
-                                self.back('/');
+                                self.setResult('ad_change');
+                                self.back('/settings/ad_list');
                                 self.form.reset();
 
                             } else {
@@ -34,7 +34,9 @@
                 }]
             });
 
-            self.model.set('data', util.store('current_ad'));
+            self.model.set('data', $.extend(util.store('current_ad'), { Name: this.route.data.name }));
+
+            console.log(self.model.data.data)
 
             var form = new Form({
                 model: this.model,

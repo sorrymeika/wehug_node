@@ -61,6 +61,10 @@
             var plugin = this.plugins[i];
             var $hidden = this.$el.find('[name="' + plugin.field + '"]');
             var compo = this.compo[plugin.field] = new (exports.require(plugin.type))($hidden, plugin);
+            var value = this.formModel.data[plugin.field];
+            if (value)
+                compo.val(this.formModel.data[plugin.field]);
+
             this.formModel.on('change:' + plugin.field, (function (compo) {
                 return function (e, value) {
                     compo.val(value);

@@ -32,6 +32,8 @@
                 var id = e.currentTarget.getAttribute('data-id');
                 var url = e.currentTarget.getAttribute('data-url');
 
+                console.log(this.grid.data())
+
                 util.store('current_ad', util.first(this.grid.data(), function (item) {
                     return item.ID == id;
                 }))
