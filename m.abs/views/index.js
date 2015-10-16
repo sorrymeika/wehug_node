@@ -206,14 +206,18 @@
                 }
             });
 
-            this.ad1Loading = new Loading({
-                url: '/api/settings/ad_list?name=index',
+            this.launchLoading = new Loading({
+                url: '/api/settings/ad_list?name=launch&type=base64',
                 check: false,
                 checkData: false,
                 $el: $(''),
                 success: function (res) {
+                    if (res && res.data && res.data.length) {
+                        localStorage.setItem('LAUNCH_IMAGE', res.data[0].Src);
+                    }
                 }
             });
+            this.launchLoading.load();
 
             var $launchImgs = this.$('.launch img');
             var $mask = this.$('.home_mask').on($.fx.transitionEnd, function (e) {

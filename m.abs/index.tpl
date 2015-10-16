@@ -44,20 +44,21 @@
         }
     }
     <style>
-        .viewport.applaunch { background: url(images/launch.jpg) no-repeat center top !important; background-size:  auto 100% !important; }
-        .viewport.applaunch1 { background: url(images/launch101.jpg) no-repeat center top !important; background-size: auto 100% !important; }
+        .viewport.applaunch { background: url(images/launch101.jpg) no-repeat center top !important; background-size: auto 100% !important; }
         @@media screen and (max-height:480px) {
-            .viewport.applaunch { background-image: url(images/launch_480.jpg) !important; }
-            .viewport.applaunch1 { background-image: url(images/launch101_480.jpg) !important; }
+            .viewport.applaunch { background-image: url(images/launch101_480.jpg) !important; }
         }
     </style>
 </head>
 <body>
     <div class="viewport applaunch"></div>
     <script>
-        if (Date.now()>=1443628800000){
-            var viewport=document.querySelector('.viewport');
-            viewport.className="viewport applaunch1";
+        var launchImage=localStorage.getItem("LAUNCH_IMAGE");
+        if (launchImage){
+            var styleElement = document.createElement('style');
+            styleElement.type = 'text/css';
+            document.getElementsByTagName('head')[0].appendChild(styleElement);
+            styleElement.appendChild(document.createTextNode('.viewport.applaunch{background-image: url('+launchImage+') !important;}@@media screen and (max-height:480px) {background-image: url('+launchImage+') !important;}'));
         }
         seajs.config({
             alias: {
