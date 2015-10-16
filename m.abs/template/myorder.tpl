@@ -12,7 +12,7 @@
 <div class="main myorder">
     <ul class="con" sn-binding="display:data">
         <li sn-repeat="item in data" sn-binding="class:item.CNL_CLT_ID|format:'type{0}'">
-            <div class="hd"><b class="from" sn-binding="html:item.CNL_DESC"></b><span class="status" sn-binding="html:item.PUS_DESC"></span></div>
+            <div class="hd" sn-binding="data-id:item.PUS_ID" sn-on="tap:openOrder:item"><b class="from" sn-binding="html:item.CNL_DESC"></b><span class="status" sn-binding="html:item.PUS_DESC"></span></div>
             <div class="info">
                 <span sn-binding="html:item.PUR_CODE|format:'订单号：{0}'"></span>
                 <span sn-binding="html:item.PUR_DT|date"></span>

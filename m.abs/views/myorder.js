@@ -62,6 +62,11 @@ define(function (require, exports, module) {
                 open: function () {
                     bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 },
+                openOrder: function (e, order) {
+                    if (order.PUR_DESC == '待付款') {
+                        bridge.openInApp('http://m.abs.cn/pay/' + order.PUR_ID + '.html');
+                    }
+                },
                 openPrd: function (e, prd) {
                     if (prd.data.PRD_DISCONTINUED_FLAG) {
                         self.$open_msg.show();

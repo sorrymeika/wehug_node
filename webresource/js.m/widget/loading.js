@@ -20,6 +20,7 @@
         this.$content = options.$content || this.$el;
         this.$scroll = options.$scroll || this.$el;
         this.pageEnabled = !!(options.pageEnabled || this.append);
+        this.isShowLoading = options.showLoading !== false;
 
         this.setUrl(options.url);
     }
@@ -127,7 +128,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else 
+            else
                 (attrs = {})[key] = val;
 
             if (this.headers === undefined) this.headers = {};
@@ -142,7 +143,7 @@
             var attrs;
             if (!val)
                 attrs = key
-            else 
+            else
                 (attrs = {})[key] = val;
 
             for (var attr in attrs) {
@@ -192,7 +193,10 @@
                 records[i].disableAutoRefreshing();
             }
 
-            if (!options || options.showLoading !== false) that.showLoading();
+            if (options && options.showLoading !== undefined)
+                that.isShowLoading = options.showLoading;
+
+            that.isShowLoading && that.showLoading();
 
             that._xhr = $.ajax({
                 url: that.url,
@@ -203,14 +207,16 @@
                 dataType: that.dataType,
                 cache: false,
                 error: function (xhr) {
-                    that.hideLoading();
+                    that.isShowLoading && that.hideLoading();
+
                     var res = {};
                     res[that.DATAKEY_MSG] = '网络错误'
                     that.error(res, xhr);
                     callback && callback.call(that, res, null);
                 },
                 success: function (res, status, xhr) {
-                    that.hideLoading();
+                    that.isShowLoading && that.hideLoading();
+
                     if (!that.check || that.check(res)) {
 
                         if (that.checkData === false || that.hasData(res)) {

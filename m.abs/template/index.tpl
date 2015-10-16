@@ -108,7 +108,7 @@
             </ul>
         </div>
     </div>
-    <div class="main" sn-binding="display:isOffline">
+    <div class="main js_offline" sn-binding="display:isOffline">
         <div class="home_offline">
             <div class="ico"></div>
             <div class="txt">您的网络不太顺畅哦</div>

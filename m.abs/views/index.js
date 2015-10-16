@@ -42,6 +42,9 @@
                     $(e.target).removeClass('show');
                 }
             },
+            'tap .js_offline .btn': function () {
+                this.userLoading.reload();
+            },
             'tap .head_menu': function (e) {
                 this.forward('/menu');
             },
@@ -59,7 +62,7 @@
 
                 } else if (!$target.hasClass('curr')) {
                     $target.addClass('curr').siblings('.curr').removeClass('curr');
-                    this.$main.eq(index).show().siblings('.main').hide();
+                    this.$main.eq(index).show().siblings('.main:not(.js_offline)').hide();
 
                     if (index == 2) {
                         if (!this.model.data.baiduMap) {
@@ -155,6 +158,7 @@
 
                     util.store('user', self.user);
                     self.model.set({
+                        isOffline: false,
                         user: self.user
                     });
                     self.showPoints();
@@ -180,6 +184,7 @@
                 url: '/api/settings/ad_list?name=index1',
                 check: false,
                 checkData: false,
+                showLoading: false,
                 $el: this.$el.find('.home_ad'),
                 success: function (res) {
                     self.model.set({
@@ -196,6 +201,8 @@
 
                         this.clientHeight;
                     })
+                },
+                error: function () {
                 }
             });
 

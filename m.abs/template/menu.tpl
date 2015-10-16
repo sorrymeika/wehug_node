@@ -18,7 +18,7 @@
         <li data-forward="/myorder">我买到的</li>
     </ul>
     <ul class="menu_list menu_service">
-        <li data-forward="/guide">新手指南</li>
+        <!--<li data-forward="/guide">新手指南</li>-->
         <li><a href="tel:4008205077">联系客服</a></li>
     </ul>
     <ul class="menu_list menu_settings">

@@ -34,7 +34,11 @@
                 user: util.store('user'),
                 openPresent: function (e, item) {
                     if (item.data.CanGet) {
-                        bridge.openInApp('http://m.abs.cn123/free/' + item.data.FRE_ID + '.html');
+                        var params = '';
+                        if (self.user.OpenUrl) {
+                            params = self.user.OpenUrl.substr(self.user.OpenUrl.lastIndexOf('?'));
+                        }
+                        bridge.openInApp('http://m.abs.cn/free/' + item.data.FRE_ID + '.html' + params);
                     }
                 },
                 open: function () {
