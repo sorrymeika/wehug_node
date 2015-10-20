@@ -1,0 +1,52 @@
+﻿var mysql = require('mysql');
+var fs = require('fs');
+var path = require('path');
+var pools = {};
+var pool;
+
+var config = JSON.parse(fs.readFileSync(path.join(__dirname, './config.json'), { encoding: 'utf-8' }));
+
+console.log(config);
+
+module.exports = {
+    setConfig: function (name, data) {
+        config[name] = data;
+
+        return this.saveConfig();
+    },
+    saveConfig: function () {
+        fs.writeFileSync(path.join(__dirname, './config.json'), { encoding: 'utf-8' }, JSON.stringify(config));
+        return this;
+    },
+    getConfig: function (name) {
+        if (name === undefined)
+            return config;
+
+        return config[name];
+    },
+    connect: function (data, callback) {
+
+        if (typeof data=='function')callback=data,data=config.defaultConnections;
+
+        var str = data.user + ':' + data.password + '@' + data.host;
+
+        pool = pools[str] || (pools[str] = mysql.createPool({
+            connectionLimit: 10,
+            host: data.host,
+            user: data.user,
+            password: data.password,
+            queryFormat: function (query, values) {
+                if (!values) return query;
+                return query.replace(/\@p(\d+)/g, function (txt, key) {
+                    return this.escape(values[key]);
+                }.bind(this));
+            }
+        }));
+
+        return this;
+    },
+    getConnection: function (err, conn) {
+        pool.getConnection(err, conn);
+        return this;
+    }
+}

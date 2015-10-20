@@ -9,6 +9,8 @@
   "dependencies": {
     "underscore": "",
     "express": ">=4.12.2",
+    "multer": "",
+    "body-parser": "",
     "multiparty": ">=4.1.1",
     "uglify-js": "",
     "fs-extra": "",

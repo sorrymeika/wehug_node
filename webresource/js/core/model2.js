@@ -44,7 +44,14 @@
         contains: function (source, keywords) {
             return source.indexOf(keywords) != -1;
         },
-        util: util
+        util: util,
+        closestRepeatModel: function (el) {
+            for (var parent = el.parentNode; parent != null; parent = parent.parentNode) {
+                if (parent.repeat) {
+                    return parent.repeat.parentModel.data;
+                }
+            }
+        }
     };
 
     var Model = function (parent, key, data, repeats) {
@@ -58,6 +65,8 @@
             throw new Error('Model\'s parent mast be Collection or Model');
         }
 
+
+
         this._key = key;
         this.model = {};
         this.parent = parent;
@@ -68,7 +77,6 @@
             for (var j = 0, len = repeats.length; j < len; j++) {
                 repeats[j].add(this);
             }
-            this.repeats = repeats;
         }
 
         this.set(data);
@@ -95,12 +103,19 @@
         return this.model[key];
     }
 
-    Model.prototype.set = function (key, val) {
+    Model.prototype.cover = function (key, val) {
+        return this.set(true, key, val);
+    }
+
+    Model.prototype.set = function (cover, key, val) {
         var self = this,
             origin,
             changed,
             attrs,
             model = self.model;
+
+        if (cover !== true)
+            val = key, key = cover, cover = false;
 
         if ($.isPlainObject(key)) {
             attrs = key;
@@ -115,6 +130,14 @@
 
         } else {
             (attrs = {})[key] = val;
+        }
+
+        if (cover) {
+            for (var attr in this.data) {
+                if (attrs[attr] === undefined) {
+                    attrs[attr] = null;
+                }
+            }
         }
 
         !this.root.init && $.extend(this.data, attrs);
@@ -214,12 +237,15 @@
         var self = this;
         var attrs = this.collectionName.split('.');
         var parent = this.parent;
+
         while (parent) {
             if (parent.alias == attrs[0]) {
                 attrs[0] = parent.collectionName + '^child';
                 this.collectionName = attrs.join('.');
+                this.isChild = true;
                 break;
             }
+            parent = parent.parent;
         }
 
         var replacement = document.createComment(this.collectionName);
@@ -242,26 +268,76 @@
                 }
             });
 
-            this.filter = this.viewModel.fns.length;
+            this.filter = this.viewModel.fns.length + this.viewModel._fns.length;
 
-            this.viewModel.fns.push(code);
+            this.viewModel._fns.push(code);
         }
     }
 
-    var CollectionRepeat = function (collection, repeat) {
+    var CollectionRepeat = function (collection, repeat, parentModel) {
+        var self = this;
+
         this.collection = collection;
         this.repeat = repeat;
+        this.children = [];
+        this.parentModel = parentModel;
+
         repeat.collectionRepeats[repeat.collectionRepeats.length] = this;
 
-        this.el = this.cloneNode(repeat.el);
-
         if (!repeat.parent) {
+            this.type = 'normal';
             this.replacement = repeat.replacement;
+
+        } else if (repeat.isChild || parentModel) {
+            this.type = 'children';
+
+            this.findReplacement(parentModel || collection.parent);
+
+        } else {
+            this.type = 'in_other_repeat';
+
+            for (var i = 0; i < repeat.parent.collectionRepeats.length; i++) {
+                var parentCollectionRepeat = repeat.parent.collectionRepeats[i];
+
+                parentCollectionRepeat.collection.on('add', function (e, _model) {
+                    var child = new CollectionRepeat(collection, repeat, _model);
+                    for (var j = 0; j < collection.models.length; j++) {
+                        child.add(collection.models[j]);
+                    }
+                    self.children.push(child);
+                    child.update();
+
+                }).each(function (_model) {
+                    self.children.push(new CollectionRepeat(collection, repeat, _model));
+                });
+                parentCollectionRepeat.children.push(this);
+            }
         }
+
+        this.el = this.cloneNode(repeat.el);
         this.elements = [];
     }
 
+    CollectionRepeat.prototype.findReplacement = function (model) {
+        for (var parent = model; parent != null && parent != model.root; parent = parent.parent) {
+            if (parent instanceof Model && parent.replacement) {
+                for (var i = 0; i < parent.replacement.length; i++) {
+                    if (parent.replacement[i].repeat == this.repeat) {
+                        this.replacement = parent.replacement[i];
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     CollectionRepeat.prototype.update = function () {
+        if (this.type == 'in_other_repeat') {
+            for (var i = 0, len = this.children.length; i < len; i++) {
+                this.children[i].update();
+            }
+            return;
+        }
 
         var fragment = document.createDocumentFragment();
         var index = 0;
@@ -294,31 +370,21 @@
             }
         }
 
-        if (!this.replacement) {
-            var collection = this.collection;
-            for (var parent = collection.parent; parent != null && parent != collection.root; parent = parent.parent) {
-                if (parent instanceof Model && parent.replacement) {
-
-                    for (var i = 0; i < parent.replacement.length; i++) {
-                        if (parent.replacement[i].repeat == repeat) {
-                            this.replacement = parent.replacement[i];
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        //console.log(list, this.replacement.parentNode);
         this.replacement.parentNode.insertBefore(fragment, this.replacement);
     }
 
-
-    CollectionRepeat.prototype.cloneNode = function (el, model) {
+    CollectionRepeat.prototype.cloneNode = function (el, model, parentNode) {
         var node = el.cloneNode(false);
         var len;
 
+        if (el == this.el) {
+            node.repeat = this;
+            node.model = model;
+        }
+
+        if (parentNode) parentNode.appendChild(node);
+
         if (el.nodeType == 8 && el.repeat) {
-            //console.log('model:', el)
             node.repeat = el.repeat;
             if (model) {
                 (model.replacement || (model.replacement = [])).push(node);
@@ -339,25 +405,54 @@
 
             if (el.nodeType == 1 && (len = el.childNodes.length)) {
                 for (var i = 0; i < len; i++) {
-                    node.appendChild(this.cloneNode(el.childNodes[i], model));
+                    this.cloneNode(el.childNodes[i], model, node);
                 }
             }
         }
         return node;
     }
 
-    CollectionRepeat.prototype.add = function (model) {
-        var el = this.cloneNode(this.el, model);
+    CollectionRepeat.prototype.each = function (fn) {
+        for (var i = 0; i < this.children.length; i++) {
+            fn.call(this, this.children[i]);
+        }
+        return this;
+    }
 
-        el.model = model;
-        this.elements[this.elements.length] = el;
+    CollectionRepeat.prototype.remove = function (start, count) {
+        if (this.type == 'in_other_repeat') {
+            for (var i = 0, len = this.children.length; i < len; i++) {
+                this.children[i].remove(start, count);
+            }
+        } else {
+            this.elements.splice(start, count || 1).forEach(function (el) {
+                $(el).remove();
+            });
+        }
+    }
+
+    CollectionRepeat.prototype.add = function (model) {
+        if (this.type == 'in_other_repeat') {
+            for (var i = 0, len = this.children.length; i < len; i++) {
+                this.children[i].add(model);
+            }
+
+        } else
+            this.elements[this.elements.length] = this.cloneNode(this.el, model);
     }
 
     CollectionRepeat.prototype.clear = function () {
-        for (var i = this.elements.length - 1; i >= 0; i--) {
-            this.elements[i].parentNode.removeChild(this.elements[i]);
+        if (this.type == 'in_other_repeat') {
+            for (var i = 0, len = this.children.length; i < len; i++) {
+                this.children[i].clear();
+            }
+
+        } else {
+            for (var i = this.elements.length - 1; i >= 0; i--) {
+                this.elements[i].parentNode.removeChild(this.elements[i]);
+            }
+            this.elements.length = 0;
         }
-        this.elements.length = 0;
     }
 
     var Collection = function (parent, attr, data) {
@@ -384,6 +479,15 @@
         this.data = data;
     }
 
+    Collection.prototype = Object.create(Event);
+
+    Collection.prototype.each = function (fn) {
+        for (var i = 0; i < this.models.length; i++) {
+            fn.call(this, this.models[i]);
+        }
+        return this;
+    }
+
     Collection.prototype.add = function (data) {
         var model;
         var length;
@@ -393,29 +497,59 @@
         }
 
         for (var i = 0, dataLen = data.length; i < dataLen; i++) {
-            var $els = null;
             var dataItem = data[i];
             length = this.data.length;
             model = new Model(this, length, dataItem, this.repeats);
 
             this.models[length] = model;
             this.data[length] = dataItem;
+
+            this.trigger('add', model);
         }
 
         for (var i = 0, len = this.repeats.length; i < len; i++) {
             this.repeats[i].update();
         }
         var key = this.key.replace(/\./g, '/');
+
         this.root.trigger('sync:' + key, this.parent, this._key, this.data)
             .trigger('sync:' + key + '/length', this.parent, this._key, this.data);
     }
 
-    Collection.prototype.set = function (data) {
-        for (var i = this.repeats.length - 1; i >= 0; i--) {
+    Collection.prototype.remove = function (start, count) {
+        this.models.splice(start, count || 1);
+        this.data.splice(start, count || 1);
+
+        for (var i = 0, len = this.repeats.length; i < len; i++) {
+            this.repeats[i].remove(start, count);
+        }
+    }
+
+    Collection.prototype.clear = function (data) {
+        this.models.length = this.data.length = 0;
+        for (var i = 0, len = this.repeats.length; i < len; i++) {
             this.repeats[i].clear();
         }
-        this.data.length = 0;
-        this.add(data);
+    }
+
+    Collection.prototype.set = function (data) {
+        if (data.length == 0) {
+            this.clear();
+        } else {
+            console.log(data.length, this.data.length);
+
+            if (data.length < this.data.length) {
+                this.remove(data.length, this.data.length - data.length)
+            }
+            var i = 0;
+            this.each(function (model) {
+                model.set(true, data[i]);
+                i++;
+            });
+            for (; i < data.length; i++) {
+                this.add(data[i]);
+            }
+        }
         return this;
     }
 
@@ -429,6 +563,7 @@
         this.data = $.extend(true, {}, data);
         this.model = {};
         this.repeats = {};
+        this._fns = [];
         this.fns = [];
 
         this.scan(template);
@@ -447,8 +582,8 @@
 
         if (repeat) {
             code += ',{';
-            for (var parent = repeat.parent; parent != null; parent = parent.parent) {
-                code += parent.alias + ':model.closest("' + parent.collectionName + '^child").data,';
+            for (var parent = repeat.parent, current = repeat; parent != null; current = parent, parent = parent.parent) {
+                code += parent.alias + ':' + (current.isChild ? 'model.closest(\'' + parent.collectionName + '^child\').data' : 'Filters.closestRepeatModel(el,"' + parent.alias + '")') + ',';
 
                 if (parent.indexAlias) {
                     code += parent.indexAlias + ':$el.closest(\'[sn-index-alias="' + parent.indexAlias + '"]\').attr("sn-index"),';
@@ -530,7 +665,7 @@
                         el.textContent = val;
                     }
 
-                } else if (attr == 'value' && (el.tagName == 'INPUT' || el.tagName == 'TEXTAREA')) {
+                } else if (attr == 'value' && (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA')) {
                     if (el.value != val) {
                         el.value = val;
                     }
@@ -568,11 +703,11 @@
                 }
             }
         };
-        (node.bindings || (node._elements = [], node.bindings = {}))[attr] = self.fns.length;
+        (node.bindings || (node._elements = [], node.bindings = {}))[attr] = self.fns.length + self._fns.length;
 
         var code = this.compileExpression(expression, repeat, listen);
 
-        self.fns.push(code);
+        self._fns.push(code);
     }
 
 
@@ -587,8 +722,8 @@
             if (parent.model && !closestModel) {
                 closestModel = parent.model;
             }
-            if (parent.repeat && (parent.repeat.alias == alias)) {
-                modelName = parent.repeat.collectionName + '^child';
+            if (parent.repeat && (parent.repeat.repeat.alias == alias)) {
+                modelName = parent.repeat.repeat.collectionName + '^child';
                 model = parent.model;
                 attrs.shift();
                 break;
@@ -609,34 +744,36 @@
         var elements = [];
 
         var $el = $(el).on('input change', '[sn-model]', function (e) {
+            if (e._stopModelEvent == true) return;
             var target = e.currentTarget;
             var name = target.getAttribute('sn-model');
 
             self.getModel(target, name, function (model, attr) {
                 model.set(attr, target.value);
             });
+            e._stopModelEvent = true;
         });
-
 
         for (var i = 0; i < snEvents.length; i++) {
             $el.on(snEvents[i], '[sn-' + snEvents[i] + ']', function (e) {
+                if (e._stopModelEvent == true) return;
                 var target = e.currentTarget;
                 var name = target.getAttribute('sn-' + e.type);
 
-                self.getModel(target, name, function (model, attr, data) {
-                    e.model = data;
+                self.getModel(target, name, function (model, attr, currentModel) {
+                    e.model = currentModel;
                     model.get(attr).call(model, e);
                 });
+                e._stopModelEvent = true;
             });
         }
 
+
         eachElement(el, function (child, i, childList) {
             if (child.nodeType == 1) {
-
                 var repeat = child.getAttribute('sn-repeat');
                 if (repeat != null) {
                     var match = repeat.match(rrepeat);
-
                     repeat = new Repeat({
                         viewModel: self,
                         parent: childList.repeat,
@@ -653,6 +790,7 @@
                     repeat = childList.repeat;
                 }
                 repeat && (child.childNodes.repeat = repeat);
+
 
                 for (var j = 0; j < child.attributes.length; j++) {
                     var attr = child.attributes[j].name;
@@ -679,8 +817,8 @@
             }
         });
 
-        //console.log('[' + this.fns.join(',') + ']');
-        this.fns = window.eval('[' + this.fns.join(',') + ']');
+        [].push.apply(this.fns, window.eval('[' + this._fns.join(',') + ']'));
+        this._fns.length = 0;
 
         for (var i = 0, len = elements.length; i < len; i++) {
             self.setElementAttribute(elements[i]);

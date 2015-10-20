@@ -74,6 +74,10 @@ h1 { border-bottom: 1px solid #ddd; font-size: 18pt; margin-bottom: 20px; paddin
 .table th { border: 1px solid #cdcdcd; background: #fff url(grid_header.png) repeat-x; height: 25px; padding: 0 10px; vertical-align: middle; text-align: left; }
 .table td { border: 1px solid #cdcdcd; vertical-align: middle; text-align: left; padding: 5px 15px; line-height: 20px; }
 
+.datatable { font-size: 12px; border: 1px solid #cdcdcd; }
+.datatable th {  border: 1px solid #cdcdcd; background: #fff url(grid_header.png) repeat-x; height: 25px; }
+.datatable td {  border: 1px solid #cdcdcd; }
+
 .grid { font-size: 12px; border-top: 1px solid #cdcdcd; background: #fff url(grid_header.png) repeat-x; margin: 0px auto 0px auto; overflow: hidden; height: auto; width: 100%; border-collapse: collapse; }
 .grid_border_r, .grid_header_cont, .grid_body, .grid_child_non, .grid_child_con { clear: both; }
 .grid_border_r { background: url(point.png) repeat-y right 0px; }
