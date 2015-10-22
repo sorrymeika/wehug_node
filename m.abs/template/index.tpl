@@ -94,7 +94,7 @@
                 </li>
                 <li data-forward="/mycard">
                     <b>我的卡券</b>
-                    <span>您现在拥有免邮卡<em sn-binding="html:user.FreeCouponsCount"></em>张，抵用券<em sn-binding="html:user.CouponsCount"></em>张。</span>
+                    <span>您现在拥有免邮卡<em sn-binding="html:user.FreeCouponsCount"></em>张，优惠券<em sn-binding="html:user.CouponsCount"></em>张。</span>
                 </li>
                 <li data-forward="/mypoint">
                     <b>积分钱包</b>

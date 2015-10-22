@@ -3,7 +3,7 @@
     <div sn-binding="html:title" class="head_title"></div>
 </header>
 <ul class="mycard_hd">
-    <li sn-binding="class:isOverdue|equal:false:'curr':''" sn-on="tap:isOverdue=false">抵用券</li>
+    <li sn-binding="class:isOverdue|equal:false:'curr':''" sn-on="tap:isOverdue=false">优惠券</li>
     <li sn-binding="class:isOverdue|equal:false:'':'curr'" sn-on="tap:isOverdue=true">免邮卡</li>
 </ul>
 <div class="main mycard">
