@@ -63,6 +63,9 @@ define(function (require, exports, module) {
                     bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 },
                 openOrder: function (e, order) {
+
+                    alert(order.data.PUR_DESC);
+
                     if (order.data.PUR_DESC == '待付款') {
                         var params = '';
                         if (self.user.OpenUrl) {
