@@ -63,8 +63,13 @@ define(function (require, exports, module) {
                     bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 },
                 openOrder: function (e, order) {
-                    if (order.PUR_DESC == '待付款') {
-                        bridge.openInApp('http://m.abs.cn/pay/' + order.PUR_ID + '.html');
+                    if (order.data.PUR_DESC == '待付款') {
+                        var params = '';
+                        if (self.user.OpenUrl) {
+                            params = self.user.OpenUrl.substr(self.user.OpenUrl.lastIndexOf('?'));
+                        }
+
+                        bridge.openInApp('http://m.abs.cn/pay/' + order.data.PUR_ID + '.html' + params);
                     }
                 },
                 openPrd: function (e, prd) {
