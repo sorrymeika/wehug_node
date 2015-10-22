@@ -64,9 +64,7 @@ define(function (require, exports, module) {
                 },
                 openOrder: function (e, order) {
 
-                    alert(order.data.PUR_DESC);
-
-                    if (order.data.PUR_DESC == '待付款') {
+                    if (order.data.PUS_DESC == '待付款') {
                         var params = '';
                         if (self.user.OpenUrl) {
                             params = self.user.OpenUrl.substr(self.user.OpenUrl.lastIndexOf('?'));
