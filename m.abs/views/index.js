@@ -66,12 +66,12 @@
 
                     if (index == 2) {
                         if (!this.model.data.baiduMap) {
-                            this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html?v2") + '" frameborder="0" ></iframe>');
+                            this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html?v3") + '" frameborder="0" ></iframe>');
                             this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
                         }
 
                         bridge.getLocation(function (longitude, latitude) {
-                            self.$baiduMap.src = bridge.url("/baiduMap.html?v2#longitude=" + longitude + "&latitude=" + latitude);
+                            self.$baiduMap[0].src = bridge.url("/baiduMap.html?v3#longitude=" + longitude + "&latitude=" + latitude);
                         });
                     }
                 }
@@ -89,9 +89,7 @@
             $.get(bridge.url('/api/settings/update?version=' + sl.appVersion), function (res) {
                 if (res.success && res.updateUrl) {
                     self.confirm(res.text, function () {
-                        bridge.open(res.updateUrl, {
-                            target: 'browser'
-                        });
+                        bridge.update(res.updateUrl, res.versionName);
                     });
                 }
             }, 'json');

@@ -15,6 +15,9 @@
                     title: '添加广告位',
                     url: '/settings/add_ad'
                 }]
+            }, {
+                url: '/settings/set_update',
+                title: 'app更新管理'
             }]
         });
     };

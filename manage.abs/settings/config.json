@@ -7,6 +7,7 @@
 		'images/style.css': []
 	},
 	route: {
+		'/set_update': { controller: 'set_update', template: '../../template/form' },
 		'/ad_list': { controller: 'ad_list', template: '../../template/list' },
 		'/add_ad': { controller: 'add_ad', template: '../../template/form' },
 		'/modify_ad/{name:\\w+}/{id:\\d+}': { controller: 'modify_ad', template: '../../template/form' }

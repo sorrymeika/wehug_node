@@ -70,7 +70,7 @@
         seajs.use(['$','util','core/app'],function($,util,App) {
             sl.isDebug=@debug;
             sl.buildVersion=@(Date.now());
-            sl.appVersion='1.0.0';
+            sl.appVersion='1.0.2';
             new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(@debug?0:2000);
         });
     </script>

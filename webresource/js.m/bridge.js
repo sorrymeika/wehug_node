@@ -108,11 +108,16 @@
             exit: function () {
                 hybrid('exit');
             },
-            update: function (downloadUrl, versionName, f) {
-                hybrid('updateApp', {
-                    downloadUrl: downloadUrl,
-                    versionName: versionName
-                }, f);
+            update: function (updateUrl, versionName, f) {
+
+                if (isAndroid) {
+                    hybrid('updateApp', {
+                        downloadUrl: updateUrl,
+                        versionName: versionName
+                    }, f);
+                } else {
+                    this.open(updateUrl);
+                }
             }
         };
 
