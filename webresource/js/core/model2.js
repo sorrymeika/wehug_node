@@ -9,7 +9,7 @@
     var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
     var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*(.+?)){0,1}(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
     var rmatch = /\{\{(.+?)\}\}/g;
-    var rvar = /(^|[\=\>\<\?\s\:\(\),\%\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\()|'(?:\\'|[^'])*')/g;
+    var rvar = /(^|[\!\=\>\<\?\s\:\(\),\%\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\()|'(?:\\'|[^'])*')/g;
     var rtemp = /\/(?:\\\/|[^\/])*\/[img]+|"(?:\\"|[^"])*"/g;
 
     var isNull = function (str) {
@@ -20,7 +20,7 @@
             result[i] = (i == 0 ? '$data' : result[i - 1]) + '.' + arr[i];
         }
         for (var i = 0; i < result.length; i++) {
-            result[i] = result[i] + '!=null&&' + result[i] + '!=undefined';
+            result[i] = result[i] + '!==null&&' + result[i] + '!==undefined';
         }
         return '(' + result.join('&&') + '?' + str + ':"")';
     }
@@ -140,6 +140,7 @@
             }
         }
 
+
         !this.root.init && $.extend(this.data, attrs);
 
         for (var attr in attrs) {
@@ -169,7 +170,6 @@
                                 throw new Error('[Collection index is bigger than length!]');
                             }
                         }
-
                     }
                     model.set(key, value);
 
@@ -207,6 +207,7 @@
     }
 
     Model.prototype.clear = function () {
+
         var data = {};
         for (var attr in this.data) {
             data[attr] = null;
@@ -536,19 +537,16 @@
         if (data.length == 0) {
             this.clear();
         } else {
-            console.log(data.length, this.data.length);
-
             if (data.length < this.data.length) {
                 this.remove(data.length, this.data.length - data.length)
             }
+
             var i = 0;
             this.each(function (model) {
                 model.set(true, data[i]);
                 i++;
             });
-            for (; i < data.length; i++) {
-                this.add(data[i]);
-            }
+            this.add(data.slice(i, data.length));
         }
         return this;
     }
@@ -599,7 +597,7 @@
 
         var replacement = [];
 
-        code += ');with($data){return \''
+        code += ');with($data){try{return \''
             + expression.replace(rtemp, function (match) {
                 replacement[replacement.length] = match;
                 return '``' + (replacement.length - 1) + '~~';
@@ -648,7 +646,7 @@
                 return replacement[i];
             });
 
-        code += '\';}}';
+        code += '\';}catch(e){return \'\';}}}';
 
         return code.replace('return \'\'+', 'return ').replace(/\+\'\'/g, '');
     };
@@ -661,7 +659,7 @@
                 var val = self.fns[el.bindings[attr]](Filters, el.model || self, el);
 
                 if (attr == 'textContent') {
-                    if (el.textContent != val) {
+                    if (el.textContent !== val + '') {
                         el.textContent = val;
                     }
 
@@ -697,7 +695,8 @@
             } else {
                 for (var i = 0; i < node._elements.length; i++) {
                     var el = node._elements[i];
-                    if (model == model.root || el.model == model || model.contains(el.model)) {
+
+                    if (model == model.root || el.model == model || el.model.contains(model)) {
                         self.setElementAttribute(el, attr);
                     }
                 }
@@ -758,12 +757,24 @@
             $el.on(snEvents[i], '[sn-' + snEvents[i] + ']', function (e) {
                 if (e._stopModelEvent == true) return;
                 var target = e.currentTarget;
-                var name = target.getAttribute('sn-' + e.type);
+                var argNames = target.getAttribute('sn-' + e.type).split(':');
+                var args = [e];
+                var fn;
+                var ctx;
 
-                self.getModel(target, name, function (model, attr, currentModel) {
-                    e.model = currentModel;
-                    model.get(attr).call(model, e);
-                });
+                for (var i = 0; i < argNames.length; i++) {
+                    self.getModel(target, argNames[i], function (model, attr, currentModel) {
+                        if (i == 0) {
+                            ctx = model;
+                            fn = model.get(attr);
+                            e.model = currentModel;
+                        }
+                        else
+                            args.push(attr ? model.get(attr) : model.data);
+                    });
+                }
+
+                fn.apply(ctx, args);
                 e._stopModelEvent = true;
             });
         }
@@ -801,7 +812,7 @@
                     } else if (attr == 'sn-src') {
                         attr = 'src'
                     }
-                    if (attr == 'sn-display' || attr.indexOf('sn-') != 0) {
+                    if (attr == 'sn-display' || attr == 'sn-html' || attr.indexOf('sn-') != 0) {
                         self.bindAttr(child, attr, val, repeat);
                     }
                 }
@@ -825,62 +836,6 @@
         }
     }
 
-
-    /*
-    var $el = $('<div>\
-    <input sn-model="name" sn-tap="tap" value="{{test.asdf+\'asdf\'}}"/>\
-    <div class="{{text}}" style="{{test.asdf}}">name:{{name}}</div>\
-    <ol sn-repeat="item,i in data" class="item">\
-    <li>item:{{i}},{{item.value}},{{item.test}}<br><span sn-repeat="child,j in item.children|filter:child.value==name">{{item.value}}.{{child.value}}/</span><br></li>\
-    </ol>\
-    </div>').appendTo($('body').html(''));
-
-
-    for (var i = 0; i < 10000; i++) {
-        // $el.append('<div data-id="' + i + '">t</div>')
-    }
-
-    var now = Date.now();
-
-    var elements = $el.find('*');
-
-    console.log(Date.now() - now);
-
-    now = Date.now();
-    var vm = new ViewModel($el, {
-        name: '1',
-        tap: function () {
-            console.log(this)
-        },
-        test: {
-            asdf: 'color:#c00'
-        },
-        data: [{
-            test: 1,
-            value: 1,
-            children: [{
-                value: 1
-            }, {
-                value: 2
-            }]
-        }, {
-            test: 'ttt',
-            value: 2,
-            children: [{
-                value: 3
-            }, {
-                value: 4
-            }]
-        }]
-    });
-
-    vm.set({
-        name: '222'
-    }).set('data.0.test', '333')
-
-    console.log(Date.now() - now);
-    */
     exports.ViewModel = ViewModel;
     exports.Filters = Filters;
-
 });

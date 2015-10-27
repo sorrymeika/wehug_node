@@ -6,7 +6,7 @@
     var bridge = require('bridge');
     var Loading = require('../widget/loading');
     var Slider = require('../widget/slider');
-    var model = require('../core/model');
+    var model = require('../core/model2');
     var Scroll = require('../widget/scroll');
     var barcode = require('../util/barcode');
     var animation = require('animation');
@@ -94,12 +94,10 @@
                 }
             }, 'json');
 
-            model.Filter.formatMoney = util.formatMoney;
-
             this.model = new model.ViewModel(this.$el, {
                 menu: 'head_menu',
                 titleClass: 'head_title',
-                title: 'ABS + CLUB',
+                title: { title: 'ABS + CLUB' },
                 isOffline: false,
                 isLogin: !!util.store('user'),
                 isFirstOpen: util.store('isFirstOpen') === null,
@@ -159,6 +157,8 @@
                         isOffline: false,
                         user: self.user
                     });
+
+                    console.log(self.user);
                     self.showPoints();
                     self.getUnreadMsg();
 
@@ -185,6 +185,7 @@
                 showLoading: false,
                 $el: this.$el.find('.home_ad'),
                 success: function (res) {
+
                     self.model.set({
                         ads: res.data
                     });

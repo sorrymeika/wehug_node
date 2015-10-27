@@ -618,18 +618,14 @@ var Zepto = (function () {
       this[name] = funcArg(this, value, idx, this[name])
   })
         },
-        data: function (name, value) {
-            name = 'data-' + name.replace(capitalRE, '-$1').toLowerCase();
-            var el = this[0];
-            if (!el._data_cache) el._data_cache = {};
-            if (value === undefined) {
-                var data = (el._data_cache[name] || (el._data_cache[name] = deserializeValue(el.getAttribute(name))));
-                return data;
-            }
-            else {
-                el._data_cache[name] = value;
-                return isFunction(value) || zepto.isZ(value) ? this : this.attr(name, value);
-            }
+        data: function(name, value){
+          var attrName = 'data-' + name.replace(capitalRE, '-$1').toLowerCase()
+
+          var data = (1 in arguments) ?
+            this.attr(attrName, value) :
+            this.attr(attrName)
+
+          return data !== null ? deserializeValue(data) : undefined
         },
         val: function (value) {
             return arguments.length === 0 ?
