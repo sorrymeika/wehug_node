@@ -11,13 +11,13 @@
 </ul>
 <div class="main myorder">
     <ul class="con" sn-binding="display:data">
-        <li sn-repeat="item in data" sn-binding="class:item.CNL_CLT_ID|format:'type{0}'">
-            <div class="hd" sn-binding="data-id:item.PUS_ID" sn-on="tap:openOrder:item"><b class="from" sn-binding="html:item.CNL_DESC"></b><span class="status" sn-binding="html:item.PUS_DESC"></span></div>
+        <li sn-repeat="item in data" sn-binding="class:item.CNL_CLT_ID|format:'type{0}'" sn-on="tap:openOrder:item">
+            <div class="hd" sn-binding="data-id:item.PUS_ID"><b class="from" sn-binding="html:item.CNL_DESC"></b><span class="status" sn-binding="html:item.PUS_DESC"></span></div>
             <div class="info" sn-on="tap:openOrder:item">
                 <span sn-binding="html:item.PUR_CODE|format:'订单号：{0}'"></span>
                 <span sn-binding="html:item.PUR_DT|date"></span>
             </div>
-            <div class="bd" sn-repeat="prd in item.Children" sn-on="tap:openPrd:prd">
+            <div class="bd" sn-repeat="prd in item.Children" sn-on="tap:openPrd:prd:item">
                 <img sn-binding="src:prd.WPP_LIST_PIC|or:'images/default.jpg'" src="images/default.jpg" onerror="this.src='images/default.jpg'" />
                 <div class="con">
                     <h2 sn-binding="html:prd.PRD_NAME"></h2>
