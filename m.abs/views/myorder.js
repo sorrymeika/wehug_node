@@ -63,7 +63,6 @@ define(function (require, exports, module) {
                     bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 },
                 openOrder: function (e, order) {
-
                     if (order.data.PUS_DESC == '待付款') {
                         var params = '';
                         if (self.user.OpenUrl) {
@@ -76,8 +75,9 @@ define(function (require, exports, module) {
                     }
                 },
                 openPrd: function (e, prd, order) {
+                    //alert(order.data.PUS_DESC);
+                    e.stopPropagation();
                     if (order.data.PUS_DESC != '待付款' || e.target.tagName == "IMG") {
-                        e.stopPropagation();
                         if (prd.data.PRD_DISCONTINUED_FLAG) {
                             self.$open_msg.show();
                             self.$open_msg[0].clientHeight;
@@ -86,6 +86,9 @@ define(function (require, exports, module) {
                         } else if (prd.data.Url) {
                             bridge.openInApp(prd.data.Url);
                         }
+                    } else {
+                        //alert(this.data.openOrder);
+                        this.data.openOrder(e,order);
                     }
                 },
                 showExpress: function (e, item) {
