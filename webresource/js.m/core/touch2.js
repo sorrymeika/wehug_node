@@ -6,7 +6,7 @@
         events = require('./event');
 
     var slice = Array.prototype.slice;
-    var cb = new CubicBezier(.15, .68, .15, .96);
+    var cb = new CubicBezier(.08, .53, .2, .96);
 
     var Touch = function (el, options) {
         var self = this,
@@ -16,7 +16,7 @@
         self.el = $el[0];
         self.options = $.extend({
             enableVertical: true,
-            enableHorizontal: true
+            enableHorizontal: false
 
         }, options);
 
@@ -38,7 +38,7 @@
 
         _stopMomentum: function () {
             if (this.momentum) {
-                this.momentum.stop && this.momentum.stop();
+                this.momentum.stop();
                 this._isClickStopAni = true;
                 return true;
             }
@@ -109,8 +109,6 @@
             self.x = x < self.minX ? self.minX + (x - self.minX) / 2 : x > self.maxX ? self.maxX + (x - self.maxX) / 2 : x;
             self.y = y < self.minY ? self.minY + (y - self.minY) / 2 : y > self.maxY ? self.maxY + (y - self.maxY) / 2 : y;
 
-            self.el.scrollTop = self.y;
-
             self.trigger('move');
 
             self.isTouchMoved = true;
@@ -133,8 +131,7 @@
             var self = this;
 
             if ((!self.isTouchMoved || self.isTouchStop) && self._isClickStopAni) {
-                self.momentum.stop();
-                self._isClickStopAni = false;
+                self._stop();
                 e.cancelTap = true;
                 return;
             }
@@ -147,8 +144,7 @@
 
             $(e.target).trigger('touchcancel');
 
-
-            if (self.options.enableHorizontal && (x < self.minX || x) > self.maxX || self.options.enableVertical && (y < self.minY || y > self.maxY)) {
+            if (self.options.enableHorizontal && (self.x < self.minX || self.x > self.maxX) || self.options.enableVertical && (self.y < self.minY || self.y > self.maxY)) {
                 self.bounceBack();
                 return;
             }
@@ -180,26 +176,37 @@
 
                     if (self.options.enableVertical && (y < self.minY || y > self.maxY) || (self.options.enableHorizontal && !self.options.enableVertical && (x < self.minX || x > self.maxX))) {
                         self.momentum.stop();
-                        distX += currentX;
-                        distY += currentY;
 
-                        distX = distX < self.minX ? Math.max(-100, (distX - self.minX) / 4) : distY > self.maxX ? Math.max(100, (distX - self.maxX) / 4) : distX;
-                        distY = distY < self.minY ? Math.max(-100, (distY - self.minY) / 4) : distY > self.maxY ? Math.max(100, (distY - self.maxY) / 4) : distY;
+                        distX = currentX - distX;
+                        distY = currentY - distY;
+
+                        currentX = self.x;
+                        currentY = self.y;
+
+                        distX = distX < self.minX ? self.minX + Math.max(-100, (distX - self.minX) / 36) : distX > self.maxX ? self.maxX + Math.min(100, (distX - self.maxX) / 36) : distX;
+                        distY = distY < self.minY ? self.minY + Math.max(-100, (distY - self.minY) / 36) : distY > self.maxY ? self.maxY + Math.min(100, (distY - self.maxY) / 36) : distY;
+
+                        distY -= currentY;
+                        distX -= currentX;
 
                         self.momentum = animation.animate(function (d) {
+                            self.x = currentX + distX * d;
+                            self.y = currentY + distY * d;
 
-                        }, Math.max(200, (duration - current) / 4), 'ease', function () {
+                            self.trigger('move');
 
+                        }, Math.min(200, (duration - current) / 4), 'easeOutCubic', function () {
+                            self.bounceBack();
                         });
 
                     } else {
                         self.x = x < self.minX ? self.minX : x > self.maxX ? self.maxX : x;
                         self.y = y;
-                        self.el.scrollTop = self.y;
+                        self.trigger('move');
                     }
 
                 }, duration, 'ease', function () {
-
+                    self._stop();
                 });
             }
 
@@ -207,6 +214,37 @@
         },
 
         bounceBack: function () {
+            var self = this;
+            var currentX = self.x;
+            var currentY = self.y;
+            var distX = 0;
+            var distY = 0;
+
+            if (self.options.enableHorizontal) {
+                if (self.x < self.minX) {
+                    distX = self.minX - self.x;
+                }
+                else if (self.x > self.maxX) {
+                    distX = self.maxX - self.x;
+                }
+            }
+            if (self.options.enableVertical) {
+                if (self.y < self.minY) {
+                    distY = self.minY - self.y;
+                }
+                else if (self.y > self.maxY) {
+                    distY = self.maxY - self.y;
+                }
+            }
+            animation.animate(function (d) {
+                self.x = currentX + distX * d;
+                self.y = currentY + distY * d;
+
+                self.trigger('move');
+
+            }, 200, 'ease', function () {
+                self._stop();
+            });
         },
 
         stop: function () {

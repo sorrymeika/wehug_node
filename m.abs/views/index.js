@@ -33,6 +33,7 @@
                 if (e.target == this.el) {
                     this.back('/');
                 }
+                console.log('tap')
             },
             'tap .home_tip_mask': function (e) {
                 util.store('isFirstOpen', false);
@@ -113,13 +114,19 @@
 
             var $main = this.$main = this.$('.main');
 
-            //Scroll.bind($main);
+            Scroll.bind($main);
 
-            var touch2 = new Touch2(this.$main[0]);
+            /*/<!--
+            var touch2 = new Touch2($(this.$main[0]).children());
 
             touch2.on('start', function () {
-                this.maxY = this.el.scrollHeight;
+                this.maxY = this.el.offsetHeight - this.el.parentNode.clientHeight;
+
+            }).on('move', function () {
+                var self = this;
+                self.el.style.webkitTransform = 'translate(0px,' + self.y * -1 + 'px)';
             })
+            //-->*/
 
             this.$points = this.$('.home_points');
             this.$cursor = this.$('.home_points_cursor');
