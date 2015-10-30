@@ -64,6 +64,36 @@
                 <li sn-repeat="item,i in ads">
                     <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
                 </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
+                <li sn-repeat="item,i in ads">
+                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
+                </li>
             </ul>
         </div>
     </div>

@@ -3,6 +3,7 @@
     var LinkList = require("./linklist");
     var Matrix2D = require("graphics/matrix2d");
     var tween = require("graphics/tween");
+    var CubicBezier = require("graphics/cubicBezier");
     var util = require("util");
 
     var vendors = ['webkit'/*,'moz','o','ms'*/];
@@ -141,6 +142,7 @@
                     for (var i = 0, n = ease.length; i < n; i++) {
                         arr.push(ease[i](start, first.from, first.to - first.from, first.duration) / 100);
                     }
+                    arr.push(start, first.duration);
                     first.step.apply(first, arr);
 
                 } else {
@@ -148,6 +150,7 @@
                     for (var i = 0, n = ease.length; i < n; i++) {
                         arr.push(to);
                     }
+                    arr.push(first.duration, first.duration);
                     first.step.apply(first, arr);
 
                     list._remove(item);

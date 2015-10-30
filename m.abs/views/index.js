@@ -7,6 +7,7 @@
     var Loading = require('../widget/loading');
     var Slider = require('../widget/slider');
     var model = require('../core/model2');
+    var Touch2 = require('../core/touch2');
     var Scroll = require('../widget/scroll');
     var barcode = require('../util/barcode');
     var animation = require('animation');
@@ -112,7 +113,13 @@
 
             var $main = this.$main = this.$('.main');
 
-            Scroll.bind($main);
+            //Scroll.bind($main);
+
+            var touch2 = new Touch2(this.$main[0]);
+
+            touch2.on('start', function () {
+                this.maxY = this.el.scrollHeight;
+            })
 
             this.$points = this.$('.home_points');
             this.$cursor = this.$('.home_points_cursor');
