@@ -29,11 +29,8 @@
 
     return Activity.extend({
         events: {
-            'tap': function (e) {
-                if (e.target == this.el) {
-                    this.back('/');
-                }
-                console.log('tap')
+            'tap .head_tab li': function (e) {
+                this.model.set('tab', $(e.target).index());
             },
             'tap .home_tip_mask': function (e) {
                 util.store('isFirstOpen', false);
@@ -59,14 +56,15 @@
                 var self = this;
                 var $target = $(e.currentTarget);
                 var index = $target.index();
-                if (index == 1) {
-                    bridge.openInApp(this.user.OpenUrl || 'http://m.abs.cn');
 
-                } else if (!$target.hasClass('curr')) {
+                if (!$target.hasClass('curr')) {
                     $target.addClass('curr').siblings('.curr').removeClass('curr');
-                    this.$main.eq(index).show().siblings('.main:not(.js_offline)').hide();
 
-                    if (index == 2) {
+                    this.model.set({
+                        bottomTab: index
+                    });
+
+                    if (index == 1) {
                         if (!this.model.data.baiduMap) {
                             this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html?v3") + '" frameborder="0" ></iframe>');
                             this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
@@ -80,10 +78,7 @@
             }
         },
 
-        swipeRightForwardAction: '/menu',
-
         className: 'home',
-        titles: ['欢迎来到ABS会员俱乐部', '马上购物', '附件门店', '我'],
 
         onCreate: function () {
             var self = this;
@@ -104,6 +99,7 @@
                 isLogin: !!util.store('user'),
                 isFirstOpen: util.store('isFirstOpen') === null,
                 msg: 0,
+                bottomTab: 0,
                 open: function () {
                     bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 },

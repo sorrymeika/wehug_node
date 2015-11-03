@@ -25,7 +25,8 @@ define(function (require, exports, module) {
 
                 this.loading.setParam({
                     mobile: mobile,
-                    smsCode: smsCode
+                    smsCode: smsCode,
+                    invitedCode: this.model.data.invitedCode
                 }).load();
             },
             'tap .js_valid:not(.disabled)': function (e) {

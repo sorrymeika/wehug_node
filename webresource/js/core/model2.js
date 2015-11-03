@@ -356,7 +356,7 @@
 
         for (var i = 0, len = list.length; i < len; i++) {
             var item = list[i];
-            if (repeat.filter === undefined || this.collection.root.fns[repeat.filter](Filters, item.model)) {
+            if (repeat.filter === undefined || this.collection.root.fns[repeat.filter].call(this.collection.root, Filters, item.model)) {
                 fragment.appendChild(item);
                 item.setAttribute('sn-index', index);
                 if (repeat.indexAlias) {
@@ -656,26 +656,37 @@
         if (el.bindings) {
             var attrs = attr ? [attr] : el.bindings;
             for (var attr in el.bindings) {
-                var val = self.fns[el.bindings[attr]](Filters, el.model || self, el);
+                var val = self.fns[el.bindings[attr]].call(self, Filters, el.model || self, el);
+                
+                switch (attr) {
+                    case 'textContent':
+                        if (el.textContent !== val + '') {
+                            el.textContent = val;
+                        }
+                        break;
+                    case 'value':
+                        if (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA') {
+                            if (el.value != val) {
+                                el.value = val;
+                            }
+                        } else
+                            el.setAttribute(attr, val);
+                        break;
+                    case 'html':
+                    case 'sn-html':
+                        el.innerHTML = val;
+                        break;
+                    case 'display':
+                    case 'sn-display':
+                        el.style.display = util.isFalse(val) ? 'none' : val == 'block' || val == 'inline' || val == 'inline-block' ? val : '';
+                        break;
+                    case 'style':
+                        el.style.cssText += val;
+                        break;
+                    default:
+                        el.setAttribute(attr, val);
+                        break;
 
-                if (attr == 'textContent') {
-                    if (el.textContent !== val + '') {
-                        el.textContent = val;
-                    }
-
-                } else if (attr == 'value' && (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA')) {
-                    if (el.value != val) {
-                        el.value = val;
-                    }
-
-                } else if (attr == 'html' || attr == 'sn-html') {
-                    el.innerHTML = val;
-
-                } else if (attr == 'display' || attr == 'sn-display') {
-                    el.style.display = util.isFalse(val) ? 'none' : val == 'block' || val == 'inline' || val == 'inline-block' ? val : '';
-
-                } else if (el.getAttribute(attr) != val) {
-                    el.setAttribute(attr, val);
                 }
             }
         }
@@ -814,6 +825,10 @@
                     }
                     if (attr == 'sn-display' || attr == 'sn-html' || attr.indexOf('sn-') != 0) {
                         self.bindAttr(child, attr, val, repeat);
+
+                    } else if (snEvents.indexOf(attr.replace(/^sn-/, '')) != -1) {
+                        if (/[\=\(\)]+/.test(val)) {
+                        }
                     }
                 }
                 if (!repeat && child.bindings) {

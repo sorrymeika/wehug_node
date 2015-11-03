@@ -19,6 +19,9 @@
         "/myorder": { controller: "myorder", template: "myorder" },
         "/activity/{id:\\d+}": { controller: "activity", template: "activity" },
         "/register": { controller: "register", template: "register" },
-        "/guide": { controller: "guide", template: "guide" }
+        "/guide": { controller: "guide", template: "guide" },
+        "/steward": { controller: "steward/index", template: "steward/index" },
+        "/steward/{id:\\d+}": { controller: "steward/item", template: "steward/item" },
+        "/steward/detail/{id:\\d+}": { controller: "steward/detail", template: "steward/detail" }
     }
 }

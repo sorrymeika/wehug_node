@@ -23,32 +23,6 @@
 
     var queue = [],
         guid = 0,
-        hybrid = function (method, params, hybridCallback) {
-            var data, hybridReturn;
-
-            if (typeof method == 'object') {
-                hybridCallback = data.callback;
-
-            } else {
-                if (typeof params === "function") hybridCallback = params, params = null;
-                data = {
-                    method: method,
-                    params: params
-                }
-            }
-
-            if (typeof hybridCallback == "function") {
-                hybridReturn = "hybridCallback" + (++guid);
-
-                data.callback = hybridReturn;
-                hybridFunctions[hybridReturn] = function () {
-                    hybridCallback.apply(null, arguments);
-                    delete hybridFunctions[hybridReturn];
-                };
-            }
-
-            alert('slapp://' + JSON.stringify(data));
-        },
         bridge = {
             isInApp: /SLApp/.test(ua),
             isAndroid: isAndroid,
@@ -120,6 +94,33 @@
                 }
             }
         };
+
+    function hybrid(method, params, hybridCallback) {
+        var data, hybridReturn;
+
+        if (typeof method == 'object') {
+            hybridCallback = data.callback;
+
+        } else {
+            if (typeof params === "function") hybridCallback = params, params = null;
+            data = {
+                method: method,
+                params: params
+            }
+        }
+
+        if (typeof hybridCallback == "function") {
+            hybridReturn = "hybridCallback" + (++guid);
+
+            data.callback = hybridReturn;
+            hybridFunctions[hybridReturn] = function () {
+                hybridCallback.apply(null, arguments);
+                delete hybridFunctions[hybridReturn];
+            };
+        }
+        if (bridge.isInApp)
+            alert('slapp://' + JSON.stringify(data));
+    }
 
     bridge.hasStatusBar = bridge.isInApp && util.ios && util.osVersion >= 7;
 

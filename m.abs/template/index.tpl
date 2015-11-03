@@ -1,6 +1,11 @@
-<header>
-    <div class="{{menu}}"></div>
-    <div class="{{titleClass}}">{{title.title}}</div>
+<header sn-display="{{isLogin}}">
+    <div class="head_menu" sn-display="{{bottomTab==3}}" data-forward="/settings"></div>
+    <ul class="head_tab" sn-display="{{bottomTab==0}}">
+        <li class="{{tab==0?'curr':''}}">会员卡</li>
+        <li class="{{tab==1?'curr':''}}">去购物</li>
+        <i class="cursor"></i>
+    </ul>
+    <div class="head_title" style="display:{{bottomTab!=0?'block':'none'}}">{{bottomTab==1?'查找店铺':bottomTab==2?"购物车":"我"}}</div>
     <div class="head_msg" data-forward="/messages">
         <i sn-display="{{msg!=0}}">{{msg}}</i>
     </div>
@@ -20,122 +25,80 @@
     </div>
 </div>
 <div sn-display="{{isLogin}}">
-    <div class="main js_usescroll {{isLogin?"":"isnotlogin"}}" data-index="0">
-        <div class="home_bd">
-            <div class="home_vip">
-                <div class="rainbow">
-                    <ul class="rainbow_points">
-                        <li>0</li>
-                        <li>1,000</li>
-                        <li>5,000</li>
-                        <li>10,000</li>
-                        <li>50,000</li>
-                    </ul>
-                    <ul class="rainbow_vip">
-                        <li>银卡</li>
-                        <li>金卡</li>
-                        <li>钻石</li>
-                        <li>VIP</li>
-                        <li>SVIP</li>
-                    </ul>
-                    <div class="rainbow_bd">
-                        <div class="point">{{util.formatMoney(Point.toFixed(2))}}</div>
-                        <div class="desc">{{currentLevel}}</div>
-                        <div class="point_tip">
-                            <div sn-display="{{nextLevel==0}}" class="max">
-                                <p>活力值爆棚</p>
-                                <p>感谢您的⽀持和惠顾</p>
-                            </div>
-                            <div sn-display="{{nextLevel!=0}}">
-                                <span>+{{util.formatMoney(nextLevel)}}</span><b>活力值</b>
-                                <p>即可享有<em>{{vip}}</em>特权</p>
-                            </div>
-                        </div>
-                    </div>
+    <div class="main hm_tab_con js_usescroll {{isLogin?"":"isnotlogin"}}" style="-webkit-transform:translate3d({{tab==0?0:-100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}" data-index="0">
+        <div class="hm_chart_wrap">
+            <div class="hm_chart">
+                <div class="hm_chart_con">
+                    <div class="hd">当前活力值</div>
+                    <div class="bd">3,333</div>
+                    <div class="ft">目标 5,555</div>
                 </div>
-                <canvas class="home_points_bg js_canvas"></canvas>
-                <div class="home_points_bg">
-                    <div class="home_points"></div>
-                    <div class="home_points"></div>
-                    <div class="home_points_cursor"></div>
-                </div>
+                <canvas class="hm_chart_canvas js_canvas"></canvas>
             </div>
-            <ul class="home_ad">
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
-                <li sn-repeat="item,i in ads">
-                    <img src="{{item.Src}}" sn-tap="openUrl:item.Url" />
-                </li>
+            <div class="hm_chart_desc">金卡会员</div>
+            <div class="hm_steward_link">您现在拥有<em>5</em>条爱管家记录啦！</div>
+            <ul class="hm_chart_list">
+                <li><i>我的月礼</i><em>12</em></li>
+                <li><i>我的卡券</i><em>12</em></li>
+                <li><i>积分钱包</i><em>12</em></li>
             </ul>
         </div>
+        <ul class="hm_cards">
+            <li><i></i><p>NEW ARRIVAL</p><p>新品上市</p></li>
+            <li><i></i><p>BEST BUYS</p><p>本周最热商品</p></li>
+            <li><i></i><p>BIG SALE</p><p>季末特惠</p></li>
+            <li><i></i><p>ONLINE ONLY</p><p>手机用户专享</p></li>
+        </ul>
     </div>
-    <div class="main" style="display:none" data-index="1">
+    <div class="main hm_tab_con" style="-webkit-transform:translate3d({{tab==1?0:100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}" data-index="1">
     </div>
-    <div class="main" style="display:none" data-index="2">
+    <div class="main" style="display:{{bottomTab==1?'block':'none'}}">
         <div class="baiduMap" sn-html="{{baiduMap}}">
         </div>
     </div>
-    <div class="main home_my" style="display:none" data-index="3">
-        <div class="my">
-            <div class="card">
-                <div class="level">
-                    <span>{{currentLevel}}</span>
-                    <span>{{cardAmounts}}</span>
-                </div>
-                <div class="point"></div>
-                <div class="barcode" sn-html="{{barcode}}">
-                </div>
-                <div class="mobile">{{user.Mobile}}</div>
+    <div class="main" style="display:{{bottomTab==2?'block':'none'}}">
+    </div>
+    <div class="main" style="display:{{bottomTab==3?'block':'none'}}" data-index="3">
+        <div class="hm_my_card">
+            <div class="vip_name">{{currentLevel}}</div>
+            <div class="energy">
+                当前活力值<span>3,333</span>
             </div>
-            <ul class="myabs">
-                <li data-forward="/month">
-                    <b>我的月礼</b>
-                    <span sn-display="{{user.FreeMonths}}">您还有<em>{{user.FreeMonths}}个月</em>会员礼可以领取。</span>
-                    <span sn-display="{{!user.FreeMonths}}">继续努力，马上就可以获得免费领取特权了。</span>
-                </li>
-                <li data-forward="/mycard">
-                    <b>我的卡券</b>
-                    <span>您现在拥有免邮卡<em>{{user.FreeCouponsCount}}</em>张，优惠券<em>{{user.CouponsCount}}</em>张。</span>
-                </li>
-                <li data-forward="/mypoint">
-                    <b>积分钱包</b>
-                    <span>您当前积分为<em>{{user.Points}}</em>。</span>
-                </li>
-                <li data-forward="/myorder">
-                    <b>我买到的</b>
-                    <span sn-display="{{user.OrderCount}}" style="display:none">您目前在ABS共完成<em>{{user.OrderCount}}</em>次购物。</span>
-                    <span sn-display="{{!user.OrderCount}}"> 您还未购买过商品，立即开启您的购物之旅。</span>
-                </li>
-            </ul>
+            <div class="energy_bar">
+                <span style="width:20%"></span>
+            </div>
+            <div class="energy_val">
+                <div class="energy_val_from">0</div>
+                <div class="energy_val_to">1,000</div>
+            </div>
         </div>
+        <div class="hm_my_barcode">
+            <div class="barcode" sn-html="{{barcode}}">
+            </div>
+            <div class="mobile">{{user.Mobile}}</div>
+        </div>
+        <ul class="hm_my_list">
+            <li data-forward="/month">
+                <b>我的月礼</b>
+                <span><em>{{user.FreeMonths}}</em>个月</span>
+            </li>
+            <li data-forward="/mycard">
+                <b>我的卡券</b>
+                <span><em>{{user.FreeCouponsCount}}</em>张</span>
+            </li>
+            <li data-forward="/mypoint">
+                <b>积分钱包</b>
+                <span><em>{{user.Points}}</em>分</span>
+            </li>
+            <li data-forward="/myorder">
+                <b>购买记录</b>
+                <span><em>{{user.OrderCount}}</em>条</span>
+            </li>
+            <li data-forward="/steward">
+                <b>爱管家记录</b>
+                <span><em>{{user.OrderCount}}</em>条</span>
+            </li>
+        </ul>
     </div>
     <div class="main js_offline" sn-display="{{isOffline}}">
         <div class="home_offline">
@@ -148,8 +111,8 @@
 </div>
 <ul class="footer" sn-display="{{isLogin}}">
     <li class="curr">首页</li>
-    <li>马上购物</li>
     <li>附近门店</li>
+    <li>购物车</li>
     <li>我</li>
 </ul>
 <div class="open_msg" style="display:none">
