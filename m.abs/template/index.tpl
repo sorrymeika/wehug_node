@@ -51,6 +51,27 @@
         </ul>
     </div>
     <div class="main hm_tab_con" style="-webkit-transform:translate3d({{tab==1?0:100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}" data-index="1">
+        <div class="hm_shop">
+            <ul class="hm_shop_cate">
+                <li><i></i>新品<br>上市</li>
+                <li><i></i>本周最热<br>商品</li>
+                <li><i></i>季末<br>清仓</li>
+                <li><i></i>手机用户<br>专享</li>
+            </ul>
+            <div class="hm_shop_banner"><img src="" /></div>
+            <ul class="hm_shop_list">
+                <li class="hm_shop_list_item">
+                    <img src="" />
+                    <p class="price">￥99</p>
+                    <p class="name">名称</p>
+                </li>
+                <li class="hm_shop_list_item">
+                    <img src="" />
+                    <p class="price">￥99</p>
+                    <p class="name"></p>
+                </li>
+            </ul>
+        </div>
     </div>
     <div class="main" style="display:{{bottomTab==1?'block':'none'}}">
         <div class="baiduMap" sn-html="{{baiduMap}}">

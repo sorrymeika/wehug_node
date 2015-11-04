@@ -77,6 +77,7 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .home_text h3 { font-size: 1.1em; margin-top: 34px; }
 .home_text h4 { font-size: .9em; display: inline-block; border: 1px solid #fff; border-radius: 4px; padding: 4px; margin-top: 8px; }
 
+/*首页*/
 .hm_chart_wrap { position: relative; width: 100%; overflow: hidden; padding: .1px; background: -webkit-gradient(linear, 100% 33%, 100% 79%, from(#e04447), to(#ea6333)); font-size: 3rem; }
 
 .hm_chart { width: 170px; height: 170px; border-radius: 100%; background: #d42c2c; -webkit-box-shadow: inset 0px 0px 5px #333; margin: 24px auto 0 auto; overflow: hidden; position: relative; }
@@ -103,13 +104,33 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .hm_cards li i:before { content: ''; display: block; width: 40px; height: 40px; background: url(icon.png) no-repeat -280px -150px; background-size: 320px auto; margin: 2px; }
 .hm_cards li p { margin: 7px 0 0 60px; font-size: 2.4rem; }
 .hm_cards li i + p { margin-top: 19px; }
-.hm_cards li:nth-child(2) i { background: #4db2d9; }
-.hm_cards li:nth-child(2) i:before { background-position: -200px -190px; }
-.hm_cards li:nth-child(3) i { background: #d10b16; }
-.hm_cards li:nth-child(3) i:before { background-position: -240px -190px; }
-.hm_cards li:nth-child(4) i { background: #ea6233; }
-.hm_cards li:nth-child(4) i:before { background-position: -280px -190px; }
+.hm_cards li:nth-child(2) i, .hm_shop_cate li:nth-child(2) i { background: #4db2d9; }
+.hm_cards li:nth-child(2) i:before, .hm_shop_cate li:nth-child(2) i:before { background-position: -200px -190px; }
+.hm_cards li:nth-child(3) i, .hm_shop_cate li:nth-child(3) i { background: #d10b16; }
+.hm_cards li:nth-child(3) i:before, .hm_shop_cate li:nth-child(3) i:before { background-position: -240px -190px; }
+.hm_cards li:nth-child(4) i, .hm_shop_cate li:nth-child(4) i { background: #ea6233; }
+.hm_cards li:nth-child(4) i:before, .hm_shop_cate li:nth-child(5) i:before { background-position: -280px -190px; }
 
+canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; margin-left: -95px; }
+
+
+/*去购物*/
+.hm_shop { color: #333; padding-bottom: 1px; }
+.hm_shop_cate { display: -webkit-box; margin-top: 10px; }
+.hm_shop_cate li { -webkit-box-flex: 1; text-align: center; font-size: 2.4rem; }
+.hm_shop_cate li i { display: block; width: 45px; height: 45px; background: #e8ba2e; margin: 0 auto 5px auto; border-radius: 4px; }
+.hm_shop_cate li i:before { content: ''; display: block; width: 40px; height: 40px; margin: 2.5px auto; background: url(icon.png) no-repeat -280px -150px; background-size: 320px auto; }
+
+.hm_shop_banner { margin-top: 12px; }
+.hm_shop_banner img { min-height: 173px; width: 100%; }
+
+.hm_shop_list { display: -webkit-box; padding-right: 8px; }
+.hm_shop_list_item { width: 101px; margin: 8px 0 0 8px; }
+.hm_shop_list_item img { width: 101px; height: 101px; }
+.hm_shop_list_item .price { color: #c00; font-size: 1.72rem; }
+.hm_shop_list_item .name { font-size: 1.8rem; line-height: 1.5; margin-top: 2px; }
+
+/*我*/
 .hm_my_card { background: -webkit-gradient(linear, 100% 33%, 100% 79%, from(#e04447), to(#ea6333)); color: #fff; padding: 15px 20px; }
 .hm_my_card .vip_name { font-size: 3.6rem; }
 .hm_my_card .energy { font-size: 2.4rem; margin-top: 17px; }
@@ -142,9 +163,8 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .hm_my_list li span { display: block; font-size: 2.4rem; text-align: right; }
 .hm_my_list li em { color: #e65e5f; font-size: 3.6rem; vertical-align: middle; }
 
-canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; margin-left: -95px; }
 
-
+/*菜单*/
 .menu { background: #eeefef; }
 .has_status_bar .menu_bd { padding-top: 20px; }
 .menu_username { margin: 30px 0 0 10px; }
@@ -182,7 +202,6 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .month li span.get:before { background-position-x: -75px; }
 .month [data-year] ~ [data-year] ~ li, .month [data-year] ~ [data-year] { background: #f4ca3c; }
 .month li.overdue:after { content: ''; display: block; position: absolute; text-align: center; top: 0; left: 0; bottom: 0; right: 0; background: rgba(0,0,0,.4); border-radius: 4px; z-index: 2; }
-
 
 .month .curr em { position: absolute; display: block; width: 106%; margin-left: -3%; background: #c00; color: #fff; bottom: -5px; font-size: .8em; padding: 5px; border-radius: 4px; z-index: 4; }
 .month .curr em:before { content: ''; display: block; background: #c00; width: 7px; height: 7px; position: absolute; top: -3px; left: 20%; -webkit-transform: rotate(45deg); }

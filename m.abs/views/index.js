@@ -44,9 +44,6 @@
             'tap .js_offline .btn': function () {
                 this.userLoading.reload();
             },
-            'tap .head_menu': function (e) {
-                this.forward('/menu');
-            },
             'tap .js_comment_list [data-id]': function (e) {
             },
             'tap .rainbow_bd': function (e) {
@@ -185,33 +182,6 @@
                 },
                 error: function () {
                     self.model.set('isOffline', true);
-                }
-            });
-
-            this.adLoading = new Loading({
-                url: '/api/settings/ad_list?name=index1',
-                check: false,
-                checkData: false,
-                showLoading: false,
-                $el: this.$el.find('.home_ad'),
-                success: function (res) {
-
-                    self.model.set({
-                        ads: res.data
-                    });
-
-                    var items = self.$('.home_ad > li').on($.fx.transitionEnd, function () {
-                    });
-                    items.each(function (i) {
-                        var el = this;
-                        setTimeout(function () {
-                            el.className = 'toggle';
-                        }, (i + 1) * 100);
-
-                        this.clientHeight;
-                    })
-                },
-                error: function () {
                 }
             });
 
@@ -385,8 +355,6 @@
                     }
 
                     util.isInApp ? bridge.getDeviceToken(load) : load();
-
-                    this.adLoading.load();
                 }
                 else
                     this.getUnreadMsg();
