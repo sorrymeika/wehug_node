@@ -325,6 +325,8 @@
                 return;
             }
 
+            route.referrer = currentActivity.url;
+
             that.get(route, function (activity) {
                 that._currentActivity = activity;
 
@@ -343,7 +345,6 @@
                     activity.referrer = currentActivity.url;
                     activity.referrerDir = currentActivity.swipeRightForwardAction == url ? "Left" : "Right";
                 }
-                route.referrer = currentActivity.url;
 
                 setTimeout(function () {
                     activity.finishEnterAnimation();

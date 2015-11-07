@@ -1,3 +1,4 @@
+@use './shop/cart' as cart
 <header sn-display="{{isLogin}}">
     <div class="head_menu" sn-display="{{bottomTab==3}}" data-forward="/settings"></div>
     <ul class="head_tab" sn-display="{{bottomTab==0}}">
@@ -44,7 +45,7 @@
             </ul>
         </div>
         <ul class="hm_cards">
-            <li><i></i><p>NEW ARRIVAL</p><p>新品上市</p></li>
+            <li data-forward="/all"><i></i><p>NEW ARRIVAL</p><p>新品上市</p></li>
             <li><i></i><p>BEST BUYS</p><p>本周最热商品</p></li>
             <li><i></i><p>BIG SALE</p><p>季末特惠</p></li>
             <li><i></i><p>ONLINE ONLY</p><p>手机用户专享</p></li>
@@ -53,7 +54,7 @@
     <div class="main hm_tab_con" style="-webkit-transform:translate3d({{tab==1?0:100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}" data-index="1">
         <div class="hm_shop">
             <ul class="hm_shop_cate">
-                <li><i></i>新品<br>上市</li>
+                <li data-forward="/all"><i></i>新品<br>上市</li>
                 <li><i></i>本周最热<br>商品</li>
                 <li><i></i>季末<br>清仓</li>
                 <li><i></i>手机用户<br>专享</li>
@@ -78,6 +79,7 @@
         </div>
     </div>
     <div class="main" style="display:{{bottomTab==2?'block':'none'}}">
+        @cart.helpers.list()
     </div>
     <div class="main" style="display:{{bottomTab==3?'block':'none'}}" data-index="3">
         <div class="hm_my_card">

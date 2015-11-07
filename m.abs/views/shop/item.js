@@ -8,7 +8,6 @@ define(function (require, exports, module) {
     var Scroll = require('widget/scroll');
     var animation = require('animation');
 
-
     return Activity.extend({
         events: {
             'tap .js_bind:not(.disabled)': function () {
@@ -23,9 +22,9 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
-            self.model = new model.ViewModel(this.$el, {
+            self.model = new model.ViewModel(self.$el, {
                 back: self.swipeRightBackAction,
-                title: '标题'
+                title: '床品'
             });
         },
 

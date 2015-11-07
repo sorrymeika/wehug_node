@@ -241,7 +241,7 @@ var parse = function (templateStr) {
                     } else {
                         m = rparam.exec(codeStr);
 
-                        str += "'+" + (m[1] == "html" ? m[2] : "util.encodeHTML(" + m[2] + ")") + "+'";
+                        str += "'+" + ((m[1] == "html" || m[2].indexOf('.helpers.') !== -1) ? m[2] : "util.encodeHTML(" + m[2] + ")") + "+'";
                         i += m[0].length;
                     }
                 }
