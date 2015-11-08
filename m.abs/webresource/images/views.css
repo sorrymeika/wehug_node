@@ -12,6 +12,13 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .footer li:nth-child(3):before { background-position-x: -30px; }
 .footer li:nth-child(4):before { background-position-x: -90px; }
 
+.header_trans { background: transparent; }
+.header_trans .head_back, .header_trans .head_call, .header_trans .head_share { border-radius: 50%; background-color: rgba(0,0,0,.8); width: 36px; height: 36px; margin: 5px 0 0 5px; }
+.header_trans .head_back:before { margin: 3px 0 0 1px; }
+.header_trans + .main { top: 0px; }
+.head_right { position: absolute; right: 5px; left: 0px; top: 0; left: 0; text-align: right; }
+.head_right .head_call, .head_right .head_share { display: inline-block; }
+
 .head_back, .head_menu { width: 60px; height: 44px; z-index: 1000; position: absolute; }
 .head_back:before, .head_menu:before, .head_msg:before { display: block; background: url(icon.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 7px 0 0 8px; }
 .head_back:before { background-position: -30px 0px; }
@@ -149,6 +156,38 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .sp_list_item .price del { font-size: 2.453rem; }
 .sp_list_item .price { padding: 4px 6px 0 4px; }
 .sp_list_item .name { font-size: 1.867rem; padding: 0 6px; line-height: 1.5; height: 26px; margin: 6px 0; }
+
+/*购物-单品*/
+.pd_item.main { bottom: 48px; padding-bottom: 10px; }
+.pd_slider { min-height: 320px; }
+.pd_info_wrap { display: -webkit-box; border-top: 1px solid #ddd; background:#fff; padding-bottom: 5px; }
+.pd_info { -webkit-box-flex: 1; padding: 10px 0 0 12px;}
+.pd_info h1 { font-size:2.4rem; }
+.pd_info .price {font-size:2.8rem;color:#e65e5f; margin-top:3px; }
+.pd_info .price:before { content:'￥'; }
+.pd_info .ori_price { display: block;font-size:1.723rem;margin-top:3px;color:#666;}
+.pd_code{font-size:1.8rem; }
+.pd_share { width: 40px;text-align: center;margin-top: 10px; }
+.pd_share:after { content:'分享';display:block;color:#666; }
+
+.pd_sign { background:#f5f5f5;display:-webkit-box;font-size: 1.8rem; height:30px; line-height: 30px; border-bottom: 1px solid #ddd;}
+.pd_sign li { margin-left: 10px; }
+
+.pd_select_plus { background:#e65e5f;margin-top: 14px; height: 40px; line-height: 40px; color:#fff;font-size: 1.8rem; }
+.pd_select_size { margin-top: 4px;height: 40px; background:#fff; line-height:40px;font-size: 1.8rem; border-bottom: 1px solid #ccc;}
+.pd_item_con { padding: 10px; background:#fff; margin-top: 10px;}
+.pd_item_con h2 { font-size: 1.8rem; }
+.pd_item_con .con {font-size:1.4rem; color:#666; margin-bottom: 10px;}
+
+.pd_jump_detail  {font-size:1.8rem; border-bottom: 1px solid #ccc;height: 40px;line-height: 40px; background:#fff;margin-top:15px;}
+.pd_jump_detail b {margin-left: 10px; }
+.pd_jump_detail em {color:#ccc; margin-left: 13px; }
+
+.pd_help { margin-top: 15px; padding-left: 10px; height: 55px; display: -webkit-box;-webkit-box-align:center;font-size:1.8rem; background:#fff; }
+
+.pd_buy { height: 48px; line-height: 48px; display: -webkit-box; text-align: center; }
+.pd_buy .btn_cart {display:block;width: 135px; background:#fff; }
+.pd_buy .btn_buy {display:block; -webkit-box-flex: 1; background:#e65e5f;color:#fff; }
 
 /*购物-购物车*/
 .ct_list { padding-top: 2px; }
