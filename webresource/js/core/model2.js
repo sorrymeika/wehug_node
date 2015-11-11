@@ -9,7 +9,7 @@
     var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
     var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*(.+?)){0,1}(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
     var rmatch = /\{\{(.+?)\}\}/g;
-    var rvar = /(^|[\!\=\>\<\?\s\:\(\),\%\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\()|'(?:\\'|[^'])*')/g;
+    var rvar = /(^|[\!\=\>\<\?\s\:\(\),\%&\|\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\()|'(?:\\'|[^'])*')/g;
     var rtemp = /\/(?:\\\/|[^\/])*\/[img]+|"(?:\\"|[^"])*"/g;
 
     var isNull = function (str) {
@@ -44,6 +44,9 @@
         contains: function (source, keywords) {
             return source.indexOf(keywords) != -1;
         },
+        like: function (source, keywords) {
+            return source.indexOf(keywords) != -1 || keywords.indexOf(source) != -1;
+        },
         util: util,
         closestRepeatModel: function (el) {
             for (var parent = el.parentNode; parent != null; parent = parent.parentNode) {
@@ -64,8 +67,6 @@
         } else {
             throw new Error('Model\'s parent mast be Collection or Model');
         }
-
-
 
         this._key = key;
         this.model = {};
@@ -657,7 +658,7 @@
             var attrs = attr ? [attr] : el.bindings;
             for (var attr in el.bindings) {
                 var val = self.fns[el.bindings[attr]].call(self, Filters, el.model || self, el);
-                
+
                 switch (attr) {
                     case 'textContent':
                         if (el.textContent !== val + '') {
@@ -720,6 +721,12 @@
         self._fns.push(code);
     }
 
+    ViewModel.prototype._setByEl = function (el, name, value) {
+        var self = this;
+        self.getModel(el, name, function (model, attr) {
+            model.set(attr, value);
+        });
+    }
 
     ViewModel.prototype.getModel = function (el, name, callback) {
         var attrs = name.split('.');
@@ -758,9 +765,7 @@
             var target = e.currentTarget;
             var name = target.getAttribute('sn-model');
 
-            self.getModel(target, name, function (model, attr) {
-                model.set(attr, target.value);
-            });
+            self._setByEl(target, name, target.value);
             e._stopModelEvent = true;
         });
 
@@ -768,24 +773,30 @@
             $el.on(snEvents[i], '[sn-' + snEvents[i] + ']', function (e) {
                 if (e._stopModelEvent == true) return;
                 var target = e.currentTarget;
-                var argNames = target.getAttribute('sn-' + e.type).split(':');
+                var eventCode = target.getAttribute('sn-' + e.type);
+                var argNames = eventCode.split(':');
+                var argName;
                 var args = [e];
                 var fn;
                 var ctx;
 
-                for (var i = 0; i < argNames.length; i++) {
-                    self.getModel(target, argNames[i], function (model, attr, currentModel) {
-                        if (i == 0) {
-                            ctx = model;
-                            fn = model.get(attr);
-                            e.model = currentModel;
-                        }
-                        else
-                            args.push(attr ? model.get(attr) : model.data);
-                    });
-                }
+                if (/^\d+$/.test(eventCode)) {
+                    self.fns[eventCode].call(self, target);
+                } else {
+                    for (var i = 0; i < argNames.length; i++) {
+                        self.getModel(target, argNames[i], function (model, attr, currentModel) {
+                            if (i == 0) {
+                                ctx = model;
+                                fn = model.get(attr);
+                                e.model = currentModel;
+                            }
+                            else
+                                args.push(attr ? model.get(attr) : model.data);
+                        });
+                    }
 
-                fn.apply(ctx, args);
+                    fn.apply(ctx, args);
+                }
                 e._stopModelEvent = true;
             });
         }
@@ -813,7 +824,6 @@
                 }
                 repeat && (child.childNodes.repeat = repeat);
 
-
                 for (var j = 0; j < child.attributes.length; j++) {
                     var attr = child.attributes[j].name;
                     var val = child.attributes[j].value;
@@ -827,8 +837,17 @@
                         self.bindAttr(child, attr, val, repeat);
 
                     } else if (snEvents.indexOf(attr.replace(/^sn-/, '')) != -1) {
-                        if (/[\=\(\)]+/.test(val)) {
+                        var rset = /([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*)\s*=\s*((?:'(?:\\'|[^'])*'|[^;])+)/g;
+                        var rsetval = /(?:\:())|(?:^$)/g;
+                        var m;
+                        var code = 'function(el){';
+                        while (m = rset.exec(val)) {
+                            code += 'this._setByEl(el,"' + m[1] + '",' + m[2] + ');';
+                            console.log(m);
                         }
+                        code += '}';
+                        child.setAttribute(attr, self.fns.length + self._fns.length);
+                        self._fns.push(code);
                     }
                 }
                 if (!repeat && child.bindings) {

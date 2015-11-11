@@ -105,7 +105,7 @@
                 <b>我的月礼</b>
                 <span><em>{{user.FreeMonths}}</em>个月</span>
             </li>
-            <li data-forward="/mycard">
+            <li data-forward="/coupon">
                 <b>我的卡券</b>
                 <span><em>{{user.FreeCouponsCount}}</em>张</span>
             </li>

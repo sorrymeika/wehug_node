@@ -310,12 +310,15 @@
             node.setAttribute("crossorigin", crossorigin)
         }
 
-
+        /*
         if (isCSS) {
             callback();
         } else {
             addOnload(node, callback, isCSS, url)
-        }
+        }*/
+
+        addOnload(node, callback, isCSS, url)
+
 
         if (isCSS) {
             node.rel = "stylesheet"
@@ -324,7 +327,7 @@
         else {
             node.async = true
             //<--debug
-            url += '?v' + Date.now();
+            //url += '?v' + Date.now();
             //debug-->
             node.src = url
         }
@@ -342,15 +345,22 @@
         currentlyAddingScript = null
     }
 
+
     function addOnload(node, callback, isCSS, url) {
         var supportOnload = "onload" in node
 
         // for Old WebKit and Old Firefox
+        if (isCSS && (isOldWebKit || !supportOnload)) {
+            setTimeout(function () {
+                pollCss(node, callback)
+            }, 1) // Begin after node insertion
+            return
+        }
 
         if (supportOnload) {
             node.onload = onload
             node.onerror = function () {
-                emit("error", { uri: url, node: node })
+                seajs.emit("error", { uri: url, node: node })
                 onload()
             }
         }
@@ -367,7 +377,7 @@
             node.onload = node.onerror = node.onreadystatechange = null
 
             // Remove the script to reduce memory leak
-            if (!isCSS && !data.debug) {
+            if (!isCSS && !seajs.data.debug) {
                 head.removeChild(node)
             }
 

@@ -170,8 +170,8 @@ module.exports = function (root, env, isMobile, callback) {
                 isDebugFramework: false,
                 webresource: '',
                 debug: false,
-                css: project.css,
-                js: project.js
+                css: {},
+                js: {}
             }));
         });
 

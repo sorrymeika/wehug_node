@@ -1,1 +1,1 @@
-var util=require("util"),T={html:function($data){var __="";with($data||{})__+='<header> <div class="head_back" data-back="{{back}}"></div> <div class="head_title">{{title}}</div> </header> <div class="main stw_detail"> </div>';return __},helpers:{}};T.template=T.html,module.exports=T;
+var util=require("util"),T={html:function($data){var __="";with($data||{})__+='\ufeff<header> <div class="head_back" data-back="{{back}}"></div> <div class="head_title">{{title}}</div> </header> <div class="main stw_detail"> </div>';return __},helpers:{}};T.template=T.html,module.exports=T;
