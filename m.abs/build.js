@@ -22,6 +22,7 @@ module.exports = function () {
                 'core/event': '../webresource/js/core/event',
                 'core/view': '../webresource/js/core/view',
                 'core/model': '../webresource/js/core/model',
+                'core/model2': '../webresource/js/core/model2',
                 'core/page': '../webresource/js/core/page',
                 'core/route': '../webresource/js/core/route',
                 'core/animation': '../webresource/js/core/animation',

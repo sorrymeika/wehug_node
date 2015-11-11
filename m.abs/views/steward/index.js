@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('widget/loading');
-    var model = require('core/model');
+    var model = require('core/model2');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
 
@@ -26,7 +26,8 @@ define(function (require, exports, module) {
 
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
-                title: '爱管家'
+                title: '爱管家',
+                displayType: 1
             });
         },
 

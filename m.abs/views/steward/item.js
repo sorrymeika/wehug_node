@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('widget/loading');
-    var model = require('core/model');
+    var model = require('core/model2');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
 
@@ -15,7 +15,7 @@ define(function (require, exports, module) {
 
             }
         },
-        swipeRightBackAction: '/',
+        swipeRightBackAction: '/steward',
 
         onCreate: function () {
             var self = this;
@@ -25,7 +25,7 @@ define(function (require, exports, module) {
             Scroll.bind($main);
 
             this.model = new model.ViewModel(this.$el, {
-                back: '/',
+                back: '/steward',
                 title: '爱管家'
             });
         },

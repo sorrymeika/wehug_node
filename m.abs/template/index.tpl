@@ -29,26 +29,38 @@
     <div class="main hm_tab_con js_usescroll {{isLogin?"":"isnotlogin"}}" style="-webkit-transform:translate3d({{tab==0?0:-100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}" data-index="0">
         <div class="hm_chart_wrap">
             <div class="hm_chart">
-                <div class="hm_chart_con">
+                <div class="hm_chart_con" sn-tap="chartType=1" sn-display="{{chartType==0}}">
                     <div class="hd">当前活力值</div>
-                    <div class="bd">3,333</div>
-                    <div class="ft">目标 5,555</div>
+                    <div class="bd">{{util.formatMoney(energyAnimNum)}}</div>
+                    <div class="ft">目标 {{util.formatMoney(levelAmounts)}}</div>
+                </div>
+                <div class="hm_chart_con" style="padding-top:15px" sn-tap="chartType=2" sn-display="{{chartType==1}}">
+                    <div class="hd">我的月礼</div>
+                    <div class="bd">{{user.FreeMonths}}</div>
+                </div>
+                <div class="hm_chart_con" style="padding-top:15px" sn-tap="chartType=3" sn-display="{{chartType==2}}">
+                    <div class="hd">我的卡券</div>
+                    <div class="bd">{{user.FreeCouponsCount}}</div>
+                </div>
+                <div class="hm_chart_con" style="padding-top:15px" sn-tap="chartType=0" sn-display="{{chartType==3}}">
+                    <div class="hd">积分钱包</div>
+                    <div class="bd">{{user.Points}}</div>
                 </div>
                 <canvas class="hm_chart_canvas js_canvas"></canvas>
             </div>
-            <div class="hm_chart_desc">金卡会员</div>
+            <div class="hm_chart_desc">{{currentLevel}}</div>
             <div class="hm_steward_link">您现在拥有<em>5</em>条爱管家记录啦！</div>
             <ul class="hm_chart_list">
-                <li><i>我的月礼</i><em>12</em></li>
-                <li><i>我的卡券</i><em>12</em></li>
-                <li><i>积分钱包</i><em>12</em></li>
+                <li data-forward="/month"><i>我的月礼</i><em>{{user.FreeMonths}}</em></li>
+                <li data-forward="/coupon"><i>我的卡券</i><em>{{user.FreeCouponsCount}}</em></li>
+                <li data-forward="/mypoint"><i>积分钱包</i><em>{{user.Points}}</em></li>
             </ul>
         </div>
         <ul class="hm_cards">
             <li data-forward="/all"><i></i><p>NEW ARRIVAL</p><p>新品上市</p></li>
-            <li><i></i><p>BEST BUYS</p><p>本周最热商品</p></li>
-            <li><i></i><p>BIG SALE</p><p>季末特惠</p></li>
-            <li><i></i><p>ONLINE ONLY</p><p>手机用户专享</p></li>
+            <li data-forward="/list"><i></i><p>BEST BUYS</p><p>本周最热商品</p></li>
+            <li data-forward="/list"><i></i><p>BIG SALE</p><p>季末特惠</p></li>
+            <li data-forward="/list"><i></i><p>ONLINE ONLY</p><p>手机用户专享</p></li>
         </ul>
     </div>
     <div class="main hm_tab_con" style="-webkit-transform:translate3d({{tab==1?0:100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}" data-index="1">
@@ -85,10 +97,10 @@
         <div class="hm_my_card">
             <div class="vip_name">{{currentLevel}}</div>
             <div class="energy">
-                当前活力值<span>3,333</span>
+                当前活力值<span>{{util.formatMoney(energy)}}</span>
             </div>
             <div class="energy_bar">
-                <span style="width:20%"></span>
+                <span style="width:{{energyPercent}}"></span>
             </div>
             <div class="energy_val">
                 <div class="energy_val_from">0</div>
@@ -103,7 +115,7 @@
         <ul class="hm_my_list">
             <li data-forward="/month">
                 <b>我的月礼</b>
-                <span><em>{{user.FreeMonths}}</em>个月</span>
+                <span><em>{{user.FreeMonths}}/{{user.TotalMonths}}</em>个月</span>
             </li>
             <li data-forward="/coupon">
                 <b>我的卡券</b>

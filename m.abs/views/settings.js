@@ -34,6 +34,7 @@ define(function (require, exports, module) {
                 logout: function () {
                     if (localStorage.getItem('user')) {
                         util.store('user', null);
+                        self.setResult("Logout");
                         self.back('/');
                     } else {
                         self.forward('/login');

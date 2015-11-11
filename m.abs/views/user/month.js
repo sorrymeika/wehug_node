@@ -77,6 +77,28 @@
             } else {
                 self.model.set({ user: self.user })
 
+                var self = this;
+                var total = Math.round(this.user.Amount);
+                var percent = 1;
+                var level;
+                var nextLevel;
+                var currentLevel;
+                var levelAmounts;
+                var levels = ['银卡会员', '金卡会员', '钻石会员', 'VIP会员', 'SVIP会员', '无敌会员'];
+
+                self.model.set('vip', total < (levelAmounts = 1000) ? (level = 0, nextLevel = 1000 - total, levels[1]) : total < (levelAmounts = 5000) ? (level = 1, nextLevel = 5000 - total, levels[2]) : total < (levelAmounts = 10000) ? (level = 2, nextLevel = 10000 - total, levels[3]) : total < (levelAmounts = 50000) ? (level = 3, nextLevel = 50000 - total, levels[4]) : (level = 4, nextLevel = '0', levels[5]));
+
+                percent = Math.min(1, total / levelAmounts);
+
+                self.model.set({
+                    energy: total,
+                    nextLevel: nextLevel,
+                    currentLevel: levels[level],
+                    levelAmounts: levelAmounts,
+                    energyPercent: percent * 100 + '%',
+                    ucCardAmounts: util.formatMoney(total) + (total > 50000 ? '' : ('/' + util.formatMoney(levelAmounts)))
+                });
+
                 if (!self.isLoad && (self.isLoad = true))
                     self.loading.setParam({
                         UserID: self.user.ID,

@@ -68,14 +68,8 @@ define(function (require, exports, module) {
                 isOverdue: false,
                 open: function () {
                     bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
-                },
-                testData: [{
-                    VCA_VCT_ID: 2,
-                    VCA_DEDUCT_AMOUNT: 20,
-                    VCA_NAME: 'asdf'
-                }]
+                }
             });
-            self.showItemsWithAnim();
 
             self.loading = new Loading({
                 url: "/api/user/voucher_list",
@@ -116,6 +110,14 @@ define(function (require, exports, module) {
 
                         self.showItemsWithAnim();
                     }
+
+                    self.model.set("data1", [{
+                        VCA_VCT_ID: 4,
+                        VCA_DEDUCT_AMOUNT: 20,
+                        VCA_NAME: 'asdf'
+                    }]);
+
+                    self.showItemsWithAnim();
                 }
             });
 

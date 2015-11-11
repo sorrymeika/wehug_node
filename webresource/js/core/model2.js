@@ -839,15 +839,17 @@
                     } else if (snEvents.indexOf(attr.replace(/^sn-/, '')) != -1) {
                         var rset = /([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*)\s*=\s*((?:'(?:\\'|[^'])*'|[^;])+)/g;
                         var rsetval = /(?:\:())|(?:^$)/g;
-                        var m;
-                        var code = 'function(el){';
-                        while (m = rset.exec(val)) {
-                            code += 'this._setByEl(el,"' + m[1] + '",' + m[2] + ');';
-                            console.log(m);
+                        var m = rset.exec(val);
+                        if (m) {
+                            var code = 'function(el){';
+                            do {
+                                code += 'this._setByEl(el,"' + m[1] + '",' + m[2] + ');';
+                                console.log(m);
+                            } while (m = rset.exec(val));
+                            code += '}';
+                            child.setAttribute(attr, self.fns.length + self._fns.length);
+                            self._fns.push(code);
                         }
-                        code += '}';
-                        child.setAttribute(attr, self.fns.length + self._fns.length);
-                        self._fns.push(code);
                     }
                 }
                 if (!repeat && child.bindings) {

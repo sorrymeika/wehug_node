@@ -12,21 +12,6 @@
     var barcode = require('../util/barcode');
     var animation = require('animation');
 
-    var points = [1000, 4000, 5000, 45000];
-    var pointPercent = function (point) {
-        var result = 0;
-        for (var i = 0; i < points.length; i++) {
-            if (point <= points[i]) {
-                result += point * 25 / points[i];
-                break;
-            } else {
-                result += 25;
-                point -= points[i];
-            }
-        }
-        return result;
-    };
-
     return Activity.extend({
         events: {
             'tap .head_tab li': function (e) {
@@ -80,6 +65,8 @@
         onCreate: function () {
             var self = this;
 
+            self.user = util.store('user');
+
             $.get(bridge.url('/api/settings/update?version=' + sl.appVersion), function (res) {
                 if (res.success && res.updateUrl) {
                     self.confirm(res.text, function () {
@@ -91,12 +78,12 @@
             this.model = new model.ViewModel(this.$el, {
                 menu: 'head_menu',
                 titleClass: 'head_title',
-                title: { title: 'ABS + CLUB' },
                 isOffline: false,
-                isLogin: !!util.store('user'),
+                isLogin: !!self.user,
                 isFirstOpen: util.store('isFirstOpen') === null,
                 msg: 0,
                 bottomTab: 0,
+                chartType: 0,
                 open: function () {
                     bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
                 },
@@ -121,8 +108,6 @@
             })
             //-->*/
 
-            this.$points = this.$('.home_points');
-            this.$cursor = this.$('.home_points_cursor');
             self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function (e) {
                 if (!self.$open_msg.hasClass('show')) {
                     self.$open_msg.hide();
@@ -131,18 +116,10 @@
             Scroll.bind(self.$open_msg.find('.msg_bd'));
 
             var canvas = this.$('.js_canvas')[0];
-            var context = canvas.getContext('2d');
-            canvas.width = 190;
-            var centerX = canvas.width / 2;
-            var centerY = canvas.height / 2;
-            var radius = 90;
-            this.context = context;
-
-            context.beginPath();
-            context.arc(centerX, centerX, radius, .85 * Math.PI, 2.15 * Math.PI, false);
-            context.lineWidth = 5;
-            context.strokeStyle = '#dddddd';
-            context.stroke();
+            canvas.width = 170;
+            canvas.height = 170;
+            this.canvas = canvas;
+            this.context = canvas.getContext('2d');
 
             this.userLoading = new Loading({
                 url: '/api/user/get',
@@ -165,8 +142,7 @@
                         user: self.user
                     });
 
-                    console.log(self.user);
-                    self.showPoints();
+                    self.showEnergy();
                     self.getUnreadMsg();
 
                     if (res.vdpMessage) {
@@ -216,103 +192,66 @@
             }, 3200);
 
             self.onResult("Login", function () {
-                self.userLoaded = false;
+                self.user = util.store('user');
+                self.doWhenLogin();
+            }).onResult("Logout", function () {
+                self.model.set({
+                    isLogin: false
+                });
             });
 
         },
 
-        setRainbow: function () {
-            if (!this.user) return;
-
-            var canvas = this.$('.js_canvas')[0];
+        drawCircle: function (percent) {
             var context = this.context;
+            var canvas = this.canvas;
+            var centerX = canvas.width / 2;
+            var centerY = canvas.height / 2;
+            var radius = centerX - 10;
+
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 1.5 * Math.PI, (1.5 + 2 * percent) * Math.PI, false);
+            context.lineWidth = 19;
+            context.strokeStyle = '#fff';
+            context.stroke();
+        },
+
+        showEnergy: function () {
+            if (!this.user) return;
 
             var self = this;
             var total = Math.round(this.user.Amount);
-            var percent = pointPercent(total);
-            var deg = percent / 50 * 117 - 117;
+            var percent = 1;
             var level;
             var nextLevel;
             var currentLevel;
             var levelAmounts;
             var levels = ['银卡会员', '金卡会员', '钻石会员', 'VIP会员', 'SVIP会员', '无敌会员'];
+
             self.model.set('vip', total < (levelAmounts = 1000) ? (level = 0, nextLevel = 1000 - total, levels[1]) : total < (levelAmounts = 5000) ? (level = 1, nextLevel = 5000 - total, levels[2]) : total < (levelAmounts = 10000) ? (level = 2, nextLevel = 10000 - total, levels[3]) : total < (levelAmounts = 50000) ? (level = 3, nextLevel = 50000 - total, levels[4]) : (level = 4, nextLevel = '0', levels[5]));
 
-            this.$('.rainbow_vip :nth-child(' + (level + 1) + ')').addClass('curr');
+            percent = Math.min(1, total / levelAmounts);
 
-            self.model.set('nextLevel', nextLevel);
-            self.model.set('currentLevel', levels[level]);
-            self.model.set('levelAmounts', levelAmounts);
-            self.model.set('cardAmounts', '(' + util.formatMoney(total) + (total > 50000 ? '' : ('/' + util.formatMoney(levelAmounts))) + ')');
+            self.model.set({
+                nextLevel: nextLevel,
+                currentLevel: levels[level],
+                levelAmounts: levelAmounts,
+                energyPercent: percent * 100 + '%',
+                ucCardAmounts: util.formatMoney(total) + (total > 50000 ? '' : ('/' + util.formatMoney(levelAmounts)))
+            });
 
-            if (total != self.model.data.point) {
-                self.model.set('point', total);
-
-                var circlePercent = percent * (2.15 - .85) / 100 + .85;
-
+            if (total != self.model.data.energy) {
+                self.model.set({
+                    energy: total
+                });
                 animation.animate(function (d) {
-                    var curr = animation.step(-117, deg, d);
                     var num = Math.round(animation.step(0, total, d));
-                    var point = util.circlePoint(0, 0, 91, 90 - curr);
 
-                    if (point.x > 0) {
-                        if (deg == 0) {
-                            point.x = 0;
-                        } else if (deg < 55) {
-                            point.x -= 4;
-                            point.y += 2;
-                        } else if (deg < 80) {
-                            point.x -= 7;
-                        } else {
-                            point.x -= 9;
-                            point.y += 2;
-                        }
-                    } else {
-                        point.y += 2;
-                    }
-
-                    self.model.set('Point', num);
-
-                    self.$cursor.css({
-                        '-webkit-transform': 'rotate(' + deg + 'deg)',
-                        top: 91 - point.y,
-                        left: 91 + point.x
-                    });
-
-                    canvas.width = 190;
-                    var centerX = canvas.width / 2;
-                    var centerY = canvas.height / 2;
-                    var radius = 90;
-
-                    var cend = animation.step(.85, circlePercent, d) * Math.PI;
-
-                    context.beginPath();
-
-                    context.arc(centerX, centerX, radius, .85 * Math.PI, cend, false);
-                    context.lineWidth = 5;
-                    context.strokeStyle = '#d6415c';
-                    context.stroke();
-
-                    context.beginPath();
-
-                    context.arc(centerX, centerX, radius, cend, 2.15 * Math.PI, false);
-                    context.lineWidth = 5;
-                    context.strokeStyle = '#ddd';
-                    context.stroke();
-
+                    self.model.set('energyAnimNum', num);
+                    self.drawCircle(animation.step(0, percent, d));
 
                 }, 800, 'ease-out')
 
-                if (percent > 50) {
-                    this.$points.eq(0).animate({
-                        rotate: '0deg'
-                    }, 800, 'ease-out');
-                } else {
-                }
-                this.$points.eq(1).animate({
-                    rotate: deg + 'deg'
-
-                }, 800, 'ease-out');
             }
         },
 
@@ -331,45 +270,40 @@
             }, 'json');
         },
 
-        onShow: function () {
+        doWhenLogin: function () {
             var self = this;
 
-            self.user = util.store('user');
-            var isLogin = !!self.user;
-            self.model.set('isLogin', isLogin);
+            self.model.set({
+                barcode: barcode.code93(self.user.Mobile).replace(/0/g, '<em></em>').replace(/1/g, '<i></i>'),
+                user: self.user,
+                isLogin: true
+            });
 
-            if (isLogin) {
-                self.showPoints();
-                self.model.set('barcode', barcode.code93(self.user.Mobile).replace(/0/g, '<em></em>').replace(/1/g, '<i></i>'))
-                .set('user', self.user);
+            var load = function (token) {
+                self.userLoading.setParam({
+                    UserID: self.user.ID,
+                    Auth: self.user.Auth,
+                    IMEI: token || 'CAN_NOT_GET'
 
-                if (!this.userLoaded && (this.userLoaded = true)) {
+                }).load();
+            }
 
-                    var load = function (token) {
-                        self.userLoading.setParam({
-                            UserID: self.user.ID,
-                            Auth: self.user.Auth,
-                            IMEI: token || 'CAN_NOT_GET'
+            util.isInApp ? bridge.getDeviceToken(load) : load();
+            this.getUnreadMsg();
+        },
 
-                        }).load();
-                    }
-
-                    util.isInApp ? bridge.getDeviceToken(load) : load();
-                }
-                else
-                    this.getUnreadMsg();
+        onLoad: function () {
+            if (this.user) {
+                this.showEnergy();
+                this.doWhenLogin();
             }
         },
 
-        showPoints: function () {
-
-            this.setRainbow(this.user.Amount);
-
-            this.$('.point_tip').addClass('show');
+        onShow: function () {
+            var self = this;
         },
 
         onPause: function () {
-            //this.$('.point_tip').removeClass('show');
         },
 
         onDestory: function () {

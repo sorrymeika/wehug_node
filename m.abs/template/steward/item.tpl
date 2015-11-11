@@ -5,10 +5,10 @@
 <div class="main">
     <ul class="stw_items">
         <li class="stw_items_item">
-            <a href="/steward/detail/1"><img src="" /></a>
+            <a href="/steward/detail/1?steward_id=1"><img src="" /></a>
         </li>
         <li class="stw_items_item">
-            <a href="/steward/detail/1"><img src="" /></a>
+            <a href="/steward/detail/2?steward_id=1"><img src="" /></a>
         </li>
     </ul>
 </div>
