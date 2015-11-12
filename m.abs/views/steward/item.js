@@ -11,7 +11,8 @@ define(function (require, exports, module) {
 
     return Activity.extend({
         events: {
-            'tap .js_bind:not(.disabled)': function () {
+            'tap .js_buy:not(.disabled)': function () {
+                var self = this;
 
             }
         },

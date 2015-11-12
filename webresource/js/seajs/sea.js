@@ -360,8 +360,12 @@
         if (supportOnload) {
             node.onload = onload
             node.onerror = function () {
-                seajs.emit("error", { uri: url, node: node })
-                onload()
+                var errorData = { uri: url, node: node, callback: callback, isCSS: isCSS };
+                seajs.emit("error", errorData);
+                if (errorData.pause) {
+                    callback = function () { }
+                }
+                onload();
             }
         }
         else {

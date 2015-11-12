@@ -47,6 +47,7 @@
         <li><span>运费</span><em><b>1</b>张免邮卡可用</em></li>
         <li><span>总计</span><em><b class="price">￥000</b></em></li>
     </ul>
+    <div class="ct_list_action"></div>
 </div>
 }
 <header>

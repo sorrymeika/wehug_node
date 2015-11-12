@@ -8,6 +8,7 @@
 	},
 	route: {
 		'/set_update': { controller: 'set_update', template: '../../template/form' },
+		'/set_resource_mapping': { controller: 'set_resource_mapping', template: '../../template/set_resource_mapping' },
 		'/ad_list': { controller: 'ad_list', template: '../../template/list' },
 		'/add_ad': { controller: 'add_ad', template: '../../template/form' },
 		'/modify_ad/{name:\\w+}/{id:\\d+}': { controller: 'modify_ad', template: '../../template/form' }

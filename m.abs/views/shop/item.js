@@ -10,9 +10,13 @@ define(function (require, exports, module) {
 
     return Activity.extend({
         events: {
-            'tap .js_bind:not(.disabled)': function () {
+            'tap .js_buy:not(.disabled)': function () {
+                var self = this;
+                this.forward('/cart?from=' + this.route.url);
             }
         },
+
+        className: 'pd_item_bg',
 
         onCreate: function () {
             var self = this;

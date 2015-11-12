@@ -25,7 +25,7 @@ define(function (require, exports, module) {
 
             self.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
-                title: '标题'
+                title: '我的购物车'
             });
         },
 

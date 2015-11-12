@@ -20,6 +20,32 @@
             <link href="@(webresource)@key?v@(Date.now())" rel="stylesheet" type="text/css"/>
         }
     }
+    <style>
+        .viewport.applaunch { background: url(images/launch101.jpg) no-repeat center top !important; background-size: auto 100% !important; }
+        @@media screen and (max-height:480px) {
+            .viewport.applaunch { background-image: url(images/launch101_480.jpg) !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="viewport applaunch js_global_launch"></div>
+    <div class="viewport js_global_offline" style="display:none;z-index:1000;">
+        <div class="home_offline" style="position: absolute;left: 50%;top: 50%;margin: -100px 0 0 -66px;">
+            <div class="ico"></div>
+            <div class="txt">您的网络不太顺畅哦</div>
+            <div class="txt_sub">请检查您的手机是否联网</div>
+            <div class="btn">重新加载</div>
+        </div>
+    </div>
+    <script>
+        var launchImage=localStorage.getItem("LAUNCH_IMAGE");
+        if (launchImage){
+            var styleElement = document.createElement('style');
+            styleElement.type = 'text/css';
+            document.getElementsByTagName('head')[0].appendChild(styleElement);
+            styleElement.appendChild(document.createTextNode('.viewport.applaunch{background-image: url('+launchImage+') !important;}@@media screen and (max-height:480px) {background-image: url('+launchImage+') !important;}'));
+        }
+    </script>
     <script src="@(webresource)@html(isDebugFramework?'js/seajs/sea.js':'slan.m.js')?v@(Date.now())"></script>
     @if(debug){
     <script src="@(webresource)js/zepto.js"></script>
@@ -43,23 +69,7 @@
             <script src="@(webresource)@(key).js"></script>
         }
     }
-    <style>
-        .viewport.applaunch { background: url(images/launch101.jpg) no-repeat center top !important; background-size: auto 100% !important; }
-        @@media screen and (max-height:480px) {
-            .viewport.applaunch { background-image: url(images/launch101_480.jpg) !important; }
-        }
-    </style>
-</head>
-<body>
-    <div class="viewport applaunch"></div>
     <script>
-        var launchImage=localStorage.getItem("LAUNCH_IMAGE");
-        if (launchImage){
-            var styleElement = document.createElement('style');
-            styleElement.type = 'text/css';
-            document.getElementsByTagName('head')[0].appendChild(styleElement);
-            styleElement.appendChild(document.createTextNode('.viewport.applaunch{background-image: url('+launchImage+') !important;}@@media screen and (max-height:480px) {background-image: url('+launchImage+') !important;}'));
-        }
         seajs.config({
             alias: {
                 "$": "zepto",
@@ -67,11 +77,50 @@
                 'activity': 'core/activity'
             }
         });
-        seajs.use(['$','util','core/app'],function($,util,App) {
+        seajs.use(['$','util','core/app','bridge','widget/loading'],function($,util,App,bridge,Loading) {
             sl.isDebug=@debug;
             sl.buildVersion=@(Date.now());
             sl.appVersion='1.0.2';
-            new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(@debug?0:2000);
+            sl.$globalOffline=$('.js_global_offline');
+            sl.offline=function(reloadFn){
+                sl.$globalOffline.show().find('.btn').one('tap',function(){
+                    sl.$globalOffline.hide();
+                    reloadFn();
+                });
+            };
+            var loading=new Loading({
+                url: bridge.url('/api/settings/resourceMapping'),
+                timeout: 5000,
+                checkData: false,
+                $el: $('.js_global_launch'),
+                error: function(){
+                    sl.offline(load);
+                },
+                success: function(res){
+                    var resourceMapping=res.data;
+                    seajs.on('fetch', function (emitData) {
+                        var id = emitData.uri.replace(seajs.data.base, '').replace(/\.js(\?.*)*/, '');
+                        console.log(id);
+
+                        if (resourceMapping&&resourceMapping[id])
+                            emitData.requestUri = resourceMapping[id];
+                    });
+                    seajs.on("error", function(errorData){
+                        errorData.pause=true;
+                        
+                        sl.offline(function(){
+                            seajs.request(errorData.uri,errorData.callback);
+                        });
+                    });
+
+                    new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(@debug?0:2000);
+                }
+
+            });
+            var load=function(){
+               loading.reload();
+            };
+            load();
         });
     </script>
 </body>

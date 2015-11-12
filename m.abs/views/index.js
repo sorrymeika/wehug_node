@@ -7,7 +7,7 @@
     var Loading = require('../widget/loading');
     var Slider = require('../widget/slider');
     var model = require('../core/model2');
-    var Touch2 = require('../core/touch2');
+    //var Touch2 = require('../core/touch2');
     var Scroll = require('../widget/scroll');
     var barcode = require('../util/barcode');
     var animation = require('animation');

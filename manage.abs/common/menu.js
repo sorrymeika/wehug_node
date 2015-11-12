@@ -18,6 +18,9 @@
             }, {
                 url: '/settings/set_update',
                 title: 'app更新管理'
+            }, {
+                url: '/settings/set_resource_mapping',
+                title: 'app资源管理'
             }]
         });
     };
