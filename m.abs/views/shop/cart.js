@@ -12,7 +12,8 @@ define(function (require, exports, module) {
     return Activity.extend({
         events: {
             'tap .js_buy:not(.disabled)': function () {
-                this.forward('/buy');
+                var self = this;
+                this.forward('/buy?from=' + self.route.from);
             }
         },
 

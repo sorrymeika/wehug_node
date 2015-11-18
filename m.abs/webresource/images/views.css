@@ -228,7 +228,19 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .ct_list_action .btn_buy,.sp_buy_action .btn_buy { height: 100%;width: 110px; text-align: center; line-height: 49px; display: block; font-size: 3rem; color: #fff;background: #e65e5f;}
 
 /*购物-确认订单*/
-
+.sp_buy {padding-top: .1px; padding-bottom: 60px;}
+.sp_buy_hd { position: relative; margin-top: 10px; background-color: #fff; padding: 22px 35px 10px 50px; }
+.sp_buy_hd:before {content: '';display: block; position: absolute; top: 22px; left: 13px; background: url(icon.png) no-repeat -240px -90px; background-size: 320px auto; width: 30px; height: 30px; }
+.sp_buy_hd .info {font-size: 2.4rem;font-weight: bold; display: -webkit-box;}
+.sp_buy_hd .info .name{ display: block; }
+.sp_buy_hd .info .mobi{ display: block; text-align:right; -webkit-box-flex: 1;}
+.sp_buy_hd .loc {font-size: 2rem; line-height: 1.4; margin-top: 5px;}
+.sp_buy_bd {margin-top: 12px; background: #fff;}
+.sp_buy_bd .hd,.sp_buy_bd ul li { height: 46px; line-height: 46px;padding-left: 15px;}
+.sp_buy_bd ul{font-size: 2.4rem;}
+.sp_buy_bd ul li{border-top: 1px solid #ddd; padding-right: 10px;}
+.sp_buy_bd ul li em{float: right;}
+.sp_buy_bd ul li b{float: right;font-weight: normal; color: #e65e5f;}
 
 /*我*/
 .hm_my_card { background: -webkit-gradient(linear, 100% 33%, 100% 79%, from(#e04447), to(#ea6333)); color: #fff; padding: 15px 20px; }

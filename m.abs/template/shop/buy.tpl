@@ -11,11 +11,11 @@
         <div class="sp_buy_bd sp_buy_bill">
             <div class="hd">支付结算</div>
             <ul>
-                <li><span>商品价</span><em>¥200</em><li>
-                <li><span>优惠券</span><em>-¥200</em><li>
-                <li><span>积分</span><em>-¥200</em><li>
-                <li><span>运费</span><em>+¥200</em><li>
-                <li><span>总计</span><b>¥200</b><li>
+                <li><span>商品价</span><em>¥200</em></li>
+                <li><span>优惠券</span><em>-¥200</em></li>
+                <li><span>积分</span><em>-¥200</em></li>
+                <li><span>运费</span><em>+¥200</em></li>
+                <li><span>总计</span><b>¥200</b></li>
             </ul>
         </div>
         <div class="sp_buy_bd sp_buy_pay">
@@ -25,7 +25,6 @@
                 <li class="ico_wxpay">微信支付</li>
             </ul>
         </div>
-        <div class="sp_buy_action"></div>
     </div>
 </div>
 <footer class="sp_buy_action">
