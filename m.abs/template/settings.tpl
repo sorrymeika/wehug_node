@@ -1,6 +1,7 @@
 ﻿<header>
     <div class="head_back" sn-binding="data-back:back"></div>
     <div sn-binding="html:title" class="head_title"></div>
+    <div class="head_msg" data-forward="/messages?from=/settings"></div>
 </header>
 <div class="main settings">
     <div class="hello">

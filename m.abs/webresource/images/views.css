@@ -22,19 +22,23 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .head_right { position: absolute; right: 5px; left: 0px; top: 0; left: 0; text-align: right; }
 .head_right .head_call, .head_right .head_share { display: inline-block; }
 .head_back, .head_menu { width: 60px; height: 44px; z-index: 1000; position: absolute; }
-.head_back:before, .head_menu:before, .head_msg:before { display: block; background: url(icon.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 7px 0 0 8px; }
+.head_back:before, .head_menu:before, .head_msg:before,.head_all:before { display: block; background: url(icon.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 7px 0 0 8px; }
 .head_back:before { background-position: -30px 0px; }
-.head_msg { width: 50px; position: absolute; right: 0px; top: 0px; height: 4px; z-index: 1000; }
+.head_msg,.head_all { width: 50px; position: absolute; right: 0px; top: 0px; height: 44px; z-index: 1000; }
 .head_msg:before { background-position: -60px 0px; }
 .head_msg i { position: absolute; top: 5px; left: 27px; background: #fff; color: #e65e5f; border-radius: 8px; height: 14px; font-size: 12px; line-height: 14px; font-weight: normal; padding: 0 4px; }
 .head_search_btn { min-width: 60px; position: absolute; right: 0px; top: 0px; }
 .head_search_btn .btn_small { background: #74c0f3; height: 30px; line-height: 31px; color: #fff; font-size: 14px; display: block; margin: 9px 6px 0 6px; border-radius: 4px; padding: 0 10px; }
 .head_tab, .head_search { display: -webkit-box; text-align: center; margin: 0 50px; font-size: 3rem; position: relative; }
+.head_tab {margin: 0 70px;}
 .head_tab li { -webkit-box-flex: 1; width: 0; }
 .head_tab .cursor { display: block; position: absolute; bottom: 0px; left: 0px; width: 30%; margin-left: 10%; border-bottom: 2px solid #fff; -webkit-transition: -webkit-transform 200ms ease-out 0ms; -webkit-transform: translate3d(0%, 0%, 0); }
 .head_tab li:nth-child(2).curr ~ .cursor { -webkit-transform: translate3d(165%, 0%, 0); }
 .head_search { border-radius: 12px; background: #e04447; height: 25px; padding: 0; margin-top: 10px; }
 .head_search input { text-align: center; -webkit-box-flex: 1; border-radius: 12px; color: #fff; display: block; border: 0px; background: #e04447; }
+.head_search input::-webkit-input-placeholder{ color: #fff; }
+.head_all:before { background-position: -210px -120px;}
+
 .main { background: #eeefef; padding-top: .1px; top: 44px; }
 .btn_large { height: 40px; line-height: 40px; background-color: #e65e5f; font-size: 1.2em; }
 .btn_middle { background-color: #e65e5f; height: 35px; line-height: 35px; display: block; border-radius: 4px; color: #fff; padding: 0 5px; }
@@ -73,8 +77,8 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .hm_chart_canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
 .hm_chart_desc { text-align: center; font-size: 2.4rem; margin-top: 12px; color: #fff; }
 .hm_steward_link { text-align: center; font-size: 1.8rem; margin-top: 9px; color: #fff; }
-.hm_steward_link:before { content: ''; display: block; }
-.hm_steward_link em { font-size: 3rem; }
+.hm_steward_link:before { content: ''; display: inline-block; background: url(icon.png) no-repeat -210px 0px; background-size: 320px auto;width:18px; height: 16px; }
+.hm_steward_link em { font-size: 3rem; margin: 0 2px; }
 .hm_chart_list { margin: 13px 5px 5px 5px; padding: 5px; border-top: 1px solid #fff; text-align: center; display: -webkit-box; color: #fff; }
 .hm_chart_list li { -webkit-box-flex: 1; width: 0px; border-right: 1px solid #fff; height: 47px; }
 .hm_chart_list li:last-child { border-right: 0px; }
@@ -92,14 +96,14 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .hm_cards li:nth-child(3) i, .hm_shop_cate li:nth-child(3) i { background: #d10b16; }
 .hm_cards li:nth-child(3) i:before, .hm_shop_cate li:nth-child(3) i:before { background-position: -240px -190px; }
 .hm_cards li:nth-child(4) i, .hm_shop_cate li:nth-child(4) i { background: #ea6233; }
-.hm_cards li:nth-child(4) i:before, .hm_shop_cate li:nth-child(5) i:before { background-position: -280px -190px; }
+.hm_cards li:nth-child(4) i:before, .hm_shop_cate li:nth-child(4) i:before { background-position: -280px -190px; }
 canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; margin-left: -95px; }
 
 
 /*去购物*/
 .hm_shop { color: #333; padding-bottom: 1px; }
 .hm_shop_cate { display: -webkit-box; margin-top: 10px; }
-.hm_shop_cate li { -webkit-box-flex: 1; text-align: center; font-size: 2.4rem; }
+.hm_shop_cate li { -webkit-box-flex: 1; text-align: center; font-size: 2.4rem; line-height: 1; }
 .hm_shop_cate li i { display: block; width: 45px; height: 45px; background: #e8ba2e; margin: 0 auto 5px auto; border-radius: 4px; }
 .hm_shop_cate li i:before { content: ''; display: block; width: 40px; height: 40px; margin: 2.5px auto; background: url(icon.png) no-repeat -280px -150px; background-size: 320px auto; }
 .hm_shop_banner { margin-top: 12px; }
@@ -200,7 +204,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 
 /*购物-购物车*/
 .ct_list { padding-top: 2px; }
-.ct_list_item { position: relative; margin-top: 2px; }
+.ct_list_item { position: relative; margin-top: 1px; }
 .ct_list_item:after { content: '删除'; display: block; width: 45px; text-align: center; background: #e65e5f; position: absolute; right: 0; bottom: 0; top: 0; color: #fff; font-size: 3.2rem; padding-top: 37px; z-index: 1; }
 .ct_list_item_con { background: #fff; display: -webkit-box; padding: 10px 0 14px 0; position: relative; z-index: 2; }
 .ct_list_item_con img { display: block; width: 70px; height: 70px; margin: 0 14px 0 20px; }
@@ -214,9 +218,16 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .ct_list_item_con .ft b { display: block; color: #e65e5f; font-size: 3.2rem; }
 .ct_list_item_con .ft del { display: block; font-size: 2.63rem; margin-top: 5px; color: #666; }
 .ct_list_info { margin-top: 10px; background: #fff; border-top: 1px solid #f0f0f0; }
-.ct_list_info li { height: 45px; line-height: 45px; padding-left: 15px; border-bottom: 1px solid #f0f0f0; }
+.ct_list_info li { height: 45px; line-height: 45px; padding-left: 15px; border-bottom: 1px solid #f0f0f0; overflow: hidden; padding-right: 8px; }
 .ct_list_info li span { color: #666; font-size: 2.4rem; }
 .ct_list_info li em { color: #666; font-size: 2.4rem; float: right; }
+.ct_list_info li b {color: #e65e5f; font-weight: normal; }
+.ct_list_action,.sp_buy_action { display: -webkit-box; -webkit-box-align: center; background-color: #fff; height: 49px;border-top: 1px solid #ddd; padding-left: 10px; }
+.ct_list_action .total,.sp_buy_action .total { -webkit-box-flex: 1;font-size: 2.4rem; }
+.ct_list_action .total b,.sp_buy_action .total b { color: #e65e5f; }
+.ct_list_action .btn_buy.sp_buy_action .btn_buy { height: 100%;width: 110px; text-align: center; line-height: 49px; display: block; font-size: 3rem; color: #fff;background: #e65e5f;}
+
+/*购物-确认订单*/
 
 
 /*我*/
@@ -336,8 +347,8 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .myorder .con li.type4 .hd:before, .myorder .con li.type5 .hd:before { background-position-x: -150px; }
 .myorder .con li.type6 .hd:before { background-position-x: -90px; }
 .myorder .con li .hd .status { float: right; margin-right: 6px; font-weight: bold; }
-.myorder .con li .info { font-size: .7rem; padding: 0px 10px; line-height: 25px; }
-.myorder .con li .info:nth-child(2) { float: right; }
+.myorder .con li .info { font-size: 1.7rem; padding: 0px 10px; line-height: 25px; }
+.myorder .con li .info :nth-child(2) { float: right; }
 .myorder .con li .bd { border-bottom: .5px solid #ccc; display: -webkit-box; }
 .myorder .con li .bd img { display: block; width: 60px; height: 60px; margin: 10px; }
 .myorder .con li .bd .con { -webkit-box-flex: 1; overflow: hidden; }
@@ -386,13 +397,14 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .my_nodata { margin-top: 50px; text-align: center; }
 .my_nodata .icon { width: 104px; height: 104px; position: relative; background: #ccc; border-radius: 50%; margin: 0 auto; }
 .my_nodata .icon:before { content: ''; display: block; top: 50%; left: 50%; margin: -37px 0 0 -37px; width: 75px; height: 75px; position: absolute; background: url(icon.png) no-repeat 0px -310px; background-size: 320px auto; }
-.my_nodata .text { text-align: center; margin: 25px 0 15px 0; font-size: 1.9rem; color: #333; }
-.my_nodata .btn { text-align: center; margin: 0px auto; padding: 0px 25px; height: auto; border-radius: 6px; border: 1px solid #ddd; background: transparent; color: #666; font-size: 1.9rem; }
+.my_nodata .text { text-align: center; margin: 25px 0 15px 0; font-size: 2.2rem; color: #333; }
+.my_nodata .btn { text-align: center; margin: 0px auto; padding: 0px 25px; height: auto; border-radius: 6px; border: 1px solid #ddd; background: transparent; color: #666; font-size: 2.2rem; }
 .mypoint .my_nodata .icon:before { background-position-x: -75px; }
 .uc_coupon .my_nodata .icon:before { background-position-x: -150px; }
 .uc_coupon .my_nodata { margin-top: 90px; }
 .myorder .my_nodata { margin-top: 90px; }
 .uc_month .my_nodata .icon:before { background-position-x: -225px; }
+.ct_list_wrap~ .my_nodata .icon:before { background-position-x: 0px; }
 .guide_hd { padding: 10px; line-height: 1.5; font-size: .9em; }
 .guide_bd { background: #fff; padding: 5px; }
 .guide_bd > .hd { background: #41c0c2 url(guide_hd.png) repeat-x; background-size: auto 100%; border-radius: 6px; display: -webkit-box; font-size: .8em; height: 32px; }
@@ -446,7 +458,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .stw_list_item .thumb { width: 53px; margin: 10px 0 0 15px; }
 .stw_list_item .thumb img { width: 53px; height: 53px; display: block; border-radius: 50%; overflow: hidden; }
 .stw_list_item .thumb .btn { width: 53px; height: 16px; line-height: 16px; color: #fff; margin-top: 6px; font-size: 1.8rem; background: #e65e5f; border-radius: 4px; }
-.stw_list_item .con { margin-left: 15px; padding-left: 6px; }
+.stw_list_item .con { margin-left: 15px; padding-left: 6px; overflow: hidden; }
 .stw_list_item .con h4 { font-size: 2rem; font-weight: normal; margin-top: 12px; color: #333; }
 .stw_list_item .con .date { font-size: 1.6rem; color: #666; margin-top: 5px; }
 .stw_list_item .con .text { font-size: 1.8rem; margin-top: 7px; display: -webkit-box; margin-right: 50px; }
@@ -470,6 +482,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .stw_category_item.curr .hd { background: #ffa549; color: #fff; }
 .stw_category_item.curr .hd:after { -webkit-transform: rotate(135deg); border-color: #fff; }
 .stw_category_item.curr .hd:before { background-position-y: -440px; }
+.stw_category_item.curr .stw_list { margin-top: 0px; }
 .stw_category_item .stw_list { display: none; }
 .stw_category_item.curr .stw_list { display: block; }
 
@@ -492,7 +505,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .uc_month_card_user span { font-size: 3rem; display: block; margin-top: 5px; }
 .uc_month_card_user p { font-size: 2.4rem; margin-top: 10px; }
 .uc_month_card_user p em { color: #d6415c; }
-.uc_month_val { width: 98px; height: 98px; border-radius: 50%; background: -webkit-gradient(linear, 100% 33%, 100% 79%, from(#e04447), to(#ea6333)); color: #fff; text-align: center; }
+.uc_month_val { width: 98px; height: 98px; border-radius: 50%; background: -webkit-gradient(linear, 100% 33%, 100% 79%, from(#e04447), to(#ea6333)); color: #fff; text-align: center; overflow: hidden; }
 .uc_month_val b { display: block; font-size: 2.8rem; margin-top: 25px; font-weight: normal; }
 .uc_month_val span { display: block; font-size: 4.6rem; margin-top: 8px; }
 .uc_month_slider_tit { display: -webkit-box; height: 17px; line-height: 17px; margin-top: 6px; border-bottom: 1px solid #ccc; text-align: center; font-size: 2.4rem; }
@@ -501,8 +514,9 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .uc_month_slider_tit li.curr:after { border-bottom: 2px solid #e65e5f; height: 0px; overflow: hidden; content: ''; display: block; position: absolute; width: 4rem; left: 50%; bottom: 0px; margin-left: -2rem; }
 .uc_month_slider ul { display: -webkit-box; margin-left: 28px; margin-top: 25px; }
 .uc_month_item { width: 221px; margin-left: 25px; }
-.uc_month_item .img { width: 100%; height: 260px; }
-.uc_month_item .img img { width: 100%; height: 100%; }
+.uc_month_item .img { width: 100%; height: 260px;  border-radius: 6px; overflow: hidden; position: relative;}
+.uc_month_item .img.canget:after { display: block;text-align: center; content:'立即领取>';position: absolute;right: 0;bottom:0;height: 36px;line-height:36px; background: #e04447; left: 0px; color: #fff;font-size: 2.812rem; }
+.uc_month_item .img img { width: 100%; height: 100%; border-radius: 6px; }
 .uc_month_item span { display: block; text-align: center; margin: 15px 0; color: #e65e5f; }
 
 /*我-卡券*/
@@ -512,7 +526,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .uc_coupon_help:before { background: url(icon.png) no-repeat -240px -60px; background-size: 320px auto; width: 15px; height: 15px; display: inline-block; content: ''; vertical-align: -5px; }
 .uc_coupon_get { display: -webkit-box; margin-top: 14px; margin-right: 15px; }
 .uc_coupon_get input { display: block; -webkit-box-flex: 1; margin: 0 15px; border: 0px; padding-left: 10px; border-radius: 4px; height: 35px; }
-.uc_coupon_get .btn { display: block; width: 70px; height: 35px; }
+.uc_coupon_get .btn { display: block; width: 70px; height: 35px;font-size: 3rem; padding: 0 5px; }
 .uc_coupon_hd { display: -webkit-box; padding-top: 0px; background: #fff; margin-top: 18px; text-align: center; top: 44px; left: 0; width: 100%; z-index: 1000; }
 .uc_coupon_hd li { -webkit-box-flex: 1; width: 0px; color: #666; height: 40px; line-height: 40px; font-size: .9em; }
 .uc_coupon_hd .curr { color: #e65e5f; border-bottom: 2px solid #e65e5f; }
@@ -524,10 +538,10 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .uc_coupon_list li.dis { background: #ccc; }
 .uc_coupon_list li:after, .uc_coupon_list .free:before { background: url(site.png) no-repeat 0px -30px; background-size: 320px auto; position: absolute; right: 0px; bottom: 0px; content: ''; display: block; width: 139px; height: 55px; z-index: 0; }
 .uc_coupon_list li:after { right: 56px; }
-.uc_coupon_list li .price { font-size: 11.473rem; color: #fff; margin: 0 0 0 20px; }
+.uc_coupon_list li .price { font-size: 11.473rem; color: #fff; margin: 5px 0 0 20px; line-height: 1; }
 .uc_coupon_list li .price:before { content: '￥'; display: inline-block; font-size: 12px; vertical-align: 2px; }
 .uc_coupon_list li.free .price { display: none; }
-.uc_coupon_list li .name { font-size: 2.82rem; color: #fff; margin: -5px 0 0 20px; }
+.uc_coupon_list li .name { font-size: 2.82rem; color: #fff; margin: -2px 0 0 20px; line-height: 1;}
 .uc_coupon_list li .time { font-size: 1.8rem; color: #fff; margin: 2px 0 0 20px; }
 .uc_coupon_list li .share { color: #fff; font-size: .8em; width: 54px; position: absolute; text-align: center; right: 0; top: 0; margin-top: 7px; height: 82px; border-left: 1px dashed #fff; }
 .uc_coupon_list li .share i { display: block; margin-top: 17px; }

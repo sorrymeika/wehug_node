@@ -202,18 +202,29 @@
 
         },
 
+        _angleFrom: 0,
+
         drawCircle: function (percent) {
+            if (!this._angleFrom) {
+                this._angleFrom = 1.5 * Math.PI;
+            }
+            var angleTo = Math.floor((1.5 + 2 * percent) * 1000) / 1000 * Math.PI;
+
             var context = this.context;
             var canvas = this.canvas;
             var centerX = canvas.width / 2;
             var centerY = canvas.height / 2;
             var radius = centerX - 10;
 
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
             context.beginPath();
-            context.arc(centerX, centerY, radius, 1.5 * Math.PI, (1.5 + 2 * percent) * Math.PI, false);
+            context.arc(centerX, centerY, radius, this._angleFrom, angleTo, false);
             context.lineWidth = 19;
             context.strokeStyle = '#fff';
             context.stroke();
+
+            //this._angleFrom = angleTo;
         },
 
         showEnergy: function () {

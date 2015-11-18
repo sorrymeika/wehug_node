@@ -12,22 +12,20 @@ define(function (require, exports, module) {
     return Activity.extend({
         events: {
             'tap .js_bind:not(.disabled)': function () {
-
             }
         },
-        swipeRightBackAction: '/',
 
         onCreate: function () {
             var self = this;
+            var $main = self.$('.main');
 
-            var $main = this.$('.main');
+            self.swipeRightBackAction = self.route.query.from || '/';
 
             Scroll.bind($main);
 
-            this.model = new model.ViewModel(this.$el, {
-                back: '/',
-                title: '爱管家',
-                displayType: 1
+            self.model = new model.ViewModel(this.$el, {
+                back: self.swipeRightBackAction,
+                title: '确认订单'
             });
         },
 

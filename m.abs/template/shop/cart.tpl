@@ -1,5 +1,5 @@
 ﻿@helper list(){
-<div class="ct_list_wrap">
+<div class="ct_list_wrap" sn-display="{{util.isTrue(data)}}">
     <ul class="ct_list">
         <li class="ct_list_item">
             <div class="ct_list_item_con">
@@ -47,7 +47,11 @@
         <li><span>运费</span><em><b>1</b>张免邮卡可用</em></li>
         <li><span>总计</span><em><b class="price">￥000</b></em></li>
     </ul>
-    <div class="ct_list_action"></div>
+</div>
+<div class="my_nodata" sn-display="{{util.isFalse(data)}}">
+    <div class="icon"></div>
+    <div class="text">您的购物车内还没有商品</div>
+    <div class="btn">去逛逛吧</div>
 </div>
 }
 <header>
@@ -57,3 +61,7 @@
 <div class="main">
     @this.helpers.list()
 </div>
+<footer class="ct_list_action">
+    <div class="total">总计：<b>￥200</b></div>
+    <div class="btn_buy js_buy">结 算</div>
+</footer>

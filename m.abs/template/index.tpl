@@ -7,7 +7,10 @@
         <i class="cursor"></i>
     </ul>
     <div class="head_title" style="display:{{bottomTab!=0?'block':'none'}}">{{bottomTab==1?'查找店铺':bottomTab==2?"购物车":"我"}}</div>
-    <div class="head_msg" data-forward="/messages">
+    <div class="head_msg" data-forward="/messages" sn-display="{{tab==0||bottomTab!=0}}">
+        <i sn-display="{{msg!=0}}">{{msg}}</i>
+    </div>
+    <div class="head_all" data-forward="/all" sn-display="{{tab==1&&bottomTab==0}}">
         <i sn-display="{{msg!=0}}">{{msg}}</i>
     </div>
 </header>

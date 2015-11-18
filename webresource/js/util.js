@@ -32,7 +32,7 @@
         },
 
         isFalse: function (value) {
-            return !value || ($.isArray(value) && !value) || (typeof value == 'object' && util.isEmptyObject(value));
+            return !value || ($.isArray(value) && !value.length) || (typeof value == 'object' && util.isEmptyObject(value));
         },
 
         isTrue: function (value) {

@@ -648,7 +648,6 @@
             });
 
         code += '\';}catch(e){return \'\';}}}';
-
         return code.replace('return \'\'+', 'return ').replace(/\+\'\'/g, '');
     };
 
@@ -844,7 +843,6 @@
                             var code = 'function(el){';
                             do {
                                 code += 'this._setByEl(el,"' + m[1] + '",' + m[2] + ');';
-                                console.log(m);
                             } while (m = rset.exec(val));
                             code += '}';
                             child.setAttribute(attr, self.fns.length + self._fns.length);

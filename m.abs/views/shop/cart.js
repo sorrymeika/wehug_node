@@ -11,7 +11,8 @@ define(function (require, exports, module) {
 
     return Activity.extend({
         events: {
-            'tap .js_bind:not(.disabled)': function () {
+            'tap .js_buy:not(.disabled)': function () {
+                this.forward('/buy');
             }
         },
 
@@ -25,7 +26,10 @@ define(function (require, exports, module) {
 
             self.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
-                title: '我的购物车'
+                title: '我的购物车',
+                data: [{
+
+                }]
             });
         },
 

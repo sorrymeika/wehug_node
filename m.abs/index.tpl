@@ -77,7 +77,7 @@
                 'activity': 'core/activity'
             }
         });
-        seajs.use(['$','util','core/app','bridge','widget/loading'],function($,util,App,bridge,Loading) {
+        seajs.use(['$','util','core/app','bridge','widget/loading'@html(debug?'':',"images/style.css"')],function($,util,App,bridge,Loading) {
             sl.isDebug=@debug;
             sl.buildVersion=@(Date.now());
             sl.appVersion='1.0.2';

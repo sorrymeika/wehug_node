@@ -25,6 +25,7 @@
         "/list": { controller: "shop/list", template: "shop/list" },
         "/item/{id:\\d+}": { controller: "shop/item", template: "shop/item" },
         "/cart": { controller: "shop/cart", template: "shop/cart" },
+        "/buy": { controller: "shop/buy", template: "shop/buy" },
         "/steward": { controller: "steward/index", template: "steward/index" },
         "/steward/{id:\\d+}": { controller: "steward/item", template: "steward/item" },
         "/steward/detail/{id:\\d+}": { controller: "steward/detail", template: "steward/detail" }

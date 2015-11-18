@@ -8,7 +8,6 @@ define(function (require, exports, module) {
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
 
-
     return Activity.extend({
         events: {
             'tap .js_bind:not(.disabled)': function () {
@@ -16,19 +15,18 @@ define(function (require, exports, module) {
             }
         },
 
-        swipeRightBackAction: '/',
-
         onCreate: function () {
             var self = this;
 
             var $main = this.$('.main');
 
             Scroll.bind($main);
+            self.swipeRightBackAction = self.route.query.from || '/';
 
             var user = util.store('user');
 
             this.model = new model.ViewModel(this.$el, {
-                back: '/',
+                back: self.swipeRightBackAction,
                 title: '设置',
                 user: user,
                 logout: function () {

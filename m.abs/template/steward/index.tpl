@@ -17,9 +17,9 @@
             <div class="con" data-forward="/steward/1">
                 <h4>Tagine摩洛哥酷彩系列耐高温陶瓷塔吉锅（8寸）</h4>
                 <div class="date">最新购入时间：2015/10/10</div>
-                <div class="text">
+                <!--<div class="text">
                     <p>提醒：文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字</p>
-                </div>
+                </div>-->
                 <a class="link" href="/">查看详情&gt;&gt;</a>
             </div>
         </li>
@@ -51,9 +51,9 @@
                     <div class="con" data-forward="/steward/1">
                         <h4>Tagine摩洛哥酷彩系列耐高温陶瓷塔吉锅（8寸）</h4>
                         <div class="date">最新购入时间：2015/10/10     </div>
-                        <div class="text">
+                        <!--<div class="text">
                             <p>提醒：文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字</p>
-                        </div>
+                        </div>-->
                         <a class="link" href="/">查看详情&gt;&gt;</a>
                     </div>
                 </li>
