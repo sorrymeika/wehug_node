@@ -225,7 +225,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .ct_list_action,.sp_buy_action { display: -webkit-box; -webkit-box-align: center; background-color: #fff; height: 49px;border-top: 1px solid #ddd; padding-left: 10px; }
 .ct_list_action .total,.sp_buy_action .total { -webkit-box-flex: 1;font-size: 2.4rem; }
 .ct_list_action .total b,.sp_buy_action .total b { color: #e65e5f; }
-.ct_list_action .btn_buy.sp_buy_action .btn_buy { height: 100%;width: 110px; text-align: center; line-height: 49px; display: block; font-size: 3rem; color: #fff;background: #e65e5f;}
+.ct_list_action .btn_buy,.sp_buy_action .btn_buy { height: 100%;width: 110px; text-align: center; line-height: 49px; display: block; font-size: 3rem; color: #fff;background: #e65e5f;}
 
 /*购物-确认订单*/
 
