@@ -104,7 +104,7 @@ var copy = function (src, dest, filter, done) {
 }
 exports.copy = copy;
 
-exports.readFirstExistentFile = function (paths, files, callback) {
+var firstExistentFile = function (paths, files, callback) {
     if (typeof files == 'function') {
         callback = files, files = null;
     }
@@ -127,7 +127,7 @@ exports.readFirstExistentFile = function (paths, files, callback) {
             var file = reads[count];
             fs.exists(file, function (exists) {
                 if (exists) {
-                    fs.readFile(file, { encoding: 'utf-8' }, callback);
+                    callback(file);
                 } else {
                     count++;
                     fn();
@@ -135,8 +135,26 @@ exports.readFirstExistentFile = function (paths, files, callback) {
             });
 
         } else {
-            callback('all files are not exists', null);
+            callback(null);
         }
     })();
 };
+exports.firstExistentFile = firstExistentFile;
+
+exports.readFirstExistentFile = function (paths, files, callback) {
+    if (typeof files == 'function') {
+        callback = files, files = null;
+    }
+    firstExistentFile(paths, files, function (file) {
+        if (!file) {
+            callback('all files are not exists', null, null);
+
+        } else {
+            fs.readFile(file, { encoding: 'utf-8' }, function (err, result) {
+                callback(err, result, file);
+            });
+        }
+    });
+};
+
 

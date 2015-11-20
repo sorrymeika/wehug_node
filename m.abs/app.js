@@ -11,20 +11,18 @@ var path = require('path');
 var razor = require('../core/razor');
 var _ = require('underscore');
 var Tools = require('../tools/tools');
+var sass = require('node-sass');
 
 var Util = require('util');
 var util = require('../core/util');
 _.extend(Util, util);
 
+
+var combinePath = util.combinePath;
+var addDefineForSeajs = Tools.addDefineForSeajs;
+
 function trimPath(path) {
     var rpath = /(^\/)|(\/$)/g;
-    return path.replace(rpath, '');
-}
-
-function combinePath(root, path) {
-    var rpath = /(^\/)|(\/$)/g;
-    path = path.replace(rpath, '');
-    path = (root == '/' || !root ? '' : root.replace(rpath, '')) + '/' + path;
     return path.replace(rpath, '');
 }
 
@@ -33,7 +31,7 @@ function combineRouters(config) {
     config.projects.forEach(function (project) {
         for (var key in project.route) {
             var router = project.route[key];
-            var regexStr = combinePath(project.root, key);
+            var regexStr = trimPath(project.root) + '/' + trimPath(key);
 
             if (typeof router == 'string') {
                 router = {
@@ -112,12 +110,6 @@ exports.createIndex = function (config, callback) {
     });
 }
 
-function addDefineForSeajs(jsText) {
-    if (/\b(module\.exports\s*=)|(exports\.[a-z0-9A-Z_]\s*=)/.test(jsText) && !/\bdefine\(/.test(jsText)) {
-        jsText = "define(function (require, exports, module) {" + jsText + "});";
-    }
-    return jsText;
-}
 
 exports.startWebServer = function (config) {
     var express = require('express');
@@ -166,8 +158,6 @@ exports.startWebServer = function (config) {
                 }
                 text = text.replace(/^\uFEFF/i, '');
 
-                console.log(requires);
-
                 text = addDefineForSeajs(text);
                 text = Tools.replaceDefine(filePath.replace(/(^\/)|(\.js$)/g, ''), text, requires);
 
@@ -180,7 +170,7 @@ exports.startWebServer = function (config) {
     app.all('*.js', function (req, res, next) {
         var filePath = req.url;
 
-        fsc.readFirstExistentFile(_.extend([], _.map(config.projects, 'projectPath'), config.path), [filePath], function (err, text) {
+        fsc.readFirstExistentFile(_.map(config.projects, 'projectPath').concat(config.path), [filePath], function (err, text) {
             if (err) {
                 next();
                 return;
@@ -202,15 +192,36 @@ exports.startWebServer = function (config) {
     });
 
     app.all('*.css', function (req, res, next) {
-        console.log(req.params)
-        next();
+
+        fsc.firstExistentFile(_.map(config.projects, 'projectPath').concat(config.path), [req.params[0] + '.scss'], function (fileName) {
+            if (!fileName) {
+                next();
+                return;
+            }
+
+            sass.render({
+                file: fileName
+
+            }, function (err, result) {
+                if (err) {
+                    console.log(err);
+                    next();
+
+                } else {
+                    res.set('Content-Type', "text/css; charset=utf-8");
+                    res.send(result.css.toString());
+                }
+
+            });
+        });
     });
+
+    app.use('/dest', express.static(config.dest));
 
     console.log("start with", config.port, process.argv);
 
     app.listen(config.port);
 }
-
 
 var argv = process.argv;
 var args = {};
@@ -224,17 +235,11 @@ for (var i = 2, arg, length = argv.length; i < length; i++) {
     });
 }
 
-
-exports.loadConfig(function (err, config) {
-    exports.startWebServer(config);
-});
-
 //打包
 if (args.build) {
     exports.loadConfig(function (err, config) {
         _.extend(config, config.env.production);
 
-        var promise = new Promise().resolve();
         var baseDir = path.join(__dirname, './');
         var destDir = path.join(__dirname, config.dest);
         var tools = new Tools(baseDir, destDir);
@@ -247,11 +252,137 @@ if (args.build) {
             Tools.save(path.join(destDir, 'index.html'), html);
         });
 
-        //复制图片资源
-        promise.each(config.images, function (i, imgDir) {
-            fsc.copy(path.join(baseDir, imgDir), path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
-                promise.next(i, err, result);
+        //打包业务代码
+        config.projects.forEach(function (project) {
+            var promise = new Promise().resolve();
+            var codes = '';
+            var requires = [];
+
+            for (var key in project.js) {
+                requires.push(key);
+                
+                //打包项目引用js                
+                var filePromise = new Promise().resolve();
+
+                filePromise.each(project.js[key], function (i, file) {
+                    fs.readFile(path.join(project.projectPath, file), 'utf-8', function (err, text) {
+                        text = addDefineForSeajs(text);
+                        text = Tools.compressJs(Tools.replaceDefine(combinePath(project.projectPath, file), text));
+
+                        filePromise.next(i, err, text);
+                    });
+
+                }).then((function (key) {
+
+                    return function (err, results) {
+                        Tools.save(path.join(destDir, project.projectPath, key, '.js'), results.join(''));
+                    }
+
+                })(key));
+
+            }
+
+            for (var key in project.css) {
+                requires.push(key);
+                
+                //打包项目引用css                
+                var filePromise = new Promise().resolve();
+
+                filePromise.each(project.css[key], function (i, file) {
+
+                    fsc.firstExistentFile([path.join(project.projectPath, file), path.join(project.projectPath, file).replace(/\.css$/, '.scss')], function (file) {
+
+                        if (/\.css$/.test(file)) {
+                            fs.readFile(file, 'utf-8', function (err, text) {
+                                text = Tools.compressCss(text);
+                                filePromise.next(i, err, text);
+                            });
+                        } else {
+                            sass.render({
+                                file: file
+
+                            }, function (err, result) {
+                                result = Tools.compressCss(result.css.toString());
+                                filePromise.next(i, err, result);
+                            });
+                        }
+                    });
+
+                }).then((function (key) {
+                    return function (err, results) {
+                        Tools.save(path.join(destDir, project.projectPath, key), results.join(''));
+                    }
+
+                })(key));
+            }
+
+            //打包template和controller
+            for (var key in project.route) {
+                (function (router) {
+
+                    var controller;
+                    var template;
+
+                    if (typeof router == 'string') {
+                        controller = template = router;
+
+                    } else {
+                        controller = router.controller;
+                        template = router.template;
+                    }
+
+                    controller = combinePath(project.projectPath, 'views', controller);
+                    template = combinePath(project.projectPath, 'template', template);
+
+                    var controllerPath = path.join(baseDir, controller);
+                    var templatePath = path.join(baseDir, template);
+
+                    promise.then(function () { 
+                        //打包模版
+                        fsc.readFirstExistentFile([templatePath + '.html', templatePath + '.tpl'], function (err, text) {
+                            if (!err) {
+                                text = razor.web(text);
+                                text = Tools.compressJs(Tools.replaceDefine(template, text));
+                                codes += text;
+                            }
+
+                            promise.resolve();
+                        });
+
+                        return promise;
+
+                    }).then(function () {
+                        //打包控制器
+                        fs.readFile(controllerPath + '.js', 'utf-8', function (err, text) {
+                            if (!err) {
+                                text = addDefineForSeajs(text);
+                                text = Tools.compressJs(Tools.replaceDefine(controller, text, requires));
+                                codes += text;
+                            }
+
+                            promise.resolve();
+                        });
+
+                        return promise;
+                    });
+
+                })(project.route[key]);
+            }
+
+            //保存合并后的业务代码
+            promise.then(function () {
+                Tools.save(path.join(destDir, project.projectPath, 'controller.js'), codes);
             });
+        });
+        
+        
+        //复制图片资源
+        var imgPromise = new Promise().resolve();
+        imgPromise.each(config.images, function (i, imgDir) {
+            fsc.copy(path.join(baseDir, imgDir), path.join(config.dest, 'images'), '*.(jpg|png)', function (err, result) {
+                imgPromise.next(i, err, result);
+            });
+
         }).then(function () {
             config.projects.forEach(function (proj) {
 
@@ -264,33 +395,11 @@ if (args.build) {
                 }
             });
         });
+    });
 
-        //打包业务代码
-        config.projects.forEach(function (project) {
-            var promise = new Promise();
-            var codes = '';
-
-            for (var key in project.route) {
-                var router = project.route[key];
-                var controller;
-                var template;
-
-                if (typeof router == 'string') {
-                    controller = template = router;
-
-                } else {
-                    controller = router.controller;
-                    template = router.template;
-                }
-                controller = path.join(baseDir, 'views', controller);
-                template = path.join(baseDir, 'template', template);
-            }
-
-            promise.then(function () {
-                Tools.save(path.join(destDir, project.projectPath, 'controller.js'), codes);
-            });
-        });
-
+} else {
+    exports.loadConfig(function (err, config) {
+        exports.startWebServer(config);
     });
 }
     

@@ -1,11 +1,26 @@
 ﻿var ArrayProto = Array.prototype,
-        slice = ArrayProto.slice,
-        concat = ArrayProto.concat,
-        guid = 0;
+    slice = ArrayProto.slice,
+    concat = ArrayProto.concat,
+    guid = 0;
 
 var Util = {
     guid: function () {
         return ++guid;
+    },
+
+    combinePath: function () {
+        var args = [].slice.apply(arguments);
+        var result = args.join('/').replace(/[\\]+/g, '/').replace(/[\/]{2,}/g, '/').replace(/([^\.]|^)\.\//g, '$1');
+        var flag = true;
+        while (flag) {
+            flag = false;
+            result = result.replace(/([^\/]+)\/\.\.(\/|$)/g, function (match, name) {
+                if (name == '..') return match;
+                if (!flag) flag = true;
+                return '';
+            })
+        }
+        return result.replace(/\/$/, '');
     },
 
     random: function (min, max) {
@@ -18,7 +33,7 @@ var Util = {
 
     indexOf: function (arr, val) {
         var isFn = typeof val === 'function',
-                length = arr.length;
+            length = arr.length;
 
         for (var i = 0; i < length; i++) {
             if (isFn ? val(arr[i], i) : (arr[i] == val)) return i;
@@ -47,7 +62,7 @@ var Util = {
 
     find: function (arr, fn) {
         var result = [],
-                item;
+            item;
 
         for (var i = 0, n = arr.length; i < n; i++) {
             item = arr[i];
@@ -60,7 +75,7 @@ var Util = {
 
     select: function (arr, fn) {
         var result = [],
-                length = arr.length;
+            length = arr.length;
 
         for (var i = 0; i < length; i++)
             result.push(fn(arr[i], i));
@@ -98,37 +113,37 @@ var Util = {
 
         var y = d.getFullYear() + "", M = d.getMonth() + 1, D = d.getDate(), H = d.getHours(), m = d.getMinutes(), s = d.getSeconds(), mill = d.getMilliseconds() + "0000", pad = this.pad;
         return (f || 'yyyy-MM-dd HH:mm:ss').replace(/\y{4}/, y)
-                .replace(/y{2}/, y.substr(2, 2))
-                .replace(/M{2}/, pad(M))
-                .replace(/M/, M)
-                .replace(/d{2,}/, pad(D))
-                .replace(/d/, d)
-                .replace(/H{2,}/i, pad(H))
-                .replace(/H/i, H)
-                .replace(/m{2,}/, pad(m))
-                .replace(/m/, m)
-                .replace(/s{2,}/, pad(s))
-                .replace(/s/, s)
-                .replace(/f+/, function (w) {
-                    return mill.substr(0, w.length)
-                })
+            .replace(/y{2}/, y.substr(2, 2))
+            .replace(/M{2}/, pad(M))
+            .replace(/M/, M)
+            .replace(/d{2,}/, pad(D))
+            .replace(/d/, d)
+            .replace(/H{2,}/i, pad(H))
+            .replace(/H/i, H)
+            .replace(/m{2,}/, pad(m))
+            .replace(/m/, m)
+            .replace(/s{2,}/, pad(s))
+            .replace(/s/, s)
+            .replace(/f+/, function (w) {
+                return mill.substr(0, w.length)
+            })
     },
 
     template: function (str, data) {
         var tmpl = 'var __p=[];var $data=obj||{};with($data){__p.push(\'' +
-                str.replace(/\\/g, '\\\\')
+            str.replace(/\\/g, '\\\\')
                 .replace(/'/g, '\\\'')
                 .replace(/<%=([\s\S]+?)%>/g, function (match, code) {
                     return '\',' + code.replace(/\\'/, '\'') + ',\'';
                 })
                 .replace(/<%([\s\S]+?)%>/g, function (match, code) {
                     return '\');' + code.replace(/\\'/, '\'')
-                            .replace(/[\r\n\t]/g, ' ') + '__p.push(\'';
+                        .replace(/[\r\n\t]/g, ' ') + '__p.push(\'';
                 })
                 .replace(/\r/g, '\\r')
                 .replace(/\n/g, '\\n')
                 .replace(/\t/g, '\\t') +
-                '\');}return __p.join("");',
+            '\');}return __p.join("");',
 
             func = new Function('obj', tmpl);
 

@@ -35,7 +35,7 @@ var build = function (config, routes, projectsRequires) {
                     console.log(err);
                 } else {
                     var nodeCode = Tools.compressJs(razor.node(data));
-                    var code = Tools.compressJs(Tools.replaceDefine(buildConfig.template, razor.web(data)));
+                    var code = Tools.compressJs(Tools.replaceDefine(buildConfig.template, ));
 
                     Tools.save(path.join(config.node_dest, buildConfig.template + '.js'), nodeCode);
 
