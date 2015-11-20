@@ -21,7 +21,8 @@
     "async": "",
     "canvas": "",
     "gm": "",
-    "gitweb": ""
+    "gitweb": "",
+    "node-sass": ""
   },
   "author": "SL",
   "license": "ISC"

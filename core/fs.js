@@ -103,3 +103,40 @@ var copy = function (src, dest, filter, done) {
     }
 }
 exports.copy = copy;
+
+exports.readFirstExistentFile = function (paths, files, callback) {
+    if (typeof files == 'function') {
+        callback = files, files = null;
+    }
+    var reads;
+    if (files) {
+        reads = []
+        for (var i = 0; i < paths.length; i++) {
+            for (var j = 0; j < files.length; j++) {
+                reads.push(path.join(paths[i], files[j]));
+            }
+        }
+    } else {
+        reads = paths;
+    }
+
+    var count = 0;
+    (function () {
+        var fn = arguments.callee;
+        if (count < reads.length) {
+            var file = reads[count];
+            fs.exists(file, function (exists) {
+                if (exists) {
+                    fs.readFile(file, { encoding: 'utf-8' }, callback);
+                } else {
+                    count++;
+                    fn();
+                }
+            });
+
+        } else {
+            callback('all files are not exists', null);
+        }
+    })();
+};
+

@@ -13,7 +13,7 @@ define(function (require, exports, module) {
         events: {
             'tap .js_buy:not(.disabled)': function () {
                 var self = this;
-                this.forward('/buy?from=' + self.route.from);
+                this.forward('/buy?from=' + self.route.query.from);
             }
         },
 

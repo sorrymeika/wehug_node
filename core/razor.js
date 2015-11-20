@@ -270,6 +270,21 @@ var parse = function (templateStr) {
 
 var razor = {};
 
+razor.parse = function (templateStr, args) {
+    if (typeof args !== 'string') args = "$data";
+
+    var str = "var __='';" + (args === "$data" ? "with($data||{})" : "") + "{",
+        res = parse(templateStr);
+
+    str += res.code;
+
+    str += "}return __;";
+
+    res.code = str;
+
+    return res;
+};
+
 razor.create = function (templateStr) {
     var str = 'var util=require("util");', result;
 
@@ -301,21 +316,10 @@ razor.create = function (templateStr) {
     str += '};T.template=T.html;';
 
     return str;
-}
+};
 
-razor.parse = function (templateStr, args) {
-    if (typeof args !== 'string') args = "$data";
-
-    var str = "var __='';" + (args === "$data" ? "with($data||{})" : "") + "{",
-        res = parse(templateStr);
-
-    str += res.code;
-
-    str += "}return __;";
-
-    res.code = str;
-
-    return res;
+razor.nodeFn = function (templateStr) {
+    return eval('[(function(){' + razor.create(templateStr) + ' return T;})()][0]');
 };
 
 razor.web = function (templateStr) {

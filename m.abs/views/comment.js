@@ -8,8 +8,7 @@ define(function (require, exports, module) {
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
 
-
-    return Activity.extend({
+    module.exports = Activity.extend({
         events: {
             'tap .js_submit:not(.disabled)': function () {
                 var self = this;
@@ -23,7 +22,7 @@ define(function (require, exports, module) {
                         Auth: self.user.Auth,
                         Content: self.model.data.content
                     })
-                    .load();
+                        .load();
                 }
             }
         },

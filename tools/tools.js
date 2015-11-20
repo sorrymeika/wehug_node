@@ -70,16 +70,16 @@ function parseDependencies(code) {
     //requireRe = new RegExp("\\b" + m[1] + "\\s*\\(\\s*([\"'])(.+?)\\1\\s*\\)", 'g');
 
     code.replace(SLASH_RE, "")
-         .replace(REQUIRE_RE, function (m, m1, m2) {
-             if (m2) {
-                 ret.push(m2)
-             }
-         })
+        .replace(REQUIRE_RE, function (m, m1, m2) {
+            if (m2) {
+                ret.push(m2)
+            }
+        })
 
     return ret
 }
 
-var replaceDefine = function (id, code, requires, exclude, append) {
+var replaceDefine = function (id, code, requires, exclude, jsContent) {
 
     code = replaceBOM(code);
     var m = code.match(/(^|\s|[&])define\(/g);
@@ -87,7 +87,7 @@ var replaceDefine = function (id, code, requires, exclude, append) {
         return code;
     }
 
-    if (typeof requires == 'string') append = requires, requires = undefined, exclude = undefined;
+    if (typeof requires == 'string') jsContent = requires, requires = undefined, exclude = undefined;
 
     return code.replace(/\bdefine\((?:\s*|\s*(\[[^\]]*\]{0,1})\s*,\s*)function\s*\((([^,\)]+)[^\)]*|[^\)]*)\)\s*{/m, function (match, param, fn, req) {
         param = param ? JSON.parse(param.replace(/\'/g, '"')) : [];
@@ -105,7 +105,7 @@ var replaceDefine = function (id, code, requires, exclude, append) {
             }
         }
 
-        return 'define(' + '"' + id + '",' + (JSON.stringify(param) + ',') + 'function(' + fn + '){' + (append || '');
+        return 'define(' + '"' + id + '",' + (JSON.stringify(param) + ',') + 'function(' + fn + '){' + (jsContent || '');
     });
 }
 
@@ -143,9 +143,9 @@ var _save = function (savePath, data, isCopy, callback) {
     }
 
     promise.then([savePath, '$1'], fs.writeFile)
-            .then(function () {
-                console.log('save', savePath)
-            });
+        .then(function () {
+            console.log('save', savePath)
+        });
 
     if (callback) promise.then(callback);
 
