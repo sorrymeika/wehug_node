@@ -27,7 +27,7 @@ var util = {
     isInWechat: /micromessenger/i.test(navigator.userAgent),
     combinePath: function () {
         var args = [].slice.apply(arguments);
-        var result = args.join('/').replace(/[\\]+/g, '/').replace(/[\/]{2,}/g, '/').replace(/([^\.]|^)\.\//g, '$1');
+        var result = args.join('/').replace(/[\\]+/g, '/').replace(/([^\:\/]|^)[\/]{2,}/g, '$1/').replace(/([^\.]|^)\.\//g, '$1');
         var flag = true;
         while (flag) {
             flag = false;

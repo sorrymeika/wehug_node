@@ -59,8 +59,14 @@
             getLocation: function (f) {
                 hybrid('getLocation', f);
             },
-            pay: function (data, f) {
+            alipay: function (data, f) {
                 hybrid('pay', data, f);
+            },
+            wx: function (data, f) {
+                hybrid('wx', data, f);
+            },
+            qq: function (data, f) {
+                hybrid('qq', data, f);
             },
             share: function () {
                 hybrid('share');

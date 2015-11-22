@@ -23,7 +23,7 @@
         onCreate: function () {
             var self = this;
 
-            self.swipeRightBackAction = this.route.query.from || '/';
+            self.swipeRightBackAction = this.route.query.from || '/settings';
 
             this.model = new model.ViewModel(this.$el, {
                 title: '个人信息',

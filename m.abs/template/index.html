@@ -4,7 +4,7 @@
     <ul class="head_tab" sn-display="{{bottomTab==0}}">
         <li class="{{tab==0?'curr':''}}">会员卡</li>
         <li class="{{tab==1?'curr':''}}">去购物</li>
-        <i class="cursor" style="-webkit-transform: translate3d({{tab==1?165:0}}%, 0%, 0);"></i>
+        <i class="cursor" style="-webkit-transform: translate3d({{tab==1?100:0}}%, 0%, 0);"></i>
     </ul>
     <div class="head_title" style="display:{{bottomTab!=0?'block':'none'}}">{{bottomTab==1?'查找店铺':bottomTab==2?"购物车":"我"}}</div>
     <div class="head_msg" data-forward="/messages" sn-display="{{tab==0||bottomTab!=0}}">
@@ -118,7 +118,7 @@
         <ul class="hm_my_list">
             <li data-forward="/month">
                 <b>我的月礼</b>
-                <span><em>{{user.FreeMonths}}/{{user.TotalMonths}}</em>个月</span>
+                <span><em>{{user.FreeMonths}}</em>个月</span>
             </li>
             <li data-forward="/coupon">
                 <b>我的卡券</b>

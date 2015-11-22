@@ -32,10 +32,18 @@ var compressor = UglifyJS.Compressor({
     global_defs: {}
 });
 
-function addDefineForSeajs(jsText) {
+function formatJs(jsText) {
     if (/\b(module\.exports\s*=)|(exports\.[a-z0-9A-Z_]\s*=)/.test(jsText) && !/\bdefine\(/.test(jsText)) {
         jsText = "define(function (require, exports, module) {" + jsText + "});";
     }
+
+    var rdom = /\s*(=|\:)\s*(<([a-zA-Z]+)[^>]*>[\s\S]*?<\/\3>)\s*(,|;)/mg;
+
+    jsText = jsText.replace(rdom, function (match, symbol, dom, tagName, end) {
+        
+        return symbol + "'" + dom.replace(/\'/g, '\\\'').replace(/\s*(\r|\n)+\s*/g, ' ') + "'" + end;
+    });
+
     return jsText;
 }
 
@@ -220,7 +228,7 @@ Tools.prototype = {
 
                             result.forEach(function (data, i) {
                                 data = data.toString('utf-8');
-                                text += isCss ? compressCss(data) : compressJs(replaceDefine(ids[i], addDefineForSeajs(data)));
+                                text += isCss ? compressCss(data) : compressJs(replaceDefine(ids[i], formatJs(data)));
                             });
 
                             return self.save(destPath, text);
@@ -410,7 +418,7 @@ Tools.save = save;
 Tools.copy = copy;
 Tools.replaceDefine = replaceDefine;
 Tools.replaceBOM = replaceBOM;
-Tools.addDefineForSeajs = addDefineForSeajs;
+Tools.formatJs = formatJs;
 
 var rwebresource = /([^@]{0,1})@webresource\(\s*([\"|\'])([^\2]+)\2\s*\)/mg;
 Tools.webresource = function (webresource, template) {

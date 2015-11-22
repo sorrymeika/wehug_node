@@ -1,7 +1,11 @@
 {
     "root": "/",
     "debug": true,
-    "js": {},
+    "js": {
+        "components": [
+            "components/share"
+        ]
+    },
     "css": {
         "images/style.css": [
             "images/views.css",
@@ -44,6 +48,18 @@
             "controller": "user/coupon",
             "template": "user/coupon"
         },
+        "/address": {
+            "controller": "user/address",
+            "template": "user/address"
+        },
+        "/addaddress": {
+            "controller": "user/addaddress",
+            "template": "user/addaddress"
+        },
+        "/modifypwd": {
+            "controller": "user/modifypwd",
+            "template": "user/modifypwd"
+        },
         "/mycard": {
             "controller": "mycard",
             "template": "mycard"
@@ -83,6 +99,10 @@
         "/item/{id:\\d+}": {
             "controller": "shop/item",
             "template": "shop/item"
+        },
+        "/detail/{id:\\d+}": {
+            "controller": "shop/detail",
+            "template": "shop/detail"
         },
         "/cart": {
             "controller": "shop/cart",

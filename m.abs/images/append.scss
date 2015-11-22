@@ -1,1 +1,144 @@
-﻿
+﻿$p:2;
+@mixin icon($x:0px, $y:0px,$width:30px,$height:30px, $img:"icon.png", $display: inline-block) {
+	content: '';
+	display: $display;
+	background: url($img) no-repeat $x $y;
+	background-size: 320px auto;
+	width: $width; 
+	height: $height;
+}
+.icon { 
+	@include icon();
+ }
+ .ex_arrow {position: absolute; right: 10px; width: 11px; height: 11px; content: ''; border-top: 1px solid #ccc;border-right: 1px solid #ccc; -webkit-transform: rotate(45deg); top: 50%; margin-top: -5px;}
+ .ex_check{ @extend .icon; position: absolute; top: 50%; margin: -15px 0 0 0; right: 2px; background-position: -210px -30px;}
+ 
+.cp_share_mask { position: absolute; top: 0px; right: 0px; left: 0;bottom: 0; z-index: 2000; background: rgba(0,0,0,.5); }
+.cp_share { 
+	height: 330px/$p; width: 100%; background: #fff; padding: 15px 0; position: absolute; top: 50%; left: 0; margin: -330px/$p/2 0 0 0;
+	.hd { font-size: 3rem; text-align: center; }
+	.bd {
+		padding-top: 4px/$p;
+		ul { display: -webkit-box; margin-top: 5px; }
+		li {
+			-webkit-box-flex: 1; width: 0px; height: 80px; text-align: center; font-size: 2.8rem; 
+			&:before { @include icon(0px,0px,104px/$p,104px/$p,"icon_share.png",block); background-size: 416px/$p auto;margin: 0 auto 4px auto;}
+		}
+		@for $i from 1 to 4 {
+			li:nth-child(#{$i+1}):before { background-position: -104px/$p*$i 0px; }
+		}
+	}
+	.ft {
+		.btn { display: block; line-height: 30px; height: 60px/$p; width: (550/640)*100%; font-size: 3rem; background: #ccc; margin: 5px auto 0 auto; border-radius: 0; }
+	}
+}
+
+.ct_coupon_wrap { 
+	@extend .cp_share_mask; -webkit-transition: all 300ms ease-out 0ms;
+	&.out {
+		background: transparent;
+		.ct_coupon {-webkit-transform: translate3d(100%,0px,0px);}
+	}
+}
+.ct_coupon { background: #f1f2f2; position: absolute; bottom: 0px; top: 0px; right: 0px; left: 20%; -webkit-transition: all 300ms ease-out 0ms; -webkit-transform: translate3d(0px,0px,0px); }
+.ct_coupon_hd { height: 44px; text-align: center; line-height: 44px; color: #fff; background: #e65e5f;}
+.has_status_bar .ct_coupon_hd{ border-top: 20px solid #e65e5f; }
+.ct_coupon_use { 
+	padding: 10px; display: -webkit-box; height: 28px;
+	input { display: block; height: 28px; border: 0px;-webkit-box-flex: 1; padding-left: 5px; border-radius: 4px; }
+	.btn { display: block; margin-left: 10px; height: 28px; line-height: 28px; width: 70px;}
+}
+.ct_coupon_list { 
+	margin-top: 10px; 
+	.hd { margin-top: 17px; height: 33px; border-bottom: 1px solid #ccc; line-height: 33px; background-color: #fff;font-size: 2.4rem; padding-left: 10px; }
+	.bd { 
+		position: absolute; top: 122px; right: 0px; left: 0; bottom: 0;
+		.nodata { padding: 15px 0; display: block; text-align: center; }
+		li+.nodata { display: none; }
+	}
+	li {
+		height: 95px; margin: 5px 10px 5px 30px; padding-top: .1px; background: #e84838; position: relative;
+		&:before { @extend .icon; background-position: -240px -30px; position: absolute; left: -30px; top: 50%; margin-top: -15px; }
+		&.curr:before { background-position: -210px -30px; }
+		&.vct2 { background: #e8672e; }
+		&.vct5 { background: #fc3; }
+		&.dis { background: #ccc; }
+		.price {
+			font-size: 11.473rem; color: #fff; margin: 5px 0 0 20px; line-height: 1; 
+			&:before { content: '￥'; display: inline-block; font-size: 12px; vertical-align: 2px; }
+		}
+		.name { font-size: 2.82rem; color: #fff; margin: -2px 0 0 20px; line-height: 1;}
+		.time { font-size: 1.8rem; color: #fff; margin: 2px 0 0 20px; }
+		&.free:before,&:after { background: url(site.png) no-repeat 0px -30px; background-size: 320px auto; position: absolute; right: 0px; bottom: 0px; content: ''; display: block; width: 139px; height: 55px; z-index: 0; }
+		&.free {
+			background: #4dbeea;
+			.price { display: none; }
+			&:before { width: 100px; height: 69px; background-position: 0px -85px; left: 17px; top: 8px; -webkit-transform: scale(.8); }
+			.name { font-size: 2em; color: #fff; margin: 30px 0 0 120px; }
+			.time { margin-left: 30px; margin-top: 7px; }
+		}
+	}
+}
+
+.uc_address {
+	padding-top: .1px;
+}
+.uc_address_new {
+	position: relative; background: #fff; margin-top: 17px; height: 50px; line-height: 50px; font-size: 2.8rem; padding-left: 10px;
+	&:after { @extend .ex_arrow; }
+}
+.uc_address_con {
+	margin-top: 32px; background-color: #fff;
+	li {
+		padding: 19px 35px 14px 14px;border-top: .5px solid #ddd;border-bottom: .5px solid #ddd; position: relative;
+		.hd {
+			font-size: 2.8rem;
+			.mobi { float: right; }
+		}
+		.con { font-size: 2.4rem; margin-top: 5px; }
+		&.default:after { @extend .ex_check; }
+		&.curr { 
+			background: #e65e5f; color:#fff;
+			&.default:after { background-position: -270px -30px; }
+		}
+	}
+}
+.uc_addaddress {
+	padding-top: 17px;
+	ul { background: #fff; }
+	li { 
+		border-bottom: .5px solid #ddd; display: -webkit-box; height: 50px;line-height: 50px;font-size: 2.8rem;padding:0 8px;
+		input { 
+			display: block; height: 100%;-webkit-box-flex: 1; border: 0; font-size: 2.8rem; 
+			&::-webkit-input-placeholder { font-size: 2.8rem; }
+		}
+		&:last-child { border-bottom: 0; }
+	}
+	.set_default { 
+		position: relative;
+		&:after { @extend .ex_check; }
+	}
+	.btn { border-radius: 0; height: 50px; position: fixed; bottom: 0px; right: 0px; left: 0; line-height: 50px; }
+}
+
+.uc_settings {
+	padding-top: .1px;
+	li {
+		margin-top: 10px; height: 45px; border-bottom: 1px solid #ccc; background: #fff; padding-left: 10px; font-size: 2.9rem; position: relative;
+		&:before { @include icon(0px,-150px); vertical-align: -9px; margin-top: 8px; margin-right: 5px; }
+		@for $i from 0 to 5 {
+			&:nth-child(#{$i+1}):before { background-position-x: -($i*30px); }
+		}
+		&:after {@extend .ex_arrow; }
+	}
+}
+
+.uc_pwd {
+	dt { height: 30px; padding-top: 10px; font-size: 2.6rem; padding-left: 8px; }
+	dd {
+		input { display: block; border: 0px;height: 43px; padding-left: 8px; width: 100%;}
+	}
+	.action { 
+		margin: 38px auto 0 auto;width: 120px;
+	}
+}

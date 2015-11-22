@@ -14,7 +14,7 @@ define(function (require, exports, module) {
 
             }
         },
-        swipeRightBackAction: '/',
+        swipeRightBackAction: '/settings',
 
         onCreate: function () {
             var self = this;
@@ -24,7 +24,7 @@ define(function (require, exports, module) {
             Scroll.bind($main);
 
             this.model = new model.ViewModel(this.$el, {
-                back: '/',
+                back: '/settings',
                 title: '新手指南'
             });
         },

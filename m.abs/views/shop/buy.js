@@ -12,6 +12,9 @@ define(function (require, exports, module) {
     return Activity.extend({
         events: {
             'tap .js_bind:not(.disabled)': function () {
+            },
+            'tap .js_address': function () {
+                this.forward('/address?from=' + this.route.path);
             }
         },
 
@@ -26,6 +29,10 @@ define(function (require, exports, module) {
             self.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
                 title: '确认订单'
+            });
+            
+            self.onResult('setDefaultAddress', function (e, address) {
+                self.model.set({ address: address });
             });
         },
 

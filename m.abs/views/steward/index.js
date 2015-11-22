@@ -8,7 +8,6 @@ define(function (require, exports, module) {
     var Scroll = require('widget/scroll');
     var animation = require('animation');
 
-
     return Activity.extend({
         events: {
             'tap .js_bind:not(.disabled)': function () {

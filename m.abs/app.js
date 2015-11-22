@@ -17,9 +17,8 @@ var Util = require('util');
 var util = require('../core/util');
 _.extend(Util, util);
 
-
 var combinePath = util.combinePath;
-var addDefineForSeajs = Tools.addDefineForSeajs;
+var formatJs = Tools.formatJs;
 
 function trimPath(path) {
     var rpath = /(^\/)|(\/$)/g;
@@ -149,16 +148,16 @@ exports.startWebServer = function (config) {
         });
 
         app.all((root ? "/" + root : '') + '/views/[\\S\\s]+.js', function (req, res, next) {
-            var filePath = req.url;
+            var filePath = "." + req.url;
 
-            fs.readFile("." + filePath, 'utf-8', function (err, text) {
+            fsc.readFirstExistentFile([filePath, filePath + 'x'], function (err, text) {
                 if (err) {
                     next();
                     return;
                 }
                 text = text.replace(/^\uFEFF/i, '');
 
-                text = addDefineForSeajs(text);
+                text = formatJs(text);
                 text = Tools.replaceDefine(filePath.replace(/(^\/)|(\.js$)/g, ''), text, requires);
 
                 res.set('Content-Type', "text/javascript; charset=utf-8");
@@ -170,13 +169,13 @@ exports.startWebServer = function (config) {
     app.all('*.js', function (req, res, next) {
         var filePath = req.url;
 
-        fsc.readFirstExistentFile(_.map(config.projects, 'projectPath').concat(config.path), [filePath], function (err, text) {
+        fsc.readFirstExistentFile(_.map(config.projects, 'projectPath').concat(config.path), [filePath, filePath + 'x'], function (err, text) {
             if (err) {
                 next();
                 return;
             }
             text = text.replace(/^\uFEFF/i, '');
-            text = addDefineForSeajs(text);
+            text = formatJs(text);
 
             res.set('Content-Type', "text/javascript; charset=utf-8");
             res.send(text);
@@ -249,7 +248,7 @@ if (args.build) {
 
         //生成首页
         exports.createIndex(config, function (err, html) {
-            Tools.save(path.join(destDir, 'index.html'), html);
+            Tools.save(path.join(destDir, 'index.html'), Tools.compressHTML(html));
         });
 
         //打包业务代码
@@ -260,60 +259,57 @@ if (args.build) {
 
             for (var key in project.js) {
                 requires.push(key);
-                
+
                 //打包项目引用js                
-                var filePromise = new Promise().resolve();
+                (function (key, filePromise) {
 
-                filePromise.each(project.js[key], function (i, file) {
-                    fs.readFile(path.join(project.projectPath, file), 'utf-8', function (err, text) {
-                        text = addDefineForSeajs(text);
-                        text = Tools.compressJs(Tools.replaceDefine(combinePath(project.projectPath, file), text));
+                    filePromise.each(project.js[key], function (i, file) {
+                        fsc.readFirstExistentFile([project.projectPath], [file + '.js', file + '.jsx'], function (err, text) {
+                            text = formatJs(text);
+                            text = Tools.compressJs(Tools.replaceDefine(combinePath(project.projectPath, file), text));
 
-                        filePromise.next(i, err, text);
+                            filePromise.next(i, err, text);
+                        });
+
+                    }).then(function (err, results) {
+
+                        Tools.save(path.join(destDir, project.projectPath, key + '.js'), results.join(''));
                     });
 
-                }).then((function (key) {
-
-                    return function (err, results) {
-                        Tools.save(path.join(destDir, project.projectPath, key, '.js'), results.join(''));
-                    }
-
-                })(key));
-
+                })(key, new Promise().resolve());
             }
 
             for (var key in project.css) {
                 requires.push(key);
                 
-                //打包项目引用css                
-                var filePromise = new Promise().resolve();
+                //打包项目引用css
+                (function (key, filePromise) {
+                    filePromise.each(project.css[key], function (i, file) {
 
-                filePromise.each(project.css[key], function (i, file) {
+                        fsc.firstExistentFile([path.join(project.projectPath, file), path.join(project.projectPath, file).replace(/\.css$/, '.scss')], function (file) {
 
-                    fsc.firstExistentFile([path.join(project.projectPath, file), path.join(project.projectPath, file).replace(/\.css$/, '.scss')], function (file) {
+                            if (/\.css$/.test(file)) {
+                                fs.readFile(file, 'utf-8', function (err, text) {
+                                    text = Tools.compressCss(text);
+                                    filePromise.next(i, err, text);
+                                });
+                            } else {
+                                sass.render({
+                                    file: file
 
-                        if (/\.css$/.test(file)) {
-                            fs.readFile(file, 'utf-8', function (err, text) {
-                                text = Tools.compressCss(text);
-                                filePromise.next(i, err, text);
-                            });
-                        } else {
-                            sass.render({
-                                file: file
+                                }, function (err, result) {
+                                    result = Tools.compressCss(result.css.toString());
+                                    filePromise.next(i, err, result);
+                                });
+                            }
+                        });
 
-                            }, function (err, result) {
-                                result = Tools.compressCss(result.css.toString());
-                                filePromise.next(i, err, result);
-                            });
-                        }
+                    }).then(function (err, results) {
+                        Tools.save(path.join(destDir, project.projectPath, key), results.join(''));
                     });
 
-                }).then((function (key) {
-                    return function (err, results) {
-                        Tools.save(path.join(destDir, project.projectPath, key), results.join(''));
-                    }
+                })(key, new Promise().resolve());
 
-                })(key));
             }
 
             //打包template和controller
@@ -353,9 +349,9 @@ if (args.build) {
 
                     }).then(function () {
                         //打包控制器
-                        fs.readFile(controllerPath + '.js', 'utf-8', function (err, text) {
+                        fsc.readFirstExistentFile([controllerPath + '.js', controllerPath + '.jsx'], function (err, text) {
                             if (!err) {
-                                text = addDefineForSeajs(text);
+                                text = formatJs(text);
                                 text = Tools.compressJs(Tools.replaceDefine(controller, text, requires));
                                 codes += text;
                             }

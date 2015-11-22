@@ -10,11 +10,12 @@ var Util = {
 
     combinePath: function () {
         var args = [].slice.apply(arguments);
-        var result = args.join('/').replace(/[\\]+/g, '/').replace(/[\/]{2,}/g, '/').replace(/([^\.]|^)\.\//g, '$1');
+        var result = args.join('/').replace(/[\\]+/g, '/').replace(/([^\:\/]|^)[\/]{2,}/g, '$1/').replace(/([^\.]|^)\.\//g, '$1');
         var flag = true;
         while (flag) {
             flag = false;
             result = result.replace(/([^\/]+)\/\.\.(\/|$)/g, function (match, name) {
+                console.log(match, name);
                 if (name == '..') return match;
                 if (!flag) flag = true;
                 return '';

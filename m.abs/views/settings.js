@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('../widget/loading');
-    var model = require('../core/model');
+    var model = require('../core/model2');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
 
@@ -30,13 +30,15 @@ define(function (require, exports, module) {
                 title: '设置',
                 user: user,
                 logout: function () {
-                    if (localStorage.getItem('user')) {
-                        util.store('user', null);
-                        self.setResult("Logout");
-                        self.back('/');
-                    } else {
-                        self.forward('/login');
-                    }
+                    self.confirm("你确认要退出登录?", function () {
+                        if (localStorage.getItem('user')) {
+                            util.store('user', null);
+                            self.setResult("Logout");
+                            self.back('/');
+                        } else {
+                            self.forward('/login');
+                        }
+                    });
                 }
             });
         },

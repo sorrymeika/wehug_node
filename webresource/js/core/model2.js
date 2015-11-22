@@ -556,7 +556,7 @@
         return this.models[i];
     }
 
-    var snEvents = ['tap', 'click', 'change', 'focus', 'blur'];
+    var snEvents = ['tap', 'click', 'change', 'focus', 'blur', 'transition-end'];
 
     var ViewModel = function (template, data) {
         this.data = $.extend(true, {}, data);
@@ -599,10 +599,10 @@
         var replacement = [];
 
         code += ');with($data){try{return \''
-            + expression.replace(rtemp, function (match) {
-                replacement[replacement.length] = match;
-                return '``' + (replacement.length - 1) + '~~';
-            })
+        + expression.replace(rtemp, function (match) {
+            replacement[replacement.length] = match;
+            return '``' + (replacement.length - 1) + '~~';
+        })
             .replace(/\\/g, '\\\\')
             .replace(/'/g, '\\\'')
             .replace(rmatch, function (match, exp) {
@@ -769,7 +769,7 @@
         });
 
         for (var i = 0; i < snEvents.length; i++) {
-            $el.on(snEvents[i], '[sn-' + snEvents[i] + ']', function (e) {
+            $el.on(snEvents[i] == 'transition-end' ? $.fx.transitionEnd : snEvents[i], '[sn-' + snEvents[i] + ']', function (e) {
                 if (e._stopModelEvent == true) return;
                 var target = e.currentTarget;
                 var eventCode = target.getAttribute('sn-' + e.type);
