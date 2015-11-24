@@ -45,6 +45,6 @@
     <div class="my_nodata" sn-display="{{!user.FreeMonths}}" style="display:none">
         <div class="icon"></div>
         <div class="text">您目前还没有免费领取特权哦！</div>
-        <div class="btn" sn-tap="open">去逛逛吧</div>
+        <div class="btn" data-forward="/all?from=/month">去逛逛吧</div>
     </div>
 </div>

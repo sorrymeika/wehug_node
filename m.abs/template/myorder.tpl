@@ -45,12 +45,12 @@
     <div class="my_nodata" sn-binding="display:data|eval:'$1==0&&(!$0||!$0.length)':currentType" style="display:none">
         <div class="icon"></div>
         <div class="text">您目前还没有购物记录哦</div>
-        <div class="btn" sn-on="tap:open">去逛逛吧</div>
+        <div class="btn" data-forward="/all">去逛逛吧</div>
     </div>
     <div class="my_nodata" sn-binding="display:data|eval:'$1!=0&&(!$0||!$0.length)':currentType" style="display:none">
         <div class="icon"></div>
         <div class="text">您还没有相关的订单</div>
-        <div class="btn" sn-on="tap:open">去逛逛吧</div>
+        <div class="btn" data-forward="/all">去逛逛吧</div>
     </div>
 </div>
 <div class="open_msg" style="display:none">

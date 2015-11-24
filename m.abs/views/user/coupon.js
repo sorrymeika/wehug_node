@@ -10,7 +10,6 @@ define(function (require, exports, module) {
     var bridge = require('bridge');
 
     var cardAnimation = function (items) {
-        console.log(items);
         if (items.eq(0).hasClass('show') || !items.length) return;
 
         var count = items.length;

@@ -199,7 +199,7 @@ module.exports = Activity.extend({
         canvas.height = 170;
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
-
+        
         this.userLoading = new Loading({
             url: '/api/user/get',
             check: false,
@@ -299,7 +299,7 @@ module.exports = Activity.extend({
 
         context.beginPath();
         context.arc(centerX, centerY, radius, this._angleFrom, angleTo, false);
-        context.lineWidth = 19;
+        context.lineWidth = 22;
         context.strokeStyle = '#fff';
         context.stroke();
 

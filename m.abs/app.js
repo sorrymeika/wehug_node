@@ -259,57 +259,59 @@ if (args.build) {
 
             for (var key in project.js) {
                 requires.push(key);
+                if (project.js[key] && project.js[key].length) { 
+                    //打包项目引用js                
+                    (function (key, filePromise) {
 
-                //打包项目引用js                
-                (function (key, filePromise) {
+                        filePromise.each(project.js[key], function (i, file) {
+                            fsc.readFirstExistentFile([project.projectPath], [file + '.js', file + '.jsx'], function (err, text) {
+                                text = formatJs(text);
+                                text = Tools.compressJs(Tools.replaceDefine(combinePath(project.projectPath, file), text));
 
-                    filePromise.each(project.js[key], function (i, file) {
-                        fsc.readFirstExistentFile([project.projectPath], [file + '.js', file + '.jsx'], function (err, text) {
-                            text = formatJs(text);
-                            text = Tools.compressJs(Tools.replaceDefine(combinePath(project.projectPath, file), text));
+                                filePromise.next(i, err, text);
+                            });
 
-                            filePromise.next(i, err, text);
+                        }).then(function (err, results) {
+
+                            Tools.save(path.join(destDir, project.projectPath, key + '.js'), results.join(''));
                         });
 
-                    }).then(function (err, results) {
-
-                        Tools.save(path.join(destDir, project.projectPath, key + '.js'), results.join(''));
-                    });
-
-                })(key, new Promise().resolve());
+                    })(key, new Promise().resolve());
+                }
             }
 
             for (var key in project.css) {
                 requires.push(key);
-                
-                //打包项目引用css
-                (function (key, filePromise) {
-                    filePromise.each(project.css[key], function (i, file) {
 
-                        fsc.firstExistentFile([path.join(project.projectPath, file), path.join(project.projectPath, file).replace(/\.css$/, '.scss')], function (file) {
+                if (project.css[key] && project.css[key].length) { 
+                    //打包项目引用css
+                    (function (key, filePromise) {
+                        filePromise.each(project.css[key], function (i, file) {
 
-                            if (/\.css$/.test(file)) {
-                                fs.readFile(file, 'utf-8', function (err, text) {
-                                    text = Tools.compressCss(text);
-                                    filePromise.next(i, err, text);
-                                });
-                            } else {
-                                sass.render({
-                                    file: file
+                            fsc.firstExistentFile([path.join(project.projectPath, file), path.join(project.projectPath, file).replace(/\.css$/, '.scss')], function (file) {
 
-                                }, function (err, result) {
-                                    result = Tools.compressCss(result.css.toString());
-                                    filePromise.next(i, err, result);
-                                });
-                            }
+                                if (/\.css$/.test(file)) {
+                                    fs.readFile(file, 'utf-8', function (err, text) {
+                                        text = Tools.compressCss(text);
+                                        filePromise.next(i, err, text);
+                                    });
+                                } else {
+                                    sass.render({
+                                        file: file
+
+                                    }, function (err, result) {
+                                        result = Tools.compressCss(result.css.toString());
+                                        filePromise.next(i, err, result);
+                                    });
+                                }
+                            });
+
+                        }).then(function (err, results) {
+                            Tools.save(path.join(destDir, project.projectPath, key), results.join(''));
                         });
 
-                    }).then(function (err, results) {
-                        Tools.save(path.join(destDir, project.projectPath, key), results.join(''));
-                    });
-
-                })(key, new Promise().resolve());
-
+                    })(key, new Promise().resolve());
+                }
             }
 
             //打包template和controller

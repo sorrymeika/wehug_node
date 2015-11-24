@@ -77,7 +77,7 @@
             that._visible = true;
 
             if (!mask) {
-                mask = $('<div style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background: #888;opacity: 0.5;z-index:2000;display:none"></div>').appendTo(document.body);
+                mask = $('<div style="position:absolute;top:0px;bottom:0px;right:0px;width:100%;background: rgba(0,0,0,.5);z-index:2000;display:none"></div>').appendTo(document.body);
             }
             mask.show();
 

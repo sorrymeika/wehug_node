@@ -7,11 +7,11 @@
 	width: $width; 
 	height: $height;
 }
-.icon { 
+.ex_icon { 
 	@include icon();
  }
  .ex_arrow {position: absolute; right: 10px; width: 11px; height: 11px; content: ''; border-top: 1px solid #ccc;border-right: 1px solid #ccc; -webkit-transform: rotate(45deg); top: 50%; margin-top: -5px;}
- .ex_check{ @extend .icon; position: absolute; top: 50%; margin: -15px 0 0 0; right: 2px; background-position: -210px -30px;}
+ .ex_check{ @extend .ex_icon; position: absolute; top: 50%; margin: -15px 0 0 0; right: 2px; background-position: -210px -30px;}
  
 .cp_share_mask { position: absolute; top: 0px; right: 0px; left: 0;bottom: 0; z-index: 2000; background: rgba(0,0,0,.5); }
 .cp_share { 
@@ -41,8 +41,11 @@
 	}
 }
 .ct_coupon { background: #f1f2f2; position: absolute; bottom: 0px; top: 0px; right: 0px; left: 20%; -webkit-transition: all 300ms ease-out 0ms; -webkit-transform: translate3d(0px,0px,0px); }
-.ct_coupon_hd { height: 44px; text-align: center; line-height: 44px; color: #fff; background: #e65e5f;}
-.has_status_bar .ct_coupon_hd{ border-top: 20px solid #e65e5f; }
+.ct_coupon_hd { height: 44px; text-align: center; line-height: 44px; color: #fff; background: #e65e5f; box-sizing: content-box; }
+.has_status_bar { 
+	.ct_coupon_hd { border-top: 20px solid #e65e5f; }
+	.ct_coupon_list .bd { margin-top: 20px; }
+}
 .ct_coupon_use { 
 	padding: 10px; display: -webkit-box; height: 28px;
 	input { display: block; height: 28px; border: 0px;-webkit-box-flex: 1; padding-left: 5px; border-radius: 4px; }
@@ -58,7 +61,7 @@
 	}
 	li {
 		height: 95px; margin: 5px 10px 5px 30px; padding-top: .1px; background: #e84838; position: relative;
-		&:before { @extend .icon; background-position: -240px -30px; position: absolute; left: -30px; top: 50%; margin-top: -15px; }
+		&:before { @extend .ex_icon; background-position: -240px -30px; position: absolute; left: -30px; top: 50%; margin-top: -15px; }
 		&.curr:before { background-position: -210px -30px; }
 		&.vct2 { background: #e8672e; }
 		&.vct5 { background: #fc3; }

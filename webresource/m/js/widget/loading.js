@@ -6,7 +6,7 @@
 
     var records = [];
 
-    var extend = ['$el', 'method', 'headers', 'dataType', 'xhrFields', 'beforeSend', 'success', 'complete', 'pageIndex', 'pageSize', 'append', '$content', '$scroll', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
+    var extend = ['$el', 'url', 'method', 'headers', 'dataType', 'xhrFields', 'beforeSend', 'success', 'complete', 'pageIndex', 'pageSize', 'append', '$content', '$scroll', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
 
     var Loading = function (options) {
         $.extend(this, _.pick(options, extend));
@@ -15,14 +15,14 @@
             this.$el = $(options.el);
         this.el = this.$el[0];
 
-        this.params = options.params || {};
+        this.params = $.extend({}, this.params, options.params);
         this.error = options.error || this.showError;
         this.$content = options.$content || this.$el;
         this.$scroll = options.$scroll || this.$el;
         this.pageEnabled = !!(options.pageEnabled || this.append);
         this.isShowLoading = options.showLoading !== false;
 
-        this.setUrl(options.url);
+        this.setUrl(this.url);
     }
 
     Loading.prototype = {
@@ -33,6 +33,7 @@
         DATAKEY_TOTAL: 'total',
         DATAKEY_PAGENUM: '',
 
+        baseUri: $('meta[name="api-base-url"]').attr('content'),
         method: "POST",
         dataType: 'json',
 
@@ -165,13 +166,14 @@
         },
 
         setUrl: function (url) {
-            this.url = app.url(url);
+            this.url = /^http\:\/\//.test(url) ? url : (this.baseUri.replace(/\/$/, '') + '/' + url.replace(/^\//, ''));
             return this;
         },
 
         reload: function (options, callback) {
             if (!this.isLoading) {
-                this.setParam(this.KEY_PAGE, 1).load(options, callback);
+                this.pageIndex = 1;
+                this.load(options, callback);
             }
         },
 

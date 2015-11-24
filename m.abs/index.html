@@ -5,12 +5,13 @@
     <meta charset="utf-8" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="api-base-url" content="@html(api)" />
+    <meta name="shop-api-base-url" content="@html(api)" />
     <title></title>
     @html(style)
     <style>
-        .viewport.applaunch { background: url(images/launch101.jpg) no-repeat center top !important; background-size: auto 100% !important; }
+        .viewport.applaunch { background: url(images/launch101.jpg) no-repeat center top; background-size: auto 100%; }
         @@media screen and (max-height:480px) {
-            .viewport.applaunch { background-image: url(images/launch101_480.jpg) !important; }
+            .viewport.applaunch { background-image: url(images/launch101_480.jpg); }
         }
     </style>
 </head>
@@ -27,10 +28,7 @@
     <script>
         var launchImage=localStorage.getItem("LAUNCH_IMAGE");
         if (launchImage){
-            var styleElement = document.createElement('style');
-            styleElement.type = 'text/css';
-            document.getElementsByTagName('head')[0].appendChild(styleElement);
-            styleElement.appendChild(document.createTextNode('.viewport.applaunch{background-image: url('+launchImage+') !important;}@@media screen and (max-height:480px) {background-image: url('+launchImage+') !important;}'));
+            document.querySelector('.js_global_launch').style.backgroundImage='url('+launchImage+')';
         }
     </script>
     <script src="@html(debug?'seajs/sea.js':'slan.m.js')?v@(Date.now())"></script>
@@ -51,9 +49,11 @@
             }
         });
         seajs.use(['$','util','core/app','bridge','widget/loading'],function($,util,App,bridge,Loading) {
+            var matchUA=navigator.userAgent.match(/SLApp ([0-9\.]+)/);
             sl.isDebug=@debug;
             sl.buildVersion=@(Date.now());
-            sl.appVersion='1.0.2';
+            sl.isInApp=util.isInApp=!!matchUA;
+            sl.appVersion=matchUA?matchUA[1]:'1.0.2';
             sl.$globalOffline=$('.js_global_offline');
             sl.offline=function(reloadFn){
                 sl.$globalOffline.show().find('.btn').one('tap',function(){
@@ -65,7 +65,7 @@
                 url: bridge.url('/api/settings/resourceMapping'),
                 timeout: 5000,
                 checkData: false,
-                $el: $('.js_global_launch'),
+                $el: $('body'),
                 error: function(){
                     sl.offline(load);
                 },
@@ -85,7 +85,7 @@
                         });
                     });
 
-                    new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(@debug?0:2000);
+                    new App().mapRoute(@html(JSON.stringify(routes)),@debug).start(@html(debug?0:4000));
                 }
 
             });

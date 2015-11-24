@@ -3,7 +3,8 @@
     "debug": true,
     "js": {
         "components": [
-            "components/share"
+            "components/share",
+            "model/base"
         ]
     },
     "css": {
@@ -60,10 +61,6 @@
             "controller": "user/modifypwd",
             "template": "user/modifypwd"
         },
-        "/mycard": {
-            "controller": "mycard",
-            "template": "mycard"
-        },
         "/messages": {
             "controller": "messages",
             "template": "messages"
@@ -76,9 +73,9 @@
             "controller": "myorder",
             "template": "myorder"
         },
-        "/activity/{id:\\d+}": {
-            "controller": "activity",
-            "template": "activity"
+        "/news/{id:\\d+}": {
+            "controller": "news",
+            "template": "news"
         },
         "/register": {
             "controller": "register",

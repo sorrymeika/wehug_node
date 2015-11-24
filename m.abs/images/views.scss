@@ -1,7 +1,6 @@
 ﻿.icon {content: '';display: block; background: url(icon.png) no-repeat 0px 0px; background-size: 320px auto; width: 30px; height: 30px;}
 
 body, html { font-size: 5px; color: #333; }
-.viewport.applaunch { background: url(launch.jpg) no-repeat; background-size: auto 100%; }
 .viewport { font-size: 16px; }
 header { background: #e65e5f; height: 44px; line-height: 44px; }
 .has_status_bar header { border-top-color: #e65e5f; }
@@ -72,10 +71,10 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 
 .hm_chart_wrap { position: relative; width: 100%; overflow: hidden; padding: .1px; background: -webkit-gradient(linear, 100% 33%, 100% 79%, from(#e04447), to(#ea6333)); font-size: 3rem; }
 .hm_chart { width: 170px; height: 170px; border-radius: 100%; background: #d42c2c; -webkit-box-shadow: inset 0px 0px 5px #333; margin: 24px auto 0 auto; overflow: hidden; position: relative; }
-.hm_chart_con { width: 130px; height: 130px; border-radius: 100%; background: #e24b43; margin: 20px; text-align: center; color: #fff; padding-top: .1px; }
+.hm_chart_con { width: 130px; height: 130px; border-radius: 100%; background: #e24b43; margin: 20px; text-align: center; color: #fff; padding-top: .1px; z-index: 1000; position: relative;}
 .hm_chart_con .hd { margin-top: 22px; font-size: 2.4rem; }
-.hm_chart_con .bd { margin-top: 11px; font-size: 7.2rem; font-weight: lighter;}
-.hm_chart_con .ft { margin-top: 9px; font-size: 2.4rem; font-weight: lighter;}
+.hm_chart_con .bd { margin-top: 11px; font-size: 7.2rem; font-weight: 200; line-height: 1;}
+.hm_chart_con .ft { margin-top: 7px; font-size: 2.6rem; font-weight: 200;}
 .hm_chart_canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
 .hm_chart_desc { text-align: center; font-size: 2.4rem; margin-top: 12px; color: #fff; }
 .hm_steward_link { text-align: center; font-size: 2.4rem; margin-top: 9px; color: #fff; }
@@ -94,9 +93,9 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .hm_cards li p { margin: 3px 0 0 60px; font-size: 2.4rem; z-index: 1; position: relative; }
 .hm_cards li i + p { margin-top: 22px; }
 .hm_cards li:nth-child(2) i, .hm_shop_cate li:nth-child(2) i { background: #4db2d9; }
-.hm_cards li:nth-child(2) i:before, .hm_shop_cate li:nth-child(2) i:before { background-position: -200px -190px; }
-.hm_cards li:nth-child(3) i, .hm_shop_cate li:nth-child(3) i { background: #d10b16; }
-.hm_cards li:nth-child(3) i:before, .hm_shop_cate li:nth-child(3) i:before { background-position: -240px -190px; }
+.hm_cards li:nth-child(2) i:before, .hm_shop_cate li:nth-child(2) i:before { background-position: -200px -190px; margin-left: 1px; }
+.hm_cards li:nth-child(3) i, .hm_shop_cate li:nth-child(3) i { background: #d10b16;}
+.hm_cards li:nth-child(3) i:before, .hm_shop_cate li:nth-child(3) i:before { background-position: -240px -190px; margin-left: 1px; }
 .hm_cards li:nth-child(4) i, .hm_shop_cate li:nth-child(4) i { background: #ea6233; }
 .hm_cards li:nth-child(4) i:before, .hm_shop_cate li:nth-child(4) i:before { background-position: -280px -190px; }
 
@@ -111,8 +110,8 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .hm_shop { color: #333; padding-bottom: 1px; }
 .hm_shop_cate { display: -webkit-box; margin-top: 10px; }
 .hm_shop_cate li { -webkit-box-flex: 1; text-align: center; font-size: 2.4rem; line-height: 1; }
-.hm_shop_cate li i { display: block; width: 45px; height: 45px; background: #e8ba2e; margin: 0 auto 5px auto; border-radius: 4px; }
-.hm_shop_cate li i:before { content: ''; display: block; width: 40px; height: 40px; margin: 2.5px auto; background: url(icon.png) no-repeat -280px -150px; background-size: 320px auto; }
+.hm_shop_cate li i { display: block; width: 45px; height: 45px; background: #e8ba2e; margin: 0 auto 5px auto; border-radius: 4px; padding-top: 1px; }
+.hm_shop_cate li i:before { content: ''; display: block; width: 40px; height: 40px; margin: 1px auto 0 auto; background: url(icon.png) no-repeat -280px -150px; background-size: 320px auto; }
 .hm_shop_banner { margin-top: 12px; }
 .hm_shop_banner img { min-height: 173px; width: 100%; }
 .hm_shop_list { display: -webkit-box; padding-right: 8px; }
@@ -220,7 +219,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
     }
 }
 .pd_size_buy {
-    display: -webkit-box; border-top: 1px solid #ccc; margin: 10px 5px 0 5px; padding-top: 8px; position: absolute; right: 0px; left: 0px; bottom: 50px;
+    display: -webkit-box; border-top: 1px solid #ccc; margin: 10px 5px 0 5px; padding-top: 8px; position: absolute; right: 0px; left: 0px; bottom: 50px; background: #fff;
     .hd { font-size: 2.6rem; -webkit-box-flex: 1; }
     .qty {
         border: 1px solid #ccc; height: 22px; width: 90px;display: -webkit-box;
@@ -322,7 +321,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .hm_my_list li:nth-child(5):before { background-position: -150px -60px; background-color: #ffa549; }
 .hm_my_list li b { display: block; font-size: 3rem; -webkit-box-flex: 1; font-weight: normal; margin-left: 8px; }
 .hm_my_list li span { display: block; font-size: 3rem; text-align: right; }
-.hm_my_list li em { color: #e65e5f; font-size: 3.6rem; vertical-align: -1px; font-weight: lighter; }
+.hm_my_list li em { color: #e65e5f; font-size: 4rem; vertical-align: -1px; font-weight: 200; }
 
 /*菜单*/
 
@@ -568,8 +567,8 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .uc_month_card_user p { font-size: 2.4rem; margin-top: 10px; }
 .uc_month_card_user p em { color: #d6415c; }
 .uc_month_val { width: 98px; height: 98px; border-radius: 50%; background: -webkit-gradient(linear, 100% 33%, 100% 79%, from(#e04447), to(#ea6333)); color: #fff; text-align: center; overflow: hidden; }
-.uc_month_val b { display: block; font-size: 2.8rem; margin-top: 25px; font-weight: normal; }
-.uc_month_val span { display: block; font-size: 4.6rem; margin-top: 8px; font-weight: 200; }
+.uc_month_val b { display: block; font-size: 2.8rem; margin-top: 25px; font-weight: normal;line-height: 1;}
+.uc_month_val span { display: block; font-size: 4.6rem; margin-top: 8px; font-weight: 200; line-height: 1; }
 .uc_month_slider_tit { display: -webkit-box; height: 17px; line-height: 17px; margin-top: 6px; border-bottom: 1px solid #ccc; text-align: center; font-size: 2.4rem; }
 .uc_month_slider_tit li { -webkit-box-flex: 1; }
 .uc_month_slider_tit li.curr { color: #e65e5f; position: relative; }

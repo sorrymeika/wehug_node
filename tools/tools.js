@@ -37,7 +37,7 @@ function formatJs(jsText) {
         jsText = "define(function (require, exports, module) {" + jsText + "});";
     }
 
-    var rdom = /\s*(=|\:)\s*(<([a-zA-Z]+)[^>]*>[\s\S]*?<\/\3>)\s*(,|;)/mg;
+    var rdom = /\s*(return\s+|=|\:)\s*(<([a-zA-Z]+)[^>]*>[\s\S]*?<\/\3>)\s*(,|;|\})/mg;
 
     jsText = jsText.replace(rdom, function (match, symbol, dom, tagName, end) {
         

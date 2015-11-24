@@ -60,9 +60,18 @@ var util = {
     },
 
     extend: function (proto) {
-        var parent = this;
+        var parent = this,
+            constructor;
+        if (proto.constructor) {
+            constructor = proto.constructor;
+            delete proto.constructor;
+            
+        } else
+            constructor = parent;
+
         var child = function () {
-            parent.apply(this, arguments);
+            constructor.apply(this, arguments);
+            this.initialize && this.initialize.apply(this, arguments);
         };
 
         var Surrogate = function () { this.constructor = child; };

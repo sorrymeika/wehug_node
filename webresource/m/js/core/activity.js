@@ -69,7 +69,7 @@
 
             if (!prompt) {
                 this._prompt = prompt = this.createDialog('prompt', {
-                    top: '25%',
+                    top: '50%',
                     content: '<input type="text" class="prompt-text" />',
                     buttons: [{
                         text: '取消',
