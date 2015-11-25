@@ -17,8 +17,7 @@
         lastIndexOf = util.lastIndexOf,
         slice = Array.prototype.slice,
         getPath = util.getPath,
-        standardizeHash = Route.standardizeHash,
-        checkQueryString = Master.checkQueryString;
+        standardizeHash = Route.standardizeHash;
 
     var getToggleAnimation = function (isOpen, currentActivity, activity, toggleAnim) {
         if (!toggleAnim) toggleAnim = (isOpen ? activity : currentActivity).toggleAnim;
@@ -39,11 +38,11 @@
             css: anim[type + 'EnterAnimationTo'],
             ease: ease
         }, {
-            el: currentActivity.$el,
-            start: exitFrom,
-            css: anim[type + 'ExitAnimationTo'],
-            ease: ease
-        }];
+                el: currentActivity.$el,
+                start: exitFrom,
+                css: anim[type + 'ExitAnimationTo'],
+                ease: ease
+            }];
     }
 
     var adjustActivity = function (currentActivity, activity) {
@@ -56,9 +55,9 @@
         application.touch = new Touch(application.el, {
             start: function () {
                 var that = this,
-                action,
-                isOpen,
-                deltaX = that.touch.dx;
+                    action,
+                    isOpen,
+                    deltaX = that.touch.dx;
 
                 if (that.touch.isDirectionY || that.swiperPromise) {
                     that.touch.stop();
@@ -72,7 +71,7 @@
                 that.swiper = null;
 
                 action = isSwipeLeft ? (currentActivity.swipeLeftForwardAction ? (isOpen = true, currentActivity.swipeLeftForwardAction) : (isOpen = false, currentActivity.swipeLeftBackAction))
-                        : (currentActivity.swipeRightForwardAction ? (isOpen = true, currentActivity.swipeRightForwardAction) : (isOpen = false, currentActivity.swipeRightBackAction));
+                    : (currentActivity.swipeRightForwardAction ? (isOpen = true, currentActivity.swipeRightForwardAction) : (isOpen = false, currentActivity.swipeRightBackAction));
 
                 if (!action) {
                     if (isSwipeLeft && currentActivity.referrerDir == "Left") {
@@ -106,8 +105,8 @@
 
             move: function (e) {
                 var that = this,
-                per,
-                deltaX = that.touch.dx;
+                    per,
+                    deltaX = that.touch.dx;
 
                 if (!that.swiperPromise) return;
 
@@ -132,7 +131,7 @@
                     that.swiperPromise.then(function () {
                         that.queue.then([200, that.isCancelSwipe ? 0 : 100, function () {
                             var activity = that.swipeActivity,
-                            currentActivity = that._currentActivity;
+                                currentActivity = that._currentActivity;
 
                             if (that.isCancelSwipe) {
                                 currentActivity.isPrepareExitAnimation = false;
@@ -165,7 +164,7 @@
         }, application);
     };
 
-    var Application = view.extend(Master, {
+    var Application = Master.extend({
         events: {
             'tap,click a[href]:not(.js-link-default)': function (e) {
                 var that = this,
@@ -320,7 +319,7 @@
             that.navigate(url, isOpen);
 
             if (currentActivity.path == route.path) {
-                checkQueryString(currentActivity, route);
+                that.checkQueryString(currentActivity, route);
                 that.queue.resolve();
                 return;
             }
@@ -332,7 +331,7 @@
 
                 adjustActivity(currentActivity, activity);
 
-                checkQueryString(activity, route);
+                that.checkQueryString(activity, route);
                 activity.then(function () {
                     activity.trigger('Appear');
                 });

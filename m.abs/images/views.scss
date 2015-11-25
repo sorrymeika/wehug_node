@@ -22,10 +22,10 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .header_trans .head_share:before { background-position-x: -30px; left: -3px; }
 .head_right { position: absolute; right: 5px; left: 0px; top: 0; left: 0; text-align: right; }
 .head_right .head_call, .head_right .head_share { display: inline-block; }
-.head_back, .head_menu { width: 60px; height: 44px; z-index: 1000; position: absolute; }
+.head_back, .head_menu,.head_all { width: 60px; height: 44px; z-index: 1000; position: absolute; top: 0; left: 0; }
 .head_back:before, .head_menu:before, .head_msg:before,.head_all:before { display: block; background: url(icon.png) no-repeat; content: ''; width: 30px; height: 30px; background-size: 320px auto; margin: 7px 0 0 8px; }
 .head_back:before { background-position: -30px 0px; }
-.head_msg,.head_all { width: 50px; position: absolute; right: 0px; top: 0px; height: 44px; z-index: 1000; }
+.head_msg { width: 50px; position: absolute; right: 0px; top: 0px; height: 44px; z-index: 1000; }
 .head_msg:before { background-position: -60px 0px; }
 .head_msg i { position: absolute; top: 5px; left: 27px; background: #fff; color: #e65e5f; border-radius: 8px; height: 14px; font-size: 12px; line-height: 14px; font-weight: normal; padding: 0 4px; }
 .head_search_btn { min-width: 60px; position: absolute; right: 0px; top: 0px; }
@@ -68,15 +68,14 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .home_text h4 { font-size: .9em; display: inline-block; border: 1px solid #fff; border-radius: 4px; padding: 4px; margin-top: 8px; }
 
 /*首页*/
-
 .hm_chart_wrap { position: relative; width: 100%; overflow: hidden; padding: .1px; background: -webkit-gradient(linear, 100% 33%, 100% 79%, from(#e04447), to(#ea6333)); font-size: 3rem; }
 .hm_chart { width: 170px; height: 170px; border-radius: 100%; background: #d42c2c; -webkit-box-shadow: inset 0px 0px 5px #333; margin: 24px auto 0 auto; overflow: hidden; position: relative; }
 .hm_chart_con { width: 130px; height: 130px; border-radius: 100%; background: #e24b43; margin: 20px; text-align: center; color: #fff; padding-top: .1px; z-index: 1000; position: relative;}
 .hm_chart_con .hd { margin-top: 22px; font-size: 2.4rem; }
-.hm_chart_con .bd { margin-top: 11px; font-size: 7.2rem; font-weight: 200; line-height: 1;}
+.hm_chart_con .bd { margin-top: 9px; font-size: 7.2rem; font-weight: 200; line-height: 1;}
 .hm_chart_con .ft { margin-top: 7px; font-size: 2.6rem; font-weight: 200;}
 .hm_chart_canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
-.hm_chart_desc { text-align: center; font-size: 2.4rem; margin-top: 12px; color: #fff; }
+.hm_chart_desc { text-align: center; font-size: 3rem; margin-top: 12px; color: #fff; }
 .hm_steward_link { text-align: center; font-size: 2.4rem; margin-top: 9px; color: #fff; }
 .hm_steward_link:before { content: ''; display: inline-block; background: url(icon.png) no-repeat -210px 0px; background-size: 320px auto;width:18px; height: 16px; }
 .hm_steward_link em { font-size: 3rem; margin: 0 2px; }
@@ -302,7 +301,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .hm_my_card .energy_val .energy_val_to { text-align: right; -webkit-box-flex: 1; }
 .hm_my_barcode { background: #fff; overflow: hidden; padding-bottom: 10px; }
 .hm_my_barcode .mobile { margin-top: 6px; margin-bottom: 5px; text-align: center; font-weight: 200;}
-.barcode { height: 60px; width: 290px; display: -webkit-box; margin: 15px auto 0 auto; }
+.barcode { height: 60px; width: 290px; display: -webkit-box; margin: 15px auto 0 auto; position: relative; left: 10px;}
 .barcode i, .barcode em { height: 100%; display: block; width: 2px; }
 .barcode i { background: #000; }
 

@@ -7,7 +7,7 @@
         <i class="cursor" style="-webkit-transform: translate3d({{tab==1?100:0}}%, 0%, 0);"></i>
     </ul>
     <div class="head_title" style="display:{{bottomTab!=0?'block':'none'}}">{{bottomTab==1?'查找店铺':bottomTab==2?"购物车":"我"}}</div>
-    <div class="head_msg" data-forward="/messages" sn-display="{{tab==0||bottomTab!=0}}">
+    <div class="head_msg" data-forward="/messages">
         <i sn-display="{{msg!=0}}">{{msg}}</i>
     </div>
     <div class="head_all" data-forward="/all" sn-display="{{tab==1&&bottomTab==0}}">
@@ -37,27 +37,32 @@
                     <div class="bd">{{util.formatMoney(energyAnimNum)}}</div>
                     <div class="ft">目标 {{util.formatMoney(levelAmounts)}}</div>
                 </div>
-                <div class="hm_chart_con" style="padding-top:15px" sn-tap="chartType=2" sn-display="{{chartType==1}}">
+                <div class="hm_chart_con" sn-tap="chartType=2" sn-display="{{chartType==1}}">
                     <div class="hd">我的月礼</div>
                     <div class="bd">{{user.FreeMonths}}</div>
                 </div>
-                <div class="hm_chart_con" style="padding-top:15px" sn-tap="chartType=3" sn-display="{{chartType==2}}">
+                <div class="hm_chart_con" sn-tap="chartType=3" sn-display="{{chartType==2}}">
                     <div class="hd">我的卡券</div>
                     <div class="bd">{{user.FreeCouponsCount}}</div>
                 </div>
-                <div class="hm_chart_con" style="padding-top:15px" sn-tap="chartType=0" sn-display="{{chartType==3}}">
+                <div class="hm_chart_con" sn-tap="chartType=0" sn-display="{{chartType==3}}">
                     <div class="hd">积分钱包</div>
                     <div class="bd">{{user.Points}}</div>
                 </div>
                 <canvas class="hm_chart_canvas js_canvas"></canvas>
             </div>
-            <div class="hm_chart_desc">{{currentLevel}}</div>
+            <div class="hm_chart_desc">{{vipName}}</div>
             <div class="hm_steward_link" data-forward="/steward">您现在拥有<em>5</em>条爱管家记录啦！</div>
             <ul class="hm_chart_list">
                 <li data-forward="/month"><i>我的月礼</i><em>{{user.FreeMonths}}</em></li>
                 <li data-forward="/coupon"><i>我的卡券</i><em>{{user.FreeCouponsCount}}</em></li>
                 <li data-forward="/mypoint"><i>积分钱包</i><em>{{user.Points}}</em></li>
             </ul>
+        </div>
+        <div class="hm_my_barcode">
+            <div class="barcode" sn-html="{{barcode}}">
+            </div>
+            <div class="mobile">{{user.Mobile}}</div>
         </div>
         <ul class="hm_cards">
             <li data-forward="/all"><i></i><p>NEW ARRIVAL</p><p>新品上市</p></li>
@@ -71,7 +76,7 @@
             <ul class="hm_shop_cate">
                 <li data-forward="/all"><i></i>新品<br>上市</li>
                 <li><i></i>本周最热<br>商品</li>
-                <li><i></i>季末<br>清仓</li>
+                <li><i></i>季末<br>特惠</li>
                 <li><i></i>手机用户<br>专享</li>
             </ul>
             <div class="hm_shop_banner"><img src="" /></div>
@@ -98,7 +103,7 @@
     </div>
     <div class="main" style="display:{{bottomTab==3?'block':'none'}}" data-index="3">
         <div class="hm_my_card">
-            <div class="vip_name">{{currentLevel}}</div>
+            <div class="vip_name">{{vipName}}</div>
             <div class="energy">
                 当前活力值<span>{{util.formatMoney(energy)}}</span>
             </div>
@@ -106,8 +111,8 @@
                 <span style="width:{{energyPercent}}"></span>
             </div>
             <div class="energy_val">
-                <div class="energy_val_from">0</div>
-                <div class="energy_val_to">1,000</div>
+                <div class="energy_val_from">{{util.formatMoney(currentLevel)}}</div>
+                <div class="energy_val_to">{{util.formatMoney(nextLevel)}}</div>
             </div>
         </div>
         <div class="hm_my_barcode">
@@ -122,7 +127,7 @@
             </li>
             <li data-forward="/coupon">
                 <b>我的卡券</b>
-                <span><em>{{user.FreeCouponsCount}}</em>张</span>
+                <span><em>{{user.FreeCouponsCount+user.CouponsCount}}</em>张</span>
             </li>
             <li data-forward="/mypoint">
                 <b>积分钱包</b>

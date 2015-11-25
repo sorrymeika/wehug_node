@@ -4,7 +4,8 @@
     "js": {
         "components": [
             "components/share",
-            "model/base"
+            "components/confirm",
+            "models/base"
         ]
     },
     "css": {
@@ -73,7 +74,7 @@
             "controller": "myorder",
             "template": "myorder"
         },
-        "/news/{id:\\d+}": {
+        "/news/{id:\\w+}": {
             "controller": "news",
             "template": "news"
         },

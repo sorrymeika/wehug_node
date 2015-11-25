@@ -54,7 +54,5 @@
 
     var _cb = new CubicBezier(.02, .64, .07, .97);
 
-    console.log(_cb.get(0));
-
     module.exports = CubicBezier;
 });

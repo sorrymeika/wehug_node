@@ -3,7 +3,6 @@
 //app.all('*', http_proxy('localhost', 6004));
 //app.all('*', http_proxy('192.168.0.106', 6004));
 
-
 var Promise = require('../core/promise');
 var fs = require('fs');
 var fsc = require('../core/fs');
@@ -217,6 +216,8 @@ exports.startWebServer = function (config) {
 
     app.use('/dest', express.static(config.dest));
 
+    app.all('/api/*', http_proxy('appapi.abs.cn', 80));
+
     console.log("start with", config.port, process.argv);
 
     app.listen(config.port);
@@ -228,8 +229,8 @@ var args = {};
 for (var i = 2, arg, length = argv.length; i < length; i++) {
     arg = argv[i];
 
-    arg.replace(/--([^=]+)(?:=(.+)){0,1}/, function (match, key, value) {
-        args[key] = value == undefined ? true : eval(value);
+    arg.replace(/--([^=]+)(?:\=(\S+)){0,1}/, function (match, key, value) {
+        args[key] = value == undefined ? true : (/^(true|false|-?\d+)$/.test(value) ? eval(value) : value);
         return '';
     });
 }
@@ -237,7 +238,9 @@ for (var i = 2, arg, length = argv.length; i < length; i++) {
 //打包
 if (args.build) {
     exports.loadConfig(function (err, config) {
-        _.extend(config, config.env.production);
+        _.extend(config, config.env[args.build === true ? 'production' : args.build], {
+            debug: false
+        });
 
         var baseDir = path.join(__dirname, './');
         var destDir = path.join(__dirname, config.dest);

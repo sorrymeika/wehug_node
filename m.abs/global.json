@@ -2,7 +2,7 @@
     "debug": true,
     "dest": "./dest",
     "api": "http://172.16.168.128:6005",
-    "shopApi": "http://127.0.0.1:6006",
+    "shopApi": "http://127.0.0.1:5559/api",
     "css": [
         "../webresource/m/images/style.css",
         "../webresource/m/images/anim.css"
@@ -23,13 +23,15 @@
     "env": {
         "production": {
             "api": "http://m.abs.cn:7788",
-            "shopApi": "http://appapi.abs.cn",
-            "debug": false
+            "shopApi": "http://appapi.abs.cn"
         },
         "test": {
             "api": "http://appuser.abs.cn",
-            "shopApi": "http://appapi.abs.cn",
-            "debug": false
+            "shopApi": "http://appapi.abs.cn"
+        },
+        "dev": {
+            "api": "http://172.16.168.128:6005",
+            "shopApi": "http://127.0.0.1:5559/api"
         }
     },
     "framework": {
@@ -50,6 +52,7 @@
             "core/promise": "../webresource/js/core/promise",
             "core/linklist": "../webresource/js/core/linklist",
             "core/event": "../webresource/js/core/event",
+            "core/component": "../webresource/js/core/component",
             "core/view": "../webresource/js/core/view",
             "core/model": "../webresource/js/core/model",
             "core/model2": "../webresource/js/core/model2",

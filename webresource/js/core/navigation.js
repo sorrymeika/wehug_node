@@ -14,7 +14,7 @@
         standardizeHash = Route.standardizeHash,
         checkQueryString = Master.checkQueryString;
 
-    var Navigation = view.extend(Master, {
+    var Navigation = Master.extend({
         events: {
             'click a[href]:not(.js-link-default)': function (e) {
                 var that = this,

@@ -21,7 +21,7 @@
         this.$scroll = options.$scroll || this.$el;
         this.pageEnabled = !!(options.pageEnabled || this.append);
         this.isShowLoading = options.showLoading !== false;
-
+        
         this.setUrl(this.url);
     }
 

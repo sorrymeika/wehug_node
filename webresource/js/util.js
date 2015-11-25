@@ -7,7 +7,10 @@
     android = ua.match(/(Android);?[\s\/]+([\d.]+)?/),
     isAndroid = !!android,
     guid = 0,
-    osVersion;
+    osVersion,
+    nativeKeys = Object.keys
+
+var hasOwnProperty = Object.prototype.hasOwnProperty;
 
 if (ios) osVersion = ios[2].split('_');
 else if (android) osVersion = android[2].split('.');
@@ -59,20 +62,18 @@ var util = {
         return true;
     },
 
+    keys: function (obj) {
+        if (nativeKeys) return nativeKeys(obj);
+        var keys = [];
+        for (var key in obj) if (hasOwnProperty.call(obj, key)) keys.push(key);
+        return keys;
+    },
+
     extend: function (proto) {
         var parent = this,
-            constructor;
-        if (proto.constructor) {
-            constructor = proto.constructor;
-            delete proto.constructor;
-            
-        } else
-            constructor = parent;
-
-        var child = function () {
-            constructor.apply(this, arguments);
-            this.initialize && this.initialize.apply(this, arguments);
-        };
+            child = hasOwnProperty.call(proto, 'constructor') ? proto.constructor : function () {
+                return parent.apply(this, arguments);
+            };
 
         var Surrogate = function () { this.constructor = child; };
         Surrogate.prototype = parent.prototype;
@@ -83,6 +84,8 @@ var util = {
 
         for (var key in parent)
             child[key] = parent[key];
+
+        child.__super__ = parent.prototype;
 
         return child;
     },

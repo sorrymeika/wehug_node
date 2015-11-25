@@ -2,11 +2,12 @@
 
     var $ = require('$'),
         util = require('util'),
+        View = require('./view'),
         Route = require('./route');
 
     var getPath = util.getPath;
 
-    var Master = {
+    var Master = View.extend({
         checkQueryString: function (activity, route) {
             if (activity.route.url != route.url) {
                 activity._setRoute(route);
@@ -49,7 +50,7 @@
                             application: that,
                             route: route
                         },
-                        $el;
+                            $el;
 
                         if (null != Activity) {
                             $el = that.$el.find('[data-path="' + route.path + '"]');
@@ -79,7 +80,7 @@
         remove: function (url) {
             this._activities[getPath(url)] = void 0;
         }
-    };
+    });
 
     module.exports = Master;
 });

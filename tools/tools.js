@@ -32,16 +32,33 @@ var compressor = UglifyJS.Compressor({
     global_defs: {}
 });
 
+var rcmd = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|(?:^|\b|\uFEFF)(module\.exports\s*=|exports\.[a-z0-9A-Z\._]+\s*=)/mg;
+var rdefine = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*define|(?:^|\uFEFF|[^$])(\bdefine\()/g;
+
+function isTest(regex, text) {
+    regex.lastIndex = 0;
+    var m;
+    do {
+        m = regex.exec(text);
+        if (m && m[1]) {
+            return true;
+        }
+
+    } while (m);
+
+    return false;
+}
+
 function formatJs(jsText) {
-    if (/\b(module\.exports\s*=)|(exports\.[a-z0-9A-Z_]\s*=)/.test(jsText) && !/\bdefine\(/.test(jsText)) {
+    if (isTest(rcmd, jsText) && !isTest(rdefine, jsText)) {
         jsText = "define(function (require, exports, module) {" + jsText + "});";
     }
 
-    var rdom = /\s*(return\s+|=|\:)\s*(<([a-zA-Z]+)[^>]*>[\s\S]*?<\/\3>)\s*(,|;|\})/mg;
+    var rdom = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\s*(return\s+|=|\:)\s*(<([a-zA-Z]+)[^>]*>[\s\S]*?<\/\3>)\s*(,|;|\})/mg;
 
     jsText = jsText.replace(rdom, function (match, symbol, dom, tagName, end) {
-        
-        return symbol + "'" + dom.replace(/\'/g, '\\\'').replace(/\s*(\r|\n)+\s*/g, ' ') + "'" + end;
+
+        return dom ? symbol + "'" + dom.replace(/\'/g, '\\\'').replace(/\s*(\r|\n)+\s*/g, ' ') + "'" + end : match;
     });
 
     return jsText;
@@ -110,9 +127,11 @@ var replaceDefine = function (id, code, requires, exclude, jsContent) {
         if (requires && requires.length) {
             param = concat(requires, param);
         }
-        param = concat(param, parseDependencies(code));
 
-        if (exclude && exclude.length) {
+        if (exclude === true) {
+            param = concat(param, parseDependencies(code));
+
+        } else if (exclude && exclude.length) {
             for (var i = param.length - 1; i >= 0; i--) {
                 if (exclude.indexOf(param[i]) != -1) {
                     param.splice(i, 1);
