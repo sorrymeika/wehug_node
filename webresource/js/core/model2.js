@@ -11,7 +11,7 @@
     var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*(.+?)){0,1}(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
     var rmatch = /\{\{(.+?)\}\}/g;
     var rvar = /'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/[img]*|\/\/.*|(^|[\!\=\>\<\?\s\:\(\),\%&\|\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\())/g;
-    var rset = /([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*)\s*=\s*((?:\((?:'(?:\\'|[^'])*'|[^\)])+\)|'(?:\\'|[^'])*'|[^;])+)/g;
+    var rset = /([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*)\s*=\s*((?:\((?:'(?:\\'|[^'])*'|[^\)])+\)|'(?:\\'|[^'])*'|[^;])+)(?=\;|\,|$)/g;
 
     var isNull = function (str) {
         var arr = str.split('.');
@@ -68,12 +68,12 @@
         } else {
             throw new Error('Model\'s parent mast be Collection or Model');
         }
-
+        
+        this.data = data;
         this._key = key;
         this.model = {};
         this.parent = parent;
         this.root = parent.root;
-        this.data = data;
 
         if (repeats) {
             for (var j = 0, len = repeats.length; j < len; j++) {
@@ -203,6 +203,7 @@
                         model[attr] = value;
 
                         if (!this.root.init) {
+                            console.log('sync:' + (this.key ? this.key + '.' + attr : attr).replace(/\./g, '/'));
                             this.trigger('change:' + attr, value);
                             this.root.trigger('sync:' + (this.key ? this.key + '.' + attr : attr).replace(/\./g, '/'), this, attr, value);
                         }
@@ -592,7 +593,7 @@
 
         this.scan(template);
         this.init = true;
-        this.set(data);
+        this.set(this.data);
         this.init = false;
     }
 
@@ -659,7 +660,7 @@
             if (el.bindings) {
                 var attrs = attr ? [attr] : el.bindings;
                 for (var attr in el.bindings) {
-                    var val = self.fns[el.bindings[attr]].call(self, Filters, el.model || self, el);
+                    var val = self.fns[el.bindings[attr]].call(self, Filters, self._closestByEl(el), el);
 
                     switch (attr) {
                         case 'textContent':
@@ -689,7 +690,6 @@
                         default:
                             el.setAttribute(attr, val);
                             break;
-
                     }
                 }
             }
@@ -722,9 +722,9 @@
             self._fns.push(code);
         },
         _closestByEl: function (el) {
-            for (; el != null && el != document.body; el = el.parent) {
+            for (; el != null && el != document.body; el = el.parentNode) {
                 if (el.model)
-                    return e.model;
+                    return el.model;
             }
             return this;
         },
@@ -737,7 +737,7 @@
                 return self;
             }
 
-            for (; el != null && el != document.body; el = el.parent) {
+            for (; el != null && el != document.body; el = el.parentNode) {
                 if (el.repeat && (el.repeat.repeat.alias == alias)) {
                     return el.model;
                 }
@@ -780,7 +780,7 @@
                     var ctx;
 
                     if (/^\d+$/.test(eventCode)) {
-                        self.fns[eventCode].call(self, e, target.model || self, Filters);
+                        self.fns[eventCode].call(self, e, self._closestByEl(target), Filters);
 
                     } else {
                         for (var i = 0; i < argNames.length; i++) {
@@ -789,7 +789,6 @@
                                 ctx = self._getByEl(target, attr);
                                 fn = self._getVal(ctx, attr);
 
-                                console.log(ctx, attr);
                                 e.model = self._closestByEl(target, attr);
 
                             } else {
@@ -840,13 +839,14 @@
                         } else if (snEvents.indexOf(attr.replace(/^sn-/, '')) != -1) {
                             if (rset.test(val) || /\bthis\.[\.\w]+\(/.test(val)) {
                                 var code = 'function(e,model,Filters){var el=e.currentTarget,$data=$.extend({},Filters,model.root.data';
-
                                 if (repeat)
-                                    code += withData(repeat);
+                                    code += ',' + withData(repeat);
 
                                 code += ');with($data){' + val.replace(rset, function (match, key, value) {
                                     return 'this._setByEl(e.currentTarget,"' + key + '",' + value + ')'
                                 }) + '}}';
+
+                                console.log(code);
 
                                 child.setAttribute(attr, self.fns.length + self._fns.length);
                                 self._fns.push(code);
@@ -890,11 +890,11 @@
 
     $.each(util.keys(ComponentBaseProto), function (i, key) {
         if (ComponentProto[key] === undefined && ViewModelProto[key] === undefined) {
-            ComponentProto[key] == ComponentBaseProto[key];
+            ComponentProto[key] = ComponentBaseProto[key];
         }
     });
     var Component = ViewModel.extend(ComponentProto);
-    
+
     exports.Component = Component;
     exports.ViewModel = ViewModel;
     exports.Filters = Filters;

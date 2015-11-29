@@ -58,7 +58,7 @@
                     }
                 });
             }
-
+            
             seajs.use(that.route.template, function (razor) {
                 that.razor = razor;
                 callback();

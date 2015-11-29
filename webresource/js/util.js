@@ -35,7 +35,6 @@ var util = {
         while (flag) {
             flag = false;
             result = result.replace(/([^\/]+)\/\.\.(\/|$)/g, function (match, name) {
-                console.log(match, name);
                 if (name == '..') return match;
                 if (!flag) flag = true;
                 return '';

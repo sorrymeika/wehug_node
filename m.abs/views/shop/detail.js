@@ -5,6 +5,7 @@ var Loading = require('widget/loading');
 var model = require('core/model2');
 var Scroll = require('widget/scroll');
 var animation = require('animation');
+    var api = require('models/base');
 
 module.exports = Activity.extend({
     events: {
@@ -14,8 +15,8 @@ module.exports = Activity.extend({
 
     onCreate: function () {
         var self = this;
-        self.swipeRightBackAction = self.route.query.from || ('/item/'+self.route.data.id);
-        
+        self.swipeRightBackAction = self.route.query.from || ('/item/' + self.route.data.id);
+
         self.model = new model.ViewModel(this.$el, {
             back: self.swipeRightBackAction,
             title: '图文详情',
@@ -23,6 +24,18 @@ module.exports = Activity.extend({
         });
 
         Scroll.bind(self.$('.main'));
+
+        var detail = new api.ProductDetailAPI({
+            $el: self.$('.js_size'),
+            success: function (res) {
+                console.log(res);
+                
+                self.model.set({
+                    data: res.data
+                });
+            }
+        });
+        detail.load();
     },
 
     onShow: function () {

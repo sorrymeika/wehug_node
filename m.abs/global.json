@@ -1,8 +1,12 @@
 {
     "debug": true,
     "dest": "./dest",
-    "api": "http://172.16.168.128:6005",
-    "shopApi": "http://127.0.0.1:5559/api",
+    "api": "http://127.0.0.1:5559/proxy1",
+    "shopApi": "http://127.0.0.1:5559/proxy",
+    "proxy": {
+        "/proxy1/*": "appuser.abs.cn",
+        "/proxy/*": "appapi.abs.cn"
+    },
     "css": [
         "../webresource/m/images/style.css",
         "../webresource/m/images/anim.css"
@@ -22,7 +26,7 @@
     ],
     "env": {
         "production": {
-            "api": "http://m.abs.cn:7788",
+            "api": "http://appuser.abs.cn",
             "shopApi": "http://appapi.abs.cn"
         },
         "test": {
@@ -31,7 +35,7 @@
         },
         "dev": {
             "api": "http://172.16.168.128:6005",
-            "shopApi": "http://127.0.0.1:5559/api"
+            "shopApi": "http://127.0.0.1:5559/proxy"
         }
     },
     "framework": {

@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var model = require('core/model2');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
-
+    var api = require('models/base');
 
     return Activity.extend({
         events: {
@@ -30,7 +30,13 @@ define(function (require, exports, module) {
                 title: '标题'
             });
 
-
+            var cate = new api.CategoryAPI({
+                success: function (res) {
+                    console.log(res);
+                },
+                $el: self.$el
+            });
+            cate.load();
         },
 
         onShow: function () {

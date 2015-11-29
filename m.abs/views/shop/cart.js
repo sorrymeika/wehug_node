@@ -7,7 +7,7 @@ define(function (require, exports, module) {
     var model = require('core/model2');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
-
+    var api = require("models/base");
 
     return Activity.extend({
         events: {
@@ -59,7 +59,10 @@ define(function (require, exports, module) {
                 back: self.swipeRightBackAction,
                 title: '我的购物车',
                 data: [{
-                }]
+                    id: 1
+                }, {
+                        id: 2
+                    }]
             });
 
             this.$coupon = self.$('.ct_coupon_wrap');
@@ -88,6 +91,14 @@ define(function (require, exports, module) {
                         });
                         self.model.set("coupon", data);
                     }
+                }
+            });
+
+            self.cart = new api.CartAPI({
+                $el: self.$el,
+                checkData: false,
+                success: function (res) {
+                    console.log(res);
                 }
             });
 

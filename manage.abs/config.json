@@ -1,11 +1,19 @@
 {
-	root: '/',
-	js : {},
-	css : {
-		'images/style.css': ['images/reset.css','images/manage.css']
+	"js": {},
+	"css": {
+		"images/style.css": [
+			"../webresource/images/reset.css",
+			"../webresource/images/manage.css"
+		]
 	},
-	route: {
-		'/': { controller: 'index', template: 'index' },
-		'/login': { controller: 'login', template: 'login' }
-    }
+	"route": {
+		"/": {
+			"controller": "index",
+			"template": "index"
+		},
+		"/login": {
+			"controller": "login",
+			"template": "login"
+		}
+	}
 }

@@ -9,7 +9,8 @@ var model = require('../core/model2');
 var Scroll = require('../widget/scroll');
 var barcode = require('../util/barcode');
 var animation = require('animation');
-var Confirm = require("components/share");
+var Confirm = require("components/confirm");
+var api = require("models/base");
 
 module.exports = Activity.extend({
     events: {
@@ -149,9 +150,14 @@ module.exports = Activity.extend({
 
         $.get(bridge.url('/api/settings/update?version=' + sl.appVersion), function (res) {
             if (res.success && res.updateUrl) {
-                self.confirm(res.text, function () {
-                    bridge.update(res.updateUrl, res.versionName);
+                var confirm = new Confirm({
+                    content: res.text,
+                    confirm: function () {
+                        bridge.update(res.updateUrl, res.versionName);
+                    }
                 });
+                confirm.$el.appendTo($('body'));
+                confirm.show();
             }
         }, 'json');
 
@@ -162,6 +168,7 @@ module.exports = Activity.extend({
             isLogin: !!self.user,
             isFirstOpen: util.store('isFirstOpen') === null,
             msg: 0,
+            tab: 0,
             bottomTab: 0,
             chartType: 0,
             open: function () {
@@ -235,9 +242,21 @@ module.exports = Activity.extend({
                         message: res.vdpMessage
                     });
                 }
+
+                self.cart.setParam({
+                    pspcode: self.user.Mobile
+                }).load();
             },
             error: function () {
                 self.model.set('isOffline', true);
+            }
+        });
+
+        this.cart = new api.CartAPI({
+            $el: this.$('.js_cart'),
+            checkData: false,
+            success: function (res) {
+                console.log(res);
             }
         });
 
@@ -253,6 +272,7 @@ module.exports = Activity.extend({
             }
         });
         this.launchLoading.load();
+
 
         var $launchImgs = this.$('.launch img');
         var $mask = this.$('.home_mask').on($.fx.transitionEnd, function (e) {
@@ -360,6 +380,10 @@ module.exports = Activity.extend({
             }
 
         }, 'json');
+    },
+
+    loadCart: function () {
+
     },
 
     doWhenLogin: function () {

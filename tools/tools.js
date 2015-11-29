@@ -1,4 +1,5 @@
 ﻿var UglifyJS = require('uglify-js');
+var razor = require('./../core/razor');
 
 var replaceBOM = function (text) {
     return text.replace(/^\uFEFF/i, '');
@@ -128,7 +129,7 @@ var replaceDefine = function (id, code, requires, exclude, jsContent) {
             param = concat(requires, param);
         }
 
-        if (exclude === true) {
+        if (exclude !== true) {
             param = concat(param, parseDependencies(code));
 
         } else if (exclude && exclude.length) {
@@ -216,7 +217,10 @@ Tools.prototype = {
             if (!paths.length) {
                 for (var key in paths) {
                     item = paths[key] || key;
-                    if (!/\.js$/.test(item)) item += '.js';
+                    if (/\.(tpl|html|cshtml)$/.test(item)) {
+
+                    } else if (!/\.js$/.test(item))
+                        item += '.js';
 
                     fileList.push(path.join(self.baseDir, item));
                     ids.push(key);
@@ -247,7 +251,13 @@ Tools.prototype = {
 
                             result.forEach(function (data, i) {
                                 data = data.toString('utf-8');
-                                text += isCss ? compressCss(data) : compressJs(replaceDefine(ids[i], formatJs(data)));
+
+                                if (/\.(tpl|html|cshtml)$/.test(fileList[i]))
+                                    data = razor.web(data);
+
+                                text += isCss ?
+                                    compressCss(data) :
+                                    compressJs(replaceDefine(ids[i], formatJs(data)));
                             });
 
                             return self.save(destPath, text);
@@ -386,7 +396,6 @@ Tools.prototype = {
     razor: function (fileList) {
         var self = this;
 
-        var razor = require('./../core/razor');
         var promise = new Promise().resolve();
         var result = '';
 

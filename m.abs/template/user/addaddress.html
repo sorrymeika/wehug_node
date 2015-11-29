@@ -10,7 +10,7 @@
             <li><input type="tel" placeholder="邮政编码" /></li>
             <li class="js_area">省、市、区</li>
             <li><input type="text" placeholder="详细地址"></li>
-            <li class="set_default checked">设为默认地址</li>
+            <li class="set_default{{address.isDefault?' checked':''}}" sn-tap="address.isDefault=!address.isDefault">设为默认地址</li>
         </ul>
         <b class="btn">保&nbsp;&nbsp;存</b>
     </div>

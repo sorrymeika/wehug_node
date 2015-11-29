@@ -29,7 +29,7 @@ function combineRouters(config) {
     config.projects.forEach(function (project) {
         for (var key in project.route) {
             var router = project.route[key];
-            var regexStr = trimPath(project.root) + '/' + trimPath(key);
+            var regexStr = (trimPath(project.root) + '/' + trimPath(key)).replace(/^\.\//, '');
 
             if (typeof router == 'string') {
                 router = {
@@ -44,9 +44,8 @@ function combineRouters(config) {
                 template: combinePath("template", router.template)
             });
 
-            if (project.root && project.root != '/') {
-                router.root = project;
-            }
+            router.root = project.root;
+
             result[regexStr] = router;
         }
     });
@@ -65,7 +64,7 @@ exports.loadConfig = function (callback) {
 
             fs.readFile(path.join(project, 'config.json'), { encoding: 'utf-8' }, function (err, data) {
                 var config = JSON.parse(data);
-                config.projectPath = project;
+                config.root = project;
 
                 subPromise.next(i, err, config);
             });
@@ -124,17 +123,21 @@ exports.startWebServer = function (config) {
         var requires = [];
 
         for (var key in project.js) {
-            requires.push.apply(requires, project.js[key]);
+            project.js[key] && project.js[key].forEach(function (file) {
+                requires.push(combinePath(project.root, file));
+            });
         }
 
         for (var key in project.css) {
-            requires.push.apply(requires, project.css[key]);
+            project.css[key] && project.css[key].forEach(function (file) {
+                requires.push(combinePath(project.root, file));
+            });
         }
 
-        app.all((root ? "/" + root : '') + '/template/[\\S\\s]+.js', function (req, res, next) {
+        app.all((root && root != '.' ? "/" + root : '') + '/template/[\\S\\s]+.js', function (req, res, next) {
             var filePath = req.url.replace(/\.js(\?.*){0,1}$/, '');
 
-            fsc.readFirstExistentFile(['.' + filePath + '.html', '.' + filePath + '.tpl'], function (err, text) {
+            fsc.readFirstExistentFile(['.' + filePath + '.html', '.' + filePath + '.cshtml', '.' + filePath + '.tpl'], function (err, text) {
                 if (err) {
                     next();
                     return;
@@ -146,7 +149,7 @@ exports.startWebServer = function (config) {
             });
         });
 
-        app.all((root ? "/" + root : '') + '/views/[\\S\\s]+.js', function (req, res, next) {
+        app.all((root && root != '.' ? "/" + root : '') + '/views/[\\S\\s]+.js', function (req, res, next) {
             var filePath = "." + req.url;
 
             fsc.readFirstExistentFile([filePath, filePath + 'x'], function (err, text) {
@@ -167,13 +170,15 @@ exports.startWebServer = function (config) {
 
     app.all('*.js', function (req, res, next) {
         var filePath = req.url;
+        var isRazorTpl = /\.(html|tpl|cshtml)\.js$/.test(filePath);
 
-        fsc.readFirstExistentFile(_.map(config.projects, 'projectPath').concat(config.path), [filePath, filePath + 'x'], function (err, text) {
+        fsc.readFirstExistentFile(_.map(config.projects, 'root').concat(config.path), isRazorTpl ? [filePath.replace(/\.js$/, '')] : [filePath, filePath + 'x'], function (err, text) {
             if (err) {
                 next();
                 return;
             }
             text = text.replace(/^\uFEFF/i, '');
+            if (isRazorTpl) text = razor.web(text);
             text = formatJs(text);
 
             res.set('Content-Type', "text/javascript; charset=utf-8");
@@ -182,7 +187,7 @@ exports.startWebServer = function (config) {
     });
 
     config.projects.forEach(function (project) {
-        app.use(express.static(project.projectPath));
+        app.use(express.static(project.root));
     });
 
     config.path.forEach(function (searchPath) {
@@ -191,7 +196,7 @@ exports.startWebServer = function (config) {
 
     app.all('*.css', function (req, res, next) {
 
-        fsc.firstExistentFile(_.map(config.projects, 'projectPath').concat(config.path), [req.params[0] + '.scss'], function (fileName) {
+        fsc.firstExistentFile(_.map(config.projects, 'root').concat(config.path), [req.params[0] + '.scss'], function (fileName) {
             if (!fileName) {
                 next();
                 return;
@@ -216,7 +221,10 @@ exports.startWebServer = function (config) {
 
     app.use('/dest', express.static(config.dest));
 
-    app.all('/api/*', http_proxy('appapi.abs.cn', 80));
+    for (var key in config.proxy) {
+        var proxy = config.proxy[key].split(':');
+        app.all(key, http_proxy(proxy[0], proxy[1] ? parseInt(proxy[1]) : 80));
+    }
 
     console.log("start with", config.port, process.argv);
 
@@ -261,37 +269,41 @@ if (args.build) {
             var requires = [];
 
             for (var key in project.js) {
-                requires.push(key);
+                requires.push(combinePath(project.root, key));
+
                 if (project.js[key] && project.js[key].length) { 
                     //打包项目引用js                
-                    (function (key, filePromise) {
+                    (function (key, fileList, filePromise) {
 
-                        filePromise.each(project.js[key], function (i, file) {
-                            fsc.readFirstExistentFile([project.projectPath], [file + '.js', file + '.jsx'], function (err, text) {
+                        filePromise.each(fileList, function (i, file) {
+                            var isRazorTpl = /\.(html|tpl|cshtml)$/.test(file);
+
+                            fsc.readFirstExistentFile([project.root], isRazorTpl ? [file] : [file + '.js', file + '.jsx'], function (err, text, fileName) {
+                                if (isRazorTpl) text = razor.web(text);
                                 text = formatJs(text);
-                                text = Tools.compressJs(Tools.replaceDefine(combinePath(project.projectPath, file), text));
+                                text = Tools.compressJs(Tools.replaceDefine(combinePath(project.root, file), text));
 
                                 filePromise.next(i, err, text);
                             });
 
                         }).then(function (err, results) {
 
-                            Tools.save(path.join(destDir, project.projectPath, key + '.js'), results.join(''));
+                            Tools.save(path.join(destDir, project.root, key + '.js'), results.join(''));
                         });
 
-                    })(key, new Promise().resolve());
+                    })(key, project.js[key], new Promise().resolve());
                 }
             }
 
             for (var key in project.css) {
-                requires.push(key);
+                requires.push(combinePath(project.root, key));
 
                 if (project.css[key] && project.css[key].length) { 
                     //打包项目引用css
-                    (function (key, filePromise) {
-                        filePromise.each(project.css[key], function (i, file) {
+                    (function (key, fileList, filePromise) {
+                        filePromise.each(fileList, function (i, file) {
 
-                            fsc.firstExistentFile([path.join(project.projectPath, file), path.join(project.projectPath, file).replace(/\.css$/, '.scss')], function (file) {
+                            fsc.firstExistentFile([path.join(project.root, file), path.join(project.root, file).replace(/\.css$/, '.scss')], function (file) {
 
                                 if (/\.css$/.test(file)) {
                                     fs.readFile(file, 'utf-8', function (err, text) {
@@ -310,17 +322,18 @@ if (args.build) {
                             });
 
                         }).then(function (err, results) {
-                            Tools.save(path.join(destDir, project.projectPath, key), results.join(''));
+                            Tools.save(path.join(destDir, project.root, key), results.join(''));
                         });
 
-                    })(key, new Promise().resolve());
+                    })(key, project.css[key], new Promise().resolve());
                 }
             }
 
             //打包template和controller
+            var contains = [];
+
             for (var key in project.route) {
                 (function (router) {
-
                     var controller;
                     var template;
 
@@ -332,16 +345,19 @@ if (args.build) {
                         template = router.template;
                     }
 
-                    controller = combinePath(project.projectPath, 'views', controller);
-                    template = combinePath(project.projectPath, 'template', template);
+                    controller = combinePath(project.root, 'views', controller);
+                    template = combinePath(project.root, 'template', template);
+
+                    console.log(controller, project.root);
 
                     var controllerPath = path.join(baseDir, controller);
                     var templatePath = path.join(baseDir, template);
 
                     promise.then(function () { 
                         //打包模版
-                        fsc.readFirstExistentFile([templatePath + '.html', templatePath + '.tpl'], function (err, text) {
-                            if (!err) {
+                        fsc.readFirstExistentFile([templatePath + '.html', templatePath + '.cshtml', templatePath + '.tpl'], function (err, text, fileName) {
+                            if (!err && contains.indexOf(fileName) == -1) {
+                                contains.push(fileName);
                                 text = razor.web(text);
                                 text = Tools.compressJs(Tools.replaceDefine(template, text));
                                 codes += text;
@@ -354,10 +370,10 @@ if (args.build) {
 
                     }).then(function () {
                         //打包控制器
-                        fsc.readFirstExistentFile([controllerPath + '.js', controllerPath + '.jsx'], function (err, text) {
-                            if (!err) {
+                        fsc.readFirstExistentFile([controllerPath + '.js', controllerPath + '.jsx'], function (err, text, fileName) {
+                            if (!err && contains.indexOf(fileName) == -1) {
                                 text = formatJs(text);
-                                text = Tools.compressJs(Tools.replaceDefine(controller, text, requires));
+                                text = Tools.compressJs(Tools.replaceDefine(controller, text, requires, true));
                                 codes += text;
                             }
 
@@ -372,7 +388,7 @@ if (args.build) {
 
             //保存合并后的业务代码
             promise.then(function () {
-                Tools.save(path.join(destDir, project.projectPath, 'controller.js'), codes);
+                Tools.save(path.join(destDir, project.root, 'controller.js'), codes);
             });
         });
         
@@ -389,7 +405,7 @@ if (args.build) {
 
                 if (proj.images) {
                     proj.images.forEach(function (imgDir) {
-                        fsc.copy(path.join(proj.projectPath, imgDir), path.join(config.dest, proj.projectPath, 'images'), '*.(jpg|png)', function (err, result) {
+                        fsc.copy(path.join(proj.root, imgDir), path.join(config.dest, proj.root, 'images'), '*.(jpg|png)', function (err, result) {
 
                         });
                     });

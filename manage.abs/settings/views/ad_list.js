@@ -7,7 +7,8 @@
     var menu = require('common/menu');
     var Form = require('components/form');
     var Grid = require('components/grid');
-    var adtypes = require('settings/data/adtypes');
+    var API = require('models/api').API;
+    var adtypes = require('../data/adtypes');
 
     return Page.extend({
         events: {
@@ -57,7 +58,7 @@
 
             this.grid = new Grid({
                 search: {
-                    url: '/api/settings/ad_list',
+                    url: API.url('/api/settings/ad_list'),
                     type: 'GET',
                     beforeSend: function () {
                     },
@@ -76,28 +77,28 @@
                     bind: "ID",
                     width: 5
                 }, {
-                    text: "广告名称",
-                    bind: "Title",
-                    width: 10
-                }, {
-                    text: "广告图片",
-                    bind: "Src",
-                    width: 10,
-                    render: function (data) {
-                        this.append('<a href="' + data.Src + '" target="_blank">' + data.Src + '</a>');
-                    }
-                }, {
-                    text: "操作",
-                    width: 10,
-                    align: 'center',
-                    valign: 'center',
-                    render: function (data) {
-                        var name = self.$('[name="name"]').val();
-                        this.append($('<a href="javascript:;" class="js_click" data-id="' + data.ID + '" data-url="/settings/modify_ad/' + name + '/' + data.ID + '">[修改]</a>'))
+                        text: "广告名称",
+                        bind: "Title",
+                        width: 10
+                    }, {
+                        text: "广告图片",
+                        bind: "Src",
+                        width: 10,
+                        render: function (data) {
+                            this.append('<a href="' + data.Src + '" target="_blank">' + data.Src + '</a>');
+                        }
+                    }, {
+                        text: "操作",
+                        width: 10,
+                        align: 'center',
+                        valign: 'center',
+                        render: function (data) {
+                            var name = self.$('[name="name"]').val();
+                            this.append($('<a href="javascript:;" class="js_click" data-id="' + data.ID + '" data-url="/settings/modify_ad/' + name + '/' + data.ID + '">[修改]</a>'))
 
-                        this.append(' <a href="javascript:;" data-id="' + data.ID + '" data-name="' + name + '" class="js_grid_delete">[删除]</a>');
-                    }
-                }]
+                            this.append(' <a href="javascript:;" data-id="' + data.ID + '" data-name="' + name + '" class="js_grid_delete">[删除]</a>');
+                        }
+                    }]
 
             }).search();
 

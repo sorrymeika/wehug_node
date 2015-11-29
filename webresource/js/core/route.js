@@ -1,4 +1,6 @@
-﻿var standardizeHash = function (hash) {
+﻿var util = require('util');
+
+var standardizeHash = function (hash) {
     return (hash.replace(/^#+|\/$/, '') || '/').toLowerCase();
 };
 
@@ -13,7 +15,6 @@ Route.prototype.append = function (options) {
     var option,
         parts,
         root,
-        rootPath,
         namedParam,
         regex;
 
@@ -35,14 +36,13 @@ Route.prototype.append = function (options) {
         if (typeof option === 'string')
             throw new Error('Route options error');
 
-        root = option.root || '/';
-        rootPath = (root != '/' ? root.replace(/^\//, '') + '/' : '');
+        root = option.root || './';
 
         this.routes.push({
             regex: new RegExp(regex),
             parts: parts,
-            template: rootPath + option.template,
-            view: rootPath + option.controller,
+            template: util.combinePath(root, option.template),
+            view: util.combinePath(root, option.controller),
             api: option.api,
             root: root
         });
@@ -84,7 +84,7 @@ Route.prototype.match = function (url) {
                 hash: '#' + hash,
                 root: route.root,
                 template: route.template,
-                package: this.isDebug ? false : (route.root == '/' ? 'controller' : (route.root.replace(/^\//, '') + '/controller')),
+                package: this.isDebug ? false : util.combinePath(route.root, 'controller'),
                 view: route.view,
                 data: {},
                 queryString: query,

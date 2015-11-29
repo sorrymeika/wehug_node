@@ -11,6 +11,54 @@ var ShopAPI = Loading.extend({
 });
 exports.ShopAPI = ShopAPI;
 
+exports.AddressListAPI = ShopAPI.extend({
+	url: '/api/user/addresslist',
+	params: {
+		pspcode: 0
+	}
+});
+
+exports.EditAddressAPI = ShopAPI.extend({
+	url: '/api/user/editaddress',
+	params: {
+		pspcode: 0,
+		edittype: 2,//编辑类型：1.新增 2.修改
+		mbaId: 0,
+		mbaName: '',
+		mbaMobile: 0,
+		mbaCtyId: 0,
+		mbaDefault: false,
+		mbaRegId: 0,
+		mbaAddress: ''
+	}
+});
+
+exports.DeleteAddressAPI = ShopAPI.extend({
+	url: '/api/user/deladdress',
+	params: {
+		pspcode: 0,
+		mbaId: 0
+	}
+});
+
+exports.ProvinceAPI = ShopAPI.extend({
+	url: '/api/user/prvlist'
+});
+
+exports.CityAPI = ShopAPI.extend({
+	url: '/api/user/ctylist',
+	params: {
+		prvId: 0
+	}
+});
+
+exports.RegionAPI = ShopAPI.extend({
+	url: '/api/user/reglist',
+	params: {
+		ctyId: 0
+	}
+});
+
 exports.CreateOrderAPI = ShopAPI.extend({
 	url: '/api/shop/CreateMOrder',
 	params: {
@@ -35,6 +83,17 @@ exports.SubCategoryAPI = ShopAPI.extend({
 	}
 });
 
+exports.ProductSearchAPI = ShopAPI.extend({
+	url: "/Prod/productlist?keycodes=ABS&orderbyStr=2&orderby=desc&length=2&pages=0"
+});
+
+exports.ProductAPI = ShopAPI.extend({
+	url: '/api/prod/prditem',
+	params: {
+		id: 0
+	}
+});
+
 exports.ProductDetailAPI = ShopAPI.extend({
 	url: '/api/prod/detail',
 	params: {
@@ -46,6 +105,13 @@ exports.ProductListAPI = ShopAPI.extend({
 	url: '/api/prod/pcgprd',
 	params: {
 		pcgid: 0 //父类ID
+	}
+});
+
+exports.CartAPI = ShopAPI.extend({
+	url: '/api/shop/bag',
+	params: {
+		pspcode: 0 //用户code(手机号)
 	}
 });
 

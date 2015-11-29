@@ -1,17 +1,22 @@
-﻿define(function (require,exports,module) {
-    var $=require('$');
-    var util=require('util'),
-        Page=require('core/page');
+﻿define(function (require, exports, module) {
+    var $ = require('$');
+    var util = require('util'),
+        Page = require('core/page');
+    var API = require('models/api').API;
 
     return Page.extend({
         initialize: function () {
-            var self=this;
-            Page.prototype.initialize.call(this,arguments);
-            $.get('/api/manage/islogin',function (res) {
-                if(!res.success)
-                    self.forward('/login');
+            var self = this;
+            Page.prototype.initialize.call(this, arguments);
 
-            },'json');
+            new API({
+                url: '/api/manage/islogin',
+                success: function (res) {
+                },
+                error: function () {
+                    self.forward('/login');
+                }
+            }).request();
         }
     });
 });

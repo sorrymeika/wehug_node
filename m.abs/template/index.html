@@ -29,7 +29,7 @@
     </div>
 </div>
 <div sn-display="{{isLogin}}">
-    <div class="main hm_tab_con js_usescroll {{isLogin?"":"isnotlogin"}}" style="-webkit-transform:translate3d({{tab==0?0:-100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}" data-index="0">
+    <div class="main hm_tab_con js_usescroll {{isLogin?'':'isnotlogin'}}" style="-webkit-transform:translate3d({{tab==0?0:-100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}" data-index="0">
         <div class="hm_chart_wrap">
             <div class="hm_chart">
                 <div class="hm_chart_con" sn-tap="chartType=1" sn-display="{{chartType==0}}">
@@ -66,18 +66,18 @@
         </div>
         <ul class="hm_cards">
             <li data-forward="/all"><i></i><p>NEW ARRIVAL</p><p>新品上市</p></li>
-            <li data-forward="/list"><i></i><p>BEST BUYS</p><p>本周最热商品</p></li>
-            <li data-forward="/list"><i></i><p>BIG SALE</p><p>季末特惠</p></li>
-            <li data-forward="/list"><i></i><p>ONLINE ONLY</p><p>手机用户专享</p></li>
+            <li data-forward="/list"><i></i><p>BEST BUYS</p><p>最热商品</p></li>
+            <li data-forward="/list"><i></i><p>FLASH SALE</p><p>周一闪购</p></li>
+            <li data-forward="/list"><i></i><p>APP ONLY</p><p>APP专享</p></li>
         </ul>
     </div>
     <div class="main hm_tab_con" style="-webkit-transform:translate3d({{tab==1?0:100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}" data-index="1">
         <div class="hm_shop">
             <ul class="hm_shop_cate">
                 <li data-forward="/all"><i></i>新品<br>上市</li>
-                <li><i></i>本周最热<br>商品</li>
-                <li><i></i>季末<br>特惠</li>
-                <li><i></i>手机用户<br>专享</li>
+                <li><i></i>最热<br>商品</li>
+                <li><i></i>周一<br>闪购</li>
+                <li><i></i>APP<br>专享</li>
             </ul>
             <div class="hm_shop_banner"><img src="" /></div>
             <ul class="hm_shop_list">
@@ -98,7 +98,7 @@
         <div class="baiduMap" sn-html="{{baiduMap}}">
         </div>
     </div>
-    <div class="main" style="display:{{bottomTab==2?'block':'none'}}">
+    <div class="main js_cart" style="display:{{bottomTab==2?'block':'none'}}">
         @cart.helpers.list()
     </div>
     <div class="main" style="display:{{bottomTab==3?'block':'none'}}" data-index="3">

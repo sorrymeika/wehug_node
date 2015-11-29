@@ -6,7 +6,7 @@
     var Page = require('common/page');
     var menu = require('common/menu');
     var Form = require('components/form');
-    var adtypes = require('settings/data/adtypes');
+    var adtypes = require('../data/adtypes');
 
     return Page.extend({
         events: {},

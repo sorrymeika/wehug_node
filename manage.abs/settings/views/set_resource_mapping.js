@@ -6,7 +6,8 @@
     var Page = require('common/page');
     var menu = require('common/menu');
     var Form = require('components/form');
-    var adtypes = require('settings/data/adtypes');
+    var API = require('models/api').API;
+    var adtypes = require('../data/adtypes');
 
     return Page.extend({
         events: {},
@@ -35,7 +36,7 @@
                 model: this.model,
                 name: 'mapping',
                 useIframe: true,
-                url: '/api/manage/set_resource_mapping',
+                url: API.url('/api/manage/set_resource_mapping'),
                 validator: 'updateValid',
                 enctype: '',
                 fields: [{
@@ -44,19 +45,53 @@
                     emptyAble: false,
                     emptyText: '必填'
                 }, {
-                    label: 'Value',
-                    field: 'Value'
-                }]
+                        label: 'Value',
+                        field: 'Value'
+                    }]
             });
 
-            this.model.before('.action', form.$el);
+            this.model.before('.js_action', form.$el);
+            
+            var form = new Form({
+                model: this.model,
+                name: 'upload',
+                useIframe: true,
+                url: API.url('/api/manage/upload_resource'),
+                validator: 'updateValid',
+                enctype: '',
+                fields: [{
+                    label: '资源文件',
+                    field: 'file',
+                    type: 'file'
+                }]
+            });
+            
+            this.model.before('.js_action1', form.$el);
+            
+            this.model.set({
+                buttons1: [{
+                    click: function () { 
+                        form.submit(function (res) { 
+                            if (res.success) {
+                                sl.tip('上传成功');
 
-            $.get('/api/settings/resourceMapping', function (res) {
-                if (res.success && res.data) {
-                    console.log(res);
-                    self.$('.js_data').html(JSON.stringify(res.data));
+                            } else {
+                                sl.tip(res.msg);
+                            }
+                        });
+                    },
+                    value: '上传'
+                }]
+            })
+
+            new API({
+                url: '/api/settings/resourceMapping',
+                success: function (res) {
+                    if (res.success && res.data) {
+                        self.$('.js_data').html(JSON.stringify(res.data));
+                    }
                 }
-            }, "json");
+            }).request();
         },
 
         onShow: function () {

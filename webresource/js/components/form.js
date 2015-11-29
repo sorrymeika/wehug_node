@@ -122,6 +122,9 @@
                         url: this.url,
                         type: 'POST',
                         dataType: 'json',
+                        xhrFields: {
+                            withCredentials: true
+                        },
                         data: this.$el.serialize(),
                         success: $.proxy(success, this),
                         error: error && $.proxy(error, this)

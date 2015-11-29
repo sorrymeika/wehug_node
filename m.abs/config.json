@@ -1,6 +1,5 @@
 {
     "root": "/",
-    "debug": true,
     "js": {
         "components": [
             "components/share",
@@ -10,7 +9,9 @@
     },
     "css": {
         "images/style.css": [
-            "images/views.css",
+            "images/views.css"
+        ],
+        "images/append.css": [
             "images/append.css"
         ]
     },

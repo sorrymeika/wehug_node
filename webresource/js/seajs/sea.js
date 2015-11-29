@@ -207,16 +207,16 @@
         if (ABSOLUTE_RE.test(id)) {
             ret = id
         }
-            // Relative
+        // Relative
         else if (first === ".") {
             ret = realpath((refUri ? dirname(refUri) : data.cwd) + id)
         }
-            // Root
+        // Root
         else if (first === "/") {
             var m = data.cwd.match(ROOT_DIR_RE)
             ret = m ? m[0] + id.substring(1) : id
         }
-            // Top-level
+        // Top-level
         else {
             ret = data.base + id
         }
@@ -267,7 +267,7 @@
     function getScriptAbsoluteSrc(node) {
         return node.hasAttribute ? // non-IE6/7
             node.src :
-          // see http://msdn.microsoft.com/en-us/library/ms536429(VS.85).aspx
+            // see http://msdn.microsoft.com/en-us/library/ms536429(VS.85).aspx
             node.getAttribute("src", 4)
     }
 
@@ -402,7 +402,7 @@
                 isLoaded = true
             }
         }
-            // for Firefox < 9.0
+        // for Firefox < 9.0
         else if (sheet) {
             try {
                 if (sheet.cssRules) {
@@ -763,7 +763,7 @@
                 deps = id
                 id = undefined
             }
-                // define(id, factory)
+            // define(id, factory)
             else {
                 deps = undefined
             }
@@ -797,7 +797,7 @@
         emit("define", meta)
 
         meta.uri ? Module.save(meta.uri, meta) :
-        // Save information for "saving" work in the script onload event
+            // Save information for "saving" work in the script onload event
             anonymousMeta = meta
     }
 
@@ -976,7 +976,7 @@
                 if (isArray(prev)) {
                     curr = prev.concat(curr)
                 }
-                    // Make sure that `data.base` is an absolute path
+                // Make sure that `data.base` is an absolute path
                 else if (key === "base") {
                     // Make sure end with "/"
                     if (curr.slice(-1) !== "/") {

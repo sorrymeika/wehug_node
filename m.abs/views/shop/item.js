@@ -8,11 +8,13 @@ define(function (require, exports, module) {
     var Scroll = require('widget/scroll');
     var Share = require('components/share');
     var animation = require('animation');
+    var api = require('models/base');
 
     return Activity.extend({
         events: {
             'tap .js_buy:not(.disabled)': function () {
                 var self = this;
+                
                 this.forward('/cart?from=' + this.route.url);
             },
             'tap .js_share': function () {
@@ -45,7 +47,7 @@ define(function (require, exports, module) {
                 }
             })
 
-            self.swipeRightBackAction = self.route.query.from || '/';
+            self.swipeRightBackAction = self.route.query.from || '/list';
 
             Scroll.bind($main);
 
@@ -59,6 +61,18 @@ define(function (require, exports, module) {
                 title: '分享商品至'
             });
             self.share.$el.appendTo(self.$el);
+
+            var product = new api.ProductAPI({
+                $el: self.$el,
+                params: {
+                    id: 1044
+                },
+                success: function (res) {
+                    console.log(res);
+                }
+            });
+            product.load();
+            
         },
 
         onShow: function () {

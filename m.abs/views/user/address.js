@@ -5,6 +5,7 @@ var Loading = require('widget/loading');
 var model = require('core/model2');
 var Scroll = require('widget/scroll');
 var animation = require('animation');
+var api = require('models/base');
 
 module.exports = Activity.extend({
     events: {
@@ -27,6 +28,8 @@ module.exports = Activity.extend({
             back: self.swipeRightBackAction,
             title: '收获地址'
         });
+
+       
     },
 
     onShow: function () {

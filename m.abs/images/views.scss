@@ -85,6 +85,7 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .hm_chart_list li i { display: block; font-size: 2.4rem; margin-top: 5px; }
 .hm_chart_list li em { display: block; font-size: 4.8rem; margin-top: 2px; font-weight: lighter;}
 .hm_tab_con { -webkit-transition: -webkit-transform 200ms ease-out 0ms; }
+.hm_tab_con+.hm_tab_con{ -webkit-transform: translate(100%,0px); }
 .hm_cards { overflow: hidden; margin-top: 10px; margin-bottom: 20px; }
 .hm_cards li { width: 45%; height: 70px; background: #fff; margin: 7px 0 0 3.3%; position: relative; float: left; border-radius: 6px; }
 .hm_cards li i { display: block; position: absolute; width: 45px; height: 45px; top: 50%; margin: -22px 0 0 8px; background: #e8ba2e; border-radius: 50%; }
@@ -218,7 +219,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
     }
 }
 .pd_size_buy {
-    display: -webkit-box; border-top: 1px solid #ccc; margin: 10px 5px 0 5px; padding-top: 8px; position: absolute; right: 0px; left: 0px; bottom: 50px; background: #fff;
+    display: -webkit-box; border-top: 1px solid #ccc; margin: 10px 5px 0 5px; padding-top: 8px; padding-bottom: 8px; position: absolute; right: 0px; left: 0px; bottom: 40px; background: #fff;
     .hd { font-size: 2.6rem; -webkit-box-flex: 1; }
     .qty {
         border: 1px solid #ccc; height: 22px; width: 90px;display: -webkit-box;
@@ -249,7 +250,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .ct_list_item_con .name { font-size: 2.4rem; margin-bottom: 5px; display: block; }
 .ct_list_item_con .size, .ct_list_item_con .color { font-size: 1.867rem; color: #666; line-height: 15px; }
 .ct_list_item_con .qty { width: 94px; display: -webkit-box; border: 1px solid #d2d3d5; height: 20px; line-height: 18px; }
-.ct_list_item_con .qty input { display: block; text-align: center; -webkit-box-flex: 1; border: 0px; border-left: 1px solid #d2d3d5; border-right: 1px solid #d2d3d5; }
+.ct_list_item_con .qty input { display: block; text-align: center; -webkit-box-flex: 1; border: 0px; border-left: 1px solid #d2d3d5; border-right: 1px solid #d2d3d5; height: 100%; }
 .ct_list_item_con .qty .minus, .ct_list_item_con .qty .plus { display: block; text-align: center; width: 20px; }
 .ct_list_item_con .ft { text-align: right; padding-right: 8px; }
 .ct_list_item_con .ft b { display: block; color: #e65e5f; font-size: 3.2rem; }
@@ -306,7 +307,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .barcode i { background: #000; }
 
 @media screen and (min-width:375px) {
-    .barcode { width: 340px; height: 80px; }
+    .barcode { width: 340px; height: 80px;left: 0px; }
     .barcode i, .barcode em { width: 2.5px; }
 }
 
@@ -610,3 +611,165 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .uc_coupon_list li.free:before { width: 100px; height: 69px; background-position: 0px -85px; left: 17px; top: 8px; -webkit-transform: scale(.8); }
 .uc_coupon_list li.free .name { font-size: 2em; color: #fff; margin: 30px 0 0 120px; }
 .uc_coupon_list li.free .time { margin-left: 30px; margin-top: 7px; }
+
+$p:2;
+@mixin icon($x:0px, $y:0px,$width:30px,$height:30px, $img:"icon.png", $display: inline-block) {
+	content: '';
+	display: $display;
+	background: url($img) no-repeat $x $y;
+	background-size: 320px auto;
+	width: $width; 
+	height: $height;
+}
+.ex_icon { 
+	@include icon();
+ }
+ .ex_arrow {position: absolute; right: 10px; width: 11px; height: 11px; content: ''; border-top: 1px solid #ccc;border-right: 1px solid #ccc; -webkit-transform: rotate(45deg); top: 50%; margin-top: -5px;}
+ .ex_check{ @extend .ex_icon; position: absolute; top: 50%; margin: -15px 0 0 0; right: 2px; background-position: -210px -30px;}
+ 
+.cp_share_mask { position: absolute; top: 0px; right: 0px; left: 0;bottom: 0; z-index: 2000; background: rgba(0,0,0,.5); }
+.cp_share { 
+	height: 330px/$p; width: 100%; background: #fff; padding: 15px 0; position: absolute; top: 50%; left: 0; margin: -330px/$p/2 0 0 0;
+	.hd { font-size: 3rem; text-align: center; }
+	.bd {
+		padding-top: 4px/$p;
+		ul { display: -webkit-box; margin-top: 5px; }
+		li {
+			-webkit-box-flex: 1; width: 0px; height: 80px; text-align: center; font-size: 2.8rem; 
+			&:before { @include icon(0px,0px,104px/$p,104px/$p,"icon_share.png",block); background-size: 416px/$p auto;margin: 0 auto 4px auto;}
+		}
+		@for $i from 1 to 4 {
+			li:nth-child(#{$i+1}):before { background-position: -104px/$p*$i 0px; }
+		}
+	}
+	.ft {
+		.btn { display: block; line-height: 30px; height: 60px/$p; width: (550/640)*100%; font-size: 3rem; background: #ccc; margin: 5px auto 0 auto; border-radius: 0; }
+	}
+}
+
+.ct_coupon_wrap { 
+	@extend .cp_share_mask; -webkit-transition: all 300ms ease-out 0ms;
+	&.out {
+		background: transparent;
+		.ct_coupon {-webkit-transform: translate3d(100%,0px,0px);}
+	}
+}
+.ct_coupon { background: #f1f2f2; position: absolute; bottom: 0px; top: 0px; right: 0px; left: 20%; -webkit-transition: all 300ms ease-out 0ms; -webkit-transform: translate3d(0px,0px,0px); }
+.ct_coupon_hd { height: 44px; text-align: center; line-height: 44px; color: #fff; background: #e65e5f; box-sizing: content-box; }
+.has_status_bar { 
+	.ct_coupon_hd { border-top: 20px solid #e65e5f; }
+	.ct_coupon_list .bd { margin-top: 20px; }
+}
+.ct_coupon_use { 
+	padding: 10px; display: -webkit-box; height: 28px;
+	input { display: block; height: 28px; border: 0px;-webkit-box-flex: 1; padding-left: 5px; border-radius: 4px; }
+	.btn { display: block; margin-left: 10px; height: 28px; line-height: 28px; width: 70px;}
+}
+.ct_coupon_list { 
+	margin-top: 10px; 
+	.hd { margin-top: 17px; height: 33px; border-bottom: 1px solid #ccc; line-height: 33px; background-color: #fff;font-size: 2.4rem; padding-left: 10px; }
+	.bd { 
+		position: absolute; top: 122px; right: 0px; left: 0; bottom: 0;
+		.nodata { padding: 15px 0; display: block; text-align: center; }
+		li+.nodata { display: none; }
+	}
+	li {
+		height: 95px; margin: 5px 10px 5px 30px; padding-top: .1px; background: #e84838; position: relative;
+		&:before { @extend .ex_icon; background-position: -240px -30px; position: absolute; left: -30px; top: 50%; margin-top: -15px; }
+		&.curr:before { background-position: -210px -30px; }
+		&.vct2 { background: #e8672e; }
+		&.vct5 { background: #fc3; }
+		&.dis { background: #ccc; }
+		.price {
+			font-size: 11.473rem; color: #fff; margin: 5px 0 0 20px; line-height: 1; 
+			&:before { content: '￥'; display: inline-block; font-size: 12px; vertical-align: 2px; }
+		}
+		.name { font-size: 2.82rem; color: #fff; margin: -2px 0 0 20px; line-height: 1;}
+		.time { font-size: 1.8rem; color: #fff; margin: 2px 0 0 20px; }
+		&.free:before,&:after { background: url(site.png) no-repeat 0px -30px; background-size: 320px auto; position: absolute; right: 0px; bottom: 0px; content: ''; display: block; width: 139px; height: 55px; z-index: 0; }
+		&.free {
+			background: #4dbeea;
+			.price { display: none; }
+			&:before { width: 100px; height: 69px; background-position: 0px -85px; left: 17px; top: 8px; -webkit-transform: scale(.8); }
+			.name { font-size: 2em; color: #fff; margin: 30px 0 0 120px; }
+			.time { margin-left: 30px; margin-top: 7px; }
+		}
+	}
+}
+
+.uc_address {
+	padding-top: .1px;
+}
+.uc_address_new {
+	position: relative; background: #fff; margin-top: 17px; height: 50px; line-height: 50px; font-size: 2.8rem; padding-left: 10px;
+	&:after { @extend .ex_arrow; }
+}
+.uc_address_con {
+	margin-top: 32px; background-color: #fff;
+	li {
+		padding: 19px 35px 14px 14px;border-top: .5px solid #ddd;border-bottom: .5px solid #ddd; position: relative;
+		.hd {
+			font-size: 2.8rem;
+			.mobi { float: right; }
+		}
+		.con { font-size: 2.4rem; margin-top: 5px; }
+		&.default:after { @extend .ex_check; }
+		&.curr { 
+			background: #e65e5f; color:#fff;
+			&.default:after { background-position: -270px -30px; }
+		}
+	}
+}
+.uc_addaddress {
+	padding-top: 17px;
+	ul { background: #fff; }
+	li { 
+		border-bottom: .5px solid #ddd; display: -webkit-box; height: 50px;line-height: 50px;font-size: 2.8rem;padding:0 8px; position: relative;
+		input { 
+			display: block; height: 100%;-webkit-box-flex: 1; border: 0; font-size: 2.8rem; 
+			&::-webkit-input-placeholder { font-size: 2.8rem; }
+		}
+		&:last-child { border-bottom: 0; }
+	}
+	.set_default { 
+		position: relative;
+		&:after {content:'';display:block;position: absolute; margin-top: -10px; top: 50%;right: 6px;border-radius: 50%; border:1px solid #ddd; width: 20px; height:20px; }
+		&.checked:after { @extend .ex_check; border: 0px;}
+	}
+	.btn { border-radius: 0; height: 50px; position: fixed; bottom: 0px; right: 0px; left: 0; line-height: 50px; }
+}
+
+.uc_settings {
+	padding-top: .1px;
+	li {
+		margin-top: 10px; height: 45px; border-bottom: 1px solid #ccc; background: #fff; padding-left: 10px; font-size: 2.9rem; position: relative;
+		&:before { @include icon(0px,-150px); vertical-align: -9px; margin-top: 8px; margin-right: 5px; }
+		@for $i from 0 to 5 {
+			&:nth-child(#{$i+1}):before { background-position-x: -($i*30px); }
+		}
+		&:after {@extend .ex_arrow; }
+	}
+}
+
+.uc_pwd {
+	dt { height: 30px; padding-top: 10px; font-size: 2.6rem; padding-left: 8px; }
+	dd {
+		input { display: block; border: 0px;height: 43px; padding-left: 8px; width: 100%;}
+	}
+	.action { 
+		margin: 38px auto 0 auto;width: 120px;
+	}
+}
+
+.cp_mask { 
+	@extend .cp_share_mask; -webkit-transition: all 400ms ease-out 0ms;background: transparent;
+	.cp_confirm {-webkit-transform: scale(2);opacity: 0;-webkit-transition: opacity,-webkit-transform 300ms ease-out 0ms;transform-origin: 50%; width: 65.625%; left: 17%; top: 50%; position: absolute; background: #fff; border-radius: 6px; font-size: 2.5rem; }
+	.cp_confirm_bd { padding: 10px;margin: 0 4px; border-bottom: 1px solid #ddd;}
+	.cp_confirm_ft { display: -webkit-box; }
+	.cp_confirm_ft .btn {border-right: 1px solid #ddd; display:block; -webkit-box-flex: 1; font-size: 2.8rem; background: #fff; color: #666; border-radius: 0; margin: 2px; }
+	.cp_confirm_ft .btn:last-child {border-right: 0;color: #c33;}
+	&.show {
+		background: rgba(0,0,0,.5);
+		.cp_confirm {-webkit-transform: scale(1);opacity: 1;}
+	}
+ }

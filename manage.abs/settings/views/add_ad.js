@@ -6,7 +6,8 @@
     var Page = require('common/page');
     var menu = require('common/menu');
     var Form = require('components/form');
-    var adtypes = require('settings/data/adtypes');
+    var adtypes = require('../data/adtypes');
+    var API = require('models/api').API;
 
     return Page.extend({
         events: {},
@@ -44,7 +45,7 @@
                 name: 'user',
                 title: 'test',
                 useIframe: true,
-                url: '/api/manage/add_ad',
+                url: API.url('/api/manage/add_ad'),
                 validator: 'userValid',
                 enctype: '',
                 fields: [{

@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var model = require('core/model2');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
+    var api = require('models/base');
 
     return Activity.extend({
         events: {
@@ -26,6 +27,14 @@ define(function (require, exports, module) {
                 back: self.swipeRightBackAction,
                 title: '床品'
             });
+
+            var list = new api.ProductSearchAPI({
+                $el: self.$el,
+                success: function (res) {
+                    console.log(res);
+                }
+            });
+            list.load();
         },
 
         onShow: function () {

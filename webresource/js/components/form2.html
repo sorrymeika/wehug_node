@@ -14,7 +14,7 @@
                 }
                 @for (var j=0,length=items.length;j<length;j++){
                     field = items[j];
-                    var attr = 'style="' + (field.width ? "width:" + field.width+"px;" : '') + (field.height ? "height:" + field.height+"px;" : '') + '" name="' + field.field + '" sn-model="' + name + '.' + field.field + '" value="{{' + name + '.' + field.field + '}}"';
+                    var attr = "style=\"" + (field.width ? "width:" + field.width+"px;" : '') + (field.height ? "height:" + field.height+"px;" : '') + '" name="' + field.field + '" sn-model="' + name + '.' + field.field + '" value="{{' + name + '.' + field.field + '}}"';
 
                     <th @html(field.vAlign?'style="vertical-align:'+field.vAlign+'"':'')>@field.label @if (field.emptyAble===false){<i>*</i>}</th>
                     <td colspan="@(field.colSpan||1)">

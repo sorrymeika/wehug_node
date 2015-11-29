@@ -1,7 +1,7 @@
 ﻿define(function (require, exports, module) {
     var $ = require('$');
     var util = require('util');
-    var menu = require('./menu.tpl');
+    var menu = require('./menu.html');
     var model = require('core/model');
 
     module.exports = exports = function () {

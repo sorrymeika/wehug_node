@@ -3,9 +3,9 @@ var model = require('core/model2');
 
 var Confirm = model.Component.extend({
 	el: <div class="cp_mask" style="display:none">
-		<div class="cp_confirm">
+		<div class="cp_confirm" style="height:{{height}}px;margin-top:-{{height/2}}px">
 			<div class="cp_confirm_bd" sn-html="{{content}}"></div>
-			<div class="cp_confirm_ft"><b class="btn" sn-tap="this.cancel">取消</b><b class="btn js_confirm">确定</b></div>
+			<div class="cp_confirm_ft"><b class="btn" sn-tap="this.cancel">取消</b><b class="btn js_confirm"  sn-tap="this.confirm">确定</b></div>
 		</div>
 	</div>,
 	
@@ -25,11 +25,11 @@ var Confirm = model.Component.extend({
 		this.listenTo(this.$el,$.fx.transitionEnd,this._hide);
 	},
 	
-	set: function(data){
-		this.model.set(data);
-	},
 	show: function(){
 		this.$el.show().addClass('show');
+		this.set({
+			height: this.$('.cp_confirm')[0].offsetHeight
+		});
 	},
 	_hide: function(){
 		!this.$el.hasClass('show')&&this.$el.hide();
