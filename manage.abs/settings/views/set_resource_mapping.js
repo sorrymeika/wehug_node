@@ -52,7 +52,7 @@
 
             this.model.before('.js_action', form.$el);
             
-            var form = new Form({
+            var form2 = new Form({
                 model: this.model,
                 name: 'upload',
                 useIframe: true,
@@ -66,12 +66,12 @@
                 }]
             });
             
-            this.model.before('.js_action1', form.$el);
+            this.model.before('.js_action1', form2.$el);
             
             this.model.set({
                 buttons1: [{
                     click: function () { 
-                        form.submit(function (res) { 
+                        form2.submit(function (res) { 
                             if (res.success) {
                                 sl.tip('上传成功');
 

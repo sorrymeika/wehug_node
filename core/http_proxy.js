@@ -15,8 +15,6 @@ module.exports = function (host, port, replace) {
         };
 
         var req = http.request(options, function (res) {
-            console.log('response');
-
             response.set(res.headers);
             response.set('Access-Control-Allow-Credentials', true);
             response.set('Access-Control-Allow-Origin', request.headers.origin);
@@ -36,7 +34,6 @@ module.exports = function (host, port, replace) {
         });
 
         request.on('data', function (postData) {
-            console.log('data');
             req.write(postData);
         });
 

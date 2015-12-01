@@ -12,6 +12,7 @@
     var rmatch = /\{\{(.+?)\}\}/g;
     var rvar = /'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/[img]*|\/\/.*|(^|[\!\=\>\<\?\s\:\(\),\%&\|\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\())/g;
     var rset = /([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*)\s*=\s*((?:\((?:'(?:\\'|[^'])*'|[^\)])+\)|'(?:\\'|[^'])*'|[^;])+)(?=\;|\,|$)/g;
+    var rthis = /\b(this\.[\.\w]+\()((?:'(?:\\'|[^'])*'|[^\)])*)\)/g;
 
     var isNull = function (str) {
         var arr = str.split('.');
@@ -68,7 +69,7 @@
         } else {
             throw new Error('Model\'s parent mast be Collection or Model');
         }
-        
+
         this.data = data;
         this._key = key;
         this.model = {};
@@ -96,8 +97,6 @@
                         if (!(model = model[key[i]]))
                             return null;
                     }
-                    return model;
-
                 } else {
                     for (var i = 0, len = key.length; i < len; i++) {
                         if (model instanceof Model)
@@ -107,8 +106,8 @@
                         else
                             return null;
                     }
-                    return model;
                 }
+                return (model instanceof Model || model instanceof Collection) ? model.data : model;
             }
             return key == 'this' ? this : key == '' ? this.data : this.model[key];
         },
@@ -203,7 +202,6 @@
                         model[attr] = value;
 
                         if (!this.root.init) {
-                            console.log('sync:' + (this.key ? this.key + '.' + attr : attr).replace(/\./g, '/'));
                             this.trigger('change:' + attr, value);
                             this.root.trigger('sync:' + (this.key ? this.key + '.' + attr : attr).replace(/\./g, '/'), this, attr, value);
                         }
@@ -229,8 +227,8 @@
             }
         },
         contains: function (model) {
-            for (var parent = model.parent; parent != null; parent = parent.parent) {
-                if (parent == this) {
+            for (model = model.parent; model != null; model = model.parent) {
+                if (model == this) {
                     return true;
                 }
             }
@@ -299,11 +297,10 @@
 
         } else if (repeat.isChild || parentModel) {
             this.type = 'children';
-
-            this.findReplacement(parentModel || collection.parent);
+            this.replacement = this.findReplacement(parentModel || collection.parent);
 
         } else {
-            this.type = 'in_other_repeat';
+            this.type = 'inset';
 
             for (var i = 0; i < repeat.parent.collectionRepeats.length; i++) {
                 var parentCollectionRepeat = repeat.parent.collectionRepeats[i];
@@ -328,11 +325,11 @@
     }
 
     CollectionRepeat.prototype.findReplacement = function (model) {
-        for (var parent = model; parent != null && parent != model.root; parent = parent.parent) {
-            if (parent instanceof Model && parent.replacement) {
-                for (var i = 0; i < parent.replacement.length; i++) {
-                    if (parent.replacement[i].repeat == this.repeat) {
-                        this.replacement = parent.replacement[i];
+        for (; model != null && model != model.root; model = model.parent) {
+            if (model instanceof Model && model.replacement) {
+                for (var i = 0; i < model.replacement.length; i++) {
+                    if (model.replacement[i].repeat == this.repeat) {
+                        return model.replacement[i];
                         break;
                     }
                 }
@@ -341,7 +338,7 @@
     }
 
     CollectionRepeat.prototype.update = function () {
-        if (this.type == 'in_other_repeat') {
+        if (this.type == 'inset') {
             for (var i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].update();
             }
@@ -353,6 +350,7 @@
         var list = this.elements;
         var repeat = this.repeat;
         var orderBy = repeat.orderBy;
+        var root = this.collection.root;
 
         if (orderBy) {
             list.sort(function (a, b) {
@@ -364,13 +362,13 @@
 
         for (var i = 0, len = list.length; i < len; i++) {
             var item = list[i];
-            if (repeat.filter === undefined || this.collection.root.fns[repeat.filter].call(this.collection.root, Filters, item.model)) {
+            if (repeat.filter === undefined || root.fns[repeat.filter].call(root, Filters, item.model)) {
                 fragment.appendChild(item);
                 item.setAttribute('sn-index', index);
                 if (repeat.indexAlias) {
                     item.setAttribute('sn-index-alias', repeat.indexAlias);
 
-                    this.collection.root.trigger('sync:' + repeat.collectionName + '/' + repeat.alias + '/' + repeat.indexAlias, item.model);
+                    root.trigger('sync:' + repeat.collectionName + '/' + repeat.alias + '/' + repeat.indexAlias, item.model);
                 }
                 index++;
 
@@ -393,6 +391,7 @@
 
         if (parentNode) parentNode.appendChild(node);
 
+        //如果是给repeat占位的CommentElement，则存放到相关model的replacement中以备替换
         if (el.nodeType == 8 && el.repeat) {
             node.repeat = el.repeat;
             if (model) {
@@ -404,10 +403,10 @@
                 node.bindings = el.bindings;
 
                 if (model) {
-                    node.model = model;
                     el._origin._elements.push(node);
                     model.root._setElAttr(node);
                 } else {
+                    //CollectionRepeat实例化中的cloneNode才会执行
                     node._origin = el;
                 }
             }
@@ -429,7 +428,7 @@
     }
 
     CollectionRepeat.prototype.remove = function (start, count) {
-        if (this.type == 'in_other_repeat') {
+        if (this.type == 'inset') {
             for (var i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].remove(start, count);
             }
@@ -441,7 +440,7 @@
     }
 
     CollectionRepeat.prototype.add = function (model) {
-        if (this.type == 'in_other_repeat') {
+        if (this.type == 'inset') {
             for (var i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].add(model);
             }
@@ -451,7 +450,7 @@
     }
 
     CollectionRepeat.prototype.clear = function () {
-        if (this.type == 'in_other_repeat') {
+        if (this.type == 'inset') {
             for (var i = 0, len = this.children.length; i < len; i++) {
                 this.children[i].clear();
             }
@@ -568,7 +567,7 @@
     var withData = function (repeat) {
         var code = '{';
         for (var parent = repeat.parent, current = repeat; parent != null; current = parent, parent = parent.parent) {
-            code += parent.alias + ':' + (current.isChild ? 'model.closest(\'' + parent.collectionName + '^child\').data' : 'Filters.closestModelData(el,"' + parent.alias + '")') + ',';
+            code += parent.alias + ':' + (current.isChild ? 'model.closest(\'' + parent.collectionName + '^child\').data' : 'global.closestModelData(el,"' + parent.alias + '")') + ',';
 
             if (parent.indexAlias) {
                 code += parent.indexAlias + ':$el.closest(\'[sn-index-alias="' + parent.indexAlias + '"]\').attr("sn-index"),';
@@ -590,6 +589,7 @@
         this.repeats = {};
         this._fns = [];
         this.fns = [];
+        this.root = this;
 
         this.scan(template);
         this.init = true;
@@ -602,7 +602,7 @@
 
         _compile: function (expression, repeat, listen) {
             var self = this;
-            var code = 'function(Filters,model,el){var $el=$(el),$data=$.extend({},Filters,model.root.data';
+            var code = 'function(global,model,el){var $el=$(el),$data=$.extend({},global,model.root.data';
 
             if (repeat) {
                 code += ',' + withData(repeat);
@@ -618,34 +618,27 @@
                         var attrs = name.split('.');
                         var alias = attrs[0];
 
-                        if (alias == 'Math' || alias == '$' || alias == 'this' || rvalue.test(name) || !alias || Filters[alias]) {
+                        if (!alias || alias == 'Math' || alias == '$' || alias == 'this' || alias == 'window' || alias == 'document' || rvalue.test(name) || Filters[alias]) {
                             return prefix + name;
                         }
-                        var indexAlias;
+                        var loopIndex;
 
                         if (repeat) {
-                            if (alias == repeat.alias) {
-                                attrs[0] = repeat.collectionName + '^child';
+                            for (; repeat != null; repeat = repeat.parent) {
+                                if (alias == repeat.alias) {
+                                    attrs[0] = repeat.collectionName + '^child';
+                                    break;
 
-                            } else if (alias == repeat.indexAlias) {
-                                indexAlias = repeat;
-                            } else {
-                                for (var parent = repeat.parent; parent != null; parent = parent.parent) {
-                                    if (parent.alias == alias) {
-                                        attrs[0] = parent.collectionName + '^child';
-
-                                    } else if (alias == parent.indexAlias) {
-                                        indexAlias = parent;
-                                    }
+                                } else if (alias == repeat.indexAlias) {
+                                    loopIndex = repeat;
+                                    break;
                                 }
                             }
                         }
 
-                        if (!indexAlias) {
-                            self.on('sync:' + attrs.join('/'), listen);
-                        } else {
-                            self.on('sync:' + indexAlias.collectionName + '/' + indexAlias.alias + '/' + indexAlias.indexAlias, listen);
-                        }
+                        self.on('sync:' + (loopIndex
+                            ? loopIndex.collectionName + '/' + loopIndex.alias + '/' + loopIndex.indexAlias
+                            : attrs.join('/')), listen);
 
                         return prefix + isNull(name);
                     }) + ')+\'';
@@ -696,7 +689,6 @@
         },
         _bindAttr: function (node, attr, expression, repeat) {
             var self = this;
-            self.root = this;
 
             if (!rmatch.test(expression)) return;
 
@@ -708,8 +700,9 @@
                 } else {
                     for (var i = 0; i < node._elements.length; i++) {
                         var el = node._elements[i];
+                        var closestModel;
 
-                        if (model == model.root || el.model == model || el.model.contains(model)) {
+                        if (model == self || (closestModel = self._closestByEl(el)) == self || closestModel == model || closestModel.contains(model)) {
                             self._setElAttr(el, attr);
                         }
                     }
@@ -837,16 +830,15 @@
                             self._bindAttr(child, attr, val, repeat);
 
                         } else if (snEvents.indexOf(attr.replace(/^sn-/, '')) != -1) {
-                            if (rset.test(val) || /\bthis\.[\.\w]+\(/.test(val)) {
-                                var code = 'function(e,model,Filters){var el=e.currentTarget,$data=$.extend({},Filters,model.root.data';
+                            if (rset.test(val) || rthis.test(val)) {
+                                var code = 'function(e,model,global){var el=e.currentTarget,$data=$.extend({},global,model.root.data';
                                 if (repeat)
                                     code += ',' + withData(repeat);
 
-                                code += ');with($data){' + val.replace(rset, function (match, key, value) {
-                                    return 'this._setByEl(e.currentTarget,"' + key + '",' + value + ')'
-                                }) + '}}';
+                                code += ');with($data){' + val.replace(rthis, function (match, $1, $2) {
+                                    return $1 + "e" + ($2 ? ',' : '') + $2 + ")";
 
-                                console.log(code);
+                                }).replace(rset, 'this._setByEl(e.currentTarget,"$1",$2)') + '}}';
 
                                 child.setAttribute(attr, self.fns.length + self._fns.length);
                                 self._fns.push(code);

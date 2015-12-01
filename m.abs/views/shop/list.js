@@ -30,8 +30,14 @@ define(function (require, exports, module) {
 
             var list = new api.ProductSearchAPI({
                 $el: self.$el,
+                check: false,
                 success: function (res) {
-                    console.log(res);
+                    self.model.set({
+                        data: res.data
+                    });
+                },
+                append: function (res) {
+                    self.model.get('data').append(res.data);
                 }
             });
             list.load();

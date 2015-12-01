@@ -14,7 +14,7 @@ define(function (require, exports, module) {
         events: {
             'tap .js_buy:not(.disabled)': function () {
                 var self = this;
-                
+
                 this.forward('/cart?from=' + this.route.url);
             },
             'tap .js_share': function () {
@@ -58,21 +58,38 @@ define(function (require, exports, module) {
             });
 
             self.share = new Share({
-                title: '分享商品至'
+                head: '分享商品至'
             });
             self.share.$el.appendTo(self.$el);
 
             var product = new api.ProductAPI({
                 $el: self.$el,
                 params: {
-                    id: 1044
+                    id: self.route.data.id
                 },
+                checkData: false,
                 success: function (res) {
-                    console.log(res);
+                    console.log(res.data);
+                    self.model.set({
+                        data: res.data
+                    });
+                    productHead.setParam({
+                        id: res.data.PRD_PRH_ID
+                    }).load();
                 }
             });
             product.load();
-            
+
+
+            /*
+            var productHead = new api.ProductHeadAPI({
+                $el: self.$el,
+                checkData: false,
+                success: function (res) {
+                    console.log(res.data);
+                }
+            });
+            */
         },
 
         onShow: function () {

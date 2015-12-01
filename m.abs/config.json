@@ -1,11 +1,12 @@
 {
     "root": "/",
     "js": {
-        "components": [
-            "components/share",
-            "components/confirm",
-            "models/base"
-        ]
+        "components": {
+            "components/share": null,
+            "components/confirm": null,
+            "models/base": null,
+            "core/model3": "../webresource/js/core/model2"
+        }
     },
     "css": {
         "images/style.css": [

@@ -9,25 +9,10 @@
         <li>价格</li>
     </ul>
     <ul class="sp_list">
-        <li class="sp_list_item" data-forward="/item/1">
-            <img src=""/>
-            <p class="price"><b>￥20</b><del>￥50&nbsp;</del></p>
-            <p class="name">名称名称名称名称名称名称名称名称</p>
-        </li>
-        <li class="sp_list_item">
-            <img src="" />
-            <p class="price"><b>￥20</b><del>￥50</del></p>
-            <p class="name">名称名称名称名称名称名称名称名称</p>
-        </li>
-        <li class="sp_list_item">
-            <img src="" />
-            <p class="price"><b>￥20</b><del>￥50</del></p>
-            <p class="name">名称名称名称名称名称名称名称名称</p>
-        </li>
-        <li class="sp_list_item">
-            <img src="" />
-            <p class="price"><b>￥20</b><del>￥50</del></p>
-            <p class="name">名称名称名称名称名称名称名称名称</p>
+        <li sn-repeat="item in data" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}">
+            <img src="{{item.WPP_LIST_PIC1}}"/>
+            <p class="price"><b>￥{{item.PRD_PRICE}}</b><del sn-display="{{item.PRD_PRICE!=0&&item.PRD_PRICE<item.PRD_MEMBER_PRICE}}">￥{{item.PRD_MEMBER_PRICE}}&nbsp;</del></p>
+            <p class="name">{{item.PRD_NAME}}</p>
         </li>
     </ul>
 </div>

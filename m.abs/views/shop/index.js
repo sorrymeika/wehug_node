@@ -33,6 +33,11 @@ define(function (require, exports, module) {
             var cate = new api.CategoryAPI({
                 success: function (res) {
                     console.log(res);
+
+                    self.model.set({
+                        id: res.data[0].PCG_ID,
+                        categories: res.data
+                    })
                 },
                 $el: self.$el
             });

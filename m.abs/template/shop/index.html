@@ -6,14 +6,7 @@
 </header>
 <div class="main">
     <ul class="sp_all_cates">
-        <li class="curr" data-forward="/list">出行</li>
-        <li>睡眠</li>
-        <li>美食</li>
-        <li>沐浴</li>
-        <li>休闲</li>
-        <li>家务</li>
-        <li>空间</li>
-        <li>儿童</li>
+        <li sn-repeat="item in categories|filter:item.PCG_DEPTH==1" class="{{item.PCG_ID==id?'curr':''}}" data-forward="/list?id={{item.PCG_ID}}&from=/all">{{item.PCG_DESC}}</li>
     </ul>
     <div class="sp_all_banner"><img src="" /></div>
     <ul class="sp_all_list">

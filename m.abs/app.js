@@ -123,9 +123,15 @@ exports.startWebServer = function (config) {
         var requires = [];
 
         for (var key in project.js) {
-            project.js[key] && project.js[key].forEach(function (file) {
-                requires.push(combinePath(project.root, file));
-            });
+            var fileList = project.js[key];
+            if (fileList) {
+                if (!_.isArray(fileList)) {
+                    fileList = _.keys(fileList);
+                }
+                fileList.forEach(function (file) {
+                    requires.push(combinePath(project.root, file));
+                });
+            }
         }
 
         for (var key in project.css) {
@@ -271,17 +277,25 @@ if (args.build) {
             for (var key in project.js) {
                 requires.push(combinePath(project.root, key));
 
-                if (project.js[key] && project.js[key].length) { 
+                if (project.js[key]) { 
                     //打包项目引用js                
                     (function (key, fileList, filePromise) {
+                        var ids;
+                        if (!_.isArray(fileList)) {
+                            ids = _.keys(fileList);
+                            fileList = _.map(fileList, function (value, id) {
+                                return value || id;
+                            });
+                        }
 
                         filePromise.each(fileList, function (i, file) {
                             var isRazorTpl = /\.(html|tpl|cshtml)$/.test(file);
 
                             fsc.readFirstExistentFile([project.root], isRazorTpl ? [file] : [file + '.js', file + '.jsx'], function (err, text, fileName) {
+
                                 if (isRazorTpl) text = razor.web(text);
                                 text = formatJs(text);
-                                text = Tools.compressJs(Tools.replaceDefine(combinePath(project.root, file), text));
+                                text = Tools.compressJs(Tools.replaceDefine(ids ? ids[i] : combinePath(project.root, file), text));
 
                                 filePromise.next(i, err, text);
                             });
@@ -347,8 +361,6 @@ if (args.build) {
 
                     controller = combinePath(project.root, 'views', controller);
                     template = combinePath(project.root, 'template', template);
-
-                    console.log(controller, project.root);
 
                     var controllerPath = path.join(baseDir, controller);
                     var templatePath = path.join(baseDir, template);

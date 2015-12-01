@@ -8,6 +8,8 @@ define(function (require, exports, module) {
     var Scroll = require('widget/scroll');
     var animation = require('animation');
     var bridge = require('bridge');
+    var api = require('models/base');
+    var Share = require('components/share')
 
     var cardAnimation = function (items) {
         if (items.eq(0).hasClass('show') || !items.length) return;
@@ -57,18 +59,54 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
-            model.Filters.cardClass = function (item) {
-                return (item.VCA_VCT_ID == 4 ? 'free' : item.VCA_VCT_ID == 2 ? 'price10' : item.VCA_VCT_ID == 1 ? 'price50' : '') + (item.IsOverdue ? ' dis' : '');
-            }
+            self.user = util.store('user');
 
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
                 title: '我的卡券',
-                isOverdue: false,
-                open: function () {
-                    bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
+                isOverdue: false
+            });
+
+            this.model.couponApi = new api.CouponAPI({
+                $el: this.$el,
+                checkData: false,
+                beforeSend: function () {
+                    var code = self.model.get('code');
+                    if (!code) {
+                        sl.tip('请输入券号');
+                        return false;
+                    }
+                    this.setParam({
+                        csvcode: code
+                    });
+                },
+                params: {
+                    pspcode: self.user.Mobile
+                },
+                success: function (res) {
+                    console.log(res);
+                },
+                error: function (res) {
+                    sl.tip(res.msg);
                 }
             });
+
+            self.share = new Share({
+                head: '分享这张优惠券'
+            });
+            self.share.$el.appendTo(self.$el);
+
+            this.model.share = function (e, item) {
+                console.log(e, item)
+                if (item.VCA_VCT_ID == 4 || item.VCA_VCT_ID == 5 || item.VCA_VCT_ID == 2) {
+                    self.share.set({
+                        linkURL: '',
+                        title: '',
+                        description: ''
+
+                    }).show();
+                }
+            }
 
             self.loading = new Loading({
                 url: "/api/user/voucher_list",
@@ -92,7 +130,7 @@ define(function (require, exports, module) {
                         var data = util.find(res.data, function (item) {
                             return item.VCA_VCT_ID != 4;
                         });
-
+                        
                         data.sort(function (a, b) {
                             return a.IsOverdue && !b.IsOverdue ? 1 : !a.IsOverdue && b.IsOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
                         });
@@ -103,20 +141,12 @@ define(function (require, exports, module) {
                         });
                         data1.sort(function (a, b) {
                             return a.IsOverdue && !b.IsOverdue ? 1 : !a.IsOverdue && b.IsOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
-                        })
+                        });
 
                         self.model.set("data1", data1);
 
                         self.showItemsWithAnim();
                     }
-
-                    self.model.set("data1", [{
-                        VCA_VCT_ID: 4,
-                        VCA_DEDUCT_AMOUNT: 20,
-                        VCA_NAME: 'asdf'
-                    }]);
-
-                    self.showItemsWithAnim();
                 }
             });
 
@@ -126,7 +156,6 @@ define(function (require, exports, module) {
                 }
             });
 
-            self.user = util.store('user');
         },
 
         showItemsWithAnim: function () {

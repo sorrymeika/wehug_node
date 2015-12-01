@@ -86,8 +86,8 @@ input[type="password"].prompt-text { letter-spacing: 2px; }
 .selector > :nth-child(n) { -webkit-box-flex: 1; width: 0; }
 .selector > :nth-child(n+2) { border-left: 1px solid #ddd; }
 .selector:before { content: ''; display: block; background: -webkit-linear-gradient(top, rgb(255, 255, 255) 5%, rgba(255, 255, 255, 0) 50%, rgb(255, 255, 255) 95%); position: absolute; width: 100%; top: 0; left: 0; bottom: 0px; z-index: 2; pointer-events: none; }
-.selectorcon { position: relative; z-index: 1; }
-.selector:after { content: ''; display: block; margin-top: -7px; position: absolute; left: 0; top: 50%; height: 32px; border-top: .5px solid #ddd; border-bottom: .5px solid #ddd; width: 100%; z-index: 100; pointer-events: none; }
+.selectorcon { position: relative; z-index: 1; margin-top: -3px; }
+.selector:after { content: ''; display: block; margin-top: -11px; position: absolute; left: 0; top: 50%; height: 32px; border-top: .5px solid #ddd; border-bottom: .5px solid #ddd; width: 100%; z-index: 100; pointer-events: none; }
 .selectorcon > ul > li { height: 30px; font-size: 16px; }
 .selectorcon > ul { padding: 86px 0 56px 0; -webkit-transform: translate(0px,100%); -webkit-transition: all 300ms ease-out 0ms; }
 

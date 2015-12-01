@@ -59,6 +59,23 @@ exports.RegionAPI = ShopAPI.extend({
 	}
 });
 
+exports.CouponAPI = ShopAPI.extend({
+	url: '/api/user/GetCoupon',
+	params: {
+		pspcode: '',
+		csvcode: ''
+	}
+});
+
+exports.CouponShareAPI = API.extend({
+	url: '/api/user/shareCoupon',
+	params: {
+		UserID: 0,
+		Auth: ''
+	}
+});
+
+
 exports.CreateOrderAPI = ShopAPI.extend({
 	url: '/api/shop/CreateMOrder',
 	params: {
@@ -84,7 +101,21 @@ exports.SubCategoryAPI = ShopAPI.extend({
 });
 
 exports.ProductSearchAPI = ShopAPI.extend({
-	url: "/Prod/productlist?keycodes=ABS&orderbyStr=2&orderby=desc&length=2&pages=0"
+	url: "/Prod/productlist",
+	params: {
+		keycodes: '',
+		orderbyStr: 2,
+		orderby: 'desc',
+		length: 2,
+		pages: 0
+	}
+});
+
+exports.ProductHeadAPI = ShopAPI.extend({
+	url: '/api/prod/prhitem',
+	params: {
+		id: 0
+	}
 });
 
 exports.ProductAPI = ShopAPI.extend({

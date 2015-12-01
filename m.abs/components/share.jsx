@@ -8,29 +8,29 @@ var Share = View.extend({
 		'tap .js_weixin_timeline': function(){
 			bridge.wx({
 				type: 'shareLinkURL',
-				linkURL: 'http://www.abs.cn',
+				linkURL: this.model.data.linkURL,
 				tagName: 'abs',
-				title: 'abs',
-				description: 'abs',
+				title: this.model.data.title,
+				description: this.model.data.description,
 				scene: 1
 			})
 		},
 		'tap .js_weixin_session': function(){
 			bridge.wx({
 				type: 'shareLinkURL',
-				linkURL: 'http://www.abs.cn',
+				linkURL: this.model.data.linkURL,
 				tagName: 'abs',
-				title: 'abs',
-				description: 'abs',
+				title: this.model.data.title,
+				description: this.model.data.description,
 				scene: 0
 			})
 		},
 		'tap .js_qq': function(){
 			bridge.qq({
 				type: 'shareLinkURL',
-				linkURL: 'http://www.abs.cn',
-				title: 'abs',
-				description: 'abs'
+				linkURL: this.model.data.linkURL,
+				title: this.model.data.title,
+				description: this.model.data.description
 			})
 		},
 		
@@ -45,7 +45,7 @@ var Share = View.extend({
 	},
 	el: <div class="cp_share_mask" style="display:none">
 		<div class="cp_share">
-			<div class="hd">{{title}}</div>
+			<div class="hd">{{head}}</div>
 			<div class="bd">
 				<ul>
 					<li class="js_weixin_timeline"><span>朋友圈</span></li>
@@ -63,12 +63,15 @@ var Share = View.extend({
 	
 	set: function(data){
 		this.model.set(data);
+		return this;
 	},
 	show: function(){
 		this.$el.show();
+		return this;
 	},
 	hide: function(){
 		this.$el.hide();
+		return this;
 	}
 
 });

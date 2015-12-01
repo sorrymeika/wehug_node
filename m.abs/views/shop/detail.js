@@ -5,7 +5,7 @@ var Loading = require('widget/loading');
 var model = require('core/model2');
 var Scroll = require('widget/scroll');
 var animation = require('animation');
-    var api = require('models/base');
+var api = require('models/base');
 
 module.exports = Activity.extend({
     events: {
@@ -26,13 +26,15 @@ module.exports = Activity.extend({
         Scroll.bind(self.$('.main'));
 
         var detail = new api.ProductDetailAPI({
-            $el: self.$('.js_size'),
+            $el: self.$el,
+            params: {
+                id: self.route.data.id
+            },
             success: function (res) {
-                console.log(res);
-                
                 self.model.set({
                     data: res.data
                 });
+                console.log(res);
             }
         });
         detail.load();

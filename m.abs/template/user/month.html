@@ -20,25 +20,12 @@
         </div>
         <div class="uc_months_slider">
             <ul class="uc_month_slider_tit">
-                <li>2014</li>
-                <li class="curr">2015</li>
-                <li>2016</li>
+                <li class="{{year-1==current.Year?'curr':''}}">{{year-1}}</li>
+                <li class="{{year==current.Year?'curr':''}}">{{year}}</li>
+                <li class="{{(year+1)==current.Year?'curr':''}}">{{year+1}}</li>
             </ul>
             <div class="uc_month_slider">
-                <ul>
-                    <li class="uc_month_item">
-                        <p class="img canget">
-                            <img src="{{item.FRE_TITLE_PIC}}" />
-                        </p>
-                        <span>10月</span>
-                    </li>
-                    <li class="uc_month_item">
-                        <p class="img disable">
-                            <img src="{{item.FRE_TITLE_PIC}}" />
-                        </p>
-                        <span>10月</span>
-                    </li>
-                </ul>
+                
             </div>
         </div>
     </div>

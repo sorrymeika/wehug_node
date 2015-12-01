@@ -4,8 +4,7 @@ var Activity = require('activity');
 var bridge = require('bridge');
 var Loading = require('../widget/loading');
 var Slider = require('../widget/slider');
-var model = require('../core/model2');
-//var Touch2 = require('../core/touch2');
+var model = require('core/model3');
 var Scroll = require('../widget/scroll');
 var barcode = require('../util/barcode');
 var animation = require('animation');
@@ -401,7 +400,7 @@ module.exports = Activity.extend({
                 Auth: self.user.Auth,
                 IMEI: token || 'CAN_NOT_GET'
 
-            }).load();
+            }).reload();
         }
 
         util.isInApp ? bridge.getDeviceToken(load) : load();
