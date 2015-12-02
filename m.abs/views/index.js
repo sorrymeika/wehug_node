@@ -38,6 +38,11 @@ module.exports = Activity.extend({
             var $target = $(e.currentTarget);
             var index = $target.index();
 
+            if (index == 2) {
+                self.forward('/cart');
+                return;
+            }
+
             if (!$target.hasClass('curr')) {
                 $target.addClass('curr').siblings('.curr').removeClass('curr');
 
@@ -256,6 +261,8 @@ module.exports = Activity.extend({
             checkData: false,
             success: function (res) {
                 console.log(res);
+
+                self.model.set(res);
             }
         });
 

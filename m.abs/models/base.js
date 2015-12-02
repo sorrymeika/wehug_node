@@ -125,8 +125,15 @@ exports.ProductAPI = ShopAPI.extend({
 	}
 });
 
+exports.ProductColorAndSpec = ShopAPI.extend({
+	url: "/api/prod/getsizebyprh",
+	params: {
+		id: 0
+	}
+});
+
 exports.ProductDetailAPI = ShopAPI.extend({
-	url: '/api/prod/detail',
+	url: '/api/prod/prddetail',
 	params: {
 		id: 0
 	}
@@ -143,6 +150,15 @@ exports.CartAPI = ShopAPI.extend({
 	url: '/api/shop/bag',
 	params: {
 		pspcode: 0 //用户code(手机号)
+	}
+});
+
+exports.CartAddAPI = ShopAPI.extend({
+	url: '/api/shop/addbag',
+	params: {
+		pspcode: 0, //用户code(手机号)
+		prd: 0,
+		qty: 1
 	}
 });
 

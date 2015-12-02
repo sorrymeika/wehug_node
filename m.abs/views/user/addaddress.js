@@ -35,25 +35,55 @@ module.exports = Activity.extend({
 
         Scroll.bind($main);
 
+        var id = self.route.query.id;
         self.model = new model.ViewModel(this.$el, {
             back: self.swipeRightBackAction,
             title: '添加地址',
             address: {
-                mbaDefault: true
+                mbaDefault: true,
+                mbaMobile: self.user.Mobile
             },
             user: self.user
         });
+
+        if (id) {
+            var address = util.store('address');
+            address && self.model.set({
+                address: {
+                    mbaMobile: address.MBA_MOBILE,
+                    mbaName: address.MBA_NAME,
+                    mbaAddress: address.MBA_FULL_ADDRESS,
+                    mbaDefault: address.MBA_DEFAULT_FLAG
+                },
+                province: {
+                    PRV_ID: address.ProvinceID,
+                    PRV_ABBR: address.Province
+                },
+                city: {
+                    CTY_ID: address.MBA_CTY_ID,
+                    CTY_ABBR: address.City
+                },
+                region: {
+                    REG_ID: address.MBA_REG_ID,
+                    REG_DESC: address.Area
+                }
+            });
+        }
 
         self.selector = new Selector({
             options: [{
                 template: '<li><%=PRV_ABBR%></li>',
                 onChange: function (e, i, data) {
-                    self.filterCity(data.PRV_ID || 0);
+                    self.city.setParam({
+                        prvId: data.PRV_ID || 0
+                    }).load();
                 }
             }, {
                     template: '<li><%=CTY_ABBR%></li>',
                     onChange: function (e, i, data) {
-                        self.filterRegion(data.CTY_ID || 0);
+                        self.region.setParam({
+                            ctyId: data.CTY_ID || 0
+                        }).load();
                     }
                 }, {
                     template: '<li><%=REG_DESC%></li>'
@@ -76,6 +106,10 @@ module.exports = Activity.extend({
             CTY_ABBR: '市'
         }]);
 
+        self.selector.eq(2).set([{
+            REG_DESC: '区'
+        }]);
+
         this.province = new api.ProvinceAPI({
             $el: self.selector.$el,
             success: function (res) {
@@ -88,25 +122,40 @@ module.exports = Activity.extend({
         });
         this.city = new api.CityAPI({
             $el: self.selector.$el,
+            checkData: false,
             success: function (res) {
                 self.cityData = res.data;
+
+                res.data.unshift({
+                    CTY_ABBR: '市'
+                });
+                self.selector.eq(1).set(self.cityData);
+                self.resetCity();
             }
         });
         this.region = new api.RegionAPI({
             $el: self.selector.$el,
+            checkData: false,
             success: function (res) {
                 self.regionData = res.data;
+                self.regionData.unshift({
+                    REG_DESC: '区'
+                });
+                self.selector.eq(2).set(self.regionData);
+                self.resetRegion();
             }
         });
         this.province.load();
-        this.city.load();
-        this.region.load();
 
         self.editAddressAPI = new api.EditAddressAPI({
             $el: self.$el,
+            check: false,
+            checkData: false,
+            params: {
+                pspcode: self.user.Mobile
+            },
             beforeSend: function () {
-                var address = self.model.get('address').data;
-                console.log(address);
+                var address = self.model.get('address');
                 if (!address.mbaName) {
                     sl.tip('请填写收货人姓名');
                     return false;
@@ -114,7 +163,7 @@ module.exports = Activity.extend({
                 if (!address.mbaMobile) {
                     sl.tip('请填写手机号码');
                     return false;
-                } else if (!util.valicateMobile(address.mbaMobile)) {
+                } else if (!util.validateMobile(address.mbaMobile)) {
                     sl.tip('请填写正确的手机号码');
                     return false;
                 }
@@ -122,13 +171,14 @@ module.exports = Activity.extend({
                     sl.tip('请填写详细地址');
                     return false;
                 }
-                if (!address.region && address.region.REG_ID) {
+                var region = self.model.get('region');
+                if (!region || !region.REG_ID) {
                     sl.tip('请选择省市区');
                     return false;
                 }
-                address.mbaRegId = address.region.REG_ID;
-                address.mbaCtyId = address.city.CTY_ID;
-                address.editType = self.route.query.editType || 1;
+                address.mbaRegId = region.REG_ID;
+                address.mbaCtyId = self.model.get('city.CTY_ID');
+                address.edittype = self.route.query.edittype || 1;
                 address.mbaId = self.route.query.id || 0;
 
                 this.setParam(address);
@@ -158,17 +208,6 @@ module.exports = Activity.extend({
         }
     },
 
-    filterCity: function (prvId) {
-        var arr = util.find(this.cityData, function (item) {
-            return item.CTY_PRV_ID == prvId;
-        });
-        arr.unshift({
-            CTY_ABBR: '市'
-        });
-        this.selector.eq(1).set(arr);
-        this.resetCity();
-    },
-
     resetRegion: function () {
         var self = this;
         if (self.model.data.region) {
@@ -179,18 +218,6 @@ module.exports = Activity.extend({
             if (index != -1)
                 this.selector.eq(2).index(index);
         }
-    },
-
-    filterRegion: function (ctyId) {
-        var self = this;
-        var arr = util.find(this.regionData, function (item) {
-            return item.REG_CTY_ID == ctyId;
-        });
-        arr.unshift({
-            REG_DESC: '区'
-        });
-        this.selector.eq(2).set(arr);
-        this.resetRegion();
     },
 
     onShow: function () {

@@ -60,6 +60,7 @@
     };
 
     var Model = function (parent, key, data, repeats) {
+
         if (parent instanceof Model) {
             this.key = parent.key ? parent.key + '.' + key : key;
 
@@ -70,7 +71,7 @@
             throw new Error('Model\'s parent mast be Collection or Model');
         }
 
-        this.data = data;
+        parent.data[key] = this.data = {};
         this._key = key;
         this.model = {};
         this.parent = parent;
@@ -86,7 +87,7 @@
     }
 
     var ModelProto = {
-        get: function (key) {
+        getModel: function (key) {
             if (typeof key == 'string' && key.indexOf('.') != -1) {
                 key = key.split('.');
             }
@@ -107,13 +108,18 @@
                             return null;
                     }
                 }
-                return (model instanceof Model || model instanceof Collection) ? model.data : model;
+                return model;
             }
             return key == 'this' ? this : key == '' ? this.data : this.model[key];
+        },
+        get: function (key) {
+            var model = this.getModel(key);
+            return (model instanceof Model || model instanceof Collection) ? model.data : model;
         },
         cover: function (key, val) {
             return this.set(true, key, val);
         },
+
         set: function (cover, key, val) {
             var self = this,
                 origin,
@@ -126,6 +132,10 @@
 
             if ($.isPlainObject(key)) {
                 attrs = key;
+            } else if (key === null) {
+                !cover && (cover = true);
+                attrs = {};
+
             } else if (typeof val == 'undefined') {
                 val = key, key = '';
 
@@ -147,7 +157,7 @@
                 }
             }
 
-            !this.root.init && $.extend(this.data, attrs);
+            $.extend(this.data, attrs);
 
             for (var attr in attrs) {
                 origin = model[attr];
@@ -235,6 +245,7 @@
             return false;
         }
     }
+    ModelProto.reset = ModelProto.clear;
 
     Model.prototype = $.extend(Object.create(Event), ModelProto);
 
@@ -483,8 +494,9 @@
         }
 
         this.data = [];
+        parent.data[attr] = this.data;
+
         this.add(data);
-        this.data = data;
     }
 
     Collection.prototype = Object.create(Event);
@@ -584,7 +596,7 @@
     }
 
     var ViewModel = function (template, data) {
-        this.data = $.extend(true, {}, data);
+        this.data = $.extend({}, data);
         this.model = {};
         this.repeats = {};
         this._fns = [];

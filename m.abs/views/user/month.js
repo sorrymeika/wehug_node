@@ -5,7 +5,7 @@
     var Activity = require('activity');
     var Loading = require('widget/loading');
     var Slider = require('widget/slider');
-    var model = require('core/model2');
+    var model = require('core/model3');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
     var bridge = require('bridge');
@@ -63,7 +63,6 @@
                         current: res.data && res.data[0],
                         year: res.year
                     });
-                    console.log(res.data)
 
                     self.slider = new Slider(self.$slider, {
                         itemTemplate: '<p class="img<%=CanGet?" canget":""%><%=Overdue?" disabled":""%>">\
@@ -77,7 +76,6 @@
                             })
                         }
                     });
-                    //self.$('.month').find('')
                 }
             });
 

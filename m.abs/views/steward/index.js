@@ -40,6 +40,8 @@ module.exports = Activity.extend({
             
             success: function (res) {
                 console.log(res);
+                
+                self.model.set(res);
             }
         });
         listAPI.load();

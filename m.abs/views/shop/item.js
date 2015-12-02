@@ -15,7 +15,7 @@ define(function (require, exports, module) {
             'tap .js_buy:not(.disabled)': function () {
                 var self = this;
 
-                this.forward('/cart?from=' + this.route.url);
+                self.cartAddAPI.load();
             },
             'tap .js_share': function () {
                 this.share.show();
@@ -51,10 +51,12 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
+            self.user = util.store('user');
+
             self.model = new model.ViewModel(self.$el, {
                 back: self.swipeRightBackAction,
                 title: '床品',
-                id: 1
+                id: self.route.data.id
             });
 
             self.share = new Share({
@@ -73,23 +75,51 @@ define(function (require, exports, module) {
                     self.model.set({
                         data: res.data
                     });
-                    productHead.setParam({
+                    colorAndSpec.setParam({
                         id: res.data.PRD_PRH_ID
                     }).load();
                 }
             });
             product.load();
 
-
-            /*
-            var productHead = new api.ProductHeadAPI({
+            var colorAndSpec = new api.ProductColorAndSpec({
                 $el: self.$el,
                 checkData: false,
                 success: function (res) {
-                    console.log(res.data);
+                    var color = [];
+                    var spec = [];
+                    for (var i = 0, len = res.data; i < len; i++) {
+                        var item = res.data[i];
+                        if (color.indexOf(item.PRD_COLOR) == -1) {
+                            color.push(item.PRD_COLOR);
+                        }
+                        if (spec.indexOf(item.PRD_SPEC) == -1) {
+                            spec.push(item.PRD_SPEC);
+                        }
+                    }
+                    self.model.set({
+                        color: color,
+                        spec: spec
+                    });
                 }
             });
-            */
+
+            self.cartAddAPI = new api.CartAddAPI({
+                $el: self.$el,
+                checkData: false,
+                check: false,
+                params: {
+                    pspcode: self.user.Mobile,
+                    prd: self.model.get('id')
+                },
+                success: function (res) {
+                    console.log(res);
+
+                    if (res.success) {
+                        self.forward('/cart?from=' + self.route.url);
+                    }
+                }
+            });
         },
 
         onShow: function () {

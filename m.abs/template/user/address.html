@@ -5,13 +5,9 @@
 <div class="main uc_address">
     <div class="uc_address_new js_add_address">添加新地址</div>
     <ul class="uc_address_con">
-        <li class="default">
-            <p class="hd"><span class="name">姓名</span><span class="mobi">12345678888</span></p>
-            <p class="con">上海市浦东新区XXX街道浦东大道2000号阳光世界大厦3楼</p>
-        </li>
-         <li class="curr default">
-            <p class="hd"><span class="name">姓名</span><span class="mobi">12345678888</span></p>
-            <p class="con">上海市浦东新区XXX街道浦东大道2000号阳光世界大厦3楼</p>
+        <li sn-repeat="item in data" class="{{item.MBA_DEFAULT_FLAG?'default':''}}{{item.AddressID==addressId?' curr':''}}" sn-tap="this.forward(item.AddressID)">
+            <p class="hd"><span class="name">{{item.MBA_NAME}}</span><span class="mobi">{{item.MBA_MOBILE}}</span></p>
+            <p class="con">{{item.Province}}{{item.City}}{{item.Area}}{{item.MBA_FULL_ADDRESS}}</p>
         </li>
     </ul>
 </div>

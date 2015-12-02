@@ -18,3 +18,9 @@
 		span { display: block; text-align: center; margin: 15px 0; color: #e65e5f; }
 	}
 }
+.sp_all_cates {min-height: 56px;}
+
+.stw_list_item .thumb {
+	position: relative;
+	i{ display: block; position: absolute; background: #e65e5f; color: #fff; border-radius: 50%; height: 14px; line-height: 14px; text-align: center; font-size: 1.7rem; width: 14px;top: 0px; right: 0px;}
+}

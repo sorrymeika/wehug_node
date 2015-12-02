@@ -58,13 +58,10 @@ define(function (require, exports, module) {
             self.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
                 title: '我的购物车',
-                data: [{
-                    id: 1
-                }, {
-                        id: 2
-                    }]
+                user: self.user,
+                loading: true
             });
-
+            
             this.$coupon = self.$('.ct_coupon_wrap');
             self.listenTo(self.$coupon, $.fx.transitionEnd, function (e) {
                 if (self.$coupon.hasClass('out')) {
@@ -99,6 +96,10 @@ define(function (require, exports, module) {
                 checkData: false,
                 success: function (res) {
                     console.log(res);
+
+                    self.model.set(res).set({
+                        loading: false
+                    });
                 }
             });
 
@@ -114,6 +115,9 @@ define(function (require, exports, module) {
         doWhenLogin: function () {
             var self = this;
             this.user = util.store('user');
+            self.cart.setParam({
+                pspcode: self.user.Mobile
+            }).load();
             this.coupon.setParam({
                 UserID: self.user.ID,
                 Auth: self.user.Auth

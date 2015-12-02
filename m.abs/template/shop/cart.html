@@ -1,13 +1,13 @@
 ﻿@helper list(){
-<div class="ct_list_wrap" sn-display="{{util.isTrue(data)}}">
+<div class="ct_list_wrap" sn-display="{{util.isTrue(data_baglist)}}">
     <ul class="ct_list">
-        <li sn-repeat="item in data" class="ct_list_item">
+        <li sn-repeat="item in data_baglist" class="ct_list_item">
             <div class="ct_list_item_con">
-                <img src="" />
+                <img src="{{item.PRD_PIC}}" />
                 <div class="con">
-                    <b class="name">Mavis多功能榨汁活力瓶</b>
-                    <p class="size">尺寸：XXL</p>
-                    <p class="color">颜色：绿色</p>
+                    <b class="name">{{item.PRD_NAME}}</b>
+                    <p class="size">尺寸：{{item.PRD_SPEC}}</p>
+                    <p class="color">颜色：{{item.PRD_COLOR}}</p>
                     <p class="qty">
                         <span class="minus" sn-tap="item.qty=Math.max(!item.qty?1:(parseInt(item.qty)-1),1)">-</span>
                         <input type="text" value="{{item.qty||1}}" sn-model="item.qty" />
@@ -15,21 +15,21 @@
                     </p>
                 </div>
                 <div class="ft">
-                    <b class="price">￥000</b>
-                    <del>￥000</del>
+                    <b class="price">￥{{item.PRD_PRICE*(item.qty||1)}}</b>
+                    <del>￥{{item.PRD_MEMBER_PRICE*(item.qty||1)}}</del>
                 </div>
             </div>
         </li>
     </ul>
     <ul class="ct_list_info">
-        <li><span>商品总价</span><em><b class="price">￥000</b></em></li>
-        <li class="link js_use_coupon"><span>使用优惠券</span><em><b>5</b>张可用</em></li>
-        <li class="link js_use_point"><span>积分抵扣</span><em><b>400</b>积分可用</em></li>
-        <li class="link js_use_freecard"><span>运费</span><em><b>1</b>张免邮卡可用</em></li>
-        <li><span>总计</span><em><b class="price">￥000</b></em></li>
+        <li><span>商品总价</span><em><b class="price">￥{{prod_amount}}</b></em></li>
+        <li class="link js_use_coupon"><span>使用优惠券</span><em><b>{{couponCount||0}}</b>张可用</em></li>
+        <li class="link js_use_point"><span>积分抵扣</span><em><b>{{user.Points}}</b>积分可用</em></li>
+        <li class="link js_use_freecard"><span>运费</span><em><b>{{freeCount||0}}</b>张免邮卡可用</em></li>
+        <li><span>总计</span><em><b class="price">￥{{bag_amount}}</b></em></li>
     </ul>
 </div>
-<div class="my_nodata" sn-display="{{util.isFalse(data)}}">
+<div class="my_nodata" sn-display="{{!loading&&util.isFalse(data_baglist)}}" style="display:none">
     <div class="icon"></div>
     <div class="text">您的购物车内还没有商品</div>
     <div class="btn" data-forward="/all?from=/cart">去逛逛吧</div>
@@ -43,7 +43,7 @@
     @this.helpers.list()
 </div>
 <footer class="ct_list_action">
-    <div class="total">总计：<b>￥200</b></div>
+    <div class="total">总计：<b>￥{{bag_amount||0}}</b></div>
     <div class="btn_buy js_buy">结 算</div>
 </footer>
 <div class="ct_coupon_wrap {{isShowCoupon?'':'out'}}" style="display:none">

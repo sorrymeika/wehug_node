@@ -9,31 +9,19 @@
         <i class="stw_title_bar_list ico{{displayType==1?' curr':''}}" sn-tap="displayType=1"></i>
     </div>
     <ul class="stw_list" sn-display="{{displayType==1}}">
-        <li class="stw_list_item">
-            <div class="thumb">
-                <img />
+        <li class="stw_list_item" sn-repeat="item in data">
+            <div class="thumb" data-forward="/item/{{item.LPK_PRD_ID}}?from=/steward">
+                <i>{{item.LPK_QTY}}</i>
+                <img src="{{item.WPP_M_PIC}}"/>
                 <b class="btn">再来一个</b>
             </div>
-            <div class="con" data-forward="/steward/1">
-                <h4>Tagine摩洛哥酷彩系列耐高温陶瓷塔吉锅（8寸）</h4>
-                <div class="date">最新购入时间：2015/10/10</div>
+            <div class="con" data-forward="/steward/{{item.PRD_PRH_ID}}">
+                <h4>{{item.PRH_NAME}}</h4>
+                <div class="date">最新购入时间：{{util.formatDate(item.PUR_DT,'yyyy/MM/dd')}}</div>
                 <!--<div class="text">
                     <p>提醒：文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字文字</p>
                 </div>-->
-                <a class="link" href="/">查看详情&gt;&gt;</a>
-            </div>
-        </li>
-        <li class="stw_list_item">
-            <div class="thumb">
-                <img />
-                <b class="btn">再来一个</b>
-            </div>
-            <div class="con" data-forward="/steward/1">
-                <h4>Tagine摩洛哥酷彩系列耐高温陶瓷塔吉锅（8寸）</h4>
-                <div class="date">最新购入时间：2015/10/10 </div>
-                <div class="text">
-                </div>
-                <a class="link" href="/">查看详情&gt;&gt;</a>
+                <a class="link" href="/steward/{{item.PRD_PRH_ID}}">查看详情&gt;&gt;</a>
             </div>
         </li>
     </ul>
