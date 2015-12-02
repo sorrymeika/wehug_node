@@ -51,10 +51,9 @@
         },
         util: util,
         closestModelData: function (el, alias) {
-            for (var parent = el.parentNode; parent != null; parent = parent.parentNode) {
-                if (parent.repeat && (!alias || parent.repeat.repeat.alias == alias)) {
-                    return parent.repeat.parentModel.data;
-                }
+            for (el = el.parentNode; el != null; el = el.parentNode) {
+                if (el.repeat && (!alias || el.repeat.repeat.alias == alias))
+                    return el.repeat.parentModel.data;
             }
         }
     };
@@ -71,7 +70,8 @@
             throw new Error('Model\'s parent mast be Collection or Model');
         }
 
-        parent.data[key] = this.data = {};
+        this.type = $.isPlainObject(data) ? 'object' : 'value';
+        parent.data[key] = this.data = this.type == 'object' ? {} : data;
         this._key = key;
         this.model = {};
         this.parent = parent;
@@ -125,7 +125,8 @@
                 origin,
                 changed,
                 attrs,
-                model = self.model;
+                model = self.model,
+                parent;
 
             if (cover !== true)
                 val = key, key = cover, cover = false;
@@ -137,17 +138,17 @@
                 attrs = {};
 
             } else if (typeof val == 'undefined') {
-                val = key, key = '';
+                val = key, key = '', parent = this.parent;
 
-                if (this.parent instanceof Collection) {
-                    this.parent.data[this.parent.models.indexOf(this)] = val;
-                }
+                parent.data[(parent instanceof Collection) ? parent.models.indexOf(this) : this._key] = val;
+
                 this.data = val;
                 return;
 
             } else {
                 (attrs = {})[key] = val;
             }
+            if (!$.isPlainObject(this.data)) this.data = {};
 
             if (cover) {
                 for (var attr in this.data) {
@@ -243,6 +244,37 @@
                 }
             }
             return false;
+        },
+
+        _eachEl: function (el, fn, ret) {
+            var val;
+            for (; el != null; el = el.parentNode) {
+
+                if ((val = fn(el)) !== undefined) return val;
+
+                if (el.nodeType == 1 && el.getAttribute("sn-viewmodel"))
+                    break;
+            }
+            return ret === undefined ? this : ret;
+        },
+
+        isRelativeToEl: function (el) {
+            var isUnderRoot = true;
+            var self = this;
+            for (var model = this; model != null; model = model.parent) {
+                if (model instanceof Collection) {
+                    isUnderRoot = false;
+                    break;
+                }
+            }
+            if (isUnderRoot) {
+                return true;
+            }
+
+            return self._eachEl(el, function (el) {
+                if (el.model && el.model == self)
+                    return true;
+            }, false);
         }
     }
     ModelProto.reset = ModelProto.clear;
@@ -595,7 +627,12 @@
         return code;
     }
 
-    var ViewModel = function (template, data) {
+    var ViewModel = function (el, data) {
+        if (typeof data === 'undefined' && $.isPlainObject(el)) {
+            data = el, el = this.el;
+        }
+        this.cid = util.guid();
+
         this.data = $.extend({}, data);
         this.model = {};
         this.repeats = {};
@@ -603,14 +640,19 @@
         this.fns = [];
         this.root = this;
 
-        this.scan(template);
+        this.scan(el);
         this.init = true;
         this.set(this.data);
         this.init = false;
+
+        this.on('Destroy', this.onDestroy);
+        this.initialize.call(this, arguments);
     }
 
-    var ViewModelProto = ViewModel.prototype = $.extend(Object.create(Model.prototype), {
+    ViewModel.prototype = $.extend(Object.create(Model.prototype), {
         key: '',
+
+        initialize: util.noop,
 
         _compile: function (expression, repeat, listen) {
             var self = this;
@@ -714,7 +756,7 @@
                         var el = node._elements[i];
                         var closestModel;
 
-                        if (model == self || (closestModel = self._closestByEl(el)) == self || closestModel == model || closestModel.contains(model)) {
+                        if (model == self || model.isRelativeToEl(el)) {
                             self._setElAttr(el, attr);
                         }
                     }
@@ -726,13 +768,15 @@
 
             self._fns.push(code);
         },
+
         _closestByEl: function (el) {
-            for (; el != null && el != document.body; el = el.parentNode) {
+
+            return this._eachEl(el, function (el) {
                 if (el.model)
                     return el.model;
-            }
-            return this;
+            });
         },
+
         _getByEl: function (el, name) {
             var self = this;
             var attrs = name.split('.');
@@ -742,12 +786,10 @@
                 return self;
             }
 
-            for (; el != null && el != document.body; el = el.parentNode) {
-                if (el.repeat && (el.repeat.repeat.alias == alias)) {
+            return this._eachEl(el, function (el) {
+                if (el.repeat && (el.repeat.repeat.alias == alias))
                     return el.model;
-                }
-            }
-            return self;
+            });
         },
         _getVal: function (model, name) {
             var model = model == this || model instanceof Model ? model : this._getByEl(model, name);
@@ -764,7 +806,7 @@
             var self = this;
             var elements = [];
 
-            var $el = $(el).on('input change', '[sn-model]', function (e) {
+            var $el = $(el).attr("sn-viewmodel", this.cid).on('input change', '[sn-model]', function (e) {
                 if (e._stopModelEvent == true) return;
                 var target = e.currentTarget;
                 var name = target.getAttribute('sn-model');
@@ -772,6 +814,7 @@
                 self._setByEl(target, name, target.value);
                 e._stopModelEvent = true;
             });
+            self.$el = !self.$el ? $el : self.$el.add($el);
 
             for (var i = 0; i < snEvents.length; i++) {
                 $el.on(snEvents[i] == 'transition-end' ? $.fx.transitionEnd : snEvents[i], '[sn-' + snEvents[i] + ']', function (e) {
@@ -807,7 +850,7 @@
                 });
             }
 
-            eachElement(el, function (child, i, childList) {
+            eachElement($el, function (child, i, childList) {
                 if (child.nodeType == 1) {
                     var repeat = child.getAttribute('sn-repeat');
                     if (repeat != null) {
@@ -876,30 +919,11 @@
                 self._setElAttr(elements[i]);
             }
         }
-    });
+
+    }, util.pick(ComponentBase.prototype, ['destroy', 'undelegateEvents', 'listenTo', 'listen', 'onDestroy', '$']));
+
     ViewModel.extend = util.extend;
 
-    var ComponentBaseProto = ComponentBase.prototype;
-    var ComponentProto = {
-        el: '',
-
-        constructor: function (options) {
-            ComponentBase.apply(this, arguments);
-
-            ViewModel.call(this, this.$el, options);
-
-            this.initialize.call(this, arguments);
-        }
-    };
-
-    $.each(util.keys(ComponentBaseProto), function (i, key) {
-        if (ComponentProto[key] === undefined && ViewModelProto[key] === undefined) {
-            ComponentProto[key] = ComponentBaseProto[key];
-        }
-    });
-    var Component = ViewModel.extend(ComponentProto);
-
-    exports.Component = Component;
     exports.ViewModel = ViewModel;
     exports.Filters = Filters;
 });

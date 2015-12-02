@@ -8,7 +8,6 @@
     var Component = function (options) {
         var self = this;
 
-        self._bindListenTo = [];
         self.options = $.extend({}, self.options, options);
         if (self.options.className) self.className = self.options.className;
         if (self.options.el) self.el = self.options.el;
@@ -77,7 +76,7 @@
             args[0] = target;
             args[args.length - 1] = $.proxy(fn, this);
 
-            this._bindListenTo.push(slice.apply(args));
+            (this._bindListenTo || (this._bindListenTo = [])).push(slice.apply(args));
 
             args.shift().on.apply(target, args);
 

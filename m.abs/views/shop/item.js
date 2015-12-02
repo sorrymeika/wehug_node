@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('widget/loading');
-    var model = require('core/model2');
+    var model = require('core/model3');
     var Scroll = require('widget/scroll');
     var Share = require('components/share');
     var animation = require('animation');
@@ -56,7 +56,9 @@ define(function (require, exports, module) {
             self.model = new model.ViewModel(self.$el, {
                 back: self.swipeRightBackAction,
                 title: '床品',
-                id: self.route.data.id
+                id: self.route.data.id,
+                user: self.user,
+                url: self.route.url
             });
 
             self.share = new Share({
@@ -88,7 +90,7 @@ define(function (require, exports, module) {
                 success: function (res) {
                     var color = [];
                     var spec = [];
-                    for (var i = 0, len = res.data; i < len; i++) {
+                    for (var i = 0, len = res.data.length; i < len; i++) {
                         var item = res.data[i];
                         if (color.indexOf(item.PRD_COLOR) == -1) {
                             color.push(item.PRD_COLOR);
@@ -97,6 +99,7 @@ define(function (require, exports, module) {
                             spec.push(item.PRD_SPEC);
                         }
                     }
+                    console.log(res);
                     self.model.set({
                         color: color,
                         spec: spec
@@ -108,6 +111,9 @@ define(function (require, exports, module) {
                 $el: self.$el,
                 checkData: false,
                 check: false,
+                beforeSend: function () {
+                    self.$('.js_buy').addClass('disabled');
+                },
                 params: {
                     pspcode: self.user.Mobile,
                     prd: self.model.get('id')
@@ -118,6 +124,9 @@ define(function (require, exports, module) {
                     if (res.success) {
                         self.forward('/cart?from=' + self.route.url);
                     }
+                },
+                complete: function () {
+                    self.$('.js_buy').removeClass('disabled');
                 }
             });
         },

@@ -1,7 +1,7 @@
 var $ = require('$');
-var model = require('core/model2');
+var model = require('core/model3');
 
-var Confirm = model.Component.extend({
+var Confirm = model.ViewModel.extend({
 	el: <div class="cp_mask" style="display:none">
 		<div class="cp_confirm" style="height:{{height}}px;margin-top:-{{height/2}}px">
 			<div class="cp_confirm_bd" sn-html="{{content}}"></div>

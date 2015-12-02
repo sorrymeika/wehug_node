@@ -16,7 +16,7 @@ module.exports = Activity.extend({
         var self = this;
         var $main = self.$('.main');
 
-        self.swipeRightBackAction = self.route.query.from || '/';
+        self.swipeRightBackAction = self.route.query.from || self.route.referrer || '/';
 
         Scroll.bind($main);
 
