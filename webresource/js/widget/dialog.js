@@ -7,7 +7,7 @@
 
     var Dialog = view.extend({
         events: {
-            'click .js_dialog_btn': 'action',
+            'tap .js_dialog_btn': 'action',
             'tap .js_close_dialog': function () {
                 this.hide();
             },

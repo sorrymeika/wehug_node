@@ -45,11 +45,11 @@
 
         resolve: function () {
             var that = this,
-            args = slice.call(arguments),
-            then = that.queue.shift(),
-            next,
-            ctx,
-            promise;
+                args = slice.call(arguments),
+                then = that.queue.shift(),
+                next,
+                ctx,
+                promise;
 
             if (then) {
                 that.state = 1;
@@ -67,13 +67,15 @@
                             promise.then(that.resolveSelf);
                         }
 
-                    } else
+                    } else if (promise instanceof Error)
+                        that.reject(promise);
+                    else
                         that.resolve(null, promise);
 
                 } else if (next instanceof Array) {
                     var errors = [],
-                    result = [],
-                    count = 0;
+                        result = [],
+                        count = 0;
 
                     for (var i = 0, n = next.length; i < n; i++) {
                         (function (fn, i, n) {
@@ -129,23 +131,23 @@
         map: function (argsList, callback, ctx) {
             var self = this,
 
-            fn = function () {
-                var parameters = arguments;
+                fn = function () {
+                    var parameters = arguments;
 
-                self._count = argsList.length;
-                self.result = [];
-                self.errors = [];
+                    self._count = argsList.length;
+                    self.result = [];
+                    self.errors = [];
 
-                argsList.forEach(function (args, j) {
-                    if (!(args instanceof Array)) args = [args];
+                    argsList.forEach(function (args, j) {
+                        if (!(args instanceof Array)) args = [args];
 
-                    callback.apply(this, getCallbackParams(args, parameters, function (err, res) {
-                        self.next(j, err, res);
-                    }));
-                });
+                        callback.apply(this, getCallbackParams(args, parameters, function (err, res) {
+                            self.next(j, err, res);
+                        }));
+                    });
 
-                return self;
-            };
+                    return self;
+                };
 
             self.queue.append([fn, ctx || this]);
 
@@ -155,18 +157,18 @@
         each: function (argsList, callback, ctx) {
 
             var self = this,
-            fn = function () {
-                self._count = argsList.length;
-                self.result = [];
-                self.errors = [];
+                fn = function () {
+                    self._count = argsList.length;
+                    self.result = [];
+                    self.errors = [];
 
-                argsList.forEach(function (args, j) {
+                    argsList.forEach(function (args, j) {
 
-                    callback.apply(this, [j, args]);
-                });
+                        callback.apply(this, [j, args]);
+                    });
 
-                return self;
-            };
+                    return self;
+                };
 
             self.queue.append([fn, ctx || this]);
 
@@ -210,7 +212,7 @@
 
         then: function (args, callback, ctx) {
             var self = this,
-            fn;
+                fn;
 
             if (!(args instanceof Array)) {
                 ctx = callback;

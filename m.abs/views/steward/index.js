@@ -27,7 +27,8 @@ module.exports = Activity.extend({
         this.model = new model.ViewModel(this.$el, {
             back: '/',
             title: '爱管家',
-            displayType: 1
+            displayType: 1,
+            user: self.user
         });
 
         var listAPI = new api.StewardListAPI({

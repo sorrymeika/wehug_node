@@ -1,6 +1,6 @@
 var $ = require('$');
 var View = require('core/view');
-var model = require('core/model2');
+var model = require('core/model3');
 var bridge = require('bridge');
 
 var Share = View.extend({
@@ -13,6 +13,8 @@ var Share = View.extend({
 				title: this.model.data.title,
 				description: this.model.data.description,
 				scene: 1
+			},function(res){
+				self.callback(res);
 			})
 		},
 		'tap .js_weixin_session': function(){
@@ -23,6 +25,8 @@ var Share = View.extend({
 				title: this.model.data.title,
 				description: this.model.data.description,
 				scene: 0
+			},function(res){
+				self.callback(res);
 			})
 		},
 		'tap .js_qq': function(){
@@ -31,6 +35,8 @@ var Share = View.extend({
 				linkURL: this.model.data.linkURL,
 				title: this.model.data.title,
 				description: this.model.data.description
+			},function(res){
+				self.callback(res);
 			})
 		},
 		
@@ -56,7 +62,9 @@ var Share = View.extend({
 			<div class="ft"><b class="btn js_cancel">取消</b></div>
 		</div>
 	</div>,
-	
+	callback: function(){
+		
+	},
 	initialize: function() {
 		this.model=new model.ViewModel(this.$el,this.options);
 	},

@@ -4,9 +4,9 @@
 </header>
 <div class="main">
     <ul class="sp_list_sort">
-        <li class="curr">新品</li>
-        <li>销量</li>
-        <li>价格</li>
+        <li class="{{orderBy=='PRD_ONLINE_DT|desc'?'curr':''}}" sn-tap="this.orderBy('PRD_ONLINE_DT|desc')">新品</li>
+        <li class="{{orderBy=='PSV_QTY|asc'?'curr':''}}" sn-tap="this.orderBy('PSV_QTY|asc')">销量</li>
+        <li class="{{orderBy=='PRD_MEMBER_PRICE|asc'?'curr asc':orderBy=='PRD_MEMBER_PRICE|desc'?'curr desc':''}}" sn-tap="this.orderBy(priceSort?'PRD_MEMBER_PRICE|desc':'PRD_MEMBER_PRICE|asc'),priceSort=!priceSort">价格</li>
     </ul>
     <ul class="sp_list">
         <li sn-repeat="item in data" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}">

@@ -94,7 +94,7 @@
                 self = this,
                 target;
 
-            $.each(this._bindListenTo, function (i, attrs) {
+            this._bindListenTo && $.each(this._bindListenTo, function (i, attrs) {
                 target = attrs.shift();
                 target.off.apply(target, attrs);
             });

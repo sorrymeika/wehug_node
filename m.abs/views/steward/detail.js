@@ -11,15 +11,14 @@ define(function (require, exports, module) {
 
     return Activity.extend({
         events: {
-            'tap,click .main': function (e) {
-                if (e.target.tagName == "A") {
-                    var m = e.target.href.match(/\#(.+)/);
-                    if (m) {
-                        var top = self.$('[name=' + m[1] + ']').offset().top;
-                        this.$('.main').scrollTop(top);
-                    }
-                    return false;
+            'tap,click .main a': function (e) {
+                var self = this;
+                var m = e.currentTarget.href.match(/\#(.+)$/);
+                if (m) {
+                    var top = self.$('[name="' + m[1] + '"]').offset().top;
+                    this.$('.main')[0].scrollTop = top;
                 }
+                return false;
             }
         },
 

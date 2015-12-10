@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('widget/loading');
-    var model = require('core/model2');
+    var model = require('core/model3');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
     var api = require('models/base');
@@ -25,23 +25,68 @@ define(function (require, exports, module) {
 
             Scroll.bind($main);
 
+            this.listenTo(this.$('.js_search'), 'keydown', function (e) {
+                if (e.keyCode == 13) {
+                    self.forward('/list?s=' + e.target.value + '&from=/all');
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+
             this.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
-                title: '标题'
+                id: 1,
+                resource: 'http://appuser.abs.cn'
             });
+
+            this.model.subcates = function (item) {
+
+                return util.find(self.categories, function (a) {
+                    return a.PCG_PARENT_ID == item.PCG_ID;
+                });
+            }
+
+            this.model.bindScroll = function () {
+                Scroll.bind(self.$('.sp_all_list_wrap:not(.s_binded)').addClass('s_binded'), {
+                    vScroll: false,
+                    hScroll: true
+                });
+            }
+
+            var categories = util.store('categories');
+            categories && self.setCategories(categories);
 
             var cate = new api.CategoryAPI({
                 success: function (res) {
-                    console.log(res);
+                    util.store('categories', res.data);
 
-                    self.model.set({
-                        id: res.data[0].PCG_ID,
-                        categories: res.data
-                    })
+                    self.setCategories(res.data);
                 },
                 $el: self.$el
             });
-            cate.load();
+            if (!categories) cate.load();
+        },
+
+        setCategories: function (categories) {
+            var self = this;
+            this.categories = categories;
+
+            var list = util.find(categories, function (item) {
+                item.children = util.find(categories, function (sub) {
+                    return sub.PCG_PARENT_ID == item.PCG_ID
+                });
+                return item.PCG_DEPTH == 1;
+            });
+
+            this.model.set({
+                id: 1,
+                categories: list
+            }).set({
+                current: self.model.data.categories[0] 
+            });
+            console.log(list.length, self.model.data.categories.length)
+            this.model.bindScroll();
         },
 
         onShow: function () {

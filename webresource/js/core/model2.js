@@ -10,21 +10,22 @@
     var rvalue = /^((-)*\d+|true|false|undefined|null|'(?:\\'|[^'])*')$/;
     var rrepeat = /([a-zA-Z_0-9]+)(?:\s*,(\s*[a-zA-Z_0-9]+)){0,1}\s+in\s+([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+){0,})(?:\s*\|\s*filter\s*\:\s*(.+?)){0,1}(?:\s*\|\s*orderBy\:(.+)){0,1}(\s|$)/;
     var rmatch = /\{\{(.+?)\}\}/g;
-    var rvar = /'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/[img]*|\/\/.*|(^|[\!\=\>\<\?\s\:\(\),\%&\|\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\())/g;
-    var rset = /([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*)\s*=\s*((?:\((?:'(?:\\'|[^'])*'|[^\)])+\)|'(?:\\'|[^'])*'|[^;])+)(?=\;|\,|$)/g;
+    var rvar = /'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/[img]*(?=[\)|\.|,])|\/\/.*|(^|[\!\=\>\<\?\s\:\(\),\%&\|\+\-\*\/\[\]]+)([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*(?![a-zA-Z_0-9]*\())/g;
+    var rset = /([a-zA-Z_0-9]+(?:\.[a-zA-Z_0-9]+)*)\s*=\s*((?:\((?:'(?:\\'|[^'])*'|[^\)])+\)|'(?:\\'|[^'])*'|[^;])+?)(?=\;|\,|$)/g;
     var rthis = /\b(this\.[\.\w]+\()((?:'(?:\\'|[^'])*'|[^\)])*)\)/g;
 
     var isNull = function (str) {
         var arr = str.split('.');
         var result = [];
+        var code = '';
 
         for (var i = 0; i < arr.length; i++) {
             result[i] = (i == 0 ? '$data' : result[i - 1]) + '.' + arr[i];
         }
         for (var i = 0; i < result.length; i++) {
-            result[i] = result[i] + '!==null&&' + result[i] + '!==undefined';
+            code += (i ? '&&' : '') + result[i] + '!==null&&' + result[i] + '!==undefined';
         }
-        return '(' + result.join('&&') + '?' + str + ':"")';
+        return '((' + code + ')?' + str + ':"")';
     }
 
     var eachElement = function (el, fn) {
@@ -52,8 +53,11 @@
         util: util,
         closestModelData: function (el, alias) {
             for (el = el.parentNode; el != null; el = el.parentNode) {
-                if (el.repeat && (!alias || el.repeat.repeat.alias == alias))
-                    return el.repeat.parentModel.data;
+                if (el.repeat) {
+                    if ((!alias || el.repeat.repeat.alias == alias)) {
+                        return el.model.data;
+                    }
+                }
             }
         }
     };
@@ -71,7 +75,8 @@
         }
 
         this.type = $.isPlainObject(data) ? 'object' : 'value';
-        parent.data[key] = this.data = this.type == 'object' ? {} : data;
+        parent.data[key] = this.data = this.type == 'object' ? $.extend({}, data) : data;
+
         this._key = key;
         this.model = {};
         this.parent = parent;
@@ -143,7 +148,8 @@
                 parent.data[(parent instanceof Collection) ? parent.models.indexOf(this) : this._key] = val;
 
                 this.data = val;
-                return;
+
+                return this._triggerChangeEvent(this.key);
 
             } else {
                 (attrs = {})[key] = val;
@@ -158,7 +164,7 @@
                 }
             }
 
-            $.extend(this.data, attrs);
+            $.extend(true, this.data, attrs);
 
             for (var attr in attrs) {
                 origin = model[attr];
@@ -178,7 +184,6 @@
                                 model = model.model[attr];
                                 if (!model) {
                                     model = prev.model[attr] = new Model(prev, attr, null);
-                                    prev.data[attr] = model.data;
                                 }
 
                             } else if (model instanceof Collection) {
@@ -212,16 +217,23 @@
                     } else {
                         model[attr] = value;
 
-                        if (!this.root.init) {
-                            this.trigger('change:' + attr, value);
-                            this.root.trigger('sync:' + (this.key ? this.key + '.' + attr : attr).replace(/\./g, '/'), this, attr, value);
-                        }
+                        this._triggerChangeEvent(this.key ? this.key + '/' + attr : attr, origin, value);
                     }
                 }
             }
 
+            this._triggerChangeEvent(this.key);
+
             return self;
         },
+
+        _triggerChangeEvent: function (eventName, origin, value) {
+            if (!this.root.init) {
+                this.root.trigger('change' + (eventName ? ":" + eventName : '').replace(/\./g, '/'), this, origin, value);
+            }
+            return this;
+        },
+
         clear: function () {
 
             var data = {};
@@ -332,7 +344,7 @@
         this.children = [];
         this.parentModel = parentModel;
 
-        repeat.collectionRepeats[repeat.collectionRepeats.length] = this;
+        repeat.collectionRepeats.push(this);
 
         if (!repeat.parent) {
             this.type = 'normal';
@@ -367,142 +379,150 @@
         this.elements = [];
     }
 
-    CollectionRepeat.prototype.findReplacement = function (model) {
-        for (; model != null && model != model.root; model = model.parent) {
-            if (model instanceof Model && model.replacement) {
-                for (var i = 0; i < model.replacement.length; i++) {
-                    if (model.replacement[i].repeat == this.repeat) {
-                        return model.replacement[i];
-                        break;
+    CollectionRepeat.prototype = {
+        findReplacement: function (model) {
+            for (; model != null && model != model.root; model = model.parent) {
+                if (model instanceof Model && model.replacement) {
+                    for (var i = 0; i < model.replacement.length; i++) {
+                        if (model.replacement[i].repeat == this.repeat) {
+                            return model.replacement[i];
+                            break;
+                        }
                     }
                 }
             }
-        }
-    }
-
-    CollectionRepeat.prototype.update = function () {
-        if (this.type == 'inset') {
-            for (var i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].update();
-            }
-            return;
-        }
-
-        var fragment = document.createDocumentFragment();
-        var index = 0;
-        var list = this.elements;
-        var repeat = this.repeat;
-        var orderBy = repeat.orderBy;
-        var root = this.collection.root;
-
-        if (orderBy) {
-            list.sort(function (a, b) {
-                a = a.model.data[orderBy];
-                b = b.model.data[orderBy];
-                return a > b ? 1 : a < b ? -1 : 0;
-            });
-        }
-
-        for (var i = 0, len = list.length; i < len; i++) {
-            var item = list[i];
-            if (repeat.filter === undefined || root.fns[repeat.filter].call(root, Filters, item.model)) {
-                fragment.appendChild(item);
-                item.setAttribute('sn-index', index);
-                if (repeat.indexAlias) {
-                    item.setAttribute('sn-index-alias', repeat.indexAlias);
-
-                    root.trigger('sync:' + repeat.collectionName + '/' + repeat.alias + '/' + repeat.indexAlias, item.model);
+        },
+        update: function () {
+            if (this.type == 'inset') {
+                for (var i = 0, len = this.children.length; i < len; i++) {
+                    this.children[i].update();
                 }
-                index++;
-
-            } else if (item.parentNode) {
-                item.parentNode.removeChild(item);
-            }
-        }
-
-        this.replacement.parentNode.insertBefore(fragment, this.replacement);
-    }
-
-    CollectionRepeat.prototype.cloneNode = function (el, model, parentNode) {
-        var node = el.cloneNode(false);
-        var len;
-
-        if (el == this.el) {
-            node.repeat = this;
-            node.model = model;
-        }
-
-        if (parentNode) parentNode.appendChild(node);
-
-        //如果是给repeat占位的CommentElement，则存放到相关model的replacement中以备替换
-        if (el.nodeType == 8 && el.repeat) {
-            node.repeat = el.repeat;
-            if (model) {
-                (model.replacement || (model.replacement = [])).push(node);
+                return;
             }
 
-        } else {
-            if (el.bindings) {
-                node.bindings = el.bindings;
+            var fragment = document.createDocumentFragment();
+            var index = 0;
+            var list = this.elements;
+            var repeat = this.repeat;
+            var orderBy = repeat.orderBy;
+            var root = this.collection.root;
 
+            if (orderBy) {
+                list.sort(function (a, b) {
+                    a = a.model.data[orderBy];
+                    b = b.model.data[orderBy];
+                    return a > b ? 1 : a < b ? -1 : 0;
+                });
+            }
+
+            for (var i = 0, len = list.length; i < len; i++) {
+                var item = list[i];
+                if (repeat.filter === undefined || root.fns[repeat.filter].call(root, Filters, item.model, this.replacement)) {
+                    fragment.appendChild(item);
+                    item.setAttribute('sn-index', index);
+                    if (repeat.indexAlias) {
+                        item.setAttribute('sn-index-alias', repeat.indexAlias);
+
+                        root._triggerChangeEvent(repeat.collectionName + '/' + repeat.alias + '/' + repeat.indexAlias, item.model);
+                    }
+                    index++;
+
+                } else if (item.parentNode) {
+                    item.parentNode.removeChild(item);
+                }
+            }
+
+            this.replacement.parentNode.insertBefore(fragment, this.replacement);
+        },
+        cloneNode: function (el, model, parentNode) {
+            var node = el.cloneNode(false);
+            var len;
+
+            if (el == this.el) {
+                node.repeat = this;
+                node.model = model;
+            }
+
+            if (parentNode) parentNode.appendChild(node);
+
+            //如果是给repeat占位的CommentElement，则存放到相关model的replacement中以备替换
+            if (el.nodeType == 8 && el.repeat) {
+                node.repeat = el.repeat;
                 if (model) {
-                    el._origin._elements.push(node);
-                    model.root._setElAttr(node);
-                } else {
-                    //CollectionRepeat实例化中的cloneNode才会执行
-                    node._origin = el;
+                    (model.replacement || (model.replacement = [])).push(node);
+                }
+
+            } else {
+                if (el.bindings) {
+                    node.bindings = el.bindings;
+
+                    if (model) {
+                        el._origin._elements.push(node);
+                        model.root._setElAttr(node);
+                    } else {
+                        //CollectionRepeat实例化中的cloneNode才会执行
+                        node._origin = el;
+                    }
+                }
+
+                if (el.nodeType == 1 && (len = el.childNodes.length)) {
+                    for (var i = 0; i < len; i++) {
+                        this.cloneNode(el.childNodes[i], model, node);
+                    }
                 }
             }
-
-            if (el.nodeType == 1 && (len = el.childNodes.length)) {
-                for (var i = 0; i < len; i++) {
-                    this.cloneNode(el.childNodes[i], model, node);
+            return node;
+        },
+        do: function (fn) {
+            if (this.type == 'inset') {
+                for (var i = 0; i < this.children.length; i++) {
+                    this.children[i].do(fn);
                 }
+            } else {
+                fn.call(this);
             }
-        }
-        return node;
-    }
-
-    CollectionRepeat.prototype.each = function (fn) {
-        for (var i = 0; i < this.children.length; i++) {
-            fn.call(this, this.children[i]);
-        }
-        return this;
-    }
-
-    CollectionRepeat.prototype.remove = function (start, count) {
-        if (this.type == 'inset') {
-            for (var i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].remove(start, count);
-            }
-        } else {
-            this.elements.splice(start, count || 1).forEach(function (el) {
-                $(el).remove();
+            return this;
+        },
+        each: function (fn, callback, reverse) {
+            if (typeof callback !== 'function') reverse = callback, callback = null;
+            return this.do(function () {
+                for (var len = this.elements.length - 1, i = len; i >= 0; i--) {
+                    var index = reverse ? i : (len - i);
+                    if (fn.call(this, index, this.elements[index]) === false) {
+                        break;
+                    }
+                }
+                callback && callback.call(this);
             });
-        }
-    }
+        },
+        remove: function (start, count) {
+            return this.do(function (i, el) {
+                if (typeof start == 'function') {
+                    for (var i = this.elements.length - 1; i >= 0; i--) {
+                        var el = this.elements[i];
+                        if (start(el, i)) {
+                            this.elements.splice(i, 1)
+                            $(el).remove();
+                        }
+                    }
+                } else
+                    this.elements.splice(start, count || 1).forEach(function (el) {
+                        $(el).remove();
+                    });
+            });
+        },
+        add: function (model) {
+            return this.do(function (i, el) {
+                this.elements.push(this.cloneNode(this.el, model));
+            });
+        },
+        clear: function () {
+            return this.each(function (i, el) {
+                el.parentNode.removeChild(el);
+            }, function () {
+                this.elements.length = 0;
 
-    CollectionRepeat.prototype.add = function (model) {
-        if (this.type == 'inset') {
-            for (var i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].add(model);
-            }
-
-        } else
-            this.elements[this.elements.length] = this.cloneNode(this.el, model);
-    }
-
-    CollectionRepeat.prototype.clear = function () {
-        if (this.type == 'inset') {
-            for (var i = 0, len = this.children.length; i < len; i++) {
-                this.children[i].clear();
-            }
-
-        } else {
-            for (var i = this.elements.length - 1; i >= 0; i--) {
-                this.elements[i].parentNode.removeChild(this.elements[i]);
-            }
-            this.elements.length = 0;
+            }, true);
         }
     }
 
@@ -521,7 +541,7 @@
         repeats = parent.root.repeats[this.key];
         if (repeats) {
             for (var i = 0; i < repeats.length; i++) {
-                this.repeats[this.repeats.length] = new CollectionRepeat(this, repeats[i]);
+                this.repeats.push(new CollectionRepeat(this, repeats[i]));
             }
         }
 
@@ -552,9 +572,7 @@
             var dataItem = data[i];
             length = this.data.length;
             model = new Model(this, length, dataItem, this.repeats);
-
-            this.models[length] = model;
-            this.data[length] = dataItem;
+            this.models.push(model);
 
             this.trigger('add', model);
         }
@@ -562,10 +580,15 @@
         for (var i = 0, len = this.repeats.length; i < len; i++) {
             this.repeats[i].update();
         }
-        var key = this.key.replace(/\./g, '/');
 
-        this.root.trigger('sync:' + key, this.parent, this._key, this.data)
-            .trigger('sync:' + key + '/length', this.parent, this._key, this.data);
+        this._triggerChangeEvent();
+    }
+
+    Collection.prototype._triggerChangeEvent = function () {
+        if (!this._silent) {
+            this.root._triggerChangeEvent(this.key, this, this.data)
+                ._triggerChangeEvent(this.key + '/length', this, this.data.length);
+        }
     }
 
     Collection.prototype.remove = function (start, count) {
@@ -575,6 +598,7 @@
         for (var i = 0, len = this.repeats.length; i < len; i++) {
             this.repeats[i].remove(start, count);
         }
+        this._triggerChangeEvent();
     }
 
     Collection.prototype.clear = function (data) {
@@ -582,9 +606,11 @@
         for (var i = 0, len = this.repeats.length; i < len; i++) {
             this.repeats[i].clear();
         }
+        this._triggerChangeEvent();
     }
 
     Collection.prototype.set = function (data) {
+        this._silent = true;
         if (data.length == 0) {
             this.clear();
         } else {
@@ -597,8 +623,13 @@
                 model.set(true, data[i]);
                 i++;
             });
+
             this.add(data.slice(i, data.length));
         }
+        this._silent = false;
+
+        this._triggerChangeEvent();
+
         return this;
     }
 
@@ -607,6 +638,7 @@
     }
 
     var snEvents = ['tap', 'click', 'change', 'focus', 'blur', 'transition-end'];
+    var snGlobal = ['this', '$', 'Math', 'new', 'Date', 'encodeURIComponent', 'window', 'document'];
 
     var withData = function (repeat) {
         var code = '{';
@@ -628,10 +660,11 @@
     }
 
     var ViewModel = function (el, data) {
-        if (typeof data === 'undefined' && $.isPlainObject(el)) {
+        if (typeof data === 'undefined' && (el == undefined || $.isPlainObject(el))) {
             data = el, el = this.el;
         }
         this.cid = util.guid();
+        this._bindListenTo = [];
 
         this.data = $.extend({}, data);
         this.model = {};
@@ -655,6 +688,7 @@
         initialize: util.noop,
 
         _compile: function (expression, repeat, listen) {
+
             var self = this;
             var code = 'function(global,model,el){var $el=$(el),$data=$.extend({},global,model.root.data';
 
@@ -672,32 +706,33 @@
                         var attrs = name.split('.');
                         var alias = attrs[0];
 
-                        if (!alias || alias == 'Math' || alias == '$' || alias == 'this' || alias == 'window' || alias == 'document' || rvalue.test(name) || Filters[alias]) {
+                        if (!alias || snGlobal.indexOf(alias) != -1 || rvalue.test(name) || Filters[alias]) {
                             return prefix + name;
                         }
                         var loopIndex;
 
                         if (repeat) {
-                            for (; repeat != null; repeat = repeat.parent) {
-                                if (alias == repeat.alias) {
-                                    attrs[0] = repeat.collectionName + '^child';
+                            for (var rp = repeat; rp != null; rp = rp.parent) {
+                                if (alias == rp.alias) {
+                                    attrs[0] = rp.collectionName + '^child';
                                     break;
 
-                                } else if (alias == repeat.indexAlias) {
-                                    loopIndex = repeat;
+                                } else if (alias == rp.indexAlias) {
+                                    loopIndex = rp;
                                     break;
                                 }
                             }
                         }
 
-                        self.on('sync:' + (loopIndex
+                        var eventName = (loopIndex
                             ? loopIndex.collectionName + '/' + loopIndex.alias + '/' + loopIndex.indexAlias
-                            : attrs.join('/')), listen);
+                            : attrs.join('/').replace(/\./g, '/'));
+
+                        self.on('change:' + eventName, listen);
 
                         return prefix + isNull(name);
                     }) + ')+\'';
                 });
-
             code += '\';}catch(e){return \'\';}}}';
             return code.replace('return \'\'+', 'return ').replace(/\+\'\'/g, '');
         },
@@ -747,7 +782,6 @@
             if (!rmatch.test(expression)) return;
 
             var listen = function (e, model) {
-
                 if (!repeat) {
                     self._setElAttr(node, attr);
 
@@ -813,41 +847,48 @@
 
                 self._setByEl(target, name, target.value);
                 e._stopModelEvent = true;
+            }).each(function () {
+                this.model = self;
             });
             self.$el = !self.$el ? $el : self.$el.add($el);
 
-            for (var i = 0; i < snEvents.length; i++) {
-                $el.on(snEvents[i] == 'transition-end' ? $.fx.transitionEnd : snEvents[i], '[sn-' + snEvents[i] + ']', function (e) {
-                    if (e._stopModelEvent == true) return;
-                    var target = e.currentTarget;
-                    var eventCode = target.getAttribute('sn-' + e.type);
-                    var argNames = eventCode.split(':');
-                    var argName;
-                    var args = [e];
-                    var fn;
-                    var ctx;
+            var _handleEvent = function (e) {
+                if (e._stopModelEvent == true) return;
+                var target = e.currentTarget;
+                var eventCode = target.getAttribute('sn-' + e.type);
+                var argNames = eventCode.split(':');
+                var argName;
+                var args = [e];
+                var fn;
+                var ctx;
 
-                    if (/^\d+$/.test(eventCode)) {
-                        self.fns[eventCode].call(self, e, self._closestByEl(target), Filters);
+                if (/^\d+$/.test(eventCode)) {
+                    var model = self._closestByEl(target);
+                    (model.root === self) && self.fns[eventCode].call(self, e, model, Filters);
 
-                    } else {
-                        for (var i = 0; i < argNames.length; i++) {
-                            var attr = argNames[i];
-                            if (i == 0) {
-                                ctx = self._getByEl(target, attr);
-                                fn = self._getVal(ctx, attr);
+                } else {
+                    for (var i = 0; i < argNames.length; i++) {
+                        var attr = argNames[i];
+                        if (i == 0) {
+                            ctx = self._getByEl(target, attr);
+                            fn = self._getVal(ctx, attr);
 
-                                e.model = self._closestByEl(target, attr);
+                            e.model = self._closestByEl(target, attr);
 
-                            } else {
-                                args.push(self._getVal(target, attr));
-                            }
+                        } else {
+                            args.push(self._getVal(target, attr));
                         }
-
-                        fn.apply(ctx, args);
                     }
-                    e._stopModelEvent = true;
-                });
+
+                    fn.apply(ctx, args);
+                }
+                e._stopModelEvent = true;
+            };
+
+            for (var i = 0, eventName, attr; i < snEvents.length; i++) {
+                eventName = snEvents[i] == 'transition-end' ? $.fx.transitionEnd : snEvents[i];
+                attr = '[sn-' + snEvents[i] + ']';
+                $el.on(eventName, attr, _handleEvent).filter(attr).on(eventName, _handleEvent);
             }
 
             eachElement($el, function (child, i, childList) {
@@ -876,38 +917,43 @@
                         var attr = child.attributes[j].name;
                         var val = child.attributes[j].value;
 
-                        if (attr == 'sn-error') {
-                            attr = 'onerror'
-                        } else if (attr == 'sn-src') {
-                            attr = 'src'
-                        }
-                        if (attr == 'sn-display' || attr == 'sn-html' || attr.indexOf('sn-') != 0) {
-                            self._bindAttr(child, attr, val, repeat);
+                        if (val) {
+                            if (attr == 'sn-error') {
+                                attr = 'onerror'
+                            } else if (attr == 'sn-src') {
+                                attr = 'src'
+                            }
+                            if (attr == 'sn-display' || attr == 'sn-html' || attr.indexOf('sn-') != 0) {
+                                if (attr.indexOf('sn-') == 0 && val.indexOf("{{") == -1 && val.indexOf("}}") == -1) {
+                                    val = '{{' + val + '}}';
+                                }
+                                self._bindAttr(child, attr, val, repeat);
 
-                        } else if (snEvents.indexOf(attr.replace(/^sn-/, '')) != -1) {
-                            if (rset.test(val) || rthis.test(val)) {
-                                var code = 'function(e,model,global){var el=e.currentTarget,$data=$.extend({},global,model.root.data';
-                                if (repeat)
-                                    code += ',' + withData(repeat);
+                            } else if (snEvents.indexOf(attr.replace(/^sn-/, '')) != -1) {
+                                if (rset.test(val) || rthis.test(val)) {
+                                    var code = 'function(e,model,global){var el=e.currentTarget,$data=$.extend({},global,model.root.data';
+                                    if (repeat)
+                                        code += ',' + withData(repeat);
 
-                                code += ');with($data){' + val.replace(rthis, function (match, $1, $2) {
-                                    return $1 + "e" + ($2 ? ',' : '') + $2 + ")";
+                                    code += ');with($data){' + val.replace(rthis, function (match, $1, $2) {
+                                        return $1 + "e" + ($2 ? ',' : '') + $2 + ")";
 
-                                }).replace(rset, 'this._setByEl(e.currentTarget,"$1",$2)') + '}}';
+                                    }).replace(rset, 'this._setByEl(e.currentTarget,"$1",$2)') + '}}';
 
-                                child.setAttribute(attr, self.fns.length + self._fns.length);
-                                self._fns.push(code);
+                                    child.setAttribute(attr, self.fns.length + self._fns.length);
+                                    self._fns.push(code);
+                                }
                             }
                         }
                     }
                     if (!repeat && child.bindings) {
-                        elements[elements.length] = child;
+                        elements.push(child);
                     }
 
                 } else if (child.nodeType == 3) {
                     self._bindAttr(child, 'textContent', child.textContent, childList.repeat);
                     if (!childList.repeat && child.bindings) {
-                        elements[elements.length] = child;
+                        elements.push(child);
                     }
                 }
             });
@@ -927,3 +973,25 @@
     exports.ViewModel = ViewModel;
     exports.Filters = Filters;
 });
+
+
+/*
+    this.model = new model.ViewModel($('<div><div sn-repeat="item in data"><span>{{item.name}}</span><i sn-repeat="p in children">{{p.name}}</i></div></div>'), {
+        data: [{
+            name: '1234'
+        }],
+        children: [{
+            name: 'aaa'
+        }]
+    });
+    
+    this.model = new model.ViewModel($('<div><div sn-repeat="item in data"><span>{{item.name}}</span><i sn-repeat="p in item.children">{{p.name}}</i></div></div>'), {
+        data: [{
+            name: '1234',
+            children: [{
+                name: 'aaa'
+            }]
+        }]
+    });
+    this.model.$el.appendTo($('body'));
+*/

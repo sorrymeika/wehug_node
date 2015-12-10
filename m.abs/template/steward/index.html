@@ -4,8 +4,8 @@
 </header>
 <div class="main">
     <div class="stw_title_bar">
-        <div class="hd">总共<em>15</em>条爱管家记录</div>
-        <i class="stw_title_bar_thumb ico{{displayType==0?' curr':''}}" sn-tap="displayType=0"></i>
+        <div class="hd">总共<em>{{user.StewardNum}}</em>条爱管家记录</div>
+        <!--<i class="stw_title_bar_thumb ico{{displayType==0?' curr':''}}" sn-tap="displayType=0"></i>-->
         <i class="stw_title_bar_list ico{{displayType==1?' curr':''}}" sn-tap="displayType=1"></i>
     </div>
     <ul class="stw_list" sn-display="{{displayType==1}}">

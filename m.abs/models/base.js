@@ -5,6 +5,24 @@ var API = Loading.extend({
 });
 exports.API = API;
 
+exports.OrderStatusAPI = API.extend({
+	url: '/api/user/get_order_status',
+	checkData: false,
+	check: false,
+	params: {
+		id: 0
+	}
+});
+
+exports.CouponStatusAPI = API.extend({
+	url: '/api/user/get_coupon_status',
+	checkData: false,
+	check: false,
+	params: {
+		id: 0
+	}
+});
+
 var ShopAPI = Loading.extend({
 	baseUri: $('meta[name="shop-api-base-url"]').attr('content'),
 	KEY_PAGE: 'currentpage'
@@ -82,9 +100,9 @@ exports.CreateOrderAPI = ShopAPI.extend({
 		pspcode: '',
 		mba_id: 1, //（用户收货地址）,
 		pay_type: 1, //（支付方式  RPayType 具体id到时候定）,
-		coupon: 'CSVCODE1, CSVCODE2, CSVCODE3', //（优惠券券号）,
+		coupon: '', //（优惠券券号）,
 		points: 0, //(积分数 100抵1块钱)
-		freecoupon: 'CSVFREE1'//（免邮券券号）
+		freecoupon: ''//（免邮券券号）
 	}
 });
 
@@ -146,6 +164,21 @@ exports.ProductListAPI = ShopAPI.extend({
 	}
 });
 
+exports.NewProductAPI = ShopAPI.extend({
+	url: '/api/prod/newproductlist',
+	params: {
+		length: 100,
+		pages: 0
+	}
+});
+
+exports.ActivityAPI = ShopAPI.extend({
+	url: '/Prod/GetApiBannerPrd',
+	params: {
+		h5name: 'api_prod1'
+	}
+});
+
 exports.CartAPI = ShopAPI.extend({
 	url: '/api/shop/bag',
 	params: {
@@ -159,6 +192,44 @@ exports.CartAddAPI = ShopAPI.extend({
 		pspcode: 0, //用户code(手机号)
 		prd: 0,
 		qty: 1
+	}
+});
+
+exports.CartModifyAPI = ShopAPI.extend({
+	url: '/api/shop/SaveProductChangeRow',
+	params: {
+		pspcode: 0, //用户code(手机号)
+		spbId: 0,
+		qty: 1
+	}
+});
+
+exports.CartDeleteAPI = ShopAPI.extend({
+	url: '/api/shop/deletebag',
+	params: {
+		pspcode: 0, //用户code(手机号)
+		spbId: 0
+	}
+});
+
+
+exports.CancelOrderAPI = ShopAPI.extend({
+	url: '/shop/cancelOrder',
+	params: {
+		pspcode: '',
+		purcode: ''
+	}
+});
+
+exports.OrderCreateAPI = ShopAPI.extend({
+	url: '/api/shop/CreateMOrder',
+	params: {
+		pspcode: '',
+		mba_id: 0,
+		pay_type: 1,
+		coupon: '',
+		points: 0,
+		freecoupon: ''
 	}
 });
 

@@ -11,6 +11,7 @@ var animation = require('animation');
 var Confirm = require("components/confirm");
 var api = require("models/base");
 
+
 module.exports = Activity.extend({
     events: {
         'tap .head_tab li': function (e) {
@@ -148,7 +149,6 @@ module.exports = Activity.extend({
 
     onCreate: function () {
         var self = this;
-
         self.user = util.store('user');
         self.$tabs = self.$('.hm_tab_con');
 
@@ -260,8 +260,6 @@ module.exports = Activity.extend({
             $el: this.$('.js_cart'),
             checkData: false,
             success: function (res) {
-                console.log(res);
-
                 self.model.set(res);
             }
         });
@@ -305,6 +303,23 @@ module.exports = Activity.extend({
                 isLogin: false
             });
         });
+
+        self.shopApi = new api.ActivityAPI({
+            $el: self.$('.hm_shop'),
+            success: function (res) {
+
+                self.model.set({
+                    activity: res.data
+                });
+
+                Scroll.bind(self.$('.hm_shop_scroll:not(.s_binded)').addClass('s_binded'), {
+                    vScroll: false,
+                    hScroll: true
+                });
+            }
+        });
+
+        self.shopApi.load();
 
     },
 

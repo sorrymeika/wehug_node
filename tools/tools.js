@@ -59,7 +59,7 @@ function formatJs(jsText) {
 
     jsText = jsText.replace(rdom, function (match, symbol, dom, tagName, end) {
 
-        return dom ? symbol + "'" + dom.replace(/\'/g, '\\\'').replace(/\s*(\r|\n)+\s*/g, ' ') + "'" + end : match;
+        return dom ? symbol + "'" + dom.replace(/\\/g, '\\\\').replace(/'/g, '\\\'').replace(/(\s*(\r|\n)+\s*)+/g, ' ') + "'" + end : match;
     });
 
     return jsText;

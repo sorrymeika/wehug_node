@@ -3,7 +3,7 @@
         util = require('util'),
         animation = require('animation'),
         CubicBezier = require('../graphics/cubicBezier'),
-        events = require('./event');
+        Event = require('./event');
 
     var slice = Array.prototype.slice;
     var cb = new CubicBezier(.08, .53, .2, .96);
@@ -20,12 +20,12 @@
 
         }, options);
 
-        $el.on('touchstart', $.proxy(self._start, self))
-            .on('touchmove', $.proxy(self._move, self))
-            .on('touchend', $.proxy(self._end, self));
+        this.delegate('touchstart', self.options.children, self._start)
+            .delegate('touchmove', self.options.children, self._move)
+            .delegate('touchend', self.options.children, self._end);
     }
 
-    Touch.prototype = Object.create(events);
+    Touch.prototype = Object.create(Event);
 
     $.extend(Touch.prototype, {
         minDelta: 0,
@@ -35,6 +35,16 @@
         maxY: 0,
         x: 0,
         y: 0,
+
+        delegate: function (event, sub, fn) {
+            if (typeof sub == 'undefined' && typeof fn == 'function')
+                sub = fn;
+
+            (typeof sub == 'function') ?
+                this.$el.on(event, $.proxy(sub, this)) :
+                this.$el.on(event, sub, $.proxy(fn, this));
+            return this;
+        },
 
         _stopMomentum: function () {
             if (this.momentum) {
@@ -84,16 +94,25 @@
 
                 if (isDirectionY || isDirectionX) {
 
+                    if (isDirectionY && !self.options.enableVertical || isDirectionX && !self.options.enableHorizontal) {
+                        this.stop();
+                        return;
+                    }
+
                     self.isTouchStart = true;
                     self.isDirectionY = isDirectionY;
                     self.isDirectionX = isDirectionX;
                     self.dir = isDirectionX;
 
                     if (!self.isInit) {
-                        self.trigger('init');
+                        self.trigger(Event.createEvent('init', {
+                            currentTarget: e.currentTarget
+                        }));
                         self.isInit = true;
                     }
-                    self.trigger('start');
+                    self.trigger(Event.createEvent('start', {
+                        currentTarget: e.currentTarget
+                    }));
 
                     if (self.isTouchStop) {
                         return;
@@ -109,7 +128,9 @@
             self.x = x < self.minX ? self.minX + (x - self.minX) / 2 : x > self.maxX ? self.maxX + (x - self.maxX) / 2 : x;
             self.y = y < self.minY ? self.minY + (y - self.minY) / 2 : y > self.maxY ? self.maxY + (y - self.maxY) / 2 : y;
 
-            self.trigger('move');
+            self.trigger(Event.createEvent('move', {
+                currentTarget: e.currentTarget
+            }));
 
             self.isTouchMoved = true;
 
@@ -143,6 +164,7 @@
             self.isTouchStop = true;
 
             $(e.target).trigger('touchcancel');
+            self.trigger('end');
 
             if (self.options.enableHorizontal && (self.x < self.minX || self.x > self.maxX) || self.options.enableVertical && (self.y < self.minY || self.y > self.maxY)) {
                 self.bounceBack();
@@ -208,6 +230,8 @@
                 }, duration, 'ease', function () {
                     self._stop();
                 });
+            } else {
+                self._stop();
             }
 
             return false;
@@ -245,6 +269,36 @@
             }, 200, 'ease', function () {
                 self._stop();
             });
+        },
+
+        scrollTo: function (x, y, duration) {
+            var self = this;
+            x = self.options.enableHorizontal ?
+                x >= this.maxX ? this.maxX : x <= this.minX ? this.minX : x
+                : self.x;
+
+            y = self.options.enableVertical ?
+                y >= this.maxY ? this.maxY : y <= this.minY ? this.minY : x
+                : self.x;
+
+            if (!duration) {
+                self.x = x;
+                self.y = y;
+
+                self.trigger('move');
+            } else {
+                var currentX = self.x;
+                var currentY = self.y;
+                var distX = x - self.x;
+                var distY = y - self.x;
+                animation.animate(function (d) {
+                    self.x = currentX + distX * d;
+                    self.y = currentY + distY * d;
+
+                    self.trigger('move');
+
+                }, duration, 'ease');
+            }
         },
 
         stop: function () {

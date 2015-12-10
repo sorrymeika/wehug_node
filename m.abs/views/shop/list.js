@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('widget/loading');
-    var model = require('core/model2');
+    var model = require('core/model3');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
     var api = require('models/base');
@@ -19,28 +19,60 @@ define(function (require, exports, module) {
             var self = this;
             var $main = self.$('.main');
 
-            self.swipeRightBackAction = self.route.query.from || '/';
+            self.swipeRightBackAction = self.route.query.from || '/all';
 
             Scroll.bind($main);
 
+            var categories = util.store('categories');
+
+            var cate = categories ? util.first(categories, function (item) {
+                return item.PCG_ID == self.route.query.id;
+            }) : null;
+
             self.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
-                title: '床品'
+                title: cate ? cate.PCG_NAME : '商品列表',
+                orderBy: 'PRD_ONLINE_DT|desc',
+                priceSort: true
             });
+
+            self.model.orderBy = function (e, orderBy) {
+                this.set('orderBy', orderBy);
+                list.abort().reload();
+            }
 
             var list = new api.ProductSearchAPI({
                 $el: self.$el,
                 check: false,
+                beforeSend: function () {
+                    var orderBy = self.model.get('orderBy');
+                    orderBy = orderBy.split('|');
+
+                    this.setParam({
+                        orderbyStr: orderBy[0],
+                        orderby: orderBy[1],
+                        pcgid: self.route.query.id,
+                        keycodes: self.route.query.s || ''
+                    });
+                },
+                KEY_PAGE: 'pages',
+                KEY_PAGESIZE: 'length',
+                pageSize: '10',
                 success: function (res) {
+                    if (res.data.length == 10) res.total = (this.pageIndex + 1) * parseInt(this.pageSize)
+
                     self.model.set({
                         data: res.data
                     });
                 },
                 append: function (res) {
-                    self.model.get('data').append(res.data);
+                    if (res.data.length == 10) res.total = (this.pageIndex + 1) * parseInt(this.pageSize);
+
+                    self.model.getModel('data').add(res.data);
                 }
             });
             list.load();
+
         },
 
         onShow: function () {

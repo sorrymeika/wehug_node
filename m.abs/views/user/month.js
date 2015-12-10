@@ -12,8 +12,8 @@
 
     return Activity.extend({
         events: {
-            'tap .js_comment': function () {
-                this.forward('/destcomment/' + this.route.data.id);
+            'tap .js_canget': function () {
+                this.forward('/news/month0?from=' + encodeURIComponent(this.route.url))
             }
         },
 
@@ -65,7 +65,7 @@
                     });
 
                     self.slider = new Slider(self.$slider, {
-                        itemTemplate: '<p class="img<%=CanGet?" canget":""%><%=Overdue?" disabled":""%>">\
+                        itemTemplate: '<p class="img<%=CanGet?" canget js_canget":""%><%=Overdue?" disabled":""%>">\
                                     <img src="<%=FRE_TITLE_PIC%>" />\
                                 </p>\
                                 <span><%=Month%>月</span>',
@@ -76,6 +76,9 @@
                             })
                         }
                     });
+                },
+                error: function (res) { 
+                    sl.tip(res.msg);
                 }
             });
 

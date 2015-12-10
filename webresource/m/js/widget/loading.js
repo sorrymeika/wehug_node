@@ -4,8 +4,6 @@
         view = require('./../core/view'),
         app = require('bridge');
 
-    var records = [];
-
     var extend = ['$el', 'url', 'method', 'headers', 'dataType', 'xhrFields', 'beforeSend', 'success', 'complete', 'pageIndex', 'pageSize', 'append', '$content', '$scroll', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
 
     var Loading = function (options) {
@@ -21,7 +19,7 @@
         this.$scroll = options.$scroll || this.$el;
         this.pageEnabled = !!(options.pageEnabled || this.append);
         this.isShowLoading = options.showLoading !== false;
-        
+
         this.setUrl(this.url);
     }
 
@@ -191,10 +189,6 @@
                 that.params[that.KEY_PAGESIZE] = that.pageSize;
             }
 
-            for (var i = records.length - 1; i >= 0; i--) {
-                records[i].disableAutoRefreshing();
-            }
-
             if (options && options.showLoading !== undefined)
                 that.isShowLoading = options.showLoading;
 
@@ -281,7 +275,7 @@
             var that = this,
                 data = that.params;
 
-            if (that.append && ((that.DATAKEY_PAGENUM && res[that.DATAKEY_PAGENUM] && res[that.DATAKEY_PAGENUM] > data[that.KEY_PAGE]) || (that.DATAKEY_TOTAL && res[that.DATAKEY_TOTAL] && res[that.DATAKEY_TOTAL] > data[that.KEY_PAGE] * data[that.KEY_PAGESIZE]))) {
+            if (that.append && ((that.DATAKEY_PAGENUM && res[that.DATAKEY_PAGENUM] && res[that.DATAKEY_PAGENUM] > data[that.KEY_PAGE]) || (that.DATAKEY_TOTAL && res[that.DATAKEY_TOTAL] && res[that.DATAKEY_TOTAL] > data[that.KEY_PAGE] * parseInt(data[that.KEY_PAGESIZE])))) {
 
                 that.pageIndex++;
                 that.enableAutoRefreshing();

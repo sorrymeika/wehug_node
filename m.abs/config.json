@@ -2,10 +2,16 @@
     "root": "/",
     "js": {
         "components": {
+            "components/activity": null,
             "components/share": null,
             "components/confirm": null,
+            "components/deletion": null,
+            "components/month": null,
+            "components/shareOrder": null,
+            "components/size": null,
             "models/base": null,
-            "core/model3": "../webresource/js/core/model2"
+            "core/model3": "../webresource/js/core/model2",
+            "core/touch2": "../webresource/m/js/core/touch2"
         }
     },
     "css": {
@@ -51,6 +57,10 @@
         "/coupon": {
             "controller": "user/coupon",
             "template": "user/coupon"
+        },
+        "/couponshare": {
+            "controller": "user/couponshare",
+            "template": "user/couponshare"
         },
         "/address": {
             "controller": "user/address",

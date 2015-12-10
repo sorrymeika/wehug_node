@@ -4,10 +4,11 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('../widget/loading');
-    var model = require('../core/model');
+    var model = require('core/model3');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
     var bridge = require('bridge');
+    var api = require('models/base');
 
     return Activity.extend({
         events: {
@@ -25,7 +26,6 @@ define(function (require, exports, module) {
 
         onCreate: function () {
             var self = this;
-
             var $main = this.$('.main');
 
             Scroll.bind($main);
@@ -34,6 +34,10 @@ define(function (require, exports, module) {
                 back: '/',
                 title: '我买到的',
                 currentType: 0,
+                isLoading: true
+            });
+
+            $.extend(this.model, {
                 select: function (e, type) {
                     if (!$(e.currentTarget).hasClass('curr')) {
                         $(e.currentTarget).addClass('curr').siblings('.curr').removeClass('curr');
@@ -51,18 +55,19 @@ define(function (require, exports, module) {
                             status: 19,
                             payStatus: 0
                         } : {
-                            status: 8,
-                            payStatus: 0
-                        }).reload();
+                                            status: 8,
+                                            payStatus: 0
+                                        }).reload();
 
-                        self.model.set('currentType', type)
+                        this.set('currentType', type)
                     }
                 },
-                open: function () {
-                    bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
+                showExpress: function (e, item) {
+                    item.set('showExpress', !item.showExpress);
+                    e.stopPropagation();
                 },
                 openOrder: function (e, order) {
-                    if (order.data.PUS_DESC == '待付款') {
+                    if (order.PUS_DESC == '待付款') {
                         var params = '';
                         if (self.user.OpenUrl) {
                             params = self.user.OpenUrl.substr(self.user.OpenUrl.lastIndexOf('?')) + "&from=native";
@@ -70,31 +75,43 @@ define(function (require, exports, module) {
                             params = "?from=native";
                         }
 
-                        bridge.openInApp('http://m.abs.cn/pay/' + order.data.PUR_ID + '.html' + params);
+                        bridge.wx({
+                            type: 'pay',
+                            spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
+                            orderCode: order.PUR_CODE,
+                            orderName: 'ABS商品',
+                            orderPrice: order.PUR_AMOUNT
+                        }, function (res) {
+                            sl.tip(res.msg);
+                        });
+                        //bridge.openInApp('http://m.abs.cn/pay/' + order.PUR_ID + '.html' + params);
                     }
+                    e.stopPropagation();
+                },
+                cancelOrder: function (e, order) {
+                    self.cancelOrderApi.setParam({
+                        purcode: order.PUR_CODE
+
+                    }).load();
                 },
                 openPrd: function (e, prd, order) {
-                    //alert(order.data.PUS_DESC);
+                    console.log(prd)
+                    //alert(order.PUS_DESC);
                     e.stopPropagation();
-                    if (order.data.PUS_DESC != '待付款' || e.target.tagName == "IMG") {
-                        if (prd.data.PRD_DISCONTINUED_FLAG) {
+                    if (order.PUS_DESC != '待付款' || e.target.tagName == "IMG") {
+                        if (prd.PRD_DISCONTINUED_FLAG) {
                             self.$open_msg.show();
                             self.$open_msg[0].clientHeight;
                             self.$open_msg.addClass('show');
 
-                        } else if (prd.data.Url) {
-                            bridge.openInApp(prd.data.Url);
+                        } else if (prd.Url) {
+                            self.forward('/item/' + prd.PRD_ID + "?from=" + encodeURIComponent(self.route.url));
                         }
                     } else {
-                        //alert(this.data.openOrder);
-                        this.data.openOrder(e,order);
+                        this.openOrder(e, order);
                     }
-                },
-                showExpress: function (e, item) {
-                    item.set('showExpress', !item.data.showExpress);
-                    e.stopPropagation();
                 }
-            });
+            })
 
             self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function (e) {
                 if (!self.$open_msg.hasClass('show')) {
@@ -107,33 +124,82 @@ define(function (require, exports, module) {
                 $el: this.$el,
                 checkData: false,
                 success: function (res) {
-                    self.model.set("data", res.data);
+                    self.model.set({
+                        isLoading: false,
+                        data: res.data
+                    });
                 },
                 append: function (res) {
-                    self.model.get('data').append(res.data);
+                    self.model.getModel('data').add(res.data);
                 }
             });
 
             self.user = util.store('user');
+
+            self.loading.setParam({
+                UserID: self.user.ID,
+                Auth: self.user.Auth
+
+            }).load();
+
+            self.onResult("OrderChange", function () {
+                self.loading.reload();
+            });
+
+            self.cancelOrderApi = new api.CancelOrderAPI({
+                $el: this.$el,
+                checkData: false,
+                params: {
+                    pspcode: self.user.Mobile
+                },
+                success: function (res) {
+                    if (res.success) {
+                        sl.tip('订单已成功取消');
+                        self.loading.reload();
+                    }
+                },
+                error: function (res) {
+                    sl.tip(res.msg);
+                }
+            });
+
+            self.orderStatusAPI = new api.OrderStatusAPI({
+                $el: this.$el,
+                success: function (res) {
+                    if (res.status == 0) {
+                        self.timer = setTimeout(function () {
+                            self.checkStatus();
+                        }, 1500);
+
+                    } else if (res.status == 3) {
+                        self.forward("/news/order" + self.route.query.id);
+                    }
+                }
+            });
         },
 
-        onShow: function () {
+        checkStatus: function () {
             var self = this;
 
-            self.user = util.store('user');
+            self.timer && clearTimeout(self.timer);
 
-            if (!self.user) {
-                self.forward('/login?success=' + this.route.url + "&from=/");
-            } else {
-                self.loading.setParam({
-                    UserID: self.user.ID,
-                    Auth: self.user.Auth
+            if (self.route.query.id) {
+                self.orderStatusAPI.setParam({
+                    id: self.route.query.id
 
                 }).load();
             }
         },
 
+        onShow: function () {
+            var self = this;
+
+            self.checkStatus();
+        },
+
         onDestory: function () {
+            var self = this;
+            self.timer && clearTimeout(self.timer);
         }
     });
 });

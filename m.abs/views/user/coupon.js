@@ -84,27 +84,74 @@ define(function (require, exports, module) {
                     pspcode: self.user.Mobile
                 },
                 success: function (res) {
-                    console.log(res);
+                    if (res.success) {
+                        sl.tip('领取成功');
+                        self.loading.reload();
+
+                    } else {
+                        sl.tip(res.msg);
+                    }
                 },
                 error: function (res) {
                     sl.tip(res.msg);
                 }
             });
 
+            this.couponStatusApi = new api.CouponStatusAPI({
+                $el: this.$el,
+                checkData: false,
+                params: {
+                    pspcode: self.user.Mobile
+                },
+                success: function (res) {
+                    console.log(res);
+                },
+                error: function (res) {
+                    console.log(res);
+                }
+            });
+
             self.share = new Share({
                 head: '分享这张优惠券'
             });
+            self.share.callback = function (res) {
+                if (!res.success) {
+                    sl.tip(res.msg);
+                } else {
+                    sl.tip('分享成功');
+                    self.share.hide();
+                }
+            }
+
             self.share.$el.appendTo(self.$el);
 
             this.model.share = function (e, item) {
-                console.log(e, item)
                 if (item.VCA_VCT_ID == 4 || item.VCA_VCT_ID == 5 || item.VCA_VCT_ID == 2) {
-                    self.share.set({
-                        linkURL: '',
-                        title: '',
-                        description: ''
 
-                    }).show();
+                    self.couponStatusApi.setParam({
+                        id: item.CSV_ID,
+                        UserID: self.user.ID,
+                        Auth: self.user.Auth
+
+                    }).load(function (err, res) {
+                        if (!err) {
+                            if (res.status == 2) {
+
+                                return;
+                            }
+                            self.share.set({
+                                linkURL: res.url,
+                                title: 'ABS优惠券分享',
+                                description: 'ABS优惠券分享'
+
+                            }).show();
+                        } else {
+                            sl.tip(err.msg);
+                        }
+                    });
+
+                } else {
+                    sl.tip('不可分享的优惠券');
                 }
             }
 
@@ -130,7 +177,7 @@ define(function (require, exports, module) {
                         var data = util.find(res.data, function (item) {
                             return item.VCA_VCT_ID != 4;
                         });
-                        
+
                         data.sort(function (a, b) {
                             return a.IsOverdue && !b.IsOverdue ? 1 : !a.IsOverdue && b.IsOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
                         });

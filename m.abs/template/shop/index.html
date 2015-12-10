@@ -1,18 +1,22 @@
 ﻿<header>
     <div class="head_back" data-back="{{back}}"></div>
-    <div class="head_search">
-        <input type="text" placeholder="热门搜索：新月枕" />
-    </div>
+    <form class="head_search">
+        <input class="js_search" type="search" placeholder="热门搜索：新月枕" />
+    </form>
 </header>
-<div class="main">
+<div class="main" style="padding-bottom:10px">
     <ul class="sp_all_cates">
-        <li sn-repeat="item in categories|filter:item.PCG_DEPTH==1" class="{{item.PCG_ID==id?'curr':''}}" data-forward="/list?id={{item.PCG_ID}}&from=/all">{{item.PCG_DESC}}</li>
+        <li sn-repeat="item in categories" class="{{item.PCG_ID==id?'curr':''}}" sn-tap="current=item,id=item.PCG_ID,this.bindScroll()">{{item.PCG_DESC}}</li>
     </ul>
-    <div class="sp_all_banner"><img src="" /></div>
-    <ul class="sp_all_list">
-        <li class="sp_all_list_item"><a><img /></a></li>
-        <li class="sp_all_list_item"><a><img /></a></li>
-        <li class="sp_all_list_item"><a><img /></a></li>
-        <li class="sp_all_list_item"><a><img /></a></li>
-    </ul>
+    <div sn-repeat="item in current.children">
+        <div class="sp_all_banner" data-forward="/list?id={{item.PCG_ID}}"><img sn-src="{{resource}}/upload/cate/{{item.PCG_ID}}.jpg" /></div>
+        <div class="sp_all_list_wrap">
+            <ul class="sp_all_list">
+                <li class="sp_all_list_item" sn-repeat="cate in item.children">
+                    <a><img data-forward="/list?id={{cate.PCG_ID}}" alt="{{cate.PCG_NAME}}" sn-src="{{resource}}/upload/cate/{{cate.PCG_ID}}.png"
+                        /></a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>

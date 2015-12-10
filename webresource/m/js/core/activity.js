@@ -5,7 +5,7 @@
         Scroll = require('widget/scroll'),
         Dialog = require('widget/dialog'),
         slice = Array.prototype.slice;
-
+        
     var Activity = Page.extend({
         toggleAnim: 'def',
 

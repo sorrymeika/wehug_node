@@ -4,17 +4,19 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('widget/loading');
-    var model = require('core/model2');
+    var model = require('core/model3');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
-
+    var api = require('models/base');
+    var bridge = require('bridge');
 
     return Activity.extend({
         events: {
-            'tap .js_bind:not(.disabled)': function () {
+            'tap .js_buy:not(.disabled)': function () {
+                this.orderCreateApi.load();
             },
             'tap .js_address': function () {
-                this.forward('/address?from=' + this.route.path);
+                this.forward('/address?buy=1&from=' + encodeURIComponent(this.route.url));
             }
         },
 
@@ -22,17 +24,101 @@ define(function (require, exports, module) {
             var self = this;
             var $main = self.$('.main');
 
-            self.swipeRightBackAction = self.route.query.from || '/';
+            self.swipeRightBackAction = self.route.query.from || '/cart';
+            self.user = util.store('user');
 
             Scroll.bind($main);
 
             self.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
-                title: '确认订单'
+                title: '确认订单',
+                payType: 1,
+                couponprice: self.route.data.couponprice ? parseInt(self.route.data.couponprice) : 0,
+                freecouponcode: self.route.data.freecouponcode,
+                points: self.route.data.points ? parseInt(self.route.data.points) : 0
             });
-            
-            self.onResult('setDefaultAddress', function (e, address) {
-                self.model.set({ address: address });
+
+            var address = new api.AddressListAPI({
+                $el: this.$el,
+                params: {
+                    pspcode: self.user.Mobile
+                },
+                checkData: false,
+                success: function (res) {
+                    if (res.data && res.data[0]) {
+                        self.model.set({
+                            address: util.first(res.data, function (item) {
+                                return item.MBA_DEFAULT_FLAG
+                            }) || res.data[0]
+                        });
+                    }
+                }
+            });
+            address.load();
+
+            self.cart = new api.CartAPI({
+                $el: self.$el,
+                checkData: false,
+                success: function (res) {
+                    console.log(res);
+                    self.model.set(res).set({
+                        loading: false
+                    });
+                }
+            });
+
+            self.cart.setParam({
+                pspcode: self.user.Mobile
+            }).load();
+
+            self.orderCreateApi = new api.OrderCreateAPI({
+                $el: this.$el,
+                params: {
+                    pspcode: self.user.Mobile,
+                    pay_type: 1,
+                    coupon: self.route.query.coupon,
+                    points: self.route.query.points,
+                    freecoupon: self.route.query.freecoupon
+                },
+                beforeSend: function () {
+                    var address = self.model.get('address');
+                    if (!address) {
+                        sl.tip('请填写收货地址信息');
+                        return false;
+                    }
+
+                    this.setParam({
+                        mba_id: address.AddressID,
+                        pay_type: self.model.get('payType')
+                    });
+
+                },
+                checkData: false,
+                success: function (res) {
+                    if (res.success) {
+                        sl.tip("生成订单成功！");
+                        self.setResult('OrderChange');
+
+                        self.forward('/myorder?id=' + res.pur_id);
+
+                        bridge.wx({
+                            type: 'pay',
+                            spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
+                            orderCode: res.code,
+                            orderName: 'ABS商品',
+                            orderPrice: res.puramount
+                        });
+                    }
+                },
+                error: function (res) {
+                    sl.tip(res.msg);
+                }
+            });
+
+            self.onResult('useAddress', function (e, address) {
+                self.model.set({
+                    address: address
+                });
             });
         },
 

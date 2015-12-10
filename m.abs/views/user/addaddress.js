@@ -38,7 +38,7 @@ module.exports = Activity.extend({
         var id = self.route.query.id;
         self.model = new model.ViewModel(this.$el, {
             back: self.swipeRightBackAction,
-            title: '添加地址',
+            title: id ? '设置地址' : '添加地址',
             address: {
                 mbaDefault: true,
                 mbaMobile: self.user.Mobile
@@ -52,7 +52,7 @@ module.exports = Activity.extend({
                 address: {
                     mbaMobile: address.MBA_MOBILE,
                     mbaName: address.MBA_NAME,
-                    mbaAddress: address.MBA_FULL_ADDRESS,
+                    mbaAddress: address.MBA_ADDRESS,
                     mbaDefault: address.MBA_DEFAULT_FLAG
                 },
                 province: {
@@ -184,9 +184,23 @@ module.exports = Activity.extend({
                 this.setParam(address);
             },
             success: function (res) {
-                console.log(res);
                 if (res.success) {
-                    sl.tip('保存成功！');
+                    sl.tip('设置成功！');
+
+                    if (self.route.query.buy) {
+                        var addr = self.model.get('address');
+                        self.setResult('useAddress', {
+                            AddressID: addr.mbaId,
+                            MBA_CTY_ID: addr.mbaCtyId,
+                            MBA_REG_ID: addr.mbaRegId,
+                            MBA_NAME: addr.mbaName,
+                            MBA_FULL_ADDRESS: addr.mbaAddress,
+                            MBA_MOBILE: addr.mbaMobile
+                        });
+                    }
+
+                    self.back(self.route.query.buy ? decodeURIComponent(self.route.query.from.match(/from=([^&]+?)(&|$)/)[1]) : self.swipeRightBackAction);
+
                 } else {
                     sl.tip(res.msg);
                 }

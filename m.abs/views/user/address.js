@@ -12,7 +12,7 @@ module.exports = Activity.extend({
         'tap .js_bind:not(.disabled)': function () {
         },
         'tap .js_add_address': function () {
-            this.forward('/addaddress?from=' + encodeURIComponent(this.route.url));
+            this.forward('/addaddress?from=' + encodeURIComponent(this.route.url) + "&buy=" + (this.route.query.buy || ''));
         }
     },
 
@@ -37,28 +37,25 @@ module.exports = Activity.extend({
             });
 
             util.store('address', address);
-            self.forward('/addaddress?edittype=1&id=' + id);
+            self.forward('/addaddress?edittype=2&from=' + encodeURIComponent(self.route.url) + '&id=' + id + "&buy=" + (self.route.query.buy || ''));
         }
 
-        var address = new api.AddressListAPI({
+        self.address = new api.AddressListAPI({
             $el: this.$el,
             params: {
                 pspcode: self.user.Mobile
             },
             success: function (res) {
-                console.log(res);
-
                 self.model.set({
                     data: res.data
                 });
             }
         });
-        address.load();
-
     },
 
     onShow: function () {
         var self = this;
+        self.address.load();
     },
 
     onDestory: function () {

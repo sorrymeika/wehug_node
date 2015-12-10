@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var model = require('core/model3');
     var Scroll = require('widget/scroll');
     var Share = require('components/share');
+    var Size = require('components/size');
     var animation = require('animation');
     var api = require('models/base');
 
@@ -14,24 +15,13 @@ define(function (require, exports, module) {
         events: {
             'tap .js_buy:not(.disabled)': function () {
                 var self = this;
-
-                self.cartAddAPI.load();
+                this.size.show();
             },
             'tap .js_share': function () {
                 this.share.show();
             },
             'tap .js_select_size': function () {
-                this.$('.js_size').show();
-                this.model.set({
-                    isShowSize: true
-                });
-            },
-            'tap .js_size': function (e) {
-                if ($(e.target).hasClass('js_size')) {
-                    this.model.set({
-                        isShowSize: false
-                    });
-                }
+                this.size.show();
             }
         },
 
@@ -40,12 +30,6 @@ define(function (require, exports, module) {
         onCreate: function () {
             var self = this;
             var $main = self.$('.main');
-            self.$size = this.$('.js_size');
-            self.listenTo(self.$size, $.fx.transitionEnd, function (e) {
-                if (self.$size.hasClass('out')) {
-                    self.$size.hide();
-                }
-            })
 
             self.swipeRightBackAction = self.route.query.from || '/list';
 
@@ -58,13 +42,13 @@ define(function (require, exports, module) {
                 title: '床品',
                 id: self.route.data.id,
                 user: self.user,
-                url: self.route.url
+                url: self.route.url,
+                qty: 1
             });
 
-            self.share = new Share({
-                head: '分享商品至'
-            });
-            self.share.$el.appendTo(self.$el);
+            self.size = new Size();
+            
+            self.size.$el.appendTo(self.$el);
 
             var product = new api.ProductAPI({
                 $el: self.$el,
@@ -77,6 +61,20 @@ define(function (require, exports, module) {
                     self.model.set({
                         data: res.data
                     });
+
+                    self.size.set({
+                        qty: 1,
+                        data: res.data
+                    });
+
+                    self.share = new Share({
+                        head: '分享商品至',
+                        title: res.data.PRD_NAME,
+                        linkURL: 'http://m.abs.cn/' + res.data.PRD_ID,
+                        description: res.data.PRD_NAME
+                    });
+                    self.share.$el.appendTo(self.$el);
+
                     colorAndSpec.setParam({
                         id: res.data.PRD_PRH_ID
                     }).load();
@@ -102,33 +100,18 @@ define(function (require, exports, module) {
                     console.log(res);
                     self.model.set({
                         color: color,
-                        spec: spec
+                        spec: spec,
+                        colorSpec: res.data
+                    });
+
+                    self.size.set({
+                        color: color,
+                        spec: spec,
+                        colorSpec: res.data
                     });
                 }
             });
 
-            self.cartAddAPI = new api.CartAddAPI({
-                $el: self.$el,
-                checkData: false,
-                check: false,
-                beforeSend: function () {
-                    self.$('.js_buy').addClass('disabled');
-                },
-                params: {
-                    pspcode: self.user.Mobile,
-                    prd: self.model.get('id')
-                },
-                success: function (res) {
-                    console.log(res);
-
-                    if (res.success) {
-                        self.forward('/cart?from=' + self.route.url);
-                    }
-                },
-                complete: function () {
-                    self.$('.js_buy').removeClass('disabled');
-                }
-            });
         },
 
         onShow: function () {
