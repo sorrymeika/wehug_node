@@ -120,8 +120,8 @@ function parseDependencies(code) {
 
 var re_defined_id = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*define|(?:^|\uFEFF|[^$])(\bdefine\(([\'\"])[^\2]+\2)/g;
 
-var replaceDefine = function (id, code, requires, exclude, jsContent) {
-    if (typeof requires == 'string') jsContent = requires, requires = undefined, exclude = undefined;
+var replaceDefine = function (id, code, requires, exclude) {
+    if (typeof requires == 'string') requires = [requires];
 
     code = replaceBOM(code);
 
@@ -129,7 +129,10 @@ var replaceDefine = function (id, code, requires, exclude, jsContent) {
         return code;
     }
 
-    return code.replace(/\bdefine\((?:\s*|\s*(\[[^\]]*\]{0,1})\s*,\s*)function\s*\((([^,\)]+)[^\)]*|[^\)]*)\)\s*{/m, function (match, param, fn, req) {
+    return code.replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*define|(^|\uFEFF|[^$])(\bdefine\((?:\s*(\[[^\]]*\]){0,1}\s*,\s*))/mg, function (match, pre, fn, param) {
+        if (!fn) return match;
+        console.log(match, param);
+
         param = param ? JSON.parse(param.replace(/\'/g, '"')) : [];
 
         if (requires && requires.length) {
@@ -147,7 +150,7 @@ var replaceDefine = function (id, code, requires, exclude, jsContent) {
             }
         }
 
-        return 'define(' + '"' + id + '",' + (JSON.stringify(param) + ',') + 'function(' + fn + '){' + (jsContent || '');
+        return pre + 'define(' + '"' + id + '",' + (JSON.stringify(param) + ',');
     });
 }
 
