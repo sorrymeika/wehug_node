@@ -50,10 +50,15 @@ function isTest(regex, text) {
     return false;
 }
 
-function formatJs(jsText) {
-    if (isTest(rcmd, jsText) && !isTest(rdefine, jsText)) {
+function sealize(jsText) {
+    if ((isTest(rcmd, jsText) || isTest(REQUIRE_RE, jsText)) && !isTest(rdefine, jsText)) {
         jsText = "define(function (require, exports, module) {" + jsText + "});";
     }
+    return jsText;
+}
+
+function formatJs(jsText) {
+    jsText = sealize(jsText);
 
     var rdom = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\s*(return\s+|=|\:)\s*(<([a-zA-Z]+)[^>]*>[\s\S]*?<\/\3>)\s*(,|;|\})/mg;
 
@@ -64,6 +69,7 @@ function formatJs(jsText) {
 
     return jsText;
 }
+
 
 var compressJs = function (code, mangle_names) {
     code = replaceBOM(code).replace(/\/\/<--debug[\s\S]+?\/\/debug-->/img, '');
@@ -112,15 +118,16 @@ function parseDependencies(code) {
     return ret
 }
 
+var re_defined_id = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*define|(?:^|\uFEFF|[^$])(\bdefine\(([\'\"])[^\2]+\2)/g;
+
 var replaceDefine = function (id, code, requires, exclude, jsContent) {
+    if (typeof requires == 'string') jsContent = requires, requires = undefined, exclude = undefined;
 
     code = replaceBOM(code);
-    var m = code.match(/(^|\s|[&])define\(/g);
-    if (m && m.length > 1) {
+
+    if (isTest(re_defined_id, code)) {
         return code;
     }
-
-    if (typeof requires == 'string') jsContent = requires, requires = undefined, exclude = undefined;
 
     return code.replace(/\bdefine\((?:\s*|\s*(\[[^\]]*\]{0,1})\s*,\s*)function\s*\((([^,\)]+)[^\)]*|[^\)]*)\)\s*{/m, function (match, param, fn, req) {
         param = param ? JSON.parse(param.replace(/\'/g, '"')) : [];
