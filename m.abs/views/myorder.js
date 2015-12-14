@@ -103,12 +103,12 @@ define(function (require, exports, module) {
 
                         bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + order.PUR_ID + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
 
-/*
-                        if (!IFRAME) {
-                            IFRAME = $('<iframe name="__order" style="width:0px;height:0px;"></iframe>').appendTo('body');
-                        }
-                        IFRAME.attr('src', api.API.prototype.baseUri + '/AlipayDirect/Pay/' + order.PUR_ID + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
-                        */
+                        /*
+                                                if (!IFRAME) {
+                                                    IFRAME = $('<iframe name="__order" style="width:0px;height:0px;"></iframe>').appendTo('body');
+                                                }
+                                                IFRAME.attr('src', api.API.prototype.baseUri + '/AlipayDirect/Pay/' + order.PUR_ID + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
+                                                */
                     }
                     e.stopPropagation();
                 },
