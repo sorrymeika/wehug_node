@@ -135,8 +135,7 @@ define(function (require, exports, module) {
 
                     }).load(function (err, res) {
                         if (!err) {
-                            if (res.status == 2) {
-
+                            if (res.overdue) {
                                 return;
                             }
                             self.share.set({

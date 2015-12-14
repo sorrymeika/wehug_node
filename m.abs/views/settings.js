@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('../widget/loading');
-    var model = require('../core/model2');
+    var model = require('../core/model3');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
 
@@ -29,7 +29,10 @@ define(function (require, exports, module) {
                 back: self.swipeRightBackAction,
                 title: '设置',
                 user: user,
-                logout: function () {
+                logout: function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     self.confirm("你确认要退出登录?", function () {
                         if (localStorage.getItem('user')) {
                             util.store('user', null);

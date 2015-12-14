@@ -2,6 +2,7 @@ var $ = require('$');
 var model = require('core/model3');
 var api = require('models/base');
 var util = require('util');
+var Scroll = require('widget/scroll');
 
 var Month = model.ViewModel.extend({
 	el: <div class="pd_size_wrap js_size {{isShowSize?'':'out'}}" style="display:none" sn-tap="this.tap()">
@@ -80,6 +81,8 @@ var Month = model.ViewModel.extend({
 	initialize: function() {
 		var self = this;
 		self.user = util.store('user');
+		
+		Scroll.bind(self.$('.pd_size_con'));
 
 		self.listenTo(self.$el, $.fx.transitionEnd, function (e) {
 			if (self.$el.hasClass('out')) {
@@ -92,9 +95,17 @@ var Month = model.ViewModel.extend({
 			checkData: false,
 			check: false,
 			beforeSend: function () {
-				this.setParam({
-					prd: self.get('data').PRD_ID
-				})
+				if (self.data.type=='month'){
+					this.setUrl('/api/prod/addmemberbag')
+						.setParam({
+							prdid: self.get('data').PRD_ID,
+							freid: self.get('freid')
+						});
+				} else {
+					this.setParam({
+						prd: self.get('data').PRD_ID
+					})
+				}
 				self.$('.js_buy').addClass('disabled');
 			},
 			params: {

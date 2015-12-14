@@ -85,14 +85,29 @@ exports.CouponAPI = ShopAPI.extend({
 	}
 });
 
-exports.CouponShareAPI = API.extend({
-	url: '/api/user/shareCoupon',
+//获取购物车可用优惠券
+exports.AvailableCouponAPI = ShopAPI.extend({
+	url: '/api/prod/availablecoupon',
 	params: {
-		UserID: 0,
-		Auth: ''
+		pspcode: ''
 	}
 });
 
+exports.GetSharedCouponAPI = API.extend({
+	url: '/api/user/get_shared_coupon',
+	params: {
+		UserID: 0,
+		Auth: '',
+		data: ''
+	}
+});
+
+exports.CouponUserAPI = API.extend({
+	url: '/api/user/get_coupon_user',
+	params: {
+		data: ''
+	}
+});
 
 exports.CreateOrderAPI = ShopAPI.extend({
 	url: '/api/shop/CreateMOrder',
@@ -233,6 +248,15 @@ exports.OrderCreateAPI = ShopAPI.extend({
 	}
 });
 
+
+exports.WxPayAPI = API.extend({
+	url: '/api/shop/wxpayqrcode',
+	checkData: false,
+	params: {
+		order_no: ''
+	}
+});
+
 exports.StewardListAPI = ShopAPI.extend({
 	url: '/api/steward/list',
 	params: {
@@ -251,5 +275,21 @@ exports.StewardDetailAPI = ShopAPI.extend({
 	url: '/api/steward/detail',
 	params: {
 		detail_id: 0
+	}
+});
+
+exports.MonthAPI = ShopAPI.extend({
+	url: '/api/prod/freeskulist',
+	params: {
+		freid: 2
+	}
+});
+
+
+exports.MonthProductAPI = ShopAPI.extend({
+	url: '/api/prod/ajaxactprdlist',
+	params: {
+		pages: 1,
+		len: 6
 	}
 });

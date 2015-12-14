@@ -65,7 +65,7 @@ define(function (require, exports, module) {
                 },
                 $el: self.$el
             });
-            if (!categories) cate.load();
+            cate.load();
         },
 
         setCategories: function (categories) {

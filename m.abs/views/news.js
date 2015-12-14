@@ -44,14 +44,17 @@ module.exports = Activity.extend({
                 break;
             case 'month':
                 title = "会员礼领取";
-                component = new Month();
+                component = new Month({
+                    id: id
+                });
                 component.$el.appendTo($main);
                 break;
             case 'activity':
-                title = id == 2 ? "最热商品":"APP专享";
+                title = id == 2 ? "最热商品" : "APP专享";
                 component = new Activ({
                     id: id
                 });
+                component.view = self;
                 component.$el.appendTo($main);
                 break;
         }

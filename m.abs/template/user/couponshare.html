@@ -1,14 +1,14 @@
 ﻿<div class="main co_share" style="top:0">
 	<div class="co_share_con">
 		<div class="say">
-			<p class="img"><img src="" alt=""><em>xxx</em></p>
+			<p class="img"><img src="" alt=""><em>{{user.PSP_NAME||user.PSP_CODE}}</em></p>
 			<p class="cont">我把在ABS家居领到的优惠券送给你~赶快来领取吧！</p>
 		</div>
 		<div class="letter">
 			<div class="closed"></div>
 			<i class="logo"></i>
 		</div>
-		<div class="btn get">马上领取</div>
+		<div class="btn get" sn-tap="this.getCoupon()">马上领取</div>
 		<div class="steps">
 			<p>立即<br>领券</p>
 			<i></i>
@@ -22,11 +22,11 @@
 	<div class="co_share_user">
 		<div class="hd">看看还有谁领到了</div>
 		<ul class="list">
-			<li>
+			<li sn-repeat="item in users">
 				<img alt="" sn-src="">
 				<p class="con">
-					<span class="name">用户名 <i class="date">2015/11/11 14:24</i></span>
-					<em class="text"></em>
+					<span class="name">{{item.PSP_NAME||item.PSP_CODE}} <i class="date">{{util.formatDate(item.VSR_START_SHARE_TIME,'yyyy/MM/dd HH:mm')}}</i></span>
+					<em class="text">土豪带我飞</em>
 				</p>
 			</li>
 		</ul>

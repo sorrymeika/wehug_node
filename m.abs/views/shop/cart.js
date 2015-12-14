@@ -23,11 +23,18 @@ define(function (require, exports, module) {
             'touchmove .ct_coupon_wrap': function (e) {
                 return false;
             },
-            'tap .ct_coupon_wrap': function (e) {
-                if ($(e.target).hasClass('ct_coupon_wrap')) {
+            'tap .js_coupon': function (e) {
+                if ($(e.target).hasClass('js_coupon')) {
                     this.model.set({
                         isShowCoupon: false
                     })
+                }
+            },
+            'tap .js_points': function (e) {
+                if ($(e.target).hasClass('js_points')) {
+                    this.model.set({
+                        isShowPoint: false
+                    });
                 }
             },
             'tap .js_use_coupon': function () {
@@ -39,16 +46,10 @@ define(function (require, exports, module) {
             },
             'tap .js_use_point': function () {
                 var self = this;
+                this.$points.show();
 
-                this.prompt("输入要使用的积分", '100', function (res) {
-                    if (self.user.Points < parseInt(res)) {
-                        sl.tip('您的积分不够');
-
-                    } else {
-                        self.model.set({
-                            Points: res
-                        })
-                    }
+                self.model.set({
+                    isShowPoint: true
                 });
             },
             'tap .js_use_freecard': function () {
@@ -77,18 +78,33 @@ define(function (require, exports, module) {
                 Points: 0
             });
 
-            self.model.useCoupon = function (e, coupon) {
-                console.log(coupon);
+            $.extend(self.model, {
 
-                self.model.set(coupon.VCA_VCT_ID == 4 ? {
-                    freecouponcode: coupon
+                usePoint: function (e, points) {
+                    if (points > self.user.Points) {
+                        sl.tip('超过已有积分了');
+                        return;
+                    }
+                    else if (parseFloat(points) % 100 != 0) {
 
-                } : {
-                        couponcode: coupon
-                    }).set({
-                        isShowCoupon: false
+                    }
+
+                    self.model.set({
+                        isShowPoint: false,
+                        Points: points
                     });
-            }
+                },
+
+                useCoupon: function (e, coupon) {
+                    self.model.set(coupon.VCA_VCT_ID == 4 ? {
+                        freecouponcode: coupon
+                    } : {
+                            couponcode: coupon
+                        }).set({
+                            isShowCoupon: false
+                        });
+                }
+            });
 
             self.cart = new api.CartAPI({
                 $el: self.$el,
@@ -100,17 +116,11 @@ define(function (require, exports, module) {
                 }
             });
 
+            self.initPoints();
+
             self.initCoupon();
             self.initModify();
             self.initDeletion();
-
-            if (self.user) {
-                self.doWhenLogin();
-            }
-
-            self.onResult("Login", function () {
-                self.doWhenLogin();
-            })
         },
 
         doWhenLogin: function () {
@@ -131,6 +141,8 @@ define(function (require, exports, module) {
 
             if (!self.user) {
                 self.forward('/login?success=' + self.route.url + "&from=" + self.swipeRightBackAction);
+            } else {
+                self.doWhenLogin();
             }
         },
 
@@ -163,7 +175,7 @@ define(function (require, exports, module) {
                     self.model.getModel('data_baglist').remove(function (el) {
                         return el.model.get('SPB_ID') == spbId;
                     });
-                    
+
                     self.cart.reload();
                 },
                 error: function (res) {
@@ -174,64 +186,107 @@ define(function (require, exports, module) {
 
         initModify: function () {
             var self = this;
-            var promise = new Promise().resolve();
+            var isModifying = false;
 
             self.cartModifyApi = new api.CartModifyAPI({
                 $el: self.$el,
                 checkData: false,
+                beforeSend: function () {
+                    isModifying = true;
+                },
                 success: function (res) {
                     self.cart.reload();
-                    promise.resolve();
                 },
                 error: function (res) {
                     sl.tip(res.msg);
-                    var ctx = this;
 
-                    this.model.set({
+                    self.model.getModel('data_baglist').find(function (item) {
+                        return item.SPB_ID == self.modifySpbId;
+
+                    }).set({
                         SPB_QTY: this.originQty
                     });
-                    promise.reject();
+                },
+                complete: function () {
+                    isModifying = false;
                 }
             });
 
-            self.model.on('change:data_baglist^child/SPB_QTY', function (e, model, origin, value) {
-                if (origin != undefined) {
-                    var qty = parseInt(model.get('SPB_QTY'));
-                    if (qty && qty > 0) {
-                        promise.then(function (err) {
-                            if (!err) {
-                                $.extend(self.cartModifyApi, {
-                                    model: model,
-                                    originQty: origin
+            self.model.changeQty = function (e, item, qty) {
+                var origin = parseInt(item.SPB_QTY);
+                qty = parseInt(qty);
+                if (!qty || isNaN(qty) || qty == origin) {
+                    return;
+                }
+                self.modifySpbId = item.SPB_ID;
 
-                                }).setParam({
-                                    pspcode: self.user.Mobile,
-                                    spbId: model.get('SPB_ID'),
-                                    qty: qty
-                                }).load();
+                $.extend(self.cartModifyApi, {
+                    originQty: origin
 
-                                return this;
-                            }
-                            return new Error('change qty error');
-                        });
-                    }
+                }).setParam({
+                    pspcode: self.user.Mobile,
+                    spbId: item.SPB_ID,
+                    qty: qty
+                }).load();
+            }
+        },
+
+        initPoints: function () {
+            var self = this;
+
+            self.$points = self.$('.js_points');
+            self.listenTo(self.$points, $.fx.transitionEnd, function (e) {
+                if (self.$points.hasClass('out')) {
+                    self.$points.hide();
                 }
             });
-
         },
 
         initCoupon: function () {
             var self = this;
 
-            self.$coupon = self.$('.ct_coupon_wrap');
+            self.$coupon = self.$('.js_coupon');
             self.listenTo(self.$coupon, $.fx.transitionEnd, function (e) {
                 if (self.$coupon.hasClass('out')) {
                     self.$coupon.hide();
                 }
             });
+
+            this.model.couponGetApi = new api.CouponAPI({
+                $el: this.$el,
+                checkData: false,
+                beforeSend: function () {
+                    var code = self.model.get('code');
+                    if (!code) {
+                        sl.tip('请输入券号');
+                        return false;
+                    }
+                    this.setParam({
+                        csvcode: code
+                    });
+                },
+                params: {
+                    pspcode: self.user.Mobile
+                },
+                success: function (res) {
+                    if (res.success) {
+                        sl.tip('领取成功');
+                        self.coupon.reload();
+
+                    } else {
+                        sl.tip(res.msg);
+                    }
+                },
+                error: function (res) {
+                    sl.tip(res.msg);
+                }
+            });
+            
+            //self.coupon = new api.AvailableCouponAPI({
             self.coupon = new Loading({
                 url: "/api/user/voucher_list",
                 params: {
+                    pspcode: self.user.Mobile,
                     status: 1
                 },
                 $el: this.$coupon,

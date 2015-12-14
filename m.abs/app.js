@@ -164,8 +164,9 @@ exports.startWebServer = function (config) {
                     return;
                 }
                 text = text.replace(/^\uFEFF/i, '');
-
+                
                 text = formatJs(text);
+                console.log(text);
                 text = Tools.replaceDefine(filePath.replace(/(^\/)|(\.js$)/g, ''), text, requires);
 
                 res.set('Content-Type', "text/javascript; charset=utf-8");

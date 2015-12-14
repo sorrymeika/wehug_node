@@ -775,6 +775,7 @@ $p:2;
  }
  
  .co_share {
+	 background: #fff;
  }
  .co_share_con {
 	background:#fae4d1; padding: 20px 15px 20px 20px;
@@ -782,6 +783,7 @@ $p:2;
 		display: -webkit-box;
 		img { width:46px;height:46px;display: block;border-radius: 50%;overflow: hidden; }
 		.img{width:50px; text-align: center;}
+		em {font-size: 2rem;}
 		.cont { 
 			-webkit-box-flex:1; margin-left: 25px; background: #fff;border-radius:6px; padding: 10px;font-size: 3rem; line-height: 1.5; color: #000;position: relative;
 		 	&:before {content: '';display: block;position: absolute; border-top: 5px solid #fff;border-right:7px solid #fff;border-bottom: 5px solid #fae4d1;border-left:7px solid #fae4d1;top: 40px;left:-14px;}
@@ -795,9 +797,23 @@ $p:2;
   		.logo{ background: url(gift_logo.png) no-repeat; background-size: 100% auto; display: block; position: absolute;width:16px; height: 15px; z-index: 4; bottom: 20px; left: 50%; margin-left:-6px;}
 	}
 	.get { margin: 26px auto 0 auto; display: block; height: 50px;line-height: 50px;width:214px; background: #d42c2c; font-size: 3.5rem; }
-	.steps { 
-		display: -webkit-box;
+	.steps {
+		display: -webkit-box;margin: 30px auto 0 5%;
 		p{color: #d42c2c;font-size: 2.6rem; border-radius: 4px; border:1px solid #d42c2c;width: 40px;height:40px;padding-top:4px; text-align: center;}
-		i{ display: block;width:14px;background:url(gift_arrow.png) no-repeat; height: 20px; }
+		i{ display: block;width:14px;background:url(gift_arrow.png) no-repeat; height: 22px; margin: 10px 10px 0 6px; background-size: 100% auto;  }
+	}
+}
+.co_share_user {
+	.hd { text-align: center; margin-top: 15px;font-size: 4rem;color:#000; }
+	.list {
+		position: relative; min-height: 100px;
+		li {
+			display: -webkit-box; margin: 20px 10px 0 20px;
+			img { display: block;width:45px; height: 45px; overflow: hidden;border-radius: 50%; }
+			.con {-webkit-box-flex:1;margin-left: 6px;}
+			.name {display: block;font-size:2.4rem;}
+			.date {color: #999;margin-left:15px;}
+			.text { color:#999;margin-top:5px; font-size: 2.4rem;}
+		}
 	}
 }

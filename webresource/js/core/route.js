@@ -1,7 +1,13 @@
 ﻿var util = require('util');
 
 var standardizeHash = function (hash) {
-    return (hash.replace(/^#+|\/$/, '') || '/').toLowerCase();
+    var searchIndex = hash.indexOf('?');
+    var search = '';
+    if (searchIndex != -1) {
+        search = hash.substr(searchIndex);
+        hash = hash.substr(0, searchIndex);
+    }
+    return (hash.replace(/^#+|\/$/, '') || '/').toLowerCase() + search;
 };
 
 var Route = function (options, isDebug) {
@@ -39,7 +45,7 @@ Route.prototype.append = function (options) {
         root = option.root || './';
 
         this.routes.push({
-            regex: new RegExp(regex),
+            regex: new RegExp(regex, 'i'),
             parts: parts,
             template: util.combinePath(root, option.template),
             view: util.combinePath(root, option.controller),

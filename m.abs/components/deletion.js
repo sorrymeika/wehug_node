@@ -21,8 +21,6 @@ var Deletion = function (options) {
 		var el = document.elementFromPoint(point.pageX, point.pageY);
 		var target = self.$target[0].parentNode;
 
-		console.log(el, target);
-
 		if (events && (target == el || $.contains(target, el))) {
 			for (var key in events) {
 				for (var node = el; node != target.parentNode; node = node.parentNode) {

@@ -47,7 +47,7 @@ define(function (require, exports, module) {
             });
 
             self.size = new Size();
-            
+
             self.size.$el.appendTo(self.$el);
 
             var product = new api.ProductAPI({
@@ -70,7 +70,7 @@ define(function (require, exports, module) {
                     self.share = new Share({
                         head: '分享商品至',
                         title: res.data.PRD_NAME,
-                        linkURL: 'http://m.abs.cn/' + res.data.PRD_ID,
+                        linkURL: 'http://m.abs.cn/single/' + res.data.PRD_ID + '.html',
                         description: res.data.PRD_NAME
                     });
                     self.share.$el.appendTo(self.$el);

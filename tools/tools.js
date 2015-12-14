@@ -60,7 +60,7 @@ function sealize(jsText) {
 function formatJs(jsText) {
     jsText = sealize(jsText);
 
-    var rdom = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\s*(return\s+|=|\:)\s*(<([a-zA-Z]+)[^>]*>[\s\S]*?<\/\3>)\s*(,|;|\})/mg;
+    var rdom = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\s*(return\s+|=|\:|\()\s*(<([a-zA-Z]+)[^>]*>[\s\S]*?<\/\3>)\s*(,|;|\}|\))/mg;
 
     jsText = jsText.replace(rdom, function (match, symbol, dom, tagName, end) {
 
@@ -129,16 +129,14 @@ var replaceDefine = function (id, code, requires, exclude) {
         return code;
     }
 
-    return code.replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*define|(^|\uFEFF|[^$])(\bdefine\((?:\s*(\[[^\]]*\]){0,1}\s*,\s*))/mg, function (match, pre, fn, param) {
+    return code.replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^\/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*define|(^|\uFEFF|[^$])(\bdefine\((?:\s*(\[[^\]]*\]){0,1}\s*,\s*){0,1})/mg, function (match, pre, fn, param) {
         if (!fn) return match;
-        console.log(match, param);
-
         param = param ? JSON.parse(param.replace(/\'/g, '"')) : [];
 
         if (requires && requires.length) {
             param = concat(requires, param);
         }
-
+        
         if (exclude !== true) {
             param = concat(param, parseDependencies(code));
 

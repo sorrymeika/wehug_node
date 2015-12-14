@@ -10,6 +10,8 @@ define(function (require, exports, module) {
     var bridge = require('bridge');
     var api = require('models/base');
 
+    var IFRAME;
+
     return Activity.extend({
         events: {
             'tap .open_msg': function (e) {
@@ -18,7 +20,7 @@ define(function (require, exports, module) {
                 }
             },
             'tap .btn_go': function () {
-                bridge.openInApp(this.user.OpenUrl);
+                self.back('/all');
             }
         },
 
@@ -28,6 +30,8 @@ define(function (require, exports, module) {
             var self = this;
             var $main = this.$('.main');
 
+            self.user = util.store('user');
+
             Scroll.bind($main);
 
             this.model = new model.ViewModel(this.$el, {
@@ -35,6 +39,14 @@ define(function (require, exports, module) {
                 title: '我买到的',
                 currentType: 0,
                 isLoading: true
+            });
+
+            this.wxPayApi = new api.WxPayAPI({
+                $el: self.$el,
+                success: function (res) {
+                    console.log(res);
+                    bridge.open(res.url);
+                }
             });
 
             $.extend(this.model, {
@@ -68,14 +80,12 @@ define(function (require, exports, module) {
                 },
                 openOrder: function (e, order) {
                     if (order.PUS_DESC == '待付款') {
-                        var params = '';
-                        if (self.user.OpenUrl) {
-                            params = self.user.OpenUrl.substr(self.user.OpenUrl.lastIndexOf('?')) + "&from=native";
-                        } else {
-                            params = "?from=native";
-                        }
-
-                        bridge.wx({
+                        /*
+                        self.wxPayApi.setParam({
+                            order_no: order.PUR_CODE
+                        }).load();
+                        
+                         bridge.wx({
                             type: 'pay',
                             spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
                             orderCode: order.PUR_CODE,
@@ -84,19 +94,36 @@ define(function (require, exports, module) {
                         }, function (res) {
                             sl.tip(res.msg);
                         });
-                        //bridge.openInApp('http://m.abs.cn/pay/' + order.PUR_ID + '.html' + params);
+                        */
+                        self.orderStatusAPI.showLoading();
+
+                        setTimeout(function () {
+                            self.orderStatusAPI.hideLoading();
+                        }, 10000);
+
+                        bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + order.PUR_ID + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
+
+/*
+                        if (!IFRAME) {
+                            IFRAME = $('<iframe name="__order" style="width:0px;height:0px;"></iframe>').appendTo('body');
+                        }
+                        IFRAME.attr('src', api.API.prototype.baseUri + '/AlipayDirect/Pay/' + order.PUR_ID + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
+                        */
                     }
                     e.stopPropagation();
                 },
                 cancelOrder: function (e, order) {
-                    self.cancelOrderApi.setParam({
-                        purcode: order.PUR_CODE
 
-                    }).load();
+                    self.confirm('你确定取消订单吗？', function () {
+                        self.cancelOrderApi.setParam({
+                            purcode: order.PUR_CODE
+
+                        }).load();
+                    });
+                    e.stopPropagation();
+                    e.preventDefault();
                 },
                 openPrd: function (e, prd, order) {
-                    console.log(prd)
-                    //alert(order.PUS_DESC);
                     e.stopPropagation();
                     if (order.PUS_DESC != '待付款' || e.target.tagName == "IMG") {
                         if (prd.PRD_DISCONTINUED_FLAG) {
@@ -134,7 +161,6 @@ define(function (require, exports, module) {
                 }
             });
 
-            self.user = util.store('user');
 
             self.loading.setParam({
                 UserID: self.user.ID,

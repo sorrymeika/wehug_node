@@ -1,4 +1,5 @@
-﻿.hm_cards li:nth-child(3) i:before, .hm_shop_cate li:nth-child(3) i:before{
+﻿.btn_large { font-size: 3rem; }
+.hm_cards li:nth-child(3) i:before, .hm_shop_cate li:nth-child(3) i:before{
 	background-position: -280px -190px;
 }
 .hm_cards li:nth-child(4) i:before, .hm_shop_cate li:nth-child(4) i:before{
@@ -18,14 +19,25 @@
 		span { display: block; text-align: center; margin: 15px 0; color: #e65e5f; }
 	}
 }
-.sp_all_cates {min-height: 56px;}
+.sp_all_cates {
+	min-height: 68px;
+	li { height: 34px; line-height: 34px; font-size: 3rem;
+		&:before {vertical-align: -2px;}
+	}
+}
+
+.hm_shop_scroll{
+	padding-bottom: 10px;
+	.price{ color:#e65e5f; }
+	.price del { color:#999; }
+}
 
 .stw_list_item .thumb {
 	position: relative;
 	i{ display: block; position: absolute; background: #e65e5f; color: #fff; border-radius: 50%; height: 14px; line-height: 14px; text-align: center; font-size: 1.7rem; width: 14px;top: 0px; right: 0px;}
 }
 .pd_size_select li { width: auto; min-width: 70px; padding: 0 10px; }
-.pd_size_buy { margin: 0px; padding-left: 5px; padding-right: 5px; }
+.pd_size_buy { margin: 0px; padding-left: 5px; padding-right: 5px; font-size: 3rem;}
 
 .ct_coupon_list li.free:before{ top: 16px; left: 12px; }
 .ct_list_item_con .qty input { border-radius: 0; }
@@ -40,18 +52,58 @@
 .pd_select_size,.pd_item_con h2,.pd_jump_detail{ font-size: 3rem; }
 .cp_share { top: auto; bottom: 0px; }
 
-.ct_coupon_list li.free .price {font-size: 0px;position: absolute;left: -30px;top: 50%;margin-top: -15px;display: inline-block;background: url("icon.png") no-repeat -240px -30px;background-size: 320px auto;width: 30px;height: 30px; margin-left: 0px;}
-.ct_coupon_list li.free .price:before { display: none;}
+.ct_coupon_list {
+	.bd {top: 146px;}
+	li.free .price {font-size: 0px;position: absolute;left: -30px;top: 50%;margin-top: -15px;display: inline-block;background: url("icon.png") no-repeat -240px -30px;background-size: 320px auto;width: 30px;height: 30px; margin-left: 0px;}
+	li.free .price:before { display: none;}
+}
+.ct_coupon_use {
+	height: 48px;
+}
+.ct_points {
+	text-align: center;margin-top: 20px;
+	.hd { font-size: 3rem; color: #666;}
+	.points { font-size: 8rem; color:#e65e5f;}
+}
+.ct_points_tip {
+	padding: 10px; font-size: 2.4rem;
+	em { color:#e65e5f; display: block; }
+}
+.ct_list_item_con {
+	.qty {
+		margin-top: 5px; 
+		height: 25px;
+		.minus,.plus{
+			line-height: 21px;
+		}
+	}
+}
+.ct_list_action .total { font-size: 3rem;}
+.ct_buy_more {
+	height: 45px; line-height: 45px;font-size: 2.6rem; background: #fff;margin-top: 10px;position: relative; padding-left: 10px;
+	em,i {color: #e65e5f;}
+	i { float: right; margin-right: 20px;}
+	&:after{position: absolute;
+		right: 10px;
+		width: 11px;
+		height: 11px;
+		content: '';
+		border-top: 1px solid #e65e5f;
+		border-right: 1px solid #e65e5f;
+		-webkit-transform: rotate(45deg);
+		top: 16px;}
+}
 
 .myorder .con li .ft { height: 35px; }
 .myorder .con li .ft .btn_sml.btn_dark { background-color: #ccc; }
 
-.hm_shop_list_item .name {font-size: 2.4rem;}
+.hm_shop_list_item .name {font-size: 2.4rem;max-height: 36px;overflow: hidden;}
 
 .sp_all_list_wrap {-webkit-overflow-scrolling:touch;overflow-x:auto;width:100%; display: block;}
 .sp_all_list_item {
-	width: 150px;height: 100px;
-	img {width: 100%;}
+	padding-top: 6px; width: 120px;height: 120px; background: #fff; border: .5px solid #ccc;
+	img {width: 100%; height: auto; }
+	span { display: block; text-align: center; font-size: 3rem; height: 30px; line-height: 30px; color: #666; }
 }
 
  .od_share {
@@ -80,3 +132,6 @@
 		}
 	}
 }
+
+
+.uc_coupon_help { font-size: 2.2rem;}

@@ -41,7 +41,6 @@ define(function (require, exports, module) {
                 this.loading = new Loading({
                     url: '/api/user/get_points',
                     check: false,
-                    checkData: false,
                     params: {
                         UserID: user.ID,
                         Auth: user.Auth

@@ -101,13 +101,25 @@ define(function (require, exports, module) {
 
                         self.forward('/myorder?id=' + res.pur_id);
 
-                        bridge.wx({
-                            type: 'pay',
-                            spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
-                            orderCode: res.code,
-                            orderName: 'ABS商品',
-                            orderPrice: res.puramount
-                        });
+                        if (self.model.get('payType') == 1) {
+                            //bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + res.pur_id + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
+                            if (!IFRAME) {
+                                IFRAME = $('<iframe name="__order" style="width:0px;height:0px;"></iframe>').appendTo('body');
+                            }
+                            IFRAME.attr('src', api.API.prototype.baseUri + '/AlipayDirect/Pay/' + res.pur_id + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
+
+                        } else {
+                            bridge.wx({
+                                type: 'pay',
+                                spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
+                                orderCode: res.code,
+                                orderName: 'ABS商品',
+                                orderPrice: res.puramount
+
+                            }, function (res) {
+                                sl.tip(res.msg);
+                            });
+                        }
                     }
                 },
                 error: function (res) {
