@@ -227,6 +227,15 @@ exports.CartDeleteAPI = ShopAPI.extend({
 	}
 });
 
+exports.CartDeletePackageAPI = ShopAPI.extend({
+	url: '/api/shop/deletepackagebag',
+	params: {
+		pspcode: 0, //用户code(手机号),
+		wacid: 0,
+		ppgid: 0,
+		groupid: 0
+	}
+});
 
 exports.CancelOrderAPI = ShopAPI.extend({
 	url: '/shop/cancelOrder',
@@ -291,5 +300,36 @@ exports.MonthProductAPI = ShopAPI.extend({
 	params: {
 		pages: 1,
 		len: 6
+	}
+});
+
+exports.FastBuyAPI = ShopAPI.extend({
+	url: '/api/prod/flashprodlist',
+	params: {
+		startdt: '2015-01-01',
+		enddt: '2016-01-01'
+	}
+});
+
+exports.PackageAPI = ShopAPI.extend({
+	url: '/api/prod/getpackage',
+	params: {
+		id: 0
+	}
+});
+
+exports.PackageCartAPI = ShopAPI.extend({
+	url: '/api/prod/addpackagebag',
+	params: {
+		pspcode: '',
+		prdIds: '',
+		ppgId: ''
+	}
+});
+
+exports.PackageRelativeAPI = ShopAPI.extend({
+	url: '/api/prod/getppginfo',
+	params: {
+		prdId: ''
 	}
 });

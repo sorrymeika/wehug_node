@@ -126,32 +126,26 @@ define(function (require, exports, module) {
             self.share.$el.appendTo(self.$el);
 
             this.model.share = function (e, item) {
-                if (item.VCA_VCT_ID == 4 || item.VCA_VCT_ID == 5 || item.VCA_VCT_ID == 2) {
+                self.couponStatusApi.setParam({
+                    id: item.CSV_ID,
+                    UserID: self.user.ID,
+                    Auth: self.user.Auth
 
-                    self.couponStatusApi.setParam({
-                        id: item.CSV_ID,
-                        UserID: self.user.ID,
-                        Auth: self.user.Auth
-
-                    }).load(function (err, res) {
-                        if (!err) {
-                            if (res.overdue) {
-                                return;
-                            }
-                            self.share.set({
-                                linkURL: res.url,
-                                title: 'ABS优惠券分享',
-                                description: 'ABS优惠券分享'
-
-                            }).show();
-                        } else {
-                            sl.tip(err.msg);
+                }).load(function (err, res) {
+                    if (!err) {
+                        if (res.overdue) {
+                            return;
                         }
-                    });
+                        self.share.set({
+                            linkURL: res.url,
+                            title: 'ABS优惠券分享',
+                            description: 'ABS优惠券分享'
 
-                } else {
-                    sl.tip('不可分享的优惠券');
-                }
+                        }).show();
+                    } else {
+                        sl.tip(err.msg);
+                    }
+                });
             }
 
             self.loading = new Loading({

@@ -9,6 +9,9 @@
             "components/month": null,
             "components/shareOrder": null,
             "components/size": null,
+            "components/fastbuy": null,
+            "components/package": null,
+            "components/banner": null,
             "models/base": null,
             "core/model3": "../webresource/js/core/model2",
             "core/touch2": "../webresource/m/js/core/touch2"

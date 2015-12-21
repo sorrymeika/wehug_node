@@ -33,9 +33,8 @@ define(function (require, exports, module) {
                 back: self.swipeRightBackAction,
                 title: '确认订单',
                 payType: 1,
-                couponprice: self.route.data.couponprice ? parseInt(self.route.data.couponprice) : 0,
-                freecouponcode: self.route.data.freecouponcode,
-                points: self.route.data.points ? parseInt(self.route.data.points) : 0
+                couponprice: 0,
+                Points: self.route.query.points ? parseInt(self.route.query.points) : 0
             });
 
             var address = new api.AddressListAPI({
@@ -69,17 +68,10 @@ define(function (require, exports, module) {
 
             self.cart.setParam({
                 pspcode: self.user.Mobile
-            }).load();
+            });
 
             self.orderCreateApi = new api.OrderCreateAPI({
                 $el: this.$el,
-                params: {
-                    pspcode: self.user.Mobile,
-                    pay_type: 1,
-                    coupon: self.route.query.coupon,
-                    points: self.route.query.points,
-                    freecoupon: self.route.query.freecoupon
-                },
                 beforeSend: function () {
                     var address = self.model.get('address');
                     if (!address) {
@@ -97,16 +89,19 @@ define(function (require, exports, module) {
                 success: function (res) {
                     if (res.success) {
                         sl.tip("生成订单成功！");
-                        self.setResult('OrderChange');
+                        self.setResult('OrderChange').setResult('ResetCoupon');
 
                         self.forward('/myorder?id=' + res.pur_id);
 
                         if (self.model.get('payType') == 1) {
-                            //bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + res.pur_id + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
-                            if (!IFRAME) {
-                                IFRAME = $('<iframe name="__order" style="width:0px;height:0px;"></iframe>').appendTo('body');
-                            }
-                            IFRAME.attr('src', api.API.prototype.baseUri + '/AlipayDirect/Pay/' + res.pur_id + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
+                            bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + res.pur_id + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
+                             
+                            /*
+                           if (!IFRAME) {
+                               IFRAME = $('<iframe name="__order" style="width:0px;height:0px;"></iframe>').appendTo('body');
+                           }
+                           IFRAME.attr('src', api.API.prototype.baseUri + '/AlipayDirect/Pay/' + res.pur_id + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
+                           */
 
                         } else {
                             bridge.wx({
@@ -136,6 +131,28 @@ define(function (require, exports, module) {
 
         onShow: function () {
             var self = this;
+
+            var search = location.hash.substr(location.hash.indexOf('?'));
+            var query = {};
+
+            search.replace(/(?:\?|&|\b)(\w+)\=([^\&]*)/g, function (match, key, val) {
+                query[key] = decodeURIComponent(val);
+            });
+
+            self.orderCreateApi.setParam({
+                pspcode: self.user.Mobile,
+                pay_type: 1,
+                coupon: this.model.getState('coupon'),
+                points: self.route.query.points,
+                freecoupon: this.model.getState('freecoupon')
+            });
+
+            self.model.set({
+                couponprice: self.route.query.couponprice ? parseInt(self.route.query.couponprice) : 0,
+                freecouponcode: self.route.query.freecoupon,
+            });
+
+            self.cart.load();
         },
 
         onDestory: function () {

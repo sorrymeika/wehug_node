@@ -46,6 +46,12 @@ module.exports = Activity.extend({
                 pspcode: self.user.Mobile
             },
             success: function (res) {
+                res.data.sort(function (a,b) {
+                    return a.AddressID > b.AddressID ? 1 : a.AddressID < b.AddressID ? -1 : 0;
+                });
+                
+                console.log(res.data);
+                
                 self.model.set({
                     data: res.data
                 });

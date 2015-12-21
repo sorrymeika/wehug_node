@@ -18,7 +18,12 @@ define(function (require, exports, module) {
                 var couponcode = this.model.get('couponcode');
                 var freecouponcode = this.model.get('freecouponcode');
 
-                this.forward('/buy?coupon=' + (couponcode ? couponcode.CSV_CODE : '') + '&couponprice=' + (couponcode ? couponcode.VCA_DEDUCT_AMOUNT : '') + '&freecoupon=' + (couponcode ? couponcode.CSV_CODE : '') + '&points=' + this.model.get('Points') + '&from=' + encodeURIComponent(self.route.url));
+                this.model.setState({
+                    coupon: couponcode ? couponcode.CSV_CODE : '',
+                    freecoupon: freecouponcode ? freecouponcode.CSV_CODE : ''
+                });
+
+                this.forward('/buy?coupon=' + (couponcode ? couponcode.CSV_CODE : '') + '&couponprice=' + (couponcode ? couponcode.VCA_DEDUCT_AMOUNT : '') + '&freecoupon=' + (freecouponcode ? freecouponcode.CSV_CODE : '') + '&points=' + this.model.get('Points') + '&from=' + encodeURIComponent(self.route.url));
             },
             'touchmove .ct_coupon_wrap': function (e) {
                 return false;
@@ -81,12 +86,20 @@ define(function (require, exports, module) {
             $.extend(self.model, {
 
                 usePoint: function (e, points) {
-                    if (points > self.user.Points) {
-                        sl.tip('超过已有积分了');
+                    if (!points) {
+                        self.model.set({
+                            isShowPoint: false
+                        });
                         return;
                     }
-                    else if (parseFloat(points) % 100 != 0) {
-
+                    points = parseFloat(points);
+                    if (points > self.user.Points) {
+                        sl.tip('您输入的数值已超过您的积分最大值，请重新输入');
+                        return;
+                    }
+                    else if (points < 100 || points % 100 != 0) {
+                        sl.tip('您输入的数值不是100的倍数，请重新输入');
+                        return;
                     }
 
                     self.model.set({
@@ -96,7 +109,12 @@ define(function (require, exports, module) {
                 },
 
                 useCoupon: function (e, coupon) {
-                    self.model.set(coupon.VCA_VCT_ID == 4 ? {
+                    if (coupon.VCT_ID == 1 && coupon.VCA_MIN_AMOUNT > self.model.data.bag_amount) {
+                        sl.tip('您的购物金额满' + coupon.VCA_MIN_AMOUNT + '元才可使用哦');
+                        return;
+                    }
+
+                    self.model.set(coupon.VCT_ID == 4 ? {
                         freecouponcode: coupon
                     } : {
                             couponcode: coupon
@@ -110,9 +128,30 @@ define(function (require, exports, module) {
                 $el: self.$el,
                 checkData: false,
                 success: function (res) {
-                    self.model.set(res).set({
-                        loading: false
+                    res.coupon.sort(function (a, b) {
+                        return a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
                     });
+
+                    self.model.set(res)
+                        .set({
+                            loading: false
+                        });
+
+                    var couponCount = 0;
+                    var freeCount = 0;
+                    for (var i = 0; i < res.coupon.length; i++) {
+                        if (res.coupon[i].VCT_ID == 4) {
+                            freeCount++
+                        } else {
+                            couponCount++;
+                        }
+                    }
+                    self.model.set({
+                        freeCount: freeCount,
+                        couponCount: couponCount
+                    });
+
+                    console.log(res);
                 }
             });
 
@@ -121,6 +160,17 @@ define(function (require, exports, module) {
             self.initCoupon();
             self.initModify();
             self.initDeletion();
+
+            this.onResult('ResetCoupon', function () {
+                self.model.set({
+                    couponcode: null,
+                    freecouponcode: null
+                });
+                self.model.setState({
+                    coupon: '',
+                    freecoupon: ''
+                });
+            });
         },
 
         doWhenLogin: function () {
@@ -128,11 +178,6 @@ define(function (require, exports, module) {
             this.user = util.store('user');
             self.cart.setParam({
                 pspcode: self.user.Mobile
-            }).load();
-
-            this.coupon.setParam({
-                UserID: self.user.ID,
-                Auth: self.user.Auth
             }).load();
         },
 
@@ -150,15 +195,29 @@ define(function (require, exports, module) {
             var self = this;
 
             new Deletion({
-                el: self.$('.ct_list'),
-                children: 'li .ct_list_item_con',
+                el: self.$('.ct_list_wrap'),
+                children: '.js_delete_item',
                 width: 45,
                 events: {
-                    'li': function (e) {
-                        self.cartDeleteApi.setParam({
-                            spbId: $(e.currentTarget).data('id')
+                    '.js_delete': function (e) {
 
-                        }).load();
+                        var $target = $(e.currentTarget);
+                        var id = $target.data('id');
+
+                        if (id) {
+                            self.cartDeleteApi.setParam({
+                                spbId: id
+
+                            }).load();
+                        } else {
+                            self.cartDeletePackageAPI.setParam({
+                                wacid: $target.data('wacid'),
+                                ppgid: $target.data('ppgid'),
+                                groupid: $target.data('groupid')
+
+                            }).load();
+                        }
+
                     }
                 }
             });
@@ -176,6 +235,20 @@ define(function (require, exports, module) {
                         return el.model.get('SPB_ID') == spbId;
                     });
 
+                    self.cart.reload();
+                },
+                error: function (res) {
+                    sl.tip(res.msg);
+                }
+            });
+
+            self.cartDeletePackageAPI = new api.CartDeletePackageAPI({
+                $el: self.$el,
+                checkData: false,
+                params: {
+                    pspcode: self.user.Mobile
+                },
+                success: function (res) {
                     self.cart.reload();
                 },
                 error: function (res) {
@@ -271,7 +344,7 @@ define(function (require, exports, module) {
                 success: function (res) {
                     if (res.success) {
                         sl.tip('领取成功');
-                        self.coupon.reload();
+                        self.cart.reload();
 
                     } else {
                         sl.tip(res.msg);
@@ -281,48 +354,13 @@ define(function (require, exports, module) {
                     sl.tip(res.msg);
                 }
             });
-            
-            //self.coupon = new api.AvailableCouponAPI({
-            self.coupon = new Loading({
-                url: "/api/user/voucher_list",
-                params: {
-                    pspcode: self.user.Mobile,
-                    status: 1
-                },
-                $el: this.$coupon,
-                check: false,
-                checkData: false,
-                success: function (res) {
-                    if (!res || !res.data || res.data.length == 0) {
-                        self.model.set("coupon", []);
-                    }
-                    else {
-                        var data = res.data;
 
-                        data.sort(function (a, b) {
-                            return a.IsOverdue && !b.IsOverdue ? 1 : !a.IsOverdue && b.IsOverdue ? -1 : a.CSV_END_DT > b.CSV_END_DT ? 1 : a.CSV_END_DT == b.CSV_END_DT ? 0 : -1;
-                        });
-
-                        var couponCount = 0;
-                        var freeCount = 0;
-                        for (var i = 0; i < data.length; i++) {
-                            if (data[i].VCA_VCT_ID == 4) {
-                                freeCount++
-                            } else {
-                                couponCount++;
-                            }
-                        }
-                        self.model.set({
-                            coupon: data,
-                            freeCount: freeCount,
-                            couponCount: couponCount
-                        });
-                    }
-                }
-            });
         },
-
         onDestory: function () {
+            this.model.setState({
+                coupon: '',
+                freecoupon: ''
+            });
         }
     });
 });

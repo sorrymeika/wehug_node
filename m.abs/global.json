@@ -1,7 +1,7 @@
 {
     "debug": true,
     "dest": "./dest",
-    "api": "http://172.16.168.128:6005",
+    "api": "http://172.16.168.146:6005",
     "shopApi": "http://127.0.0.1:5559/proxy",
     "proxy": {
         "/proxy1/*": "appuser.abs.cn",
@@ -34,11 +34,11 @@
             "shopApi": "http://appapi.abs.cn"
         },
         "debug": {
-            "api": "http://127.0.0.1:5559/proxy1",
-            "shopApi": "http://127.0.0.1:5559/proxy"
+            "api": "http://10.0.79.244:5559/proxy1",
+            "shopApi": "http://10.0.79.244:5559/proxy"
         },
         "dev": {
-            "api": "http://172.16.168.128:6005",
+            "api": "http://172.16.168.141:6005",
             "shopApi": "http://127.0.0.1:5559/proxy"
         }
     },

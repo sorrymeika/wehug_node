@@ -194,11 +194,11 @@ define(function (require, exports, module) {
                 success: function (res) {
                     if (res.status == 0) {
                         self.timer = setTimeout(function () {
-                            self.checkStatus();
+                            //self.checkStatus();
                         }, 1500);
 
                     } else if (res.status == 3) {
-                        self.forward("/news/order" + self.route.query.id);
+                        //self.forward("/news/order" + self.route.query.id);
                     }
                 }
             });

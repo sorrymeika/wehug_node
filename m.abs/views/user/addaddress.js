@@ -187,23 +187,24 @@ module.exports = Activity.extend({
                 if (res.success) {
                     sl.tip('设置成功！');
 
-                    if (self.route.query.buy) {
-                        var addr = self.model.get('address');
-                        self.setResult('useAddress', {
-                            AddressID: addr.mbaId,
-                            MBA_CTY_ID: addr.mbaCtyId,
-                            MBA_REG_ID: addr.mbaRegId,
-                            MBA_NAME: addr.mbaName,
-                            MBA_FULL_ADDRESS: addr.mbaAddress,
-                            MBA_MOBILE: addr.mbaMobile
-                        });
-                    }
-
-                    self.back(self.route.query.buy ? decodeURIComponent(self.route.query.from.match(/from=([^&]+?)(&|$)/)[1]) : self.swipeRightBackAction);
-
-                } else {
+                } else if (res.msg) {
                     sl.tip(res.msg);
+                    return;
                 }
+
+                if (self.route.query.buy) {
+                    var addr = self.model.get('address');
+                    self.setResult('useAddress', {
+                        AddressID: addr.mbaId,
+                        MBA_CTY_ID: addr.mbaCtyId,
+                        MBA_REG_ID: addr.mbaRegId,
+                        MBA_NAME: addr.mbaName,
+                        MBA_FULL_ADDRESS: addr.mbaAddress,
+                        MBA_MOBILE: addr.mbaMobile
+                    });
+                }
+
+                self.back(self.route.query.buy ? decodeURIComponent(self.route.query.from.match(/from=([^&]+?)(&|$)/)[1]) : self.swipeRightBackAction);
             }
         });
     },

@@ -9,7 +9,7 @@ var Month = model.ViewModel.extend({
 			<div class="pd_size">
 				<div class="pd_size_close" sn-tap="isShowSize=false"></div>
 				<div class="base_info">
-					<div class="img"><img src="{{data.WPP_M_PIC}}" /></div>
+					<div class="img"><img src="{{data.WPP_LIST_PIC||data.WPP_M_PIC}}" /></div>
 					<div class="info">
 						<h2 class="price">¥{{data.PRD_PRICE}}</h2>
 						<div class="qty">库存{{data.PRD_NUM}}件</div>
@@ -41,7 +41,7 @@ var Month = model.ViewModel.extend({
 						<em sn-tap="qty=qty+1">+</em>
 					</p>
 				</div>
-				<b class="btn_large btn_confirm" sn-tap="this.confirm()">确认</b>
+				<b class="btn_large btn_confirm" sn-tap="this.confirm()">{{btn||'确认'}}</b>
 			</div>
 		</div>,
 	
@@ -58,13 +58,17 @@ var Month = model.ViewModel.extend({
 		var item = util.first(colorSpec, function (item) {
 			return item.PRD_SPEC == data.PRD_SPEC && item.PRD_COLOR == data.PRD_COLOR;
 		});
-
-		self.cartAddAPI.setParam({
-			prd: item.PRD_ID,
-			qty: self.get('qty')
-
-		}).load();
-
+		
+		if (this.data.type=='package'){
+			this.data.confirm(item,this.data.PST_ID,self.get('qty'));
+			
+		} else {
+			self.cartAddAPI.setParam({
+				prd: item.PRD_ID,
+				qty: self.get('qty')
+	
+			}).load();
+		}
 	},
 	hide: function(){
 		this.set({

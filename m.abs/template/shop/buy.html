@@ -13,21 +13,21 @@
             <ul>
                 <li><span>商品价</span><em>¥{{prod_amount}}</em></li>
                 <li><span>优惠券</span><em>-¥{{couponprice||0}}</em></li>
-                <li><span>积分</span><em>-¥{{points||0}}</em></li>
-                <li><span>运费</span><em>+¥{{freight}}</em></li>
-                <li><span>总计</span><b>¥{{Math.round((bag_amount-couponprice+(freecouponcode?0:freight)-(points/100))*100)/100}}</b></li>
+                <li><span>积分</span><em>-¥{{Points/100||0}}</em></li>
+                <li><span>运费</span><em>+¥{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),(Math.round(((freecouponcode || a >= 99) ? 0 : 15) * 100)/ 100)}}</em></li>
+                <li><span>总计</span><b>¥{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),(Math.round((a + ((freecouponcode || a >= 99) ? 0 : 15)) * 100)/ 100)}}</b></li>
             </ul>
         </div>
         <div class="sp_buy_bd sp_buy_pay">
             <div class="hd">支付方式</div>
             <ul>
                 <li class="ico_alipay{{payType==1?' checked':''}}" sn-tap="payType=1">支付宝支付</li>
-                <li class="ico_wxpay{{payType==2?' checked':''}}" sn-tap="payType=2">微信支付</li>
+               <!-- <li class="ico_wxpay{{payType==2?' checked':''}}" sn-tap="payType=2">微信支付</li>-->
             </ul>
         </div>
     </div>
 </div>
 <footer class="sp_buy_action">
-    <div class="total">总计：<b>¥{{Math.round((bag_amount-couponprice+(freecouponcode?0:freight)-(points/100))*100)/100}}</b></div>
+    <div class="total">总计：<b>¥{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),(Math.round((a + ((freecouponcode || a >= 99) ? 0 : 15)) * 100)/ 100)}}</b></div>
     <div class="btn_buy js_buy">结 算</div>
 </footer>

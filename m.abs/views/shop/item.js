@@ -42,7 +42,7 @@ define(function (require, exports, module) {
                 title: '床品',
                 id: self.route.data.id,
                 user: self.user,
-                url: self.route.url,
+                url: encodeURIComponent(self.route.url),
                 qty: 1
             });
 
@@ -58,6 +58,7 @@ define(function (require, exports, module) {
                 checkData: false,
                 success: function (res) {
                     console.log(res.data);
+                    res.data.PSV_QTY = res.psvqty;
                     self.model.set({
                         data: res.data
                     });
@@ -112,6 +113,21 @@ define(function (require, exports, module) {
                 }
             });
 
+            var packageRelativeAPI = new api.PackageRelativeAPI({
+                $el: self.$el,
+                params: {
+                    prdId: this.route.data.id
+                },
+                checkData: false,
+                success: function (res) {
+                    console.log(res);
+                    self.model.set({
+                        Package: res.data
+                    })
+                }
+            });
+
+            packageRelativeAPI.load();
         },
 
         onShow: function () {

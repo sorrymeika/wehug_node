@@ -142,6 +142,11 @@ module.exports = Activity.extend({
             }
 
             return false;
+        },
+        'tap .guide3': function () {
+            this.model.set({
+                showGuide: false
+            })
         }
     },
 
@@ -183,6 +188,28 @@ module.exports = Activity.extend({
             }
         });
 
+        if (!util.store('IS_SHOW_GUIDE')) {
+
+            util.store('IS_SHOW_GUIDE', 1);
+
+            this.model.set('showGuide', true);
+
+            this.guideSlider = new Slider(self.$('.hm_guide'), {
+                itemTemplate: '<img class="guide<%=id%>" src="http://appuser.abs.cn/dest/images/guide<%=id%>.jpg" />',
+                data: [{
+                    id: 0
+                }, {
+                        id: 1
+                    }, {
+                        id: 2
+                    }, {
+                        id: 3
+                    }],
+                onChange: function (index) {
+                }
+            });
+        }
+
         var $main = this.$main = this.$('.main');
 
         Scroll.bind($main);
@@ -221,10 +248,17 @@ module.exports = Activity.extend({
                 if (res.success == false) {
                     if (res.error_code == 503) {
                         self.user = null;
+                        util.store('user', null);
                         self.model.set('isLogin', false);
                     }
+                    return;
+                    
                 } else {
                     $.extend(self.user, res.data);
+                }
+                
+                if (res.msg == "HAS_BIND") { 
+                    sl.tip('您已经绑定过了哦');
                 }
 
                 util.store('user', self.user);
@@ -391,13 +425,14 @@ module.exports = Activity.extend({
     getUnreadMsg: function () {
         var self = this;
 
-        $.get(bridge.url('/api/user/get_unread_msg_count'), {
+        $.post(bridge.url('/api/user/get_unread_msg_count'), {
             UserID: self.user.ID,
             Auth: self.user.Auth
 
         }, function (res) {
+            console.log(res);
             if (res.success) {
-                self.model.set('msg', res.count);
+                self.model.set('msg_count', res.count);
             }
 
         }, 'json');
@@ -426,7 +461,6 @@ module.exports = Activity.extend({
         }
 
         util.isInApp ? bridge.getDeviceToken(load) : load();
-        this.getUnreadMsg();
     },
 
     onLoad: function () {
@@ -438,6 +472,17 @@ module.exports = Activity.extend({
 
     onShow: function () {
         var self = this;
+
+        if (this.needReload) {
+            this.userLoading.reload({ showLoading: false });
+        }
+        if (this.user) {
+            this.needReload = true;
+        }
+        
+        this.setResult('ResetCoupon');
+
+        this.guideSlider && this.guideSlider._adjustWidth();
     },
 
     onPause: function () {

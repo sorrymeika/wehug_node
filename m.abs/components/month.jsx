@@ -5,7 +5,7 @@ var Size = require('components/size');
 var util = require('util');
 
 var Month = model.ViewModel.extend({
-	el: <div class="uc_month_get" style="margin-bottom:10px">
+	el: <div class="main"><div class="uc_month_get" style="margin-bottom:10px">
 		<ul class="list">
 			<li sn-repeat="item in month"><img src="{{item.WPP_LIST_PIC}}">
 			<p class="con">
@@ -20,7 +20,7 @@ var Month = model.ViewModel.extend({
 			<p class="price"><b>￥{{item.PRD_PRICE}}</b><del sn-display="{{item.PRD_PRICE!=0&&item.PRD_PRICE<item.PRD_MEMBER_PRICE}}" style="display: none;">￥{{item.PRD_MEMBER_PRICE}}&nbsp;</del></p> 
 			<p class="name">{{item.PRD_NAME}}</p> </li>
 		</ul>
-	</div>,
+	</div></div>,
 	
 	showSize: function(e, item){
 		

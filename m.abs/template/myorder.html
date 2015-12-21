@@ -26,12 +26,12 @@
                     <h4>尺寸：<span>{{prd.PRD_SPEC}}</span></h4>
                 </div>
                 <p class="priceinfo">
-                    <span class="price">{{util.currency(prd.PRD_MEMBER_PRICE,'￥')}}</span>
+                    <span class="price">{{util.currency(prd.LPK_CHANNEL_PRICE,'￥')}}</span>
                     <span class="qty">x{{prd.LPK_QTY}}</span>
                 </p>
             </div>
             <div class="ft">
-                总价：<span>{{util.currency(item.PUR_AMOUNT,'￥')}}</span>
+                总价：<span>{{util.currency(item.PUR_AMOUNT+item.PUR_EXP_IN_AMOUNT,'￥')}}</span>
                 <b class="btn_sml" sn-display="{{item.XPU_EXPRESS_CODE}}" sn-tap="item.showExpress=!item.showExpress">查看物流</b>
                 <b class="btn_sml" sn-display="{{item.PUS_DESC=='待付款'}}">立即付款</b>
                 <b class="btn_sml btn_dark" sn-display="{{item.PUS_DESC=='待付款'}}" sn-tap="this.cancelOrder(item)">取消订单</b>

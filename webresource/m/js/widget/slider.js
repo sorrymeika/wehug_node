@@ -54,9 +54,9 @@
             that.$el.on('tap', '.js_pre', function (e) {
                 that.index(options.index - 1, 300);
             })
-            .on('tap', '.js_next', function (e) {
-                that.index(options.index + 1, 300);
-            });
+                .on('tap', '.js_next', function (e) {
+                    that.index(options.index + 1, 300);
+                });
         }
 
         $(window).on('ortchange', $.proxy(that._adjustWidth, that));
@@ -72,6 +72,7 @@
 
     $.extend(Slider.prototype, ScrollView.prototype, {
         loop: false,
+        x: 0,
 
         set: function (data) {
             var that = this,
