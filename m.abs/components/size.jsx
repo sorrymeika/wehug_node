@@ -121,6 +121,8 @@ var Month = model.ViewModel.extend({
 			},
 			success: function (res) {
 				if (res.success) {
+                    sl.activity.setResult('CartChange');
+        
 					sl.tip('加入购物车成功！');
 					self.hide();
 					//self.forward('/cart?from=' + self.route.url);

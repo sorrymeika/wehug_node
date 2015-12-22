@@ -222,7 +222,7 @@ var Month = model.ViewModel.extend({
 				self.size.hide();
 			}
 		});
-            
+        
 		self.size.$el.appendTo($('body'));
 		
 		var dataAPI=new api.PackageAPI({

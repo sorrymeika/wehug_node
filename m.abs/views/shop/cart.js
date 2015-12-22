@@ -10,6 +10,7 @@ define(function (require, exports, module) {
     var animation = require('animation');
     var api = require("models/base");
     var Deletion = require("components/deletion");
+    var userModel = require("models/user");
 
     return Activity.extend({
         events: {
@@ -17,13 +18,13 @@ define(function (require, exports, module) {
                 var self = this;
                 var couponcode = this.model.get('couponcode');
                 var freecouponcode = this.model.get('freecouponcode');
-                
+
                 this.model.setState({
-                    coupon: couponcode ? couponcode.CSV_CODE : '',
-                    freecoupon: freecouponcode ? freecouponcode.CSV_CODE : ''
+                    selectedCoupon: couponcode,
+                    selectedFreeCoupon: freecouponcode
                 });
 
-                this.forward('/buy?coupon=' + (couponcode && couponcode.CSV_CODE ? couponcode.CSV_CODE : '') + '&couponprice=' + (couponcode && couponcode.CSV_CODE ? couponcode.VCA_DEDUCT_AMOUNT : '') + '&freecoupon=' + (freecouponcode && freecouponcode.CSV_CODE ? freecouponcode.CSV_CODE : '') + '&points=' + this.model.get('Points') + '&from=' + encodeURIComponent(self.route.url));
+                this.forward('/buy?points=' + this.model.get('Points') + '&from=' + encodeURIComponent(self.route.url));
             },
             'touchmove .ct_coupon_wrap': function (e) {
                 return false;
@@ -73,7 +74,7 @@ define(function (require, exports, module) {
             Scroll.bind(self.$('.ct_coupon_list .bd'));
 
             self.swipeRightBackAction = self.route.query.from || '/';
-            self.user = util.store('user');
+            self.user = userModel.get();
 
             self.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
@@ -96,10 +97,21 @@ define(function (require, exports, module) {
                     return price >= 99 ? "免邮费" : ('¥' + Math.round(freight * 100) / 100);
                 },
 
-                getTotal: function (bag_amount, couponPrice, Points, freecouponcode) {
-                    var price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                    var total = price + ((price >= 99 || freecouponcode) ? 0 : 15);
-                    console.log(price)
+                getTotal: function (bag_amount, coupon, Points, freecouponcode) {
+                    var couponPrice = coupon && coupon.VCA_DEDUCT_AMOUNT ? coupon.VCA_DEDUCT_AMOUNT : 0;
+                    var total;
+                    var price;
+                    var freight;
+
+                    if (coupon && coupon.VCT_ID == 5) {
+                        price = Math.max(0, bag_amount - couponPrice - (Points / 100));
+                        freight = ((price >= 99 || freecouponcode) ? 0 : 15);
+                        total = Math.max(0, bag_amount + freight - couponPrice - (Points / 100));
+
+                    } else {
+                        price = Math.max(0, bag_amount - couponPrice - (Points / 100));
+                        total = price + ((price >= 99 || freecouponcode) ? 0 : 15);
+                    }
 
                     return '¥' + (Math.round(total * 100) / 100);
                 },
@@ -197,29 +209,27 @@ define(function (require, exports, module) {
                     freecouponcode: null,
                     Points: 0
                 });
+
                 self.model.setState({
-                    coupon: '',
-                    freecoupon: ''
+                    selectedCoupon: '',
+                    selectedFreeCoupon: ''
                 });
             });
-        },
-
-        doWhenLogin: function () {
-            var self = this;
-            this.user = util.store('user');
-            self.cart.setParam({
-                pspcode: self.user.PSP_CODE
-            }).load();
         },
 
         onShow: function () {
             var self = this;
 
-            if (!self.user) {
-                self.forward('/login?success=' + self.route.url + "&from=" + self.swipeRightBackAction);
-            } else {
-                self.doWhenLogin();
-            }
+            self.user = userModel.get();
+
+            self.model.set({
+                user: self.user
+            });
+
+            self.cart.setParam({
+                pspcode: self.user.PSP_CODE
+
+            }).load();
         },
 
         initDeletion: function () {
@@ -262,6 +272,8 @@ define(function (require, exports, module) {
                 success: function (res) {
                     var spbId = this.getParam('spbId');
 
+                    self.setResult('CartChange');
+
                     self.model.getModel('data_baglist').remove(function (el) {
                         return el.model.get('SPB_ID') == spbId;
                     });
@@ -300,6 +312,7 @@ define(function (require, exports, module) {
                 },
                 success: function (res) {
                     self.cart.reload();
+                    self.setResult('CartChange');
                 },
                 error: function (res) {
                     sl.tip(res.msg);
@@ -389,8 +402,8 @@ define(function (require, exports, module) {
         },
         onDestory: function () {
             this.model.setState({
-                coupon: '',
-                freecoupon: ''
+                selectedCoupon: '',
+                selectedFreeCoupon: ''
             });
         }
     });

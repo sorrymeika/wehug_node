@@ -23,7 +23,10 @@ var Month = model.ViewModel.extend({
 				</div>
 			</dd>
 		</dl>
-	</div></div>,
+	</div><div class="datanotfound fastbuy_nodata" sn-display="{{!data.length}}">
+        <h1>FLASH SALE</h1>
+        每周一上午10:00准点开抢
+    </div></div>,
 	
 	goto: function(e, item) {
 		var self=this;
@@ -63,12 +66,22 @@ var Month = model.ViewModel.extend({
 		self.set({
 			url: encodeURIComponent(location.hash)
 		});
+        
+        var now=new Date();
+        var startDt;
+        if (now.getDay()!=1) {
+            startDt=new Date(Date.now()-(now.getDay()-1)*24*60*60*1000);
+        } else {
+            startDt=now;
+        }
+        var endDt=new Date((+startDt)+7*24*60*60*1000);
 		
 		var dataAPI=new api.FastBuyAPI({
 			$el: self.$el,
+            checkData: false,
 			params: {
-				startdt: util.formatDate(new Date()),
-				enddt: util.formatDate(new Date(Date.now()+34*24*60*60*1000))
+				startdt: util.formatDate(startDt,'yyyy-MM-dd 00:00:00'),
+				enddt: util.formatDate(endDt,'yyyy-MM-dd 23:59:59')
 			},
 			success: function(res){
 				var result=[];

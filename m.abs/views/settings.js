@@ -7,11 +7,11 @@ define(function (require, exports, module) {
     var model = require('core/model3');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
+    var userModel = require("models/user");
 
     return Activity.extend({
         events: {
             'tap .js_bind:not(.disabled)': function () {
-
             }
         },
 
@@ -23,19 +23,16 @@ define(function (require, exports, module) {
             Scroll.bind($main);
             self.swipeRightBackAction = self.route.query.from || '/';
 
-            var user = util.store('user');
+            var user = userModel.get();
 
             this.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
                 title: '设置',
                 user: user,
                 logout: function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
                     self.confirm("你确认要退出登录?", function () {
-                        if (localStorage.getItem('user')) {
-                            util.store('user', null);
+                        if (userModel.get()) {
+                            userModel.set(null);
                             self.setResult("Logout");
                             self.back('/');
                         } else {

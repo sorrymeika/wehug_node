@@ -10,7 +10,23 @@ var barcode = require('../util/barcode');
 var animation = require('animation');
 var Confirm = require("components/confirm");
 var api = require("models/base");
+var userModel = require("models/user");
 
+model.State.set({
+    cartQty: 0
+});
+
+var cartQtyApi = new api.CartQtyAPI({
+    $el: $(''),
+    checkData: false,
+    success: function (res) {
+        model.State.set({
+            cartQty: res.data
+        });
+    },
+    error: function () {
+    }
+});
 
 module.exports = Activity.extend({
     events: {
@@ -27,7 +43,7 @@ module.exports = Activity.extend({
             }
         },
         'tap .js_offline .btn': function () {
-            this.userLoading.reload();
+            userModel.request();
         },
         'tap .js_comment_list [data-id]': function (e) {
         },
@@ -154,10 +170,15 @@ module.exports = Activity.extend({
 
     onCreate: function () {
         var self = this;
-        self.user = util.store('user');
+        self.user = userModel.get();
         self.$tabs = self.$('.hm_tab_con');
 
-        $.get(bridge.url('/api/settings/update?version=' + sl.appVersion), function (res) {
+        sl.activity = self;
+
+        $.post(bridge.url('/api/settings/update'), {
+            version: sl.appVersion
+
+        }, function (res) {
             if (res.success && res.updateUrl) {
                 var confirm = new Confirm({
                     content: res.text,
@@ -239,58 +260,13 @@ module.exports = Activity.extend({
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
 
-        this.userLoading = new Loading({
-            url: '/api/user/get',
-            check: false,
-            checkData: false,
+        this.stewardQtyApi = new api.StewardQtyAPI({
             $el: this.$el,
-            success: function (res) {
-                if (res.success == false) {
-                    if (res.error_code == 503) {
-                        self.user = null;
-                        util.store('user', null);
-                        self.model.set('isLogin', false);
-                    }
-                    return;
-
-                } else {
-                    $.extend(self.user, res.data);
-                }
-
-                util.store('user', self.user);
-                self.model.set({
-                    isOffline: false,
-                    user: self.user
-                });
-
-                self.showEnergy();
-                self.getUnreadMsg();
-
-                if (res.vdpMessage) {
-                    self.model.set('showTipStep', 1);
-                    self.$open_msg.show();
-                    self.$open_msg[0].clientHeight;
-                    self.$open_msg.addClass('show');
-
-                    self.model.set({
-                        message: res.vdpMessage
-                    });
-                }
-
-                self.cart.setParam({
-                    pspcode: self.user.PSP_CODE
-                }).load();
-            },
-            error: function () {
-                self.model.set('isOffline', true);
-            }
-        });
-
-        this.cart = new api.CartAPI({
-            $el: this.$('.js_cart'),
             checkData: false,
             success: function (res) {
-                self.model.set(res);
+                self.user.StewardNum = res.data;
+                userModel.set(self.user);
+                self.model.set('user.StewardNum', res.data);
             }
         });
 
@@ -325,12 +301,19 @@ module.exports = Activity.extend({
         }, 3200);
 
         self.onResult("Login", function () {
-            self.user = util.store('user');
             self.doWhenLogin();
+
+        }).onResult("UserChange", function () {
+
+            self.requestUser();
+
         }).onResult("Logout", function () {
             self.model.set({
                 isLogin: false
             });
+        }).onResult('CartChange', function () {
+
+            self.getCartQty();
         });
 
         self.shopApi = new api.ActivityAPI({
@@ -350,6 +333,57 @@ module.exports = Activity.extend({
 
         self.shopApi.load();
 
+    },
+
+    getCartQty: function () {
+        if (this.user.PSP_CODE) {
+            cartQtyApi.setParam({
+                pspcode: this.user.PSP_CODE
+
+            }).load();
+        }
+    },
+
+    requestUser: function () {
+        var self = this;
+
+        userModel.request(function (err, res) {
+
+            if (err) {
+                if (err.error_code == 503) {
+                    userModel.set(null);
+                    self.model.set('isLogin', false);
+                }
+                self.model.set('isOffline', true);
+                return;
+            }
+            userModel.set(res.data);
+
+            self.user = userModel.get();
+
+            self.model.set({
+                isOffline: false,
+                user: self.user
+            });
+
+            self.getCartQty();
+
+            self.showEnergy();
+            self.stewardQtyApi.setParam({
+                pspcode: self.user.PSP_CODE
+            }).load();
+
+            if (res.vdpMessage) {
+                self.model.set('showTipStep', 1);
+                self.$open_msg.show();
+                self.$open_msg[0].clientHeight;
+                self.$open_msg.addClass('show');
+
+                self.model.set({
+                    message: res.vdpMessage
+                });
+            }
+        });
     },
 
     _angleFrom: 0,
@@ -420,39 +454,34 @@ module.exports = Activity.extend({
     getUnreadMsg: function () {
         var self = this;
 
-        $.post(bridge.url('/api/user/get_unread_msg_count'), {
-            UserID: self.user.ID,
-            Auth: self.user.Auth
+        if (self.user) {
+            $.post(bridge.url('/api/user/get_unread_msg_count'), {
+                UserID: self.user.ID,
+                Auth: self.user.Auth
 
-        }, function (res) {
-            console.log(res);
-            if (res.success) {
-                self.model.set('msg_count', res.count);
-            }
+            }, function (res) {
+                if (res.success) {
+                    self.model.set('msg_count', res.count);
+                }
 
-        }, 'json');
-    },
-
-    loadCart: function () {
-
+            }, 'json');
+        }
     },
 
     doWhenLogin: function () {
         var self = this;
+        var user = userModel.get();
 
         self.model.set({
-            barcode: barcode.code93(self.user.Mobile).replace(/0/g, '<em></em>').replace(/1/g, '<i></i>'),
-            user: self.user,
+            barcode: barcode.code93(user.Mobile).replace(/0/g, '<em></em>').replace(/1/g, '<i></i>'),
             isLogin: true
         });
 
         var load = function (token) {
-            self.userLoading.setParam({
-                UserID: self.user.ID,
-                Auth: self.user.Auth,
+            userModel.setParam({
                 IMEI: token || 'CAN_NOT_GET'
-
-            }).reload();
+            });
+            self.requestUser();
         }
 
         util.isInApp ? bridge.getDeviceToken(load) : load();
@@ -468,14 +497,9 @@ module.exports = Activity.extend({
     onShow: function () {
         var self = this;
 
-        if (this.needReload) {
-            this.userLoading.reload({ showLoading: false });
-        }
-        if (this.user) {
-            this.needReload = true;
-        }
-
         this.setResult('ResetCart');
+
+        self.getUnreadMsg();
 
         this.guideSlider && this.guideSlider._adjustWidth();
     },

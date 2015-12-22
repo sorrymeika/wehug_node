@@ -52,7 +52,6 @@ module.exports = Activity.extend({
             case 'fastbuy':
                 title = "周一闪购";
                 component = new FastBuy();
-                component.view = self;
                 component.$el.appendTo(self.$el);
                 break;
             case 'activity':
@@ -60,7 +59,6 @@ module.exports = Activity.extend({
                 component = new Activ({
                     id: id
                 });
-                component.view = self;
                 component.$el.appendTo(self.$el);
                 break;
             case 'package':
@@ -68,7 +66,6 @@ module.exports = Activity.extend({
                 component = new Package({
                     id: id
                 });
-                component.view = self;
                 component.$el.appendTo(self.$el);
                 break;
             case 'banner':
@@ -76,7 +73,6 @@ module.exports = Activity.extend({
                 component = new Banner({
                     id: id
                 });
-                component.view = self;
                 component.$el.appendTo(self.$el);
                 break;
             case 'coupon':
@@ -93,6 +89,8 @@ A：优惠券的使用时限、抵用限额及其他限制条件请详见优惠�
                     </div>);
                 break;
         }
+        component&& (component.view = self);
+        
 
         Scroll.bind(self.$('.main'));
 

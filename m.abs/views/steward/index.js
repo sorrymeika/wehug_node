@@ -2,7 +2,7 @@ var $ = require('$');
 var util = require('util');
 var Activity = require('activity');
 var Loading = require('widget/loading');
-var model = require('core/model2');
+var model = require('core/model3');
 var Scroll = require('widget/scroll');
 var animation = require('animation');
 var api = require('models/base');
@@ -40,17 +40,25 @@ module.exports = Activity.extend({
 
             }, self.user.token),
 
+            $scroll: $main,
+            $content: $main,
+
+            checkData: false,
+
             success: function (res) {
                 if (res.data.length >= 10) {
                     res.total = (this.pageIndex + 1) * parseInt(this.pageSize)
                 }
-                
+
                 self.model.set(res);
             },
-
             append: function (res) {
-                if (res.data.length == 10) res.total = (this.pageIndex + 1) * parseInt(this.pageSize);
-
+                if (res.data.length == 10)
+                    res.total = (this.pageIndex + 1) * parseInt(this.pageSize);
+                else if (!res.data.length) {
+                    res.total = self.model.get('data').length;
+                }
+                
                 self.model.getModel('data').add(res.data);
             }
         });

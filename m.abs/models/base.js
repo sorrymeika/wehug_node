@@ -1,335 +1,349 @@
 var Loading = require('widget/loading');
 
 var API = Loading.extend({
-	baseUri: $('meta[name="api-base-url"]').attr('content')
+    baseUri: $('meta[name="api-base-url"]').attr('content')
 });
 exports.API = API;
 
 exports.OrderStatusAPI = API.extend({
-	url: '/api/user/get_order_status',
-	checkData: false,
-	check: false,
-	params: {
-		id: 0
-	}
+    url: '/api/user/get_order_status',
+    checkData: false,
+    check: false,
+    params: {
+        id: 0
+    }
 });
 
 exports.CouponStatusAPI = API.extend({
-	url: '/api/user/get_coupon_status',
-	checkData: false,
-	check: false,
-	params: {
-		id: 0
-	}
+    url: '/api/user/get_coupon_status',
+    checkData: false,
+    check: false,
+    params: {
+        id: 0
+    }
 });
 
 var ShopAPI = Loading.extend({
-	baseUri: $('meta[name="shop-api-base-url"]').attr('content'),
-	KEY_PAGE: 'currentpage'
+    baseUri: $('meta[name="shop-api-base-url"]').attr('content'),
+    KEY_PAGE: 'currentpage'
 });
 exports.ShopAPI = ShopAPI;
 
 exports.AddressListAPI = ShopAPI.extend({
-	url: '/api/user/addresslist',
-	params: {
-		pspcode: 0
-	}
+    url: '/api/user/addresslist',
+    params: {
+        pspcode: 0
+    }
 });
 
 exports.EditAddressAPI = ShopAPI.extend({
-	url: '/api/user/editaddress',
-	params: {
-		pspcode: 0,
-		edittype: 2,//编辑类型：1.新增 2.修改
-		mbaId: 0,
-		mbaName: '',
-		mbaMobile: 0,
-		mbaCtyId: 0,
-		mbaDefault: false,
-		mbaRegId: 0,
-		mbaAddress: ''
-	}
+    url: '/api/user/editaddress',
+    params: {
+        pspcode: 0,
+        edittype: 2,//编辑类型：1.新增 2.修改
+        mbaId: 0,
+        mbaName: '',
+        mbaMobile: 0,
+        mbaCtyId: 0,
+        mbaDefault: false,
+        mbaRegId: 0,
+        mbaAddress: ''
+    }
 });
 
 exports.DeleteAddressAPI = ShopAPI.extend({
-	url: '/api/user/deladdress',
-	params: {
-		pspcode: 0,
-		mbaId: 0
-	}
+    url: '/api/user/deladdress',
+    params: {
+        pspcode: 0,
+        mbaId: 0
+    }
 });
 
 exports.ProvinceAPI = ShopAPI.extend({
-	url: '/api/user/prvlist'
+    url: '/api/user/prvlist'
 });
 
 exports.CityAPI = ShopAPI.extend({
-	url: '/api/user/ctylist',
-	params: {
-		prvId: 0
-	}
+    url: '/api/user/ctylist',
+    params: {
+        prvId: 0
+    }
 });
 
 exports.RegionAPI = ShopAPI.extend({
-	url: '/api/user/reglist',
-	params: {
-		ctyId: 0
-	}
+    url: '/api/user/reglist',
+    params: {
+        ctyId: 0
+    }
 });
 
 exports.CouponAPI = ShopAPI.extend({
-	url: '/api/user/GetCoupon',
-	params: {
-		pspcode: '',
-		csvcode: ''
-	}
+    url: '/api/user/GetCoupon',
+    params: {
+        pspcode: '',
+        csvcode: ''
+    }
 });
 
 //获取购物车可用优惠券
 exports.AvailableCouponAPI = ShopAPI.extend({
-	url: '/api/prod/availablecoupon',
-	params: {
-		pspcode: ''
-	}
+    url: '/api/prod/availablecoupon',
+    params: {
+        pspcode: ''
+    }
 });
 
 exports.GetSharedCouponAPI = API.extend({
-	url: '/api/user/get_shared_coupon',
-	params: {
-		UserID: 0,
-		Auth: '',
-		data: ''
-	}
+    url: '/api/user/get_shared_coupon',
+    params: {
+        UserID: 0,
+        Auth: '',
+        data: ''
+    }
 });
 
 exports.CouponUserAPI = API.extend({
-	url: '/api/user/get_coupon_user',
-	params: {
-		data: ''
-	}
+    url: '/api/user/get_coupon_user',
+    params: {
+        data: ''
+    }
 });
 
 exports.CreateOrderAPI = ShopAPI.extend({
-	url: '/api/shop/CreateMOrder',
-	params: {
-		pspcode: '',
-		mba_id: 1, //（用户收货地址）,
-		pay_type: 1, //（支付方式  RPayType 具体id到时候定）,
-		coupon: '', //（优惠券券号）,
-		points: 0, //(积分数 100抵1块钱)
-		freecoupon: ''//（免邮券券号）
-	}
+    url: '/api/shop/CreateMOrder',
+    params: {
+        pspcode: '',
+        mba_id: 1, //（用户收货地址）,
+        pay_type: 1, //（支付方式  RPayType 具体id到时候定）,
+        coupon: '', //（优惠券券号）,
+        points: 0, //(积分数 100抵1块钱)
+        freecoupon: ''//（免邮券券号）
+    }
 });
 
 //分类列表
 exports.CategoryAPI = ShopAPI.extend({
-	url: '/api/prod/pcglist'
+    url: '/api/prod/pcglist'
 });
 
 exports.SubCategoryAPI = ShopAPI.extend({
-	url: '/api/prod/pcgitem',
-	params: {
-		id: 0 //父类ID
-	}
+    url: '/api/prod/pcgitem',
+    params: {
+        id: 0 //父类ID
+    }
 });
 
 exports.ProductSearchAPI = ShopAPI.extend({
-	url: "/Prod/productlist",
-	params: {
-		keycodes: '',
-		orderbyStr: 2,
-		orderby: 'desc',
-		length: 2,
-		pages: 0
-	}
+    url: "/Prod/productlist",
+    params: {
+        keycodes: '',
+        orderbyStr: 2,
+        orderby: 'desc',
+        length: 2,
+        pages: 0
+    }
 });
 
 exports.ProductHeadAPI = ShopAPI.extend({
-	url: '/api/prod/prhitem',
-	params: {
-		id: 0
-	}
+    url: '/api/prod/prhitem',
+    params: {
+        id: 0
+    }
 });
 
 exports.ProductAPI = ShopAPI.extend({
-	url: '/api/prod/prditem',
-	params: {
-		id: 0
-	}
+    url: '/api/prod/prditem',
+    params: {
+        id: 0
+    }
 });
 
 exports.ProductColorAndSpec = ShopAPI.extend({
-	url: "/api/prod/getsizebyprh",
-	params: {
-		id: 0
-	}
+    url: "/api/prod/getsizebyprh",
+    params: {
+        id: 0
+    }
 });
 
 exports.ProductDetailAPI = ShopAPI.extend({
-	url: '/api/prod/prddetail',
-	params: {
-		id: 0
-	}
+    url: '/api/prod/prddetail',
+    params: {
+        id: 0
+    }
 });
 
 exports.ProductListAPI = ShopAPI.extend({
-	url: '/api/prod/pcgprd',
-	params: {
-		pcgid: 0 //父类ID
-	}
+    url: '/api/prod/pcgprd',
+    params: {
+        pcgid: 0 //父类ID
+    }
 });
 
 exports.NewProductAPI = ShopAPI.extend({
-	url: '/api/prod/newproductlist',
-	params: {
-		length: 100,
-		pages: 0
-	}
+    url: '/api/prod/newproductlist',
+    params: {
+        length: 100,
+        pages: 0
+    }
 });
 
 exports.ActivityAPI = ShopAPI.extend({
-	url: '/Prod/GetApiBannerPrd',
-	params: {
-		h5name: 'api_prod1'
-	}
+    url: '/Prod/GetApiBannerPrd',
+    params: {
+        h5name: 'api_prod1'
+    }
 });
 
 exports.CartAPI = ShopAPI.extend({
-	url: '/api/shop/bag',
-	params: {
-		pspcode: 0 //用户code(手机号)
-	}
+    url: '/api/shop/bag',
+    params: {
+        pspcode: 0
+    }
+});
+
+exports.CartQtyAPI = ShopAPI.extend({
+    url: '/api/shop/bagqty',
+    params: {
+        pspcode: 0
+    }
 });
 
 exports.CartAddAPI = ShopAPI.extend({
-	url: '/api/shop/addbag',
-	params: {
-		pspcode: 0, //用户code(手机号)
-		prd: 0,
-		qty: 1
-	}
+    url: '/api/shop/addbag',
+    params: {
+        pspcode: 0,
+        prd: 0,
+        qty: 1
+    }
 });
 
 exports.CartModifyAPI = ShopAPI.extend({
-	url: '/api/shop/SaveProductChangeRow',
-	params: {
-		pspcode: 0, //用户code(手机号)
-		spbId: 0,
-		qty: 1
-	}
+    url: '/api/shop/SaveProductChangeRow',
+    params: {
+        pspcode: 0,
+        spbId: 0,
+        qty: 1
+    }
 });
 
 exports.CartDeleteAPI = ShopAPI.extend({
-	url: '/api/shop/deletebag',
-	params: {
-		pspcode: 0, //用户code(手机号)
-		spbId: 0
-	}
+    url: '/api/shop/deletebag',
+    params: {
+        pspcode: 0,
+        spbId: 0
+    }
 });
 
 exports.CartDeletePackageAPI = ShopAPI.extend({
-	url: '/api/shop/deletepackagebag',
-	params: {
-		pspcode: 0, //用户code(手机号),
-		wacid: 0,
-		ppgid: 0,
-		groupid: 0
-	}
+    url: '/api/shop/deletepackagebag',
+    params: {
+        pspcode: 0,
+        wacid: 0,
+        ppgid: 0,
+        groupid: 0
+    }
 });
 
 exports.CancelOrderAPI = ShopAPI.extend({
-	url: '/shop/cancelOrder',
-	params: {
-		pspcode: '',
-		purcode: ''
-	}
+    url: '/shop/cancelOrder',
+    params: {
+        pspcode: '',
+        purcode: ''
+    }
 });
 
 exports.OrderCreateAPI = ShopAPI.extend({
-	url: '/api/shop/CreateMOrder',
-	params: {
-		pspcode: '',
-		mba_id: 0,
-		pay_type: 1,
-		coupon: '',
-		points: 0,
-		freecoupon: ''
-	}
+    url: '/api/shop/CreateMOrder',
+    params: {
+        pspcode: '',
+        mba_id: 0,
+        pay_type: 1,
+        coupon: '',
+        points: 0,
+        freecoupon: ''
+    }
 });
 
 
 exports.WxPayAPI = API.extend({
-	url: '/api/shop/wxpayqrcode',
-	checkData: false,
-	params: {
-		order_no: ''
-	}
+    url: '/api/shop/wxpayqrcode',
+    checkData: false,
+    params: {
+        order_no: ''
+    }
 });
 
 exports.StewardListAPI = ShopAPI.extend({
-	url: '/api/steward/list',
-	params: {
-		pspid: 0
-	}
+    url: '/api/steward/list',
+    params: {
+        pspid: 0
+    }
+});
+
+exports.StewardQtyAPI = ShopAPI.extend({
+    url: '/api/steward/stewardqty',
+    params: {
+        pspcode: ''
+    }
 });
 
 exports.StewardAPI = ShopAPI.extend({
-	url: '/api/steward/item',
-	params: {
-		prh_id: 0
-	}
+    url: '/api/steward/item',
+    params: {
+        prh_id: 0
+    }
 });
 
 exports.StewardDetailAPI = ShopAPI.extend({
-	url: '/api/steward/detail',
-	params: {
-		detail_id: 0
-	}
+    url: '/api/steward/detail',
+    params: {
+        detail_id: 0
+    }
 });
 
 exports.MonthAPI = ShopAPI.extend({
-	url: '/api/prod/freeskulist',
-	params: {
-		freid: 2
-	}
+    url: '/api/prod/freeskulist',
+    params: {
+        freid: 2
+    }
 });
 
 
 exports.MonthProductAPI = ShopAPI.extend({
-	url: '/api/prod/ajaxactprdlist',
-	params: {
-		pages: 1,
-		len: 6
-	}
+    url: '/api/prod/ajaxactprdlist',
+    params: {
+        pages: 1,
+        len: 6
+    }
 });
 
 exports.FastBuyAPI = ShopAPI.extend({
-	url: '/api/prod/flashprodlist',
-	params: {
-		startdt: '2015-01-01',
-		enddt: '2016-01-01'
-	}
+    url: '/api/prod/flashprodlist',
+    params: {
+        startdt: '2015-01-01',
+        enddt: '2016-01-01'
+    }
 });
 
 exports.PackageAPI = ShopAPI.extend({
-	url: '/api/prod/getpackage',
-	params: {
-		id: 0
-	}
+    url: '/api/prod/getpackage',
+    params: {
+        id: 0
+    }
 });
 
 exports.PackageCartAPI = ShopAPI.extend({
-	url: '/api/prod/addpackagebag',
-	params: {
-		pspcode: '',
-		prdIds: '',
-		ppgId: ''
-	}
+    url: '/api/prod/addpackagebag',
+    params: {
+        pspcode: '',
+        prdIds: '',
+        ppgId: ''
+    }
 });
 
 exports.PackageRelativeAPI = ShopAPI.extend({
-	url: '/api/prod/getppginfo',
-	params: {
-		prdId: ''
-	}
+    url: '/api/prod/getppginfo',
+    params: {
+        prdId: ''
+    }
 });

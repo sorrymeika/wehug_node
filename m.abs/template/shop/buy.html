@@ -12,22 +12,22 @@
             <div class="hd">支付结算</div>
             <ul>
                 <li><span>商品价</span><em>¥{{prod_amount}}</em></li>
-                <li><span>优惠券</span><em>-¥{{couponprice||0}}</em></li>
+                <li><span>优惠券</span><em>-¥{{$state.selectedCoupon.VCA_DEDUCT_AMOUNT||0}}</em></li>
                 <li><span>积分</span><em>-¥{{Points/100||0}}</em></li>
-                <li><span>运费</span><em>{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),((freecouponcode || a >= 99) ? '免运费' : ('+¥'+15))}}</em></li>
-                <li><span>总计</span><b>¥{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),(Math.round((a + ((freecouponcode || a >= 99) ? 0 : 15)) * 100)/ 100)}}</b></li>
+                <li><span>运费</span><em>{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),(($state.selectedFreeCoupon || a >= 99) ? '免运费' : ('+¥'+15))}}</em></li>
+                <li><span>总计</span><b>{{this.getTotal(bag_amount,$state.selectedCoupon,Points||0,$state.selectedFreeCoupon)}}</b></li>
             </ul>
         </div>
         <div class="sp_buy_bd sp_buy_pay">
             <div class="hd">支付方式</div>
             <ul>
                 <li class="ico_alipay{{payType==1?' checked':''}}" sn-tap="payType=1">支付宝支付</li>
-               <!-- <li class="ico_wxpay{{payType==2?' checked':''}}" sn-tap="payType=2">微信支付</li>-->
+                <!-- <li class="ico_wxpay{{payType==2?' checked':''}}" sn-tap="payType=2">微信支付</li>-->
             </ul>
         </div>
     </div>
 </div>
 <footer class="sp_buy_action">
-    <div class="total">总计：<b>¥{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),(Math.round((a + ((freecouponcode || a >= 99) ? 0 : 15)) * 100)/ 100)}}</b></div>
+    <div class="total">总计：<b>{{this.getTotal(bag_amount,$state.selectedCoupon,Points||0,$state.selectedFreeCoupon)}}</b></div>
     <div class="btn_buy js_buy">结 算</div>
 </footer>

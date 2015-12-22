@@ -9,6 +9,7 @@ define(function (require, exports, module) {
     var animation = require('animation');
     var api = require('models/base');
     var bridge = require('bridge');
+    var userModel = require("models/user");
 
     return Activity.extend({
         events: {
@@ -25,7 +26,7 @@ define(function (require, exports, module) {
             var $main = self.$('.main');
 
             self.swipeRightBackAction = self.route.query.from || '/cart';
-            self.user = util.store('user');
+            self.user = userModel.get();
 
             Scroll.bind($main);
 
@@ -35,6 +36,25 @@ define(function (require, exports, module) {
                 payType: 1,
                 couponprice: 0
             });
+
+            self.model.getTotal = function (bag_amount, coupon, Points, freecouponcode) {
+                var couponPrice = coupon && coupon.VCA_DEDUCT_AMOUNT ? coupon.VCA_DEDUCT_AMOUNT : 0;
+                var total;
+                var price;
+                var freight;
+
+                if (coupon && coupon.VCT_ID == 5) {
+                    price = Math.max(0, bag_amount - couponPrice - (Points / 100));
+                    freight = ((price >= 99 || freecouponcode) ? 0 : 15);
+                    total = Math.max(0, bag_amount + freight - couponPrice - (Points / 100));
+
+                } else {
+                    price = Math.max(0, bag_amount - couponPrice - (Points / 100));
+                    total = price + ((price >= 99 || freecouponcode) ? 0 : 15);
+                }
+
+                return '¥' + (Math.round(total * 100) / 100);
+            }
 
             var address = new api.AddressListAPI({
                 $el: this.$el,
@@ -82,25 +102,20 @@ define(function (require, exports, module) {
                         mba_id: address.AddressID,
                         pay_type: self.model.get('payType')
                     });
-
                 },
                 checkData: false,
                 success: function (res) {
                     if (res.success) {
                         sl.tip("生成订单成功！");
-                        self.setResult('OrderChange').setResult('ResetCart');
+
+                        self.setResult('OrderChange')
+                            .setResult('ResetCart')
+                            .setResult('UserChange');
 
                         self.forward('/myorder?id=' + res.pur_id);
 
                         if (self.model.get('payType') == 1) {
                             bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + res.pur_id + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
-                             
-                            /*
-                           if (!IFRAME) {
-                               IFRAME = $('<iframe name="__order" style="width:0px;height:0px;"></iframe>').appendTo('body');
-                           }
-                           IFRAME.attr('src', api.API.prototype.baseUri + '/AlipayDirect/Pay/' + res.pur_id + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
-                           */
 
                         } else {
                             bridge.wx({
@@ -130,25 +145,17 @@ define(function (require, exports, module) {
 
         onShow: function () {
             var self = this;
-
-            var search = location.hash.substr(location.hash.indexOf('?'));
-            var query = {};
-
-            search.replace(/(?:\?|&|\b)(\w+)\=([^\&]*)/g, function (match, key, val) {
-                query[key] = decodeURIComponent(val);
-            });
+            self.user = userModel.get();
 
             self.orderCreateApi.setParam({
                 pspcode: self.user.PSP_CODE,
                 pay_type: 1,
-                coupon: this.model.getState('coupon'),
+                coupon: this.model.getState('selectedCoupon.CSV_CODE') || '',
                 points: self.route.query.points,
-                freecoupon: this.model.getState('freecoupon')
+                freecoupon: this.model.getState('selectedFreeCoupon.CSV_CODE') || ''
             });
 
             self.model.set({
-                couponprice: self.route.query.couponprice ? parseInt(self.route.query.couponprice) : 0,
-                freecouponcode: self.route.query.freecoupon,
                 Points: self.route.query.points ? parseInt(self.route.query.points) : 0
             });
 

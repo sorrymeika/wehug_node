@@ -4,7 +4,7 @@
         view = require('./../core/view'),
         app = require('bridge');
 
-    var extend = ['$el', 'url', 'method', 'headers', 'dataType', 'xhrFields', 'beforeSend', 'success', 'complete', 'pageIndex', 'pageSize', 'append', '$content', '$scroll', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
+    var extend = ['$el', 'url', 'method', 'headers', 'dataType', 'xhrFields', 'beforeSend', 'success', 'complete', 'pageIndex', 'pageSize', 'append', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
 
     var Loading = function (options) {
         $.extend(this, _.pick(options, extend));
@@ -15,8 +15,8 @@
 
         this.params = $.extend({}, this.params, options.params);
         this.error = options.error || this.showError;
-        this.$content = options.$content || this.$el;
         this.$scroll = options.$scroll || this.$el;
+        this.$content = options.$content || this.$scroll;
         this.pageEnabled = !!(options.pageEnabled || this.append);
         this.isShowLoading = options.showLoading !== false;
 

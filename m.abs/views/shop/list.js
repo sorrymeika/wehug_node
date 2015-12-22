@@ -43,17 +43,20 @@ define(function (require, exports, module) {
 
             var list = new api.ProductSearchAPI({
                 $el: self.$el,
+                $scroll: $main,
+                $content: $main,
                 check: false,
                 beforeSend: function () {
                     var orderBy = self.model.get('orderBy');
                     orderBy = orderBy.split('|');
 
-                    this.setParam({
-                        orderbyStr: orderBy[0],
-                        orderby: orderBy[1],
-                        pcgid: self.route.query.id,
-                        keycodes: self.route.query.s || ''
-                    });
+                    this.setUrl(self.route.query.type == "new" ? '/api/prod/newproductlist' : '/Prod/productlist')
+                        .setParam({
+                            orderbyStr: self.route.query.type == "new" && orderBy[0] == "PRD_MEMBER_PRICE" ? 'PRD_PRICE' : orderBy[0],
+                            orderby: orderBy[1],
+                            pcgid: self.route.query.id,
+                            keycodes: self.route.query.s || ''
+                        });
                 },
                 KEY_PAGE: 'pages',
                 KEY_PAGESIZE: 'length',

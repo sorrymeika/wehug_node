@@ -42,7 +42,7 @@
             }
         }
     }
-    var State;
+
     var Filters = {
         contains: function (source, keywords) {
             return source.indexOf(keywords) != -1;
@@ -121,6 +121,7 @@
             var model = this.getModel(key);
             return (model instanceof Model || model instanceof Collection) ? model.data : model;
         },
+
         cover: function (key, val) {
             return this.set(true, key, val);
         },
@@ -706,7 +707,7 @@
     var snGlobal = ['this', '$', 'Math', 'new', 'Date', 'encodeURIComponent', 'window', 'document'];
 
     var withData = function (repeat, content) {
-        var code = 'var $el=$(el),$data=$.extend({},global,model.root.data,{$state:global.State.data}';
+        var code = 'var $el=$(el),root=model.root,$data=$.extend({},global,root.data,{$state:root.$state.data}';
         if (repeat) {
             code += ',{';
             for (var parent = repeat.parent, current = repeat; parent != null; current = parent, parent = parent.parent) {
@@ -730,9 +731,9 @@
     }
 
     var ViewModel = function (el, data) {
-        if (typeof data === 'undefined' && (el == undefined || $.isPlainObject(el))) {
+        if (typeof data === 'undefined' && (el == undefined || $.isPlainObject(el)))
             data = el, el = this.el;
-        }
+
         this.cid = util.guid();
         this._bindListenTo = [];
 
@@ -743,7 +744,8 @@
         this.fns = [];
         this.root = this;
 
-        this.scan(el);
+        el && this.bind(el);
+
         this.init = true;
         this.set(this.data);
         this.init = false;
@@ -758,12 +760,12 @@
         initialize: util.noop,
 
         setState: function (cover, key, value) {
-            State.set(cover, key, value);
+            this.$state.set(cover, key, value);
             return this;
         },
 
         getState: function (key) {
-            return State.get(key);
+            return this.$state.get(key);
         },
 
         _compile: function (expression, repeat, listen) {
@@ -790,7 +792,7 @@
                             var alias = attrs[0];
 
                             if (alias == "$state") {
-                                State.on('change:' + name.replace('$state.', '').replace(/\./g, '/'), listen);
+                                self.$state.on('change:' + name.replace('$state.', '').replace(/\./g, '/'), listen);
                                 return prefix + name;
 
                             } else if (!alias || Filters[alias] || snGlobal.indexOf(alias) != -1 || (variables && variables.indexOf(alias) != -1) || rvalue.test(name)) {
@@ -910,7 +912,7 @@
             if (alias == 'this') {
                 return self;
             } else if (alias == "$state")
-                return $state;
+                return self.$state;
 
             return this._bubbleEl(el, function (el) {
                 if (el.repeat.repeat.alias == alias)
@@ -926,7 +928,7 @@
         _setByEl: function (el, name, value) {
             var model = this._getByEl(el, name);
 
-            model.set(model == this || model == State ? name : name.replace(/^[^\.]+\./, ''), value);
+            model.set(model == this || model == self.$state ? name : name.replace(/^[^\.]+\./, ''), value);
         },
 
         _attrId: function () {
@@ -937,7 +939,7 @@
             return this.$el.filter(selector).add(this.$el.find(selector));
         },
 
-        scan: function (el) {
+        bind: function (el) {
             var self = this;
             var elements = [];
 
@@ -961,7 +963,7 @@
                     if (repeat != null) {
                         var match = repeat.match(rrepeat);
                         var collectionName = match[3];
-                        var viewModel = collectionName.indexOf('$state') == 0 ? State : self;
+                        var viewModel = collectionName.indexOf('$state') == 0 ? self.$state : self;
                         repeat = new Repeat({
                             root: self,
                             viewModel: viewModel,
@@ -1035,18 +1037,21 @@
 
                 var target = e.currentTarget;
                 var eventCode = target.getAttribute('sn-' + e.type + self.cid + '-');
-                var argNames = eventCode.split(':');
-                var argName;
-                var args = [e];
                 var fn;
                 var ctx;
 
+                if (eventCode == 'false') {
+                    return false;
 
-                if (/^\d+$/.test(eventCode)) {
+                } else if (/^\d+$/.test(eventCode)) {
                     var model = self._closestByEl(target);
                     (model.root === self) && self.fns[eventCode].call(self, e, model, Filters);
 
                 } else {
+                    var args = [e];
+                    var argName;
+                    var argNames = eventCode.split(':');
+
                     for (var i = 0; i < argNames.length; i++) {
                         var attr = argNames[i];
                         if (i == 0) {
@@ -1082,7 +1087,7 @@
 
     ViewModel.extend = util.extend;
 
-    Filters.State = State = new ViewModel();
+    exports.State = ViewModel.prototype.$state = new ViewModel();
 
     exports.ViewModel = ViewModel;
     exports.Filters = Filters;

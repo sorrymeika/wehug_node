@@ -7,6 +7,7 @@ define(function (require, exports, module) {
     var model = require('../core/model');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
+    var userModel = require("models/user");
 
     return Activity.extend({
         events: {
@@ -85,15 +86,6 @@ define(function (require, exports, module) {
                 back: this.route.query.from || '/'
             });
 
-            this.getUser = new Loading({
-                url: '/api/user/get',
-                check: false,
-                checkData: false,
-                $el: this.$el,
-                success: function () {
-                }
-            });
-
             this.loading = new Loading({
                 url: '/api/user/login',
                 method: 'POST',
@@ -108,21 +100,10 @@ define(function (require, exports, module) {
                             sl.tip('您已经绑定过了哦');
                         }
 
-                        util.store('user', res.data);
-
-                        self.getUser.setParam({
-                            UserID: res.data.UserID,
-                            Auth: res.data.Auth
-
-                        }).load(function (err, user) {
-                            if (user) {
-                                util.store('user', $.extend(res.data, user.data));
-                            }
-
+                        userModel.set(res.data).request(function () {
                             self.setResult("Login");
                             self.back(self.route.query.success || '/');
                         });
-
                     }
                 },
                 error: function (res) {

@@ -6,7 +6,7 @@ var util = require('util');
 
 var Banner = model.ViewModel.extend({
 	el: <div class="main banner2">
-		<img src="http://appuser.abs.cn/dest/images/banner.jpg" data-forward="/news/activity2" />
+		<img src="http://appuser.abs.cn/dest/images/banner.jpg" />
 		<div class="banner2_text">
 			1.本次活动仅限新用户参与，每手机账号限领取一次礼物兑换券。<br />
 2.礼物兑换券可在“我的卡券”中查看，凭券可兑换纳米净颜美容巾1条。（商品加入购物车-去结算-选择优惠券-点击购买）<br />

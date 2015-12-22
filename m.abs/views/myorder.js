@@ -79,6 +79,8 @@ define(function (require, exports, module) {
                     e.stopPropagation();
                 },
                 openOrder: function (e, order) {
+                    if ($(e.target).hasClass('btn_sml')) return;
+
                     if (order.PUS_DESC == '待付款') {
                         /*
                         self.wxPayApi.setParam({
@@ -182,6 +184,9 @@ define(function (require, exports, module) {
                     if (res.success) {
                         sl.tip('订单已成功取消');
                         self.loading.reload();
+                        
+                        //通知更新优惠券数量
+                        self.setResult("UserChange");
                     }
                 },
                 error: function (res) {

@@ -56,7 +56,7 @@
         this.$el = $(this.template.html(this));
         this.el = this.$el[0];
 
-        this.model.scan(this.$el);
+        this.model.bind(this.$el);
 
         this.$el.on('blur', '[name]', $.proxy(this._validInput, this))
 

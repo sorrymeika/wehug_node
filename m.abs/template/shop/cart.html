@@ -3,7 +3,7 @@
     <ul class="ct_list">
         <li sn-repeat="item in data_baglist" class="ct_list_item" data-id="{{item.SPB_ID}}">
             <div class="ct_list_item_con js_delete_item">
-                <img src="{{item.PRD_PIC}}" data-back="/item/{{item.PRD_ID}}" />
+                <img sn-src="{{item.PRD_PIC}}" data-back="/item/{{item.PRD_ID}}" />
                 <div class="con">
                     <b class="name">{{item.PRD_NAME}}</b>
                     <p class="size">尺寸：{{item.PRD_SPEC.split('|')[0]}}</p>
@@ -29,7 +29,7 @@
             </dt>
             <dd sn-repeat="item in ppg.PackageList" class="ct_list_item">
                 <div class="ct_list_item_con">
-                    <img src="{{item.PRD_PIC}}" data-back="/item/{{item.PRD_ID}}" />
+                    <img sn-src="{{item.PRD_PIC}}" data-back="/item/{{item.PRD_ID}}" />
                     <div class="con">
                         <b class="name">{{item.PRD_NAME}}</b>
                         <p class="size">尺寸：{{item.PRD_SPEC.split('|')[0]}}</p>
@@ -58,9 +58,9 @@
             <span>选择免邮卡</span>
             <em sn-display="{{freecouponcode.CSV_CODE}}"><b>已选1张</b></em> <em sn-display="{{!freecouponcode.CSV_CODE}}"><b>{{freeCount||0}}</b>张免邮卡可用</em></li>
         <li><span>运费</span>
-            <em><b>{{this.getFreight(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points,freecouponcode.CSV_CODE)}}</b></em>
+            <em><b>{{this.getFreight(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points||0,freecouponcode.CSV_CODE)}}</b></em>
         </li>
-        <li><span>总计</span><em><b class="price">{{this.getTotal(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points,freecouponcode.CSV_CODE)}}</b></em></li>
+        <li><span>总计</span><em><b class="price">{{this.getTotal(bag_amount,couponcode,Points||0,freecouponcode.CSV_CODE)}}</b></em></li>
     </ul>
 </div>
 <div class="my_nodata" sn-display="{{!loading&&util.isFalse(data_baglist)&&util.isFalse(data_package)}}" style="display:none">
@@ -77,7 +77,7 @@
     @this.helpers.list()
 </div>
 <footer class="ct_list_action">
-    <div class="total">总计：<b>{{this.getTotal(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points,freecouponcode.CSV_CODE)}}</b></div>
+    <div class="total">总计：<b>{{this.getTotal(bag_amount,couponcode,Points||0,freecouponcode.CSV_CODE)}}</b></div>
     <div class="btn_buy js_buy">结 算</div>
 </footer>
 <div class="ct_coupon_wrap {{isShowCoupon?'':'out'}} js_coupon" style="display:none">

@@ -66,7 +66,7 @@
                 <div class="mobile">{{user.Mobile}}</div>
             </div>
             <ul class="hm_cards">
-                <li data-forward="/list?from=%2f"><i></i>
+                <li data-forward="/list?type=new&from=%2f"><i></i>
                     <p>NEW ARRIVAL</p>
                     <p>新品上市</p>
                 </li>
@@ -88,7 +88,7 @@
         data-index="1">
             <div class="hm_shop">
                 <ul class="hm_shop_cate">
-                    <li data-forward="/list?from=%2f"><i></i>新品<br>上市</li>
+                    <li data-forward="/list?type=new&from=%2f"><i></i>新品<br>上市</li>
                     <li data-forward="/news/activity2"><i></i>最热<br>商品</li>
                     <li data-forward="/news/fastbuy?from=%2f"><i></i>周一<br>闪购</li>
                     <li data-forward="/news/activity3"><i></i>APP<br>专享</li>
@@ -170,7 +170,7 @@
     <ul class="footer" sn-display="{{isLogin}}">
         <li class="curr">首页</li>
         <li>附近门店</li>
-        <li>购物车</li>
+        <li>购物车<i sn-display="$state.cartQty!=0">{{$state.cartQty}}</i></li>
         <li>我</li>
     </ul>
     <div class="open_msg" style="display:none">
