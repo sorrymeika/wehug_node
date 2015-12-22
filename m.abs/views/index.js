@@ -18,8 +18,8 @@ module.exports = Activity.extend({
             this.model.set('tab', $(e.target).index());
         },
         'tap .home_tip_mask': function (e) {
-            util.store('isFirstOpen', false);
-            this.model.set({ isFirstOpen: false });
+            util.store('showTipStep', 2);
+            this.model.set({ showTipStep: 2 });
         },
         'tap .open_msg': function (e) {
             if ($(e.target).hasClass('open_msg')) {
@@ -252,13 +252,9 @@ module.exports = Activity.extend({
                         self.model.set('isLogin', false);
                     }
                     return;
-                    
+
                 } else {
                     $.extend(self.user, res.data);
-                }
-                
-                if (res.msg == "HAS_BIND") { 
-                    sl.tip('您已经绑定过了哦');
                 }
 
                 util.store('user', self.user);
@@ -271,7 +267,7 @@ module.exports = Activity.extend({
                 self.getUnreadMsg();
 
                 if (res.vdpMessage) {
-
+                    self.model.set('showTipStep', 1);
                     self.$open_msg.show();
                     self.$open_msg[0].clientHeight;
                     self.$open_msg.addClass('show');
@@ -282,7 +278,7 @@ module.exports = Activity.extend({
                 }
 
                 self.cart.setParam({
-                    pspcode: self.user.Mobile
+                    pspcode: self.user.PSP_CODE
                 }).load();
             },
             error: function () {
@@ -310,7 +306,6 @@ module.exports = Activity.extend({
             }
         });
         this.launchLoading.load();
-
 
         var $launchImgs = this.$('.launch img');
         var $mask = this.$('.home_mask').on($.fx.transitionEnd, function (e) {
@@ -479,8 +474,8 @@ module.exports = Activity.extend({
         if (this.user) {
             this.needReload = true;
         }
-        
-        this.setResult('ResetCoupon');
+
+        this.setResult('ResetCart');
 
         this.guideSlider && this.guideSlider._adjustWidth();
     },

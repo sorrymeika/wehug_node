@@ -859,7 +859,9 @@
                         case 'sn-display':
                             el.style.display = util.isFalse(val) ? 'none' : val == 'block' || val == 'inline' || val == 'inline-block' ? val : '';
                             break;
+                        case 'sn-style':
                         case 'style':
+                            console.log(val);
                             el.style.cssText += val;
                             break;
                         default:
@@ -988,7 +990,7 @@
                             } else if (attr == 'sn-src') {
                                 attr = 'src'
                             }
-                            if (attr == 'sn-display' || attr == 'sn-html' || attr.indexOf('sn-') != 0) {
+                            if (attr == 'sn-display' || attr == 'sn-html' || attr == 'sn-style' || attr.indexOf('sn-') != 0) {
                                 if (attr.indexOf('sn-') == 0 && val.indexOf("{{") == -1 && val.indexOf("}}") == -1) {
                                     val = '{{' + val + '}}';
                                 }

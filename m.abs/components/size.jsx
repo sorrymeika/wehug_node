@@ -63,6 +63,9 @@ var Month = model.ViewModel.extend({
 			this.data.confirm(item,this.data.PST_ID,self.get('qty'));
 			
 		} else {
+            
+            self.set({data:item});
+            
 			self.cartAddAPI.setParam({
 				prd: item.PRD_ID,
 				qty: self.get('qty')
@@ -105,6 +108,7 @@ var Month = model.ViewModel.extend({
 							prdid: self.get('data').PRD_ID,
 							freid: self.get('freid')
 						});
+                        
 				} else {
 					this.setParam({
 						prd: self.get('data').PRD_ID
@@ -113,14 +117,16 @@ var Month = model.ViewModel.extend({
 				self.$('.js_buy').addClass('disabled');
 			},
 			params: {
-				pspcode: self.user.Mobile
+				pspcode: self.user.PSP_CODE
 			},
 			success: function (res) {
 				if (res.success) {
 					sl.tip('加入购物车成功！');
 					self.hide();
 					//self.forward('/cart?from=' + self.route.url);
-				}
+				} else {
+                    sl.tip(res.msg);
+                }
 			},
 			complete: function () {
 				self.$('.js_buy').removeClass('disabled');

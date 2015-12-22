@@ -13,6 +13,14 @@ define(function (require, exports, module) {
         events: {
             'tap .js_bind:not(.disabled)': function () {
 
+            },
+            
+            'focus .js_search': function (e) { 
+                e.currentTarget.setAttribute('placeholder', '');
+            },
+            
+            'blur .js_search': function (e) { 
+                e.currentTarget.setAttribute('placeholder', '热门搜索：新月枕');
             }
         },
 

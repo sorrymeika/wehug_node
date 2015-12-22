@@ -25,7 +25,7 @@ module.exports = Activity.extend({
         self.swipeRightBackAction = self.route.query.from || '/';
 
         var id = self.route.data.id;
-        var m = /(order|month|activity|package|fastbuy|banner)(\d*)/.exec(id);
+        var m = /(order|month|activity|package|fastbuy|banner|coupon)(\d*)/.exec(id);
         var type = m[1];
         id = m[2];
 
@@ -78,6 +78,19 @@ module.exports = Activity.extend({
                 });
                 component.view = self;
                 component.$el.appendTo(self.$el);
+                break;
+            case 'coupon':
+                title = "优惠券规则";
+                self.$el.append(<div class="main" style="padding:20px;background:#fff;">
+                Q：如何使用优惠券？<br/>
+A：您可以在订单结算页面通过“使用优惠券”选项使用一张符合使用条件的优惠券，抵扣相应的金额。<br/>
+<br/>
+Q：什么是券码？<br/>
+A：用户可以通过ABS其他合作渠道获取兑换券码，兑换码可以在"我的优惠券”页兑换优惠券，抵扣相应金额。<br/>
+<br/>
+Q：优惠券的使用有什么其他限制吗？<br/>
+A：优惠券的使用时限、抵用限额及其他限制条件请详见优惠券上的文字描述。<br/>
+                    </div>);
                 break;
         }
 

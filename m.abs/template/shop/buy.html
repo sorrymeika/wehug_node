@@ -14,7 +14,7 @@
                 <li><span>商品价</span><em>¥{{prod_amount}}</em></li>
                 <li><span>优惠券</span><em>-¥{{couponprice||0}}</em></li>
                 <li><span>积分</span><em>-¥{{Points/100||0}}</em></li>
-                <li><span>运费</span><em>+¥{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),(Math.round(((freecouponcode || a >= 99) ? 0 : 15) * 100)/ 100)}}</em></li>
+                <li><span>运费</span><em>{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),((freecouponcode || a >= 99) ? '免运费' : ('+¥'+15))}}</em></li>
                 <li><span>总计</span><b>¥{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),(Math.round((a + ((freecouponcode || a >= 99) ? 0 : 15)) * 100)/ 100)}}</b></li>
             </ul>
         </div>

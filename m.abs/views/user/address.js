@@ -43,7 +43,7 @@ module.exports = Activity.extend({
         self.address = new api.AddressListAPI({
             $el: this.$el,
             params: {
-                pspcode: self.user.Mobile
+                pspcode: self.user.PSP_CODE
             },
             success: function (res) {
                 res.data.sort(function (a,b) {

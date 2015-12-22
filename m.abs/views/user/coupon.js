@@ -47,7 +47,12 @@ define(function (require, exports, module) {
 
     return Activity.extend({
         events: {
-
+            'tap .coupon_tip': function () {
+                util.store('showTipStep', 3);
+                this.model.set({
+                    showTipStep: 3
+                })
+            }
         },
 
         swipeRightBackAction: '/',
@@ -64,7 +69,8 @@ define(function (require, exports, module) {
             this.model = new model.ViewModel(this.$el, {
                 back: '/',
                 title: '我的卡券',
-                isOverdue: false
+                isOverdue: false,
+                showTipStep: util.store('showTipStep')
             });
 
             this.model.couponApi = new api.CouponAPI({
@@ -81,7 +87,7 @@ define(function (require, exports, module) {
                     });
                 },
                 params: {
-                    pspcode: self.user.Mobile
+                    pspcode: self.user.PSP_CODE
                 },
                 success: function (res) {
                     if (res.success) {
@@ -101,7 +107,7 @@ define(function (require, exports, module) {
                 $el: this.$el,
                 checkData: false,
                 params: {
-                    pspcode: self.user.Mobile
+                    pspcode: self.user.PSP_CODE
                 },
                 success: function (res) {
                     console.log(res);

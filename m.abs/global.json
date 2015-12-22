@@ -1,11 +1,11 @@
 {
     "debug": true,
     "dest": "./dest",
-    "api": "http://172.16.168.146:6005",
+    "api": "http://172.16.168.144:6005",
     "shopApi": "http://127.0.0.1:5559/proxy",
     "proxy": {
         "/proxy1/*": "appuser.abs.cn",
-        "/proxy/*": "appapi.abs.cn"
+        "/proxy/*": "appapi2.abs.cn"
     },
     "css": [
         "../webresource/m/images/style.css",

@@ -34,15 +34,24 @@ module.exports = Activity.extend({
         var listAPI = new api.StewardListAPI({
             $el: self.$el,
             params: $.extend({
-                pspid: self.user.ID,
-                pagesize: 10,
+                pspcode: self.user.PSP_CODE,
+                pageSize: 10,
                 currentpage: 1
+
             }, self.user.token),
-            
+
             success: function (res) {
-                console.log(res);
+                if (res.data.length >= 10) {
+                    res.total = (this.pageIndex + 1) * parseInt(this.pageSize)
+                }
                 
                 self.model.set(res);
+            },
+
+            append: function (res) {
+                if (res.data.length == 10) res.total = (this.pageIndex + 1) * parseInt(this.pageSize);
+
+                self.model.getModel('data').add(res.data);
             }
         });
         listAPI.load();

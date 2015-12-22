@@ -33,14 +33,13 @@ define(function (require, exports, module) {
                 back: self.swipeRightBackAction,
                 title: '确认订单',
                 payType: 1,
-                couponprice: 0,
-                Points: self.route.query.points ? parseInt(self.route.query.points) : 0
+                couponprice: 0
             });
 
             var address = new api.AddressListAPI({
                 $el: this.$el,
                 params: {
-                    pspcode: self.user.Mobile
+                    pspcode: self.user.PSP_CODE
                 },
                 checkData: false,
                 success: function (res) {
@@ -67,7 +66,7 @@ define(function (require, exports, module) {
             });
 
             self.cart.setParam({
-                pspcode: self.user.Mobile
+                pspcode: self.user.PSP_CODE
             });
 
             self.orderCreateApi = new api.OrderCreateAPI({
@@ -89,7 +88,7 @@ define(function (require, exports, module) {
                 success: function (res) {
                     if (res.success) {
                         sl.tip("生成订单成功！");
-                        self.setResult('OrderChange').setResult('ResetCoupon');
+                        self.setResult('OrderChange').setResult('ResetCart');
 
                         self.forward('/myorder?id=' + res.pur_id);
 
@@ -140,7 +139,7 @@ define(function (require, exports, module) {
             });
 
             self.orderCreateApi.setParam({
-                pspcode: self.user.Mobile,
+                pspcode: self.user.PSP_CODE,
                 pay_type: 1,
                 coupon: this.model.getState('coupon'),
                 points: self.route.query.points,
@@ -150,6 +149,7 @@ define(function (require, exports, module) {
             self.model.set({
                 couponprice: self.route.query.couponprice ? parseInt(self.route.query.couponprice) : 0,
                 freecouponcode: self.route.query.freecoupon,
+                Points: self.route.query.points ? parseInt(self.route.query.points) : 0
             });
 
             self.cart.load();

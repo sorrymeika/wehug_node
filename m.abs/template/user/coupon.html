@@ -3,7 +3,7 @@
     <div class="head_title">{{title}}</div>
 </header>
 <div class="main uc_coupon">
-    <div class="uc_coupon_help">使用规则</div>
+    <div class="uc_coupon_help" style="font-size:3rem;margin-top:15px;" data-forward="/news/coupon?from=/coupon">使用规则</div>
     <div class="uc_coupon_get">
         <input type="text" sn-model="code" placeholder="请输入券码" />
         <b class="btn" sn-tap="this.couponApi.load()">我要领券</b>
@@ -38,3 +38,5 @@
         <div class="btn" data-forward="/all?from=/coupon">去逛逛吧</div>
     </div>
 </div>
+
+<div class="coupon_tip" sn-display="{{showTipStep==2}}"></div>

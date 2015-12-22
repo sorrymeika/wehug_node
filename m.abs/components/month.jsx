@@ -28,7 +28,7 @@ var Month = model.ViewModel.extend({
 			id: item.PRH_ID
 			
 		}).load();
-		
+        
 		this.size.set({
 			data: item
 			
@@ -104,9 +104,7 @@ var Month = model.ViewModel.extend({
 				var item = util.first(res.data, function (item) {
 					return item.PRD_ID == data.PRD_ID;
 				});
-				console.log(item);
-				
-				console.log(self.data.id);
+				console.log(res.data);
 				
 				self.size.set({
 					freid: self.data.id,

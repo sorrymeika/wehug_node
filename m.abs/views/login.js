@@ -104,6 +104,10 @@ define(function (require, exports, module) {
                     if (!res.success)
                         sl.tip(res.msg);
                     else {
+                        if (res.msg == "HAS_BIND") {
+                            sl.tip('您已经绑定过了哦');
+                        }
+
                         util.store('user', res.data);
 
                         self.getUser.setParam({

@@ -54,10 +54,13 @@
             <em sn-display="{{Points}}"><b>-¥{{Points/100}}</b></em>
             <em sn-display="{{!Points}}"><b>{{user.Points}}</b>积分可用</em>
         </li>
-        <li class="link js_use_freecard"><span>运费</span><em sn-display="{{freecouponcode.CSV_CODE}}"><b>已选1张</b></em> <em sn-display="{{freeCount}}"><b>{{freeCount||0}}</b>张免邮卡可用</em>
-            <em sn-display="{{!freeCount}}"><b>¥{{var a=Math.max(0,bag_amount-(couponcode.VCA_DEDUCT_AMOUNT||0)-(Points/100)),(Math.round(((freecouponcode.CSV_CODE || a >= 99) ? 0 : 15) * 100)/ 100)}}</b></em>
+        <li class="link js_use_freecard" sn-display="{{freeCount&&this.getPrice(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points)<99}}">
+            <span>选择免邮卡</span>
+            <em sn-display="{{freecouponcode.CSV_CODE}}"><b>已选1张</b></em> <em sn-display="{{!freecouponcode.CSV_CODE}}"><b>{{freeCount||0}}</b>张免邮卡可用</em></li>
+        <li><span>运费</span>
+            <em><b>{{this.getFreight(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points,freecouponcode.CSV_CODE)}}</b></em>
         </li>
-        <li><span>总计</span><em><b class="price">￥{{var a=Math.max(0,bag_amount-(couponcode.VCA_DEDUCT_AMOUNT||0)-(Points/100)),(Math.round((a+((freecouponcode.CSV_CODE || a >= 99) ? 0 : 15)) * 100)/ 100)}}</b></em></li>
+        <li><span>总计</span><em><b class="price">{{this.getTotal(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points,freecouponcode.CSV_CODE)}}</b></em></li>
     </ul>
 </div>
 <div class="my_nodata" sn-display="{{!loading&&util.isFalse(data_baglist)&&util.isFalse(data_package)}}" style="display:none">
@@ -74,21 +77,22 @@
     @this.helpers.list()
 </div>
 <footer class="ct_list_action">
-    <div class="total">总计：<b>￥{{var a=Math.max(0,bag_amount-(couponcode.VCA_DEDUCT_AMOUNT||0)-(Points/100)),(Math.round((a+((freecouponcode.CSV_CODE || a >= 99) ? 0 : 15)) * 100)/ 100)}}</b></div>
+    <div class="total">总计：<b>{{this.getTotal(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points,freecouponcode.CSV_CODE)}}</b></div>
     <div class="btn_buy js_buy">结 算</div>
 </footer>
 <div class="ct_coupon_wrap {{isShowCoupon?'':'out'}} js_coupon" style="display:none">
     <div class="ct_coupon">
-        <div class="ct_coupon_hd">选择优惠券</div>
-        <div class="ct_coupon_use">
+        <div class="ct_coupon_hd">{{couponType==4?"选择免邮卡":"选择优惠券"}}</div>
+        <div class="ct_coupon_use" sn-display="{{couponType!=4}}">
             <input type="text" placeholder="请输入券码" sn-model="code" />
             <b class="btn" sn-tap="this.couponGetApi.load()">使用</b>
         </div>
         <div class="ct_coupon_list">
             <div class="hd">已有优惠券</div>
-            <ul class="bd">
-                <li sn-repeat="item in coupon|filter:couponType==4?item.VCT_ID==4:(item.VCT_ID!=4)" class="{{(item.VCT_ID == 4 ? 'free' : item.VCT_ID == 2 ? 'vct2' : item.VCT_ID == 5 ? 'vct5' : '') + (item.IsOverdue ? ' dis' : '')}}"
+            <ul class="bd" sn-style="top: {{couponType==4?'106px':'146px'}}">
+                <li sn-repeat="item in coupon|filter:couponType==4?item.VCT_ID==4:(item.VCT_ID!=4)" class="{{(item.VCT_ID == 4 ? 'free' : item.VCT_ID == 2 ? 'vct2' : item.VCT_ID == 5 ? 'vct5' : '') + (item.IsOverdue ? ' dis' : '')+((couponType==4&&freecouponcode.CSV_CODE==item.CSV_CODE||couponType!=4&&couponcode.CSV_CODE==item.CSV_CODE)?' checked':'')}}"
                 sn-tap="this.useCoupon(item)">
+                    <i class="ico_check"></i>
                     <div class="price">{{util.currency(item.VCA_DEDUCT_AMOUNT,'')}}</div>
                     <div class="name">{{item.VCT_ID==4?'免邮卡':item.VCA_NAME}}</div>
                     <div class="time">有效期:{{item.IsOverdue?'已过期':(util.formatDate(item.CSV_START_DT,'yyyy/MM/dd')+'-'+util.formatDate(item.CSV_END_DT,'yyyy/MM/dd'))}}</div>

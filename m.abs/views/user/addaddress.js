@@ -152,7 +152,7 @@ module.exports = Activity.extend({
             check: false,
             checkData: false,
             params: {
-                pspcode: self.user.Mobile
+                pspcode: self.user.PSP_CODE
             },
             beforeSend: function () {
                 var address = self.model.get('address');

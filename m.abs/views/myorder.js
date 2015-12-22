@@ -176,7 +176,7 @@ define(function (require, exports, module) {
                 $el: this.$el,
                 checkData: false,
                 params: {
-                    pspcode: self.user.Mobile
+                    pspcode: self.user.PSP_CODE
                 },
                 success: function (res) {
                     if (res.success) {

@@ -22,7 +22,7 @@
 }
 .sp_all_cates {
 	min-height: 68px;
-	li { height: 34px; line-height: 34px; font-size: 3rem;
+	li { height: 34px; line-height: 34px; font-size: 3.2rem;
 		&:before {vertical-align: -2px;}
 	}
 }
@@ -40,7 +40,6 @@
 .pd_size_select li { width: auto; min-width: 70px; padding: 0 10px; }
 .pd_size_buy { margin: 0px; padding-left: 5px; padding-right: 5px; font-size: 3rem;}
 
-.ct_coupon_list li.free:before{ top: 16px; left: 12px; }
 .ct_list_item_con .qty input { border-radius: 0; }
 .sp_buy_hd { min-height: 86px; }
 .ct_list_wrap { padding-bottom: 50px;  }
@@ -69,8 +68,13 @@
 
 .ct_coupon_list {
 	.bd {top: 146px;}
+    li.free:before{ top: 16px; left: 12px; }
 	li.free .price {font-size: 0px;position: absolute;left: -30px;top: 50%;margin-top: -15px;display: inline-block;background: url("icon.png") no-repeat -240px -30px;background-size: 320px auto;width: 30px;height: 30px; margin-left: 0px;}
 	li.free .price:before { display: none;}
+    li:before { display: none; }
+    li.free:before { display: block; }
+    .ico_check {display: block; background: url(icon.png) no-repeat -240px -30px; background-size: 320px auto; width: 30px; height: 30px; position: absolute; left: -30px; top: 50%; margin-top: -15px;}
+    li.checked .ico_check { background-position: -210px -30px; }
 }
 .ct_coupon_use {
 	height: 48px;
@@ -112,13 +116,14 @@
 .myorder .con li .ft { height: 35px; }
 .myorder .con li .ft .btn_sml.btn_dark { background-color: #ccc; }
 
-.hm_shop_list_item .name {font-size: 2.4rem;max-height: 36px;overflow: hidden;}
+.hm_shop_list_item .name {font-size: 2.4rem;max-height: 36px;overflow : hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;}
 
 .sp_all_list_wrap {-webkit-overflow-scrolling:touch;overflow-x:auto;width:100%; display: block;}
 .sp_all_list_item {
 	padding-top: 6px; width: 120px;height: 120px; background: #fff; border: .5px solid #ccc;
 	img {width: 100%; height: auto; }
 	span { display: block; text-align: center; font-size: 3rem; height: 30px; line-height: 30px; color: #666; }
+    &.see_all { background:#fff url(seeall.png) no-repeat 0px 18px; background-size: 100% auto;  }
 }
 
  .od_share {
@@ -261,3 +266,9 @@
 
 .pd_slider { position: relative; p { display: none;} }
 .pd_slider.sold_out { p{ display: block; position: absolute;bottom: 3px; height: 50px; font-size: 3rem; text-align: center; background: rgba(0,0,0,.5); right: 0px; color: #fff; left: 0; padding-top: 8px; } }
+
+.uc_coupon_list li.dis { background: #ccc;  }
+.coupon_tip { position: absolute; top: 0; z-index: 2000; bottom: 0; right: 0; top: 0; left: 0; background: rgba(0, 0, 0, .7); }
+.coupon_tip:before { position: absolute; right: 20px; top: 62px; display: block; background: url(home_tip.png) no-repeat; content: ''; width: 117px; height: 96px; background-size: 100% auto; margin: 22px auto 2px auto; }
+
+.home_tip_mask:before { background-image: url(home_tip.png); }

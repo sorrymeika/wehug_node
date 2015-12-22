@@ -17,13 +17,13 @@ define(function (require, exports, module) {
                 var self = this;
                 var couponcode = this.model.get('couponcode');
                 var freecouponcode = this.model.get('freecouponcode');
-
+                
                 this.model.setState({
                     coupon: couponcode ? couponcode.CSV_CODE : '',
                     freecoupon: freecouponcode ? freecouponcode.CSV_CODE : ''
                 });
 
-                this.forward('/buy?coupon=' + (couponcode ? couponcode.CSV_CODE : '') + '&couponprice=' + (couponcode ? couponcode.VCA_DEDUCT_AMOUNT : '') + '&freecoupon=' + (freecouponcode ? freecouponcode.CSV_CODE : '') + '&points=' + this.model.get('Points') + '&from=' + encodeURIComponent(self.route.url));
+                this.forward('/buy?coupon=' + (couponcode && couponcode.CSV_CODE ? couponcode.CSV_CODE : '') + '&couponprice=' + (couponcode && couponcode.CSV_CODE ? couponcode.VCA_DEDUCT_AMOUNT : '') + '&freecoupon=' + (freecouponcode && freecouponcode.CSV_CODE ? freecouponcode.CSV_CODE : '') + '&points=' + this.model.get('Points') + '&from=' + encodeURIComponent(self.route.url));
             },
             'touchmove .ct_coupon_wrap': function (e) {
                 return false;
@@ -85,6 +85,25 @@ define(function (require, exports, module) {
 
             $.extend(self.model, {
 
+                getPrice: function (bag_amount, couponPrice, Points) {
+                    return Math.max(0, bag_amount - couponPrice - (Points / 100));
+                },
+
+                getFreight: function (bag_amount, couponPrice, Points, freecouponcode) {
+                    var price = Math.max(0, bag_amount - couponPrice - (Points / 100));
+                    var freight = ((price >= 99 || freecouponcode) ? 0 : 15);
+
+                    return price >= 99 ? "免邮费" : ('¥' + Math.round(freight * 100) / 100);
+                },
+
+                getTotal: function (bag_amount, couponPrice, Points, freecouponcode) {
+                    var price = Math.max(0, bag_amount - couponPrice - (Points / 100));
+                    var total = price + ((price >= 99 || freecouponcode) ? 0 : 15);
+                    console.log(price)
+
+                    return '¥' + (Math.round(total * 100) / 100);
+                },
+
                 usePoint: function (e, points) {
                     if (!points) {
                         self.model.set({
@@ -114,13 +133,24 @@ define(function (require, exports, module) {
                         return;
                     }
 
-                    self.model.set(coupon.VCT_ID == 4 ? {
-                        freecouponcode: coupon
-                    } : {
-                            couponcode: coupon
-                        }).set({
-                            isShowCoupon: false
+                    if (coupon.VCT_ID == 4) {
+                        this.set({
+                            freecouponcode: this.data.freecouponcode && this.data.freecouponcode.CSV_CODE == coupon.CSV_CODE
+                                ? null
+                                : coupon
                         });
+
+                    } else {
+                        this.set({
+                            couponcode: this.data.couponcode && this.data.couponcode.CSV_CODE == coupon.CSV_CODE
+                                ? null
+                                : coupon
+                        })
+                    }
+
+                    this.set({
+                        isShowCoupon: false
+                    });
                 }
             });
 
@@ -161,10 +191,11 @@ define(function (require, exports, module) {
             self.initModify();
             self.initDeletion();
 
-            this.onResult('ResetCoupon', function () {
+            this.onResult('ResetCart', function () {
                 self.model.set({
                     couponcode: null,
-                    freecouponcode: null
+                    freecouponcode: null,
+                    Points: 0
                 });
                 self.model.setState({
                     coupon: '',
@@ -177,7 +208,7 @@ define(function (require, exports, module) {
             var self = this;
             this.user = util.store('user');
             self.cart.setParam({
-                pspcode: self.user.Mobile
+                pspcode: self.user.PSP_CODE
             }).load();
         },
 
@@ -226,7 +257,7 @@ define(function (require, exports, module) {
                 $el: self.$el,
                 checkData: false,
                 params: {
-                    pspcode: self.user.Mobile
+                    pspcode: self.user.PSP_CODE
                 },
                 success: function (res) {
                     var spbId = this.getParam('spbId');
@@ -246,7 +277,7 @@ define(function (require, exports, module) {
                 $el: self.$el,
                 checkData: false,
                 params: {
-                    pspcode: self.user.Mobile
+                    pspcode: self.user.PSP_CODE
                 },
                 success: function (res) {
                     self.cart.reload();
@@ -297,7 +328,7 @@ define(function (require, exports, module) {
                     originQty: origin
 
                 }).setParam({
-                    pspcode: self.user.Mobile,
+                    pspcode: self.user.PSP_CODE,
                     spbId: item.SPB_ID,
                     qty: qty
                 }).load();
@@ -339,7 +370,7 @@ define(function (require, exports, module) {
                     });
                 },
                 params: {
-                    pspcode: self.user.Mobile
+                    pspcode: self.user.PSP_CODE
                 },
                 success: function (res) {
                     if (res.success) {

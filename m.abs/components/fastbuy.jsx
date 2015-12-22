@@ -132,7 +132,7 @@ var Month = model.ViewModel.extend({
 			checkData: false,
 			check: false,
 			params: {
-				pspcode: self.user.Mobile
+				pspcode: self.user.PSP_CODE
 			},
 			success: function (res) {
 				if (res.success) {
