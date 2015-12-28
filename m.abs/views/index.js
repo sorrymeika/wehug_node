@@ -301,15 +301,21 @@ module.exports = Activity.extend({
         }, 3200);
 
         self.onResult("Login", function () {
+            self.user = userModel.get();
+
+            self.model.set({
+                isOffline: false,
+                user: self.user
+            });
             self.doWhenLogin();
 
         }).onResult("UserChange", function () {
-
             self.requestUser();
 
         }).onResult("Logout", function () {
             self.model.set({
-                isLogin: false
+                isLogin: false,
+                user: null
             });
         }).onResult('CartChange', function () {
 
@@ -332,6 +338,11 @@ module.exports = Activity.extend({
         });
 
         self.shopApi.load();
+
+        setInterval(function () {
+            self.getUnreadMsg();
+
+        }, 10000);
 
     },
 
@@ -454,7 +465,7 @@ module.exports = Activity.extend({
     getUnreadMsg: function () {
         var self = this;
 
-        if (self.user) {
+        if (self.user && self.user.Auth) {
             $.post(bridge.url('/api/user/get_unread_msg_count'), {
                 UserID: self.user.ID,
                 Auth: self.user.Auth
@@ -478,8 +489,9 @@ module.exports = Activity.extend({
         });
 
         var load = function (token) {
+
             userModel.setParam({
-                IMEI: token || 'CAN_NOT_GET'
+                IMEI: !token ? 'CAN_NOT_GET' : (typeof token == 'string' ? token : token.imei)
             });
             self.requestUser();
         }
@@ -488,6 +500,7 @@ module.exports = Activity.extend({
     },
 
     onLoad: function () {
+
         if (this.user) {
             this.showEnergy();
             this.doWhenLogin();
@@ -498,8 +511,6 @@ module.exports = Activity.extend({
         var self = this;
 
         this.setResult('ResetCart');
-
-        self.getUnreadMsg();
 
         this.guideSlider && this.guideSlider._adjustWidth();
     },

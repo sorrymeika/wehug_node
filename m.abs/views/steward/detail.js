@@ -40,7 +40,9 @@ define(function (require, exports, module) {
 
             var detailAPI = new api.StewardDetailAPI({
                 $el: self.$el,
+                checkData: false,
                 params: $.extend({
+                    pspcode: self.user.PSP_CODE,
                     detail_id: self.model.get('id')
 
                 }, self.user.token),

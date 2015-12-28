@@ -24,13 +24,13 @@ var Month = model.ViewModel.extend({
 					<div class="pd_size_select">
 						<div class="hd">尺码</div>
 						<ul>
-							<li sn-repeat="item in spec" class="{{data.PRD_SPEC==item?'curr':''}}" sn-tap="data.PRD_SPEC=item">{{item.split('|')[0]}}</li>
+							<li sn-repeat="item in spec" class="{{data.PRD_SPEC==item?'curr':''}}" sn-tap="this.setSpec(item)">{{item.split('|')[0]}}</li>
 						</ul>
 					</div>
 					<div class="pd_size_select">
 						<div class="hd">颜色分类</div>
 						<ul>
-							<li sn-repeat="item in color" class="{{data.PRD_COLOR==item?'curr':''}}" sn-tap="data.PRD_COLOR=item">{{item}}</li>
+							<li sn-repeat="item in color" class="{{data.PRD_COLOR==item?'curr':''}}" sn-tap="this.setColor(item)">{{item}}</li>
 						</ul>
 					</div>
 				</div>
@@ -44,13 +44,35 @@ var Month = model.ViewModel.extend({
 				<b class="btn_large btn_confirm" sn-tap="this.confirm()">{{btn||'确认'}}</b>
 			</div>
 		</div>,
-	
+    
+	setSpec: function(e, item) {
+        this.set("data.PRD_SPEC",item);
+        this.onChange();
+    },
+    
+    setColor: function(e, item) {
+        this.set("data.PRD_COLOR",item);
+        this.onChange();
+    },
+    
+    onChange: function(){
+        var self = this;
+		var colorSpec = self.get('colorSpec');
+		var data = self.get('data');
+        
+		var item = util.first(colorSpec, function (item) {
+			return item.PRD_SPEC == data.PRD_SPEC && item.PRD_COLOR == data.PRD_COLOR;
+		});
+        this.trigger("SizeChange", item);
+    },
+    
 	show: function(){
 		this.$el.show();
 		this.set({               
 			isShowSize: true
 		});
 	},
+    
 	confirm :function (e) {
 		var self = this;
 		var colorSpec = self.get('colorSpec');
@@ -65,6 +87,11 @@ var Month = model.ViewModel.extend({
 		} else {
             
             self.set({data:item});
+            
+            if (item.PRD_NUM===0){
+                sl.tip('该商品已售罄');
+                return;
+            }
             
 			self.cartAddAPI.setParam({
 				prd: item.PRD_ID,

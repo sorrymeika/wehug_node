@@ -656,12 +656,34 @@
     }
 
     Collection.prototype.remove = function (start, count) {
-        var models = this.models.splice(start, count || 1);
-        this.data.splice(start, count || 1);
+        var models;
 
-        for (var i = 0, len = this.repeats.length; i < len; i++) {
-            this.repeats[i].remove(start, count);
+        if (typeof start == 'function') {
+            models = [];
+            for (var i = this.models.length - 1; i >= 0; i--) {
+                if (start.call(this, this.models[i], i)) {
+                    models.push(this.models.splice(i, 1)[0]);
+                    this.data.splice(i, 1);
+                }
+            }
+
+            for (var i = 0, len = this.repeats.length; i < len; i++) {
+                this.repeats[i].remove(function (el) {
+                    return models.indexOf(el.model) != -1;
+                });
+            }
+
+        } else {
+            if (!count) count = 1;
+
+            models = this.models.splice(start, count);
+            this.data.splice(start, count);
+
+            for (var i = 0, len = this.repeats.length; i < len; i++) {
+                this.repeats[i].remove(start, count);
+            }
         }
+
         this._triggerChangeEvent();
         this.trigger('remove', models);
     }
@@ -684,6 +706,7 @@
             if (data.length < modelsLen) {
                 this.remove(data.length, modelsLen - data.length)
             }
+
             var i = 0;
             this.each(function (model) {
                 model.set(true, data[i]);
@@ -863,7 +886,6 @@
                             break;
                         case 'sn-style':
                         case 'style':
-                            console.log(val);
                             el.style.cssText += val;
                             break;
                         default:
@@ -879,7 +901,6 @@
             if (!rmatch.test(expression)) return;
 
             var listen = function (e, model) {
-
                 if (!repeat) {
                     self._setElAttr(node, attr);
 
@@ -888,6 +909,7 @@
                         var el = node._elements[i];
 
                         if (model == this || model.isRelativeToEl(el)) {
+
                             self._setElAttr(el, attr);
                         }
                     }

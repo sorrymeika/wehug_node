@@ -9,7 +9,7 @@
         <li class="{{orderBy=='PRD_MEMBER_PRICE|asc'?'curr asc':orderBy=='PRD_MEMBER_PRICE|desc'?'curr desc':''}}" sn-tap="this.orderBy(priceSort?'PRD_MEMBER_PRICE|desc':'PRD_MEMBER_PRICE|asc'),priceSort=!priceSort">价格</li>
     </ul>
     <ul class="sp_list">
-        <li sn-repeat="item in data" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}">
+        <li sn-repeat="item in data" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}?from={{url}}">
             <img src="{{item.WPP_LIST_PIC1}}"/>
             <p class="price"><b>￥{{item.PRD_PRICE}}</b><del sn-display="{{item.PRD_PRICE!=0&&item.PRD_PRICE<item.PRD_MEMBER_PRICE}}">￥{{item.PRD_MEMBER_PRICE}}&nbsp;</del></p>
             <p class="name">{{item.PRD_NAME}}</p>

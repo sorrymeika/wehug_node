@@ -1,7 +1,6 @@
-﻿define(['$', 'util', 'bridge', './../core/view'], function (require, exports, module) {
+﻿define(function (require, exports, module) {
     var $ = require('$'),
         _ = require('util'),
-        view = require('./../core/view'),
         app = require('bridge');
 
     var extend = ['$el', 'url', 'method', 'headers', 'dataType', 'xhrFields', 'beforeSend', 'success', 'complete', 'pageIndex', 'pageSize', 'append', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];

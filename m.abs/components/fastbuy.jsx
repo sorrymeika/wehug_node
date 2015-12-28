@@ -7,7 +7,7 @@ var util = require('util');
 var Month = model.ViewModel.extend({
 	el: <div class="main"><div class="sp_fastbuy" style="margin-bottom:10px">
 		<dl sn-repeat="item in data" class="repeat">
-			<dt><b></b><i>{{util.formatDate(item.time,item.timeLeft?'MM月dd日 HH:mm':'MM月dd日 即将开始')}}</i><span sn-display="{{item.timeLeft}}">还剩<em>{{item.timeLeft}}</em></span></dt>
+			<dt><b></b><i>{{util.formatDate(item.time,item.timeLeft?'MM月dd日 HH:mm':'MM月dd日 即将开始')}}</i><span sn-display="{{item.timeLeft}}">{{item.timeLeft.indexOf('-')!=0?'还剩':''}}<em>{{item.timeLeft.indexOf('-')==0?'已结束':item.timeLeft}}</em></span></dt>
 			<dd sn-repeat="prod in item.data">
 				<img src="{{prod.WPP_LIST_PIC}}" sn-tap="this.goto(prod)">
 				<div class="con">
@@ -18,7 +18,7 @@ var Month = model.ViewModel.extend({
 					</p>
 					<p class="fast_btn">
 						<span>仅限<em>{{prod.flp_stock}}</em>件</span>
-						<b class="btn{{!prod.qty||(item.timeLeft&&item.timeLeft.indexOf('-')==0)?' over':''}}" sn-tap="this.goto(prod)">{{!prod.qty?'已抢完':(item.timeLeft?(item.timeLeft.indexOf('-')!=0?'立即抢购':'已结束'):'即将开始')}}</b>
+						<b class="btn{{!prod.qty||(item.timeLeft&&item.timeLeft.indexOf('-')==0)?' over':''}}" sn-tap="this.goto(prod)">{{(item.timeLeft?(item.timeLeft.indexOf('-')!=0?(!prod.qty?'已抢完':'立即抢购'):'已结束'):'即将开始')}}</b>
 					</p>
 				</div>
 			</dd>
@@ -122,6 +122,7 @@ var Month = model.ViewModel.extend({
 							data: [prodInfo]
 						});
 					}
+                    
 				}
 				
 				setInterval(function(){

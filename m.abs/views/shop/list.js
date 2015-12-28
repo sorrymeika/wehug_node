@@ -33,7 +33,8 @@ define(function (require, exports, module) {
                 back: self.swipeRightBackAction,
                 title: cate ? cate.PCG_NAME : '商品列表',
                 orderBy: 'PRD_ONLINE_DT|desc',
-                priceSort: true
+                priceSort: true,
+                url: encodeURIComponent(self.route.url)
             });
 
             self.model.orderBy = function (e, orderBy) {

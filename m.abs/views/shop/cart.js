@@ -192,8 +192,6 @@ define(function (require, exports, module) {
                         freeCount: freeCount,
                         couponCount: couponCount
                     });
-
-                    console.log(res);
                 }
             });
 
@@ -241,11 +239,16 @@ define(function (require, exports, module) {
                 width: 45,
                 events: {
                     '.js_delete': function (e) {
-
                         var $target = $(e.currentTarget);
                         var id = $target.data('id');
 
                         if (id) {
+                            var data = $.extend(true, {}, self.model.data);
+
+                            self.model.getModel('data_baglist').remove(function (model) {
+                                return model.get('SPB_ID') == id;
+                            });
+
                             self.cartDeleteApi.setParam({
                                 spbId: id
 
@@ -274,8 +277,8 @@ define(function (require, exports, module) {
 
                     self.setResult('CartChange');
 
-                    self.model.getModel('data_baglist').remove(function (el) {
-                        return el.model.get('SPB_ID') == spbId;
+                    self.model.getModel('data_baglist').remove(function (model) {
+                        return model.get('SPB_ID') == spbId;
                     });
 
                     self.cart.reload();

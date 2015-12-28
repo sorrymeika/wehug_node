@@ -87,15 +87,32 @@
         <div class="main hm_tab_con" style="-webkit-transform:translate3d({{tab==1?0:100}}%,0%,0);display:{{bottomTab==0?'block':'none'}}"
         data-index="1">
             <div class="hm_shop">
+                <div class="hm_cate" data-forward="/all">
+                    <div class="hd">所有<br>商品</div>
+                    <div class="bd">
+                        <ul>
+                            <li>出行</li>
+                            <li>睡眠</li>
+                            <li>美食</li>
+                            <li>沐浴</li>
+                        </ul>
+                        <ul>
+                            <li>休闲</li>
+                            <li>家务</li>
+                            <li>空间</li>
+                            <li>儿童</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="banner">
+                    <img src="http://appuser.abs.cn/dest/images/banner1.jpg" data-forward="/news/banner" />
+                </div>
                 <ul class="hm_shop_cate">
                     <li data-forward="/list?type=new&from=%2f"><i></i>新品<br>上市</li>
                     <li data-forward="/news/activity2"><i></i>最热<br>商品</li>
                     <li data-forward="/news/fastbuy?from=%2f"><i></i>周一<br>闪购</li>
                     <li data-forward="/news/activity3"><i></i>APP<br>专享</li>
                 </ul>
-                <div class="banner">
-                    <img src="http://appuser.abs.cn/dest/images/banner1.png" data-forward="/news/banner" />
-                </div>
                 <div sn-repeat="item in activity">
                     <div class="hm_shop_banner" data-forward="/item/{{item.PrdId}}?from=%2f"><img src="{{item.PrdImg}}" /></div>
                     <div class="hm_shop_scroll" style="padding-right:10px;">

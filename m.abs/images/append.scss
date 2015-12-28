@@ -5,6 +5,23 @@
 .hm_cards li:nth-child(4) i:before, .hm_shop_cate li:nth-child(4) i:before{
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAYAAACOEfKtAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDY3IDc5LjE1Nzc0NywgMjAxNS8wMy8zMC0yMzo0MDo0MiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgTWFjaW50b3NoIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjE3MkRERUY5OEMyQzExRTVCOEJEOTFDRUIxQjRCQjk0IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjE3MkRERUZBOEMyQzExRTVCOEJEOTFDRUIxQjRCQjk0Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6MTcyRERFRjc4QzJDMTFFNUI4QkQ5MUNFQjFCNEJCOTQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6MTcyRERFRjg4QzJDMTFFNUI4QkQ5MUNFQjFCNEJCOTQiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5vWJIKAAACc0lEQVR42uycvUoDQRSFM8YkmsSIhaAQsLD1B2z0AfQBFCyE+AQBW42ioI32CoIWYmVhG6ytFDsVWztBQRsVC39wvBfu4qJGsslmJzt7Dhx2zJqZ2W/nzp3NJqu01jGodrUAAQACIAACIASAAAiAlZQm75KfydqQue0d6YuvUgEspLfIxSYZMJvkubAB5LOfJV+R7wyB6yEPSF9yvtbMABtsRwumhh237eqHr8eHJIIsbFatAYfSCG2CDuUNawCSesnTAbe5bxNARx/k4wprxlQd9XK2T5CT5Lx1IezSi1JqooFTxSBtLpFE/FPOBoBZgwCVDQDjWAdCAAiAAGh0+WQNwAwAQgAIgAAIgGFRwgaASYMA0zYAbEcI+yitdRwA61MWACEABEAABEAAhAAwkgAVANanXIBtZWwAmDN4slptAGhFyCKJACAAAiAEgAAIgGbXhbiUA0CEMI4zaIBtBgF22AAwhaEN/ZLJr9oeaa3fGlR3MgoA8xiB3nVLPvT4nm7ymJRPyQ81tNk4BfiT/7LHfvHzHNbIr646uLzK+zzWVY7iT/4Xycs/5jMur5CXkIX/HzF8E6gkf3KiWRc7SYcfIpGN4hxYrYZj33fStpVSiwKWP4Aoyr4h8glG4N9yL2+6KlxRvGMEVtYF+V4y8KwrXCdly/vOozYHVp05KWR5dM273jclduqYl/8xfh3etDfWCdAebQrkG9fLXC7Ivqa4Dg/i2VlPMnfxc6vOajzJ/VK+Jn/WUMeo9IH70hm2OZBHy5wcwHiddfX50JfQJZGSLIBn/D77HvRIPnCtLUMVwlYLnwcCIAACIABCAGhKXwIMAIWlz8+YINLCAAAAAElFTkSuQmCC) no-repeat 0px 0px; background-size: 40px auto;
 }
+.hm_cate {
+    display: -webkit-box;width: 100%;border-top: 1px solid #ddd; text-align: center;background: #fff;
+    .hd { 
+        width: 50px; height: 70px; position: relative;color: #f60; font-weight: bold; padding-top: 10px; line-height: 1.6;
+        &:before { display: block; content: ""; width: 14px; height: 18px; background: url(icon_leaf.png) no-repeat; background-size: 100% auto; position: absolute; right: 0px; top: 6px; }
+    }
+    .bd {
+        height: 70px;-webkit-box-flex: 1;
+        ul { display: -webkit-box; height: 35px;line-height: 35px;font-size: 3rem;
+            &:first-child{ border-bottom: 1px solid #ddd;}
+        }
+        li {width: 0px;-webkit-box-flex: 1; border-left: 1px solid #ddd;}
+    }
+}
+.hm_shop_banner {
+    img { min-height: 30px; }
+}
 .uc_month_slider { 
 	width: 80%; margin-left: 10%; 
 	.slider { overflow: visible; }
@@ -73,6 +90,7 @@
 
 .ct_coupon_list {
 	.bd {top: 146px;}
+    li .name {overflow: hidden;height: 14px;}
     li.free:before{ top: 16px; left: 12px; }
 	li.free .price {font-size: 0px;position: absolute;left: -30px;top: 50%;margin-top: -15px;display: inline-block;background: url("icon.png") no-repeat -240px -30px;background-size: 320px auto;width: 30px;height: 30px; margin-left: 0px;}
 	li.free .price:before { display: none;}

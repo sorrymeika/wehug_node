@@ -27,7 +27,11 @@ define(function (require, exports, module) {
                 this.loading.setParam({
                     mobile: mobile,
                     smsCode: smsCode,
-                    invitedCode: this.model.data.invitedCode
+                    invitedCode: this.model.data.invitedCode,
+                    platform: navigator.platform,
+                    deviceVersion: (util.ios ? "IOS " : "Android ") + util.osVersion,
+                    version: sl.appVersion
+
                 }).load();
             },
             'tap .js_valid:not(.disabled)': function (e) {
@@ -99,10 +103,13 @@ define(function (require, exports, module) {
                         if (res.msg == "HAS_BIND") {
                             sl.tip('您已经绑定过了哦');
                         }
+                        var backUrl = self.route.query.success || '/';
 
                         userModel.set(res.data).request(function () {
-                            self.setResult("Login");
-                            self.back(self.route.query.success || '/');
+                            self.back(backUrl);
+                            setTimeout(function () {
+                                self.setResult("Login");
+                            }, 0);
                         });
                     }
                 },

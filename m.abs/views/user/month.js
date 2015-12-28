@@ -66,7 +66,7 @@
 
                     self.slider = new Slider(self.$slider, {
                         itemTemplate: '<p class="img<%=CanGet?" canget js_canget":""%><%=Overdue?" disabled":""%>" data-id="<%=FRE_ID%>">\
-                                    <img src="<%=FRE_TITLE_PIC%>" />\
+                                    <img src="<%=FRE_TITLE_PIC||"http://appuser.abs.cn/dest/images/coming_soon.png"%>" />\
                                 </p>\
                                 <span><%=Month%>月</span>',
                         data: res.data,

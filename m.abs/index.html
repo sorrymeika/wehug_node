@@ -54,7 +54,7 @@
             sl.isDebug=@debug;
             sl.buildVersion=@(Date.now());
             sl.isInApp=util.isInApp=!!matchUA;
-            sl.appVersion=matchUA?matchUA[1]:'1.0.2';
+            sl.appVersion=matchUA?matchUA[1]:'1.0.3';
             sl.$globalOffline=$('.js_global_offline');
             sl.offline=function(reloadFn){
                 sl.$globalOffline.show().find('.btn').one('tap',function(){

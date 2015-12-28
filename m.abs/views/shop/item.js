@@ -49,6 +49,15 @@ define(function (require, exports, module) {
             self.size = new Size();
 
             self.size.$el.appendTo(self.$el);
+            
+            self.size.on('SizeChange', function (e, item) {
+                
+                self.model.set({
+                    data: {
+                        PRD_NUM: item.PRD_NUM
+                    }
+                })
+            });
 
             var product = new api.ProductAPI({
                 $el: self.$el,
