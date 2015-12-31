@@ -4,8 +4,8 @@
     "api": "http://127.0.0.1:5559/proxy1",
     "shopApi": "http://127.0.0.1:5559/proxy",
     "proxy": {
-        "/proxy1/*": "appuser2.abs.cn",
-        "/proxy/*": "appapi2.abs.cn"
+        "/proxy1/*": "appuser.abs.cn",
+        "/proxy/*": "appapi.abs.cn"
     },
     "css": [
         "../webresource/m/images/style.css",

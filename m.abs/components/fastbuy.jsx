@@ -46,9 +46,16 @@ var Month = model.ViewModel.extend({
 		if (+dateFrom>Date.now()||time) return '';
 		
 		var time=(+dateTo)-Date.now();
+        
+        if (time<0)
+            return '-';
+        
 		var days=parseInt(time/(24*60*60*1000));
+        
 		time=time%(24*60*60*1000);
+        
 		var hours=parseInt(time/(60*60*1000));
+        
 		time=time%(60*60*1000);
 		var minutes=parseInt(time/(60*1000));
 		time=time%(60*1000);
