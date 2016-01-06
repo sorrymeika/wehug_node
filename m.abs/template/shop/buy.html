@@ -22,12 +22,12 @@
             <div class="hd">支付方式</div>
             <ul>
                 <li class="ico_alipay{{payType==1?' checked':''}}" sn-tap="payType=1">支付宝支付</li>
-                <!-- <li class="ico_wxpay{{payType==2?' checked':''}}" sn-tap="payType=2">微信支付</li>-->
+                <li class="ico_wxpay{{payType==2?' checked':''}}" sn-tap="payType=2">微信支付</li>
             </ul>
         </div>
     </div>
 </div>
 <footer class="sp_buy_action">
     <div class="total">总计：<b>{{this.getTotal(bag_amount,$state.selectedCoupon,Points||0,$state.selectedFreeCoupon)}}</b></div>
-    <div class="btn_buy js_buy">结 算</div>
+    <div class="btn_buy js_buy">立即支付</div>
 </footer>

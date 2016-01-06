@@ -112,10 +112,15 @@ define(function (require, exports, module) {
                             .setResult('ResetCart')
                             .setResult('UserChange');
 
-                        self.forward('/myorder?id=' + res.pur_id);
-
                         if (self.model.get('payType') == 1) {
-                            bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + res.pur_id + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
+                            bridge.ali({
+                                type: 'pay',
+                                spUrl: api.API.prototype.baseUri + '/AlipayApp/Pay',
+                                orderCode: res.code
+
+                            }, function (res) {
+                                sl.tip(res.msg);
+                            });
 
                         } else {
                             bridge.wx({
@@ -129,6 +134,8 @@ define(function (require, exports, module) {
                                 sl.tip(res.msg);
                             });
                         }
+
+                        self.forward('/order/' + res.pur_id);
                     }
                 },
                 error: function (res) {

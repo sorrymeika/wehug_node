@@ -64,6 +64,9 @@
             };
             var loading=new Loading({
                 url: bridge.url('/api/settings/resourceMapping'),
+                params: {
+                    v: sl.appVersion
+                },
                 timeout: 5000,
                 checkData: false,
                 $el: $('body'),
@@ -74,7 +77,8 @@
                     var resourceMapping=res.data;
                     seajs.on('fetch', function (emitData) {
                         var id = emitData.uri.replace(seajs.data.base, '').replace(/\.js(\?.*)*/, '');
-
+                        
+                        if (resourceMapping&&resourceMapping[id]) emitData.requestUri = resourceMapping[id];
                         
                     });
                     seajs.on("error", function(errorData){

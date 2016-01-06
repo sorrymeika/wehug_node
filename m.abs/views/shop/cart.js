@@ -152,8 +152,37 @@ define(function (require, exports, module) {
                                 : coupon
                         });
 
+                    } else if (coupon.VCT_ID == 5) {
+                        var usedCoupons = this.data.usedCoupons || [];
+                        var index = util.indexOf(usedCoupons, function (item) {
+                            return item.CSV_CODE == coupon.CSV_CODE;
+                        });
+
+                        if (index != -1) {
+                            usedCoupons.splice(index, 1);
+                        } else {
+                            usedCoupons.push(coupon);
+                        }
+                        
+                        var codes = [];
+                        var amount = 0;
+                        usedCoupons.forEach(function (item) {
+                            codes.push(item.CSV_CODE);
+                            amount += item.VCA_DEDUCT_AMOUNT;
+                        });
+                        
+                        this.set({
+                            usedCoupons: usedCoupons,
+                            couponcode: {
+                                VCT_ID: 5,
+                                VCA_DEDUCT_AMOUNT: amount,
+                                CSV_CODE: codes.join(',')
+                            }
+                        });
+
                     } else {
                         this.set({
+                            usedCoupons: [],
                             couponcode: this.data.couponcode && this.data.couponcode.CSV_CODE == coupon.CSV_CODE
                                 ? null
                                 : coupon

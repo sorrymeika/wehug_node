@@ -90,7 +90,7 @@
         <div class="ct_coupon_list">
             <div class="hd">已有优惠券</div>
             <ul class="bd" sn-style="top: {{couponType==4?'106px':'146px'}}">
-                <li sn-repeat="item in coupon|filter:couponType==4?item.VCT_ID==4:(item.VCT_ID!=4)" class="{{(item.VCT_ID == 4 ? 'free' : item.VCT_ID == 2 ? 'vct2' : item.VCT_ID == 5 ? 'vct5' : '') + (item.IsOverdue ? ' dis' : '')+((couponType==4&&freecouponcode.CSV_CODE==item.CSV_CODE||couponType!=4&&couponcode.CSV_CODE==item.CSV_CODE)?' checked':'')}}"
+                <li sn-repeat="item in coupon|filter:couponType==4?item.VCT_ID==4:(item.VCT_ID!=4)" class="{{(item.VCT_ID == 4 ? 'free' : item.VCT_ID == 2 ? 'vct2' : item.VCT_ID == 5 ? 'vct5' : '') + (item.IsOverdue ? ' dis' : '')+((couponType==4&&freecouponcode.CSV_CODE==item.CSV_CODE||couponType!=4&&couponcode.CSV_CODE.indexOf(item.CSV_CODE)!=-1)?' checked':'')}}"
                 sn-tap="this.useCoupon(item)">
                     <i class="ico_check"></i>
                     <div class="price">{{util.currency(item.VCA_DEDUCT_AMOUNT,'')}}</div>

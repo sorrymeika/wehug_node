@@ -199,7 +199,7 @@
             }
         },
 
-        el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div><canvas class="imagecanvas"></canvas><input type="text" style="position:absolute;height:20px;top: -20px;left:0px;box-sizing: border-box;">',
+        el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div>',
 
         backGesture: true,
 

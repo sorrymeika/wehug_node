@@ -1,11 +1,11 @@
 {
     "debug": true,
     "dest": "./dest",
-    "api": "http://127.0.0.1:5559/proxy1",
-    "shopApi": "http://127.0.0.1:5559/proxy",
+    "api": "http://172.16.168.179:6005",
+    "shopApi": "http://10.0.74.76:5559/proxy",
     "proxy": {
-        "/proxy1/*": "appuser.abs.cn",
-        "/proxy/*": "appapi.abs.cn"
+        "/proxy1/*": "appuser2.abs.cn",
+        "/proxy/*": "appapi2.abs.cn"
     },
     "css": [
         "../webresource/m/images/style.css",
@@ -30,8 +30,8 @@
             "shopApi": "http://appapi.abs.cn"
         },
         "test": {
-            "api": "http://appuser.abs.cn",
-            "shopApi": "http://appapi.abs.cn"
+            "api": "http://appuser2.abs.cn",
+            "shopApi": "http://appapi2.abs.cn"
         },
         "debug": {
             "api": "http://10.0.79.244:5559/proxy1",

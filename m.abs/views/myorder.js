@@ -79,38 +79,13 @@ define(function (require, exports, module) {
                     e.stopPropagation();
                 },
                 openOrder: function (e, order) {
-                    if ($(e.target).hasClass('btn_sml')) return;
+                    if ($(e.target).hasClass('btn_sml') && $(e.target).html() != '立即付款') return;
 
                     if (order.PUS_DESC == '待付款') {
-                        /*
-                        self.wxPayApi.setParam({
-                            order_no: order.PUR_CODE
-                        }).load();
-                        
-                         bridge.wx({
-                            type: 'pay',
-                            spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
-                            orderCode: order.PUR_CODE,
-                            orderName: 'ABS商品',
-                            orderPrice: order.PUR_AMOUNT
-                        }, function (res) {
-                            sl.tip(res.msg);
-                        });
-                        */
-                        self.orderStatusAPI.showLoading();
 
-                        setTimeout(function () {
-                            self.orderStatusAPI.hideLoading();
-                        }, 10000);
+                        self.forward('/order/' + order.PUR_ID);
 
-                        bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + order.PUR_ID + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
-
-                        /*
-                                                if (!IFRAME) {
-                                                    IFRAME = $('<iframe name="__order" style="width:0px;height:0px;"></iframe>').appendTo('body');
-                                                }
-                                                IFRAME.attr('src', api.API.prototype.baseUri + '/AlipayDirect/Pay/' + order.PUR_ID + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
-                                                */
+                        //bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + order.PUR_ID + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
                     }
                     e.stopPropagation();
                 },
@@ -194,38 +169,11 @@ define(function (require, exports, module) {
                 }
             });
 
-            self.orderStatusAPI = new api.OrderStatusAPI({
-                $el: this.$el,
-                success: function (res) {
-                    if (res.status == 0) {
-                        self.timer = setTimeout(function () {
-                            //self.checkStatus();
-                        }, 1500);
-
-                    } else if (res.status == 3) {
-                        //self.forward("/news/order" + self.route.query.id);
-                    }
-                }
-            });
+            
         },
-
-        checkStatus: function () {
-            var self = this;
-
-            self.timer && clearTimeout(self.timer);
-
-            if (self.route.query.id) {
-                self.orderStatusAPI.setParam({
-                    id: self.route.query.id
-
-                }).load();
-            }
-        },
-
+        
         onShow: function () {
             var self = this;
-
-            self.checkStatus();
         },
 
         onDestory: function () {

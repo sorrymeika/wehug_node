@@ -90,6 +90,10 @@
             "controller": "myorder",
             "template": "myorder"
         },
+        "/order/{id:\\w+}": {
+            "controller": "order",
+            "template": "order"
+        },
         "/news/{id:\\w+}": {
             "controller": "news",
             "template": "news"

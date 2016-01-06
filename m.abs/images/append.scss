@@ -289,7 +289,11 @@
 
 .pd_slider { position: relative;}
 
-.uc_coupon_list li.dis { background: #ccc;  }
+.uc_coupon_list {
+    li.dis { background: #ccc;  }
+    li .name { height: 14px; overflow: hidden; }
+}
+
 .coupon_tip { position: absolute; top: 0; z-index: 2000; bottom: 0; right: 0; top: 0; left: 0; background: rgba(0, 0, 0, .7); }
 .coupon_tip:before { position: absolute; right: 20px; top: 62px; display: block; background: url(coupon_tip.png) no-repeat; content: ''; width: 118px; height: 110px; background-size: 100% auto; margin: 22px auto 2px auto; }
 

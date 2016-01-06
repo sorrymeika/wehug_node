@@ -65,6 +65,9 @@
             wx: function (data, f) {
                 hybrid('wx', data, f);
             },
+            ali: function (data, f) {
+                hybrid('ali', data, f);
+            },
             qq: function (data, f) {
                 hybrid('qq', data, f);
             },

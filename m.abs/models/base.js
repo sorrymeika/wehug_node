@@ -14,6 +14,15 @@ exports.OrderStatusAPI = API.extend({
     }
 });
 
+exports.OrderAPI = API.extend({
+    url: '/api/order/get',
+    checkData: false,
+    check: false,
+    params: {
+        orderId: 0
+    }
+});
+
 exports.CouponStatusAPI = API.extend({
     url: '/api/user/get_coupon_status',
     checkData: false,

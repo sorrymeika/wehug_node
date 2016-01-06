@@ -905,11 +905,11 @@
                     self._setElAttr(node, attr);
 
                 } else {
+                    alert(1);
                     for (var i = 0; i < node._elements.length; i++) {
                         var el = node._elements[i];
 
                         if (model == this || model.isRelativeToEl(el)) {
-
                             self._setElAttr(el, attr);
                         }
                     }
