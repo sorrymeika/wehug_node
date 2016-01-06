@@ -255,12 +255,11 @@
             }
         },
 
-        _scroll: function (e, x, y) {
+        _scroll: function (e, options) {
             var that = this;
 
-            if (!that.isLoading
-                && that._scrollY < y
-                && y + that.$scroll.height() >= that.$refreshing[0].offsetTop) {
+            if (!that.isLoading && options.height + options.y + options.height / 2 >= options.scrollHeight) {
+                //&& that._scrollY < y && y + that.$scroll.height() >= that.$refreshing[0].offsetTop
 
                 that._refresh();
             }
