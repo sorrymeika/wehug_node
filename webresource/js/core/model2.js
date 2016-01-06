@@ -28,17 +28,16 @@
         return '((' + code + ')?' + str + ':"")';
     }
 
-    var eachElement = function (el, fn) {
+    var eachElement = function (el, fn, extend) {
 
         var childNodes = el.length ? el : [el];
 
         for (var i = 0, len = childNodes.length; i < len; i++) {
             var child = childNodes[i];
-
-            fn(child, i, childNodes);
+            var nextExtend = fn(child, i, extend);
 
             if (child.nodeType == 1 && child.childNodes.length) {
-                eachElement(child.childNodes, fn)
+                eachElement(child.childNodes, fn, nextExtend);
             }
         }
     }
@@ -418,7 +417,7 @@
         },
 
         _removeEl: function (el) {
-            eachElement($(el).remove(), function (child, i, childList) {
+            eachElement($(el).remove(), function (child, i) {
                 if (child._origin) {
                     var elements = child._origin._elements;
                     for (var i = elements.length - 1; i >= 0; i--) {
@@ -855,12 +854,17 @@
             return code;
         },
 
-        _setElAttr: function (el, attr) {
+        _setElAttr: function (el, attribute) {
             var self = this;
             if (el.bindings) {
-                var attrs = attr ? [attr] : el.bindings;
-                for (var attr in el.bindings) {
-                    var val = self.fns[el.bindings[attr]].call(self, Filters, self._closestByEl(el), el);
+                var attrs;
+                if (attribute)
+                    (attrs = {})[attribute] = el.bindings[attribute];
+                else
+                    attrs = el.bindings;
+
+                for (var attr in attrs) {
+                    var val = self.fns[attrs[attr]].call(self, Filters, self._closestByEl(el), el);
 
                     switch (attr) {
                         case 'textContent':
@@ -905,11 +909,11 @@
                     self._setElAttr(node, attr);
 
                 } else {
-                    alert(1);
                     for (var i = 0; i < node._elements.length; i++) {
                         var el = node._elements[i];
 
                         if (model == this || model.isRelativeToEl(el)) {
+
                             self._setElAttr(el, attr);
                         }
                     }
@@ -979,7 +983,7 @@
 
             self.$el = !self.$el ? $el : self.$el.add($el);
 
-            eachElement($el, function (child, i, childList) {
+            eachElement($el, function (child, i, extendRepeat) {
                 if (child.nodeType == 1) {
                     var repeat = child.getAttribute('sn-repeat');
                     if (repeat != null) {
@@ -989,7 +993,7 @@
                         repeat = new Repeat({
                             root: self,
                             viewModel: viewModel,
-                            parent: childList.repeat,
+                            parent: extendRepeat,
                             alias: match[1],
                             indexAlias: match[2],
                             collectionName: collectionName,
@@ -1000,9 +1004,8 @@
                         (viewModel.repeats[repeat.collectionName] || (viewModel.repeats[repeat.collectionName] = [])).push(repeat);
 
                     } else {
-                        repeat = childList.repeat;
+                        repeat = extendRepeat;
                     }
-                    repeat && (child.childNodes.repeat = repeat);
 
                     for (var j = child.attributes.length - 1; j >= 0; j--) {
                         var attr = child.attributes[j].name;
@@ -1044,10 +1047,11 @@
                     if (!repeat && child.bindings) {
                         elements.push(child);
                     }
+                    return repeat;
 
                 } else if (child.nodeType == 3) {
-                    self._bindAttr(child, 'textContent', child.textContent, childList.repeat);
-                    if (!childList.repeat && child.bindings) {
+                    self._bindAttr(child, 'textContent', child.textContent, extendRepeat);
+                    if (!extendRepeat && child.bindings) {
                         elements.push(child);
                     }
                 }
