@@ -25,7 +25,7 @@ module.exports = Activity.extend({
         self.swipeRightBackAction = self.route.query.from || '/';
 
         var id = self.route.data.id;
-        var m = /(order|month|activity|package|fastbuy|banner|coupon)(\d*)/.exec(id);
+        var m = /(order|month|activity|package|fastbuy|banner|coupon){0,1}(\d*)/.exec(id);
         var type = m[1];
         id = m[2];
 
@@ -87,6 +87,38 @@ A：用户可以通过ABS其他合作渠道获取兑换券码，兑换码可以�
 Q：优惠券的使用有什么其他限制吗？<br/>
 A：优惠券的使用时限、抵用限额及其他限制条件请详见优惠券上的文字描述。<br/>
                     </div>);
+                break;
+            default:
+                title = "ABS家居";
+                
+                var $main=$(<div class="main" style="padding:10px;background:#fff;"></div>).appendTo(self.$el);
+                
+                var iframe = self.createIFrame($main);
+                iframe.$el.css({
+                    width: window.innerWidth-20,
+                    height: $main[0].offsetHeight-20
+                })
+                
+                var newsApi = new api.NewsAPI({
+                    $el: self.$el,
+                    params: {
+                        id: id
+                    },
+                    success: function(res) {
+                        var content;
+                        if (res.success) {
+                            content = res.data.Content;
+                        } else {
+                            content = res.msg;
+                        }
+                        
+                        iframe.html(content);
+                    },
+                    error: function(res) {
+                        sl.tip(res);
+                    }
+                });
+                newsApi.load();
                 break;
         }
         component&& (component.view = self);

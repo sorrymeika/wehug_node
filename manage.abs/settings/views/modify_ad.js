@@ -15,7 +15,7 @@
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                title: '修改目的地',
+                title: '修改广告位',
                 buttons: [{
                     value: '确认',
                     click: function () {

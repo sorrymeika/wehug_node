@@ -3,7 +3,7 @@
     "dest": "./dest",
     "api": "http://127.0.0.1:6001/proxy",
     "proxy": {
-        "/proxy/*": "172.16.168.128:6005"
+        "/proxy/*": "172.16.168.185:6005"
     },
     "css": [
         "../webresource/images/reset.css",

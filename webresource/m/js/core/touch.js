@@ -157,6 +157,13 @@
                 duration = (e.timeStamp || Date.now()) - that.startTime;
 
             that.duration = duration;
+            
+            var endEvent = events.createEvent('end')
+            this.trigger(endEvent);
+            
+            if (endEvent.isDefaultPrevented()) {
+                return false;
+            }
 
             if (duration < 300 || !that.momentum) {
 
@@ -168,6 +175,7 @@
             } else {
                 that.momentum.finish();
             }
+            
             return false;
         },
 

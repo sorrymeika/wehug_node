@@ -37,7 +37,10 @@
                     click: function () {
                         form.reset();
                     }
-                }]
+                }],
+                user: {
+                    Sort: '0'
+                }
             });
 
             var form = new Form({

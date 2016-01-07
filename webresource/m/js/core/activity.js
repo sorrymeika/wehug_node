@@ -3,9 +3,10 @@
     var Page = require('./page'),
         util = require('util'),
         Scroll = require('widget/scroll'),
+        bridge = require('bridge'),
         Dialog = require('widget/dialog'),
         slice = Array.prototype.slice;
-        
+
     var Activity = Page.extend({
         toggleAnim: 'def',
 
@@ -31,9 +32,7 @@
             Page.prototype.initialize.apply(this, arguments);
         },
         _onDestroy: function () {
-            if (this._scrolls) $.each(this._scrolls, function (i, scroll) {
-                scroll.destory();
-            });
+            if (this._scrolls) this._scrolls.destory();
             this.application.remove(this.url);
         },
 
@@ -62,6 +61,50 @@
             });
         },
 
+
+        createIFrame: function ($container) {
+            var $iframe = $('<iframe width="' + window.innerWidth + 'px" frameborder="0" />').appendTo($container);
+            var iframeWin = $iframe[0].contentWindow;
+            var iframeDoc = iframeWin.document;
+            var self = this;
+
+            $(iframeDoc.body).on('click', 'a[href]', function (e) {
+                var target = $(e.currentTarget);
+                var href = target.attr('href');
+
+                if (!/^(http\:|https\:|javascript\:|mailto\:|tel\:)/.test(href)) {
+                    e.preventDefault();
+                    if (!/^#/.test(href)) href = '#' + href;
+
+                    target.attr('back') != null ? self.back(href) : self.forward(href);
+
+                } else if (sl.isInApp && href.indexOf('http') == 0) {
+                    bridge.openInApp(href);
+                }
+                return false;
+            });
+
+            return {
+                $el: $iframe,
+                window: iframeWin,
+                document: iframeDoc,
+                html: function (content) {
+
+                    iframeDoc.body.innerHTML = '<style>p{ padding:0;margin:0 0 10px 0; }img{width:100%;height:auto;display:block;}</style>' + content;
+
+                    $iframe.css({ height: iframeDoc.documentElement.scrollHeight });
+
+                    [].forEach.call(iframeDoc.querySelectorAll('img'), function (img) {
+                        img.style.width = "100%";
+                        img.style.height = "auto";
+                        img.onload = function () {
+                            $iframe.css({ height: iframeDoc.documentElement.scrollHeight });
+                        }
+                    })
+                }
+            }
+        },
+
         prompt: function (title, val, fn) {
             fn = typeof val === 'function' ? val : fn;
             val = typeof val === 'function' ? '' : val;
@@ -77,12 +120,12 @@
                             this.hide();
                         }
                     }, {
-                        text: '确认',
-                        click: function () {
-                            this.hide();
-                            this.ok && this.ok(this.$input.val());
-                        }
-                    }]
+                            text: '确认',
+                            click: function () {
+                                this.hide();
+                                this.ok && this.ok(this.$input.val());
+                            }
+                        }]
                 });
                 prompt.$input = prompt.$('.prompt-text');
             }
@@ -104,12 +147,12 @@
                             this.hide();
                         }
                     }, {
-                        text: '确认',
-                        click: function () {
-                            this.hide();
-                            this.ok && this.ok();
-                        }
-                    }]
+                            text: '确认',
+                            click: function () {
+                                this.hide();
+                                this.ok && this.ok();
+                            }
+                        }]
                 });
             }
 

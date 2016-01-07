@@ -63,6 +63,14 @@ var Month = model.ViewModel.extend({
 		var item = util.first(colorSpec, function (item) {
 			return item.PRD_SPEC == data.PRD_SPEC && item.PRD_COLOR == data.PRD_COLOR;
 		});
+        if (item) {
+            if (item.PRD_PRICE!==undefined) {
+                this.set("data.PRD_PRICE",item.PRD_PRICE);
+            }
+            if (item.PRD_NUM!==undefined) {
+                this.set("data.PRD_NUM",item.PRD_NUM);
+            }
+        }
         this.trigger("SizeChange", item);
     },
     

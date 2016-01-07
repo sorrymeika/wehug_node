@@ -21,6 +21,9 @@
         that.scroller = that.$scroller[0];
 
         that.touch = new Touch(that.$el, that, that);
+        that.touch.on('end', function () {
+            that.trigger('end');
+        });
     }
 
     ScrollView.prototype = {
@@ -94,8 +97,13 @@
 
             this.$scroller.css({ '-webkit-transform': 'translate(' + (-this.x) + 'px,' + (-this.y) + 'px) translateZ(0)' });
 
+            this.trigger('move', {
+                x: this.x,
+                y: this.y
+            })
+
         },
-        beforeMomentum: function () {
+        beforeMomentum: function () {            
             this.touch.addMomentumOptions(this._startLeft, this.x, this.minX, this.maxX, this.wrapperW, this.divisorX)
                 .addMomentumOptions(this._startTop, this.y, this.minY, this.maxY, this.wrapperH);
         },

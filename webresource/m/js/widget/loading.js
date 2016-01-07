@@ -263,8 +263,6 @@
 
                 that._refresh();
             }
-
-            that._scrollY = y;
         },
 
         _autoRefreshingEnabled: false,
@@ -290,8 +288,6 @@
             this._autoRefreshingEnabled = true;
 
             this.$scroll.on('scrollStop', $.proxy(this._scroll, this));
-
-            this._scrollY = this.el.scrollTop;
 
             if (this.el.scrollTop + this.$scroll.height() >= this.$refreshing[0].offsetTop) {
                 this._refresh();

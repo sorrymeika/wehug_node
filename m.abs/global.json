@@ -1,8 +1,8 @@
 {
     "debug": true,
     "dest": "./dest",
-    "api": "http://172.16.168.179:6005",
-    "shopApi": "http://10.0.74.76:5559/proxy",
+    "api": "http://172.16.168.185:6005",
+    "shopApi": "http://127.0.0.1:5559/proxy",
     "proxy": {
         "/proxy1/*": "appuser2.abs.cn",
         "/proxy/*": "appapi2.abs.cn"

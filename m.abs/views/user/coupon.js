@@ -73,6 +73,12 @@ define(function (require, exports, module) {
                 showTipStep: util.store('showTipStep')
             });
 
+            this.model.goTo = function (e, item) {
+                if (item.LVP_PRD_ID) {
+                    self.forward("/item/" + item.LVP_PRD_ID + "?from=" + encodeURIComponent(self.route.url));
+                }
+            }
+
             this.model.couponApi = new api.CouponAPI({
                 $el: this.$el,
                 checkData: false,
@@ -152,6 +158,8 @@ define(function (require, exports, module) {
                         sl.tip(err.msg);
                     }
                 });
+
+                e.stopPropagation();
             }
 
             self.loading = new Loading({

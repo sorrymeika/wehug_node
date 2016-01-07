@@ -16,6 +16,13 @@
                     url: '/settings/add_ad'
                 }]
             }, {
+                url: '/settings/news_list',
+                title: '活动页管理',
+                children: [{
+                    title: '添加活动页',
+                    url: '/settings/add_news'
+                }]
+            }, {
                 url: '/settings/set_update',
                 title: 'app更新管理'
             }, {

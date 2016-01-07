@@ -44,6 +44,23 @@
 
             self.$slider = this.$('.uc_month_slider');
 
+            this.nextLoading = new Loading({
+                url: '/api/user/get_month_by_date',
+                $el: $(''),
+                params: {
+                    UserID: self.user.ID,
+                    Auth: self.user.Auth
+                },
+                success: function (res) {
+
+                    var data = self.slider._data;
+                    data.shift();
+                    data = res.data.concat(data);
+                    
+                    self.slider.set(data);
+                }
+            });
+
             this.loading = new Loading({
                 url: '/api/user/get_month_free',
                 params: {
@@ -60,20 +77,45 @@
                     self.model.set({
                         currentMonth: res.currentMonth,
                         data: res.data,
+                        minDate: res.minDate,
                         current: res.data && res.data[0],
                         year: res.year
                     });
 
                     self.slider = new Slider(self.$slider, {
-                        itemTemplate: '<p class="img<%=CanGet?" canget js_canget":""%><%=Overdue?" disabled":""%>" data-id="<%=FRE_ID%>">\
+                        itemTemplate: '<%if (FRE_TITLE_PIC=="loading") {%><div class="img"><div class="dataloading" style="opacity:1"></div></div><%}else{%><p class="img<%=CanGet?" canget js_canget":""%><%=Overdue?" disabled":""%>" data-id="<%=FRE_ID%>">\
                                     <img src="<%=FRE_TITLE_PIC||"http://appuser.abs.cn/dest/images/coming_soon.png"%>" />\
                                 </p>\
-                                <span><%=Month%>月</span>',
+                                <span><%=Month%>月</span><%}%>',
                         data: res.data,
                         onChange: function (index) {
                             self.model.set({
                                 current: res.data[index]
-                            })
+                            });
+                        }
+                    });
+
+                    self.slider.on('move', function () {
+
+                        if (self.model.data.minDate && !self.nextLoading.isLoading && !this.added && this.x < -30) {
+                            this.added = true;
+                            self.slider.prepend({
+                                FRE_TITLE_PIC: "loading"
+                            });
+                            self.nextLoading.setParam({
+                                startMonth: self.model.data.minDate
+                            });
+                            
+                            this.canLoad = true;
+                        }
+
+                    }).on('end', function () {
+                        this.added = false;
+                        
+                    }).on('change', function () { 
+                        if (this.canLoad) { 
+                            this.canLoad = false;
+                            self.nextLoading.load();
                         }
                     });
                 },

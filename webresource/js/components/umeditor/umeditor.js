@@ -6050,8 +6050,8 @@
         this.addOutputRule(function (root) {
             $.each(root.getNodesByTagName('a'), function (i, a) {
                 var _href = utils.html(a.getAttr('_href'));
-                if (!/^(ftp|https?|\/|file)/.test(_href)) {
-                    _href = 'http://' + _href;
+                if (!/^(ftp|https?|\/|file|\#)/.test(_href)) {
+                    //_href = 'http://' + _href;
                 }
                 a.setAttr('href', _href);
                 a.setAttr('_href')

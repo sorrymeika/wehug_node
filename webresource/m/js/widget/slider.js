@@ -74,7 +74,7 @@
         loop: false,
         x: 0,
 
-        set: function (data) {
+        _set: function (data) {
             var that = this,
                 itemsHtml = '',
                 $slider,
@@ -104,9 +104,26 @@
             } else {
                 length = that.length;
             }
+        },
+        
+        prepend: function (data) { 
+            this._data.unshift(data);
+            this.$slider.prepend(this.render(data));
+            this._adjust();
+            this.startLeft += this.wrapperW;
+        },
+        
+        append: function (data) { 
+            this._data.push(data);
+            this._set(this._data);
+            this._adjust();
+        },
 
-            that._adjustWidth();
-            that.index(options.index);
+        set: function (data) {
+            this._set(data);
+
+            this._adjustWidth();
+            this.index(this.options.index);
         },
 
         startAutoLoop: function () {
@@ -204,7 +221,6 @@
         stop: function () {
             var that = this;
             var x = that.x;
-
             var index = this._getIndex();
 
             that.index(index);
@@ -236,7 +252,7 @@
             }
         },
 
-        _adjustWidth: function () {
+        _adjust: function () {
             var that = this,
                 slider = that.$slider,
                 children = slider.children(),
@@ -248,11 +264,17 @@
 
             slider.css({ width: length * that.width + '%', marginLeft: this.options.align == 'center' ? (100 - that.width) / 2 + '%' : '0%' });
 
-            that.x = that.wrapperW * that.options.index;
-            that.$scroller.css({ '-webkit-transform': 'translate(' + (-that.x) + 'px,0px) translateZ(0)' });
             that.divisorX = that.wrapperW;
 
             children.css({ width: 100 / length + '%' });
+        },
+        _adjustWidth: function () {
+            var that = this;
+
+            that._adjust();
+
+            that.x = that.wrapperW * that.options.index;
+            that.$scroller.css({ '-webkit-transform': 'translate(' + (-that.x) + 'px,0px) translateZ(0)' });
         },
 
         _change: function () {

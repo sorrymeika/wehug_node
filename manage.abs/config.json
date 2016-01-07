@@ -1,11 +1,6 @@
 {
 	"js": {},
-	"css": {
-		"images/style.css": [
-			"../webresource/images/reset.css",
-			"../webresource/images/manage.css"
-		]
-	},
+	"css": {},
 	"route": {
 		"/": {
 			"controller": "index",

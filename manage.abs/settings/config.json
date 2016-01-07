@@ -1,7 +1,8 @@
 {
 	"js": {
 		"./settings/data": [
-			"./data/adtypes"
+			"./data/adtypes",
+			"./data/newstypes"
 		]
 	},
 	"css": {
@@ -26,6 +27,18 @@
 		},
 		"/modify_ad/{name:\\w+}/{id:\\d+}": {
 			"controller": "modify_ad",
+			"template": "../../template/form"
+		},
+        "/news_list": {
+			"controller": "news_list",
+			"template": "../../template/list"
+		},
+		"/add_news": {
+			"controller": "add_news",
+			"template": "../../template/form"
+		},
+		"/modify_news/{name:\\w+}/{id:\\d+}": {
+			"controller": "modify_news",
 			"template": "../../template/form"
 		}
 	}

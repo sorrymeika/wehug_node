@@ -6,6 +6,8 @@
     var Page = require('common/page');
     var menu = require('common/menu');
     var Form = require('components/form');
+    var newstypes = require('../data/newstypes');
+    var API = require('models/api').API;
 
     return Page.extend({
         events: {},
@@ -14,15 +16,15 @@
             var self = this;
 
             this.model = new model.ViewModel(this.$el, {
-                title: '添加目的地',
+                title: '添加活动页',
                 buttons: [{
                     value: '确认',
                     click: function () {
                         form.submit(function (res) {
                             if (res.success) {
                                 sl.tip('添加成功');
-                                self.setResult('destination_change');
-                                self.back('/');
+                                self.setResult('news_change');
+                                self.back('/settings/news_list');
                                 form.reset();
 
                             } else {
@@ -31,11 +33,14 @@
                         });
                     }
                 }, {
-                    value: '重置',
-                    click: function () {
-                        form.reset();
-                    }
-                }]
+                        value: '重置',
+                        click: function () {
+                            form.reset();
+                        }
+                    }],
+                user: {
+                    Sort: '0'
+                }
             });
 
             var form = new Form({
@@ -43,38 +48,32 @@
                 name: 'user',
                 title: 'test',
                 useIframe: true,
-                url: '/api/manage/add_destination',
+                url: API.url('/api/manage/add_news'),
                 validator: 'userValid',
                 enctype: '',
                 fields: [{
-                    field: 'areaId',
-                    type: 'hidden',
-                    value: util.store('global_area')
+                    label: '活动页类型',
+                    field: 'Name',
+                    type: 'select',
+                    emptyAble: true,
+                    options: {
+                        data: newstypes
+                    }
                 }, {
-                    label: '目的地名称',
-                    field: 'name',
-                    emptyAble: false,
-                    emptyText: '必填'
-                }, {
-                    label: '目的地图片',
-                    field: 'middlePic',
-                    type: 'file',
-                    emptyAble: false,
-                    emptyText: '不可为空'
-                }, {
-                    label: '目的地大图',
-                    type: 'file',
-                    field: 'largePic',
-                    emptyAble: false,
-                    emptyText: '不可为空'
-                }, {
-                    label: '目的详情',
-                    field: 'content',
-                    vAlign: 'top',
-                    type: 'richTextBox',
-                    emptyAble: false,
-                    emptyText: '不可为空'
-                }]
+                        label: '活动页标题',
+                        field: 'Title',
+                        emptyAble: false,
+                        emptyText: '必填'
+                    }, {
+                        label: '活动页详情',
+                        field: 'Content',
+                        vAlign: 'top',
+                        type: 'richTextBox'
+                    }, {
+                        field: 'Sort',
+                        type: 'number',
+                        label: '排序'
+                    }]
             });
 
             this.model.before('.action', form.$el);
