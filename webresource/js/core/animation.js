@@ -11,7 +11,7 @@
     for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
         window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
         window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] ||
-                                      window[vendors[x] + 'CancelRequestAnimationFrame'];
+        window[vendors[x] + 'CancelRequestAnimationFrame'];
     }
 
     if (!window.requestAnimationFrame) {
@@ -421,7 +421,7 @@
         }
     };
 
-    var _momentum = function (start, current, time, min, max, size, divisor) {
+    var _momentum = function (start, current, time, min, max, size, divisor, dir) {
         var dist = current - start,
             maxDistUpper = max - current,
             maxDistLower = current - min,
@@ -467,7 +467,8 @@
 
         else {
             if (divisor && outsideDist == 0) {
-                result = result % divisor == 0 ? result : (result % divisor < divisor / 2) ? result - result % divisor : (result - result % divisor + divisor);
+                console.log(result, divisor, dir, result % divisor < divisor / 2,result - result % divisor)
+                result = result % divisor == 0 ? result : (result % divisor < divisor / 2 || (dir != undefined && dir == 'right')) ? result - result % divisor : (result - result % divisor + divisor);
                 result = result > max ? max : result < min ? min : result;
                 if (newTime < 300) newTime = 300;
                 newDist = result - current;

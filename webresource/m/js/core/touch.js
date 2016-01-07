@@ -119,8 +119,8 @@
             this.isTouchStop = true;
         },
 
-        addMomentumOptions: function (start, current, min, max, size, divisor) {
-            this.momentumOptions.push([start || 0, current || 0, this.duration, min || 0, max || 0, size || 0, divisor]);
+        addMomentumOptions: function (start, current, min, max, size, divisor, dir) {
+            this.momentumOptions.push([start || 0, current || 0, this.duration, min || 0, max || 0, size || 0, divisor, dir]);
             return this;
         },
 
@@ -157,10 +157,10 @@
                 duration = (e.timeStamp || Date.now()) - that.startTime;
 
             that.duration = duration;
-            
+
             var endEvent = events.createEvent('end')
             this.trigger(endEvent);
-            
+
             if (endEvent.isDefaultPrevented()) {
                 return false;
             }
@@ -175,7 +175,7 @@
             } else {
                 that.momentum.finish();
             }
-            
+
             return false;
         },
 

@@ -105,15 +105,15 @@
                 length = that.length;
             }
         },
-        
-        prepend: function (data) { 
+
+        prepend: function (data) {
             this._data.unshift(data);
             this.$slider.prepend(this.render(data));
             this._adjust();
             this.startLeft += this.wrapperW;
         },
-        
-        append: function (data) { 
+
+        append: function (data) {
             this._data.push(data);
             this._set(this._data);
             this._adjust();
@@ -185,6 +185,8 @@
             }
 
             x = index * this.wrapperW;
+            this.maxX = x;
+            
             this.scrollTo(x, 0, duration);
         },
         _getIndex: function () {
@@ -228,6 +230,7 @@
             if (that.options.autoLoop) {
                 that.startAutoLoop();
             }
+            that.trigger('stop');
         },
         _loadImage: function () {
             var that = this;

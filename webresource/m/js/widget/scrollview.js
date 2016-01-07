@@ -103,8 +103,8 @@
             })
 
         },
-        beforeMomentum: function () {            
-            this.touch.addMomentumOptions(this._startLeft, this.x, this.minX, this.maxX, this.wrapperW, this.divisorX)
+        beforeMomentum: function () {
+            this.touch.addMomentumOptions(this._startLeft, this.x, this.minX, this.maxX, this.wrapperW, this.divisorX, this.touch.isMoveLeft ? 'left' : 'right')
                 .addMomentumOptions(this._startTop, this.y, this.minY, this.maxY, this.wrapperH);
         },
         momentum: function (a, b) {
