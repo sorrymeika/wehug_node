@@ -50,7 +50,7 @@ var ScrollView = function (el, options) {
 }
 
 ScrollView.prototype.scrollTo = function (x, y, duration) {
-    this.touch.scrollTo(x, y, duration);
+    this.touch.trigger('start').scrollTo(x, y, duration);
 }
 
 ScrollView.addScroller = addScroller;
