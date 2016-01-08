@@ -205,13 +205,15 @@ var touchEnd = function (e) {
         pointY = e.changedTouches[0].pageY,
         dy = Math.abs(el.__oPointY - pointY);
 
+    scrollStop(el);
+
     if (util.ios && dy < 5) {
-        el._isStop = false;
-        scrollStop(el);
+        el.__isStop = false;
         el.__hasMomentum = false;
 
-    } else
+    } else {
         el.__hasMomentum = true;
+    }
 
     e.cancelTap = el.__isScroll;
     if (el.__isScroll && !el.__isStop) {
@@ -245,6 +247,14 @@ exports.bind = function (selector, options) {
     var scrollViews = [];
     var result = {
         items: scrollViews,
+        get: function (el) {
+            return util.first(this.items, typeof el == 'string' ? function (item) {
+                return item.$el.filter(el).length > 0;
+
+            } : function (item) {
+                return item.el == el;
+            });
+        },
         eq: function (i) {
             return this.items[i];
         },
@@ -289,6 +299,8 @@ exports.bind = function (selector, options) {
             el.options = options;
 
             ret = {
+                el: el,
+                $el: $el,
                 destory: function () {
                     $el.off('touchstart', touchStart)
                         .off('touchmove', touchMove)
@@ -301,6 +313,35 @@ exports.bind = function (selector, options) {
                 }
             };
         }
+
+        el.scroll = ret;
+
+        ret.imageLazyLoad = function (options) {
+            var images = $('img[data-src]:not([src])', this.$el);
+            var scrollTop = options ? options.y : 0;
+            var height = options ? options.height : this.$el.height();
+            var top = scrollTop + height;
+
+            if (height == 0) return;
+
+            images.each(function () {
+                var parent = this.offsetParent;
+                var imgTop = this.offsetTop;
+                while (parent != el && parent != document.body) {
+                    imgTop += parent.offsetTop;
+                    parent = this.offsetParent;
+                }
+
+                if (imgTop <= top) {
+                    this.src = this.getAttribute('data-src');
+                    this.removeAttribute('data-src');
+                }
+            });
+        }
+
+        $el.on('scrollStop', function (e, options) {
+            ret.imageLazyLoad(options);
+        });
 
         scrollViews.push(ret);
 

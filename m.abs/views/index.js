@@ -209,6 +209,12 @@ module.exports = Activity.extend({
             }
         });
 
+        this.model.on('change:tab', function () {
+            if (this.data.tab == 1) {
+                self.scroll.get('.js_shop').imageLazyLoad();
+            }
+        })
+
         if (!util.store('IS_SHOW_GUIDE')) {
 
             util.store('IS_SHOW_GUIDE', 1);
@@ -233,7 +239,7 @@ module.exports = Activity.extend({
 
         var $main = this.$main = this.$('.main');
 
-        Scroll.bind($main);
+        this.scroll = Scroll.bind($main);
 
         /*/<!--
         var touch2 = new Touch2($(this.$main[0]).children());
