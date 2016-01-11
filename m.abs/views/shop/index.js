@@ -44,7 +44,7 @@ define(function (require, exports, module) {
 
             this.model = new model.ViewModel(this.$el, {
                 back: self.swipeRightBackAction,
-                id: 1,
+                id: this.route.query.id||1,  
                 resource: 'http://appuser.abs.cn'
             });
 
@@ -86,12 +86,16 @@ define(function (require, exports, module) {
                 });
                 return item.PCG_DEPTH == 1;
             });
+            
+            var id = self.route.query.id || 1;
 
             this.model.set({
-                id: 1,
+                id: id,
                 categories: list
             }).set({
-                current: self.model.data.categories[0] 
+                current: util.first(list, function (item) { 
+                    return item.PCG_ID == id;
+                }) 
             });
             console.log(list.length, self.model.data.categories.length)
             this.model.bindScroll();

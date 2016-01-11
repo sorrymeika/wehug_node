@@ -51,7 +51,7 @@
         },
         util: util,
         closestModelData: function (el, alias) {
-            for (el = el.parentNode; el != null; el = el.parentNode) {
+            for (el = el.parentNode; el != null; el = el.parentNode || el._replacement) {
                 if (el.repeat) {
                     if ((!alias || el.repeat.repeat.alias == alias)) {
                         return el.model.data;
@@ -362,7 +362,7 @@
 
         } else if (repeat.isChild || parentModel) {
             this.type = 'children';
-            this.replacement = this.findReplacement(parentModel || collection.parent);
+            this.replacement = this.findReplacement(this.parentModel || this.collection.parent);
             this.repeatNode = this.replacement._repeatNode;
 
         } else {
@@ -461,20 +461,24 @@
                 });
             }
 
+
             for (var i = 0, len = list.length; i < len; i++) {
                 var item = list[i];
-                if (repeat.filter === undefined || root.fns[repeat.filter].call(root, Filters, item.model, this.replacement)) {
-                    fragment.appendChild(item);
-                    item.setAttribute('sn-index', index);
+                var el;
+
+                if (repeat.filter === undefined || root.call(repeat.filter, Filters, item.model, this.replacement)) {
+                    el = item.el ? item.el : (item.el = this.cloneNode(this.el, item.model));
+                    fragment.appendChild(el);
+                    el.setAttribute('sn-index', index);
                     if (repeat.indexAlias) {
-                        item.setAttribute('sn-index-alias', repeat.indexAlias);
+                        el.setAttribute('sn-index-alias', repeat.indexAlias);
 
                         root._triggerChangeEvent(repeat.collectionName + '/' + repeat.alias + '/' + repeat.indexAlias, item.model);
                     }
                     index++;
 
-                } else if (item.parentNode) {
-                    item.parentNode.removeChild(item);
+                } else if (item.el && item.el.parentNode) {
+                    item.el.parentNode.removeChild(item.el);
                 }
             }
 
@@ -511,7 +515,7 @@
                     if (model) {
                         node._origin = el._origin;
                         el._origin._elements.push(node);
-                        model.root._setElAttr(node);
+                        model.root.render(node);
                     } else {
                         //CollectionRepeat实例化时cloneNode执行
                         node._origin = el;
@@ -549,30 +553,33 @@
             });
         },
         remove: function (start, count) {
-            return this.do(function (i, el) {
+            return this.do(function () {
                 if (typeof start == 'function') {
                     for (var i = this.elements.length - 1; i >= 0; i--) {
-                        var el = this.elements[i];
-                        if (start(el, i)) {
+                        var item = this.elements[i];
+                        if (start(item, i)) {
                             this.elements.splice(i, 1)
-                            this._removeEl(el);
+                            this._removeEl(item.el);
                         }
                     }
                 } else {
-                    this.elements.splice(start, count || 1).forEach((function (el) {
-                        this._removeEl(el);
+                    this.elements.splice(start, count || 1).forEach((function (item) {
+                        this._removeEl(item.el);
                     }).bind(this));
                 }
             });
         },
         add: function (model) {
             return this.do(function () {
-                this.elements.push(this.cloneNode(this.el, model));
+                this.elements.push({
+                    model: model,
+                    el: this.cloneNode(this.el, model)
+                });
             });
         },
         clear: function () {
-            return this.each(function (i, el) {
-                el.parentNode.removeChild(el);
+            return this.each(function (i, item) {
+                el.parentNode.removeChild(item.el);
             }, function () {
                 this.elements.length = 0;
 
@@ -773,7 +780,7 @@
         this.init = false;
 
         this.on('Destroy', this.onDestroy);
-        this.initialize.call(this, arguments);
+        this.initialize.call(this, el, data);
     }
 
     ViewModel.prototype = $.extend(Object.create(Model.prototype), {
@@ -854,7 +861,26 @@
             return code;
         },
 
-        _setElAttr: function (el, attribute) {
+        call: function (id, arg0, arg1, arg2, arg3) {
+            var fn = this.fns[id];
+
+            switch (arguments.length) {
+                case 1:
+                    return fn.call(this);
+                case 2:
+                    return fn.call(this, arg0);
+                case 3:
+                    return fn.call(this, arg0, arg1);
+                case 4:
+                    return fn.call(this, arg0, arg1, arg2);
+                case 5:
+                    return fn.call(this, arg0, arg1, arg2, arg3);
+                default:
+                    return fn.apply(this, arguments);
+            }
+        },
+
+        render: function (el, attribute) {
             var self = this;
             if (el.bindings) {
                 var attrs;
@@ -864,7 +890,7 @@
                     attrs = el.bindings;
 
                 for (var attr in attrs) {
-                    var val = self.fns[attrs[attr]].call(self, Filters, self._closestByEl(el), el);
+                    var val = self.call(attrs[attr], Filters, self._closestByEl(el), el);
 
                     switch (attr) {
                         case 'textContent':
@@ -883,6 +909,22 @@
                         case 'html':
                         case 'sn-html':
                             el.innerHTML = val;
+                            break;
+                        case 'sn-if':
+                            if (util.isFalse(val)) {
+                                if (el.parentNode) {
+                                    if (!el._replacement) {
+                                        el._replacement = document.createComment('if');
+                                        el.parentNode.insertBefore(el._replacement, el);
+                                    }
+                                    el.parentNode.removeChild(el);
+                                }
+
+                            } else {
+                                if (!el.parentNode) {
+                                    el.parentNode.insertBefore(el, el._replacement);
+                                }
+                            }
                             break;
                         case 'display':
                         case 'sn-display':
@@ -906,7 +948,7 @@
 
             var listen = function (e, model) {
                 if (!repeat) {
-                    self._setElAttr(node, attr);
+                    self.render(node, attr);
 
                 } else {
                     for (var i = 0; i < node._elements.length; i++) {
@@ -914,7 +956,7 @@
 
                         if (model == this || model.isRelativeToEl(el)) {
 
-                            self._setElAttr(el, attr);
+                            self.render(el, attr);
                         }
                     }
                 }
@@ -1017,7 +1059,7 @@
                             } else if (attr == 'sn-src') {
                                 attr = 'src'
                             }
-                            if (attr == 'sn-display' || attr == 'sn-html' || attr == 'sn-style' || attr.indexOf('sn-') != 0) {
+                            if (attr == 'sn-display' || attr == 'sn-html' || attr == 'sn-if' || attr == 'sn-style' || attr.indexOf('sn-') != 0) {
                                 if (attr.indexOf('sn-') == 0 && val.indexOf("{{") == -1 && val.indexOf("}}") == -1) {
                                     val = '{{' + val + '}}';
                                 }
@@ -1071,7 +1113,7 @@
 
                 } else if (/^\d+$/.test(eventCode)) {
                     var model = self._closestByEl(target);
-                    (model.root === self) && self.fns[eventCode].call(self, e, model, Filters);
+                    (model.root === self) && self.call(eventCode, e, model, Filters);
 
                 } else {
                     var args = [e];
@@ -1105,7 +1147,7 @@
             this._fns.length = 0;
 
             for (var i = 0, len = elements.length; i < len; i++) {
-                self._setElAttr(elements[i]);
+                self.render(elements[i]);
             }
         }
 

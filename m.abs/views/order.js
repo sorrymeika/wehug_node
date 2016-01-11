@@ -21,6 +21,8 @@ module.exports = Activity.extend({
                 self.orderApi.hideLoading();
             }, 3000);
 
+            self.checkStatus();
+
             if (this.model.get('payType') == 1) {
                 //bridge.openInApp(api.API.prototype.baseUri + '/AlipayDirect/Pay/' + order.PUR_ID + "?UserID=" + self.user.ID + "&Auth=" + self.user.Auth);
                 
@@ -86,20 +88,20 @@ module.exports = Activity.extend({
 
         self.orderStatusAPI = new api.OrderStatusAPI({
             $el: this.$el,
+            check: false,
+            checkData: false,
             success: function (res) {
-                if (res.status == 0) {
+                if (res.status != 2) {
                     self.timer = setTimeout(function () {
                         self.checkStatus();
-                    }, 1500);
+                    }, 2000);
 
-                } else if (res.status == 3) {
+                } else if (res.status == 2) {
                     self.forward("/news/order" + self.route.query.id);
                     self.orderApi.reload();
                 }
             }
         });
-
-        self.checkStatus();
     },
 
     checkStatus: function () {

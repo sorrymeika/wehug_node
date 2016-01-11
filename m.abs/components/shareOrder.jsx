@@ -1,37 +1,72 @@
 var $ = require('$');
 var model = require('core/model3');
 var Share = require('components/share');
+var api = require('models/base');
+var userModel = require('models/user');
 
 var Month = model.ViewModel.extend({
 	el: <div class="main"><div class="od_share">
 		<h1>支付成功</h1>
 		<h2>感谢在ABS购买商品</h2>
 		<div class="con">
-			<h3>恭喜您获得</h3>
-			<h4>纳米净颜美容巾免费领取兑换券</h4>
-			<h3>赶快呼唤好友来领取吧!</h3>
-			<h5>*分享的礼物券中有3张被好友成功领取，就可以获得<em>500积分</em>（全场通用，可直接抵扣现金）</h5>
-			<div class="btn" sn-tap="this.showShare()">发礼物，抢500积分</div>
+            <div html="{{data.SHA_MSG}}"></div>
+            <div class="btn" sn-tap="this.showShare()">{{data.SHA_BUTTON_TIPS}}</div>
 		</div>
 	</div></div>,
 	
 	showShare: function(){
-		this.share.show();
+		this.addShareAPI.load();
 	},
 	
 	initialize: function() {
 		var self=this;
+        var orderShareAPI = new api.OrderShareAPI({
+            $el: this.$el,
+            checkData: false,
+            success: function(res) {
+                console.log(res);
+                
+                self.set({
+                    data: res.data
+                });
+                
+               self.share.set({
+                    title: res.data.SHA_NAME
+                });
+            },
+            error: function(res) {
+                sl.tip(res.msg);
+            }
+        });
+        orderShareAPI.load();
+        
+        self.user = userModel.get();
+        
+        this.addShareAPI = new api.AddShareAPI({
+            $el: this.$el,
+            params: {
+                pspcode: self.user.PSP_CODE,
+            },
+            checkData: false,
+            success: function(res) {
+                self.share.set({
+                    linkURL: res.data,
+                    description: ''
+                });
+		        self.share.show();
+                
+            },
+            error: function(res) {
+                sl.tip(res.msg);
+            }
+        });
 		
-		self.share = new Share({
-			head: '分享礼物',
-			title: '',
-			linkURL: 'http://m.abs.cn/',
-			description: ''
-		});
-		self.share.callback=function(res){
-			
-		}
-		self.share.$el.appendTo(self.$el);
+        self.share = new Share({
+            head: '分享'
+        });
+        self.share.callback=function(res){
+        }
+        self.share.$el.appendTo(self.$el);
 	}
 });
 

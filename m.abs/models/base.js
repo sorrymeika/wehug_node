@@ -282,6 +282,16 @@ exports.OrderCreateAPI = ShopAPI.extend({
     }
 });
 
+exports.OrderShareAPI = ShopAPI.extend({
+    url: '/api/prod/shareactivity'
+});
+
+exports.AddShareAPI = ShopAPI.extend({
+    url: '/api/prod/addshare',
+    params: {
+        pspcode: ''
+    }
+});
 
 exports.WxPayAPI = API.extend({
     url: '/api/shop/wxpayqrcode',

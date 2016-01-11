@@ -101,7 +101,7 @@
                     });
 
                     self.slider = new Slider(self.$slider, {
-                        itemTemplate: '<%if (FRE_TITLE_PIC=="loading") {%><div class="img"><div class="dataloading" style="opacity:1"></div></div><%}else{%><p class="img<%=CanGet?" canget js_canget":""%><%=Overdue?" disabled":""%>" data-id="<%=FRE_ID%>">\
+                        itemTemplate: '<%if (FRE_TITLE_PIC=="loading") {%><div class="img"><div class="dataloading" style="opacity:1"></div></div><%}else{%><p class="img<%=CanGet?" canget js_canget":""%><%=Overdue?" disabled":""%><%=FRE_ID&&LPF_PUR_ID?" hasget":""%>" data-id="<%=FRE_ID%>">\
                                     <img src="<%=FRE_TITLE_PIC||(Overdue?"images/overdue.jpg":"images/coming_soon.png")%>" />\
                                 </p>\
                                 <span><%=Month%>月</span><%}%>',

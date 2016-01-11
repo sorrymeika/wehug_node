@@ -10,16 +10,20 @@ var Month = model.ViewModel.extend({
 			<li sn-repeat="item in month"><img src="{{item.WPP_LIST_PIC}}">
 			<p class="con">
 				<span class="name">{{item.PRD_NAME}}</span>
-				<em>￥{{item.PRD_PRICE}}</em>
-				<del sn-display="{{item.PRD_PRICE!=0&&item.PRD_PRICE<item.PRD_MEMBER_PRICE}}" style="display: none;">￥{{item.PRD_MEMBER_PRICE}}&nbsp;</del>
+				<em>￥0</em>
+				<del>￥{{item.PRD_PRICE}}&nbsp;</del>
 				<b class="btn" sn-tap="this.showSize(item)">免费领取</b>
 			</p></li>
 		</ul>
-		<ul class="sp_list" style="overflow:hidden">
-		<li sn-repeat="item in data" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}?from={{url}}" sn-index="0"> <img src="{{item.WPP_LIST_PIC}}"> 
-			<p class="price"><b>￥{{item.PRD_PRICE}}</b><del sn-display="{{item.PRD_PRICE!=0&&item.PRD_PRICE<item.PRD_MEMBER_PRICE}}" style="display: none;">￥{{item.PRD_MEMBER_PRICE}}&nbsp;</del></p> 
-			<p class="name">{{item.PRD_NAME}}</p> </li>
-		</ul>
+        <div sn-repeat="list in data">
+            <img class="banner" sn-src="{{list.type==1?list.data:''}}"  sn-if="{{list.type==1}}" />
+            <ul class="sp_list" style="overflow:hidden" sn-if="{{list.type==2}}">
+            <li sn-repeat="item in list.data" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}?from={{url}}" sn-index="0"> <img src="{{item.WPP_LIST_PIC}}"> 
+                <p class="price"><b>￥{{item.PRD_PRICE}}</b><del sn-display="{{item.PRD_PRICE!=0&&item.PRD_PRICE<item.PRD_MEMBER_PRICE}}" style="display: none;">￥{{item.PRD_MEMBER_PRICE}}&nbsp;</del></p> 
+                <p class="name">{{item.PRD_NAME}}</p> </li>
+            </ul>
+        </div>
+        
 	</div></div>,
 	
 	showSize: function(e, item){
