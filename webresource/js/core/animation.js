@@ -323,6 +323,8 @@
     Animation.prototype.step = function (percent) {
         var item,
             list = this.list;
+            
+        this.per = percent;
 
         for (var i = 0, length = list.length; i < length; i++) {
             item = list[i];

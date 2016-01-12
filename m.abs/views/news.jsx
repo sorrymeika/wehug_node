@@ -21,6 +21,7 @@ module.exports = Activity.extend({
 
     onCreate: function () {
         var self = this;
+        
 
         self.swipeRightBackAction = self.route.query.from || '/';
 

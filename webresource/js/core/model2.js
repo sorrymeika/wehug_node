@@ -49,19 +49,10 @@
         like: function (source, keywords) {
             return source.indexOf(keywords) != -1 || keywords.indexOf(source) != -1;
         },
-        util: util,
-        closestModelData: function (el, alias) {
-            for (el = el.parentNode; el != null; el = el.parentNode || el._replacement) {
-                if (el.repeat) {
-                    if ((!alias || el.repeat.repeat.alias == alias)) {
-                        return el.model.data;
-                    }
-                }
-            }
-        }
+        util: util
     };
 
-    var Model = function (parent, key, data, repeats) {
+    var Model = function (parent, key, data) {
 
         if (parent instanceof Model) {
             this.key = parent.key ? parent.key + '.' + key : key;
@@ -80,12 +71,6 @@
         this.model = {};
         this.parent = parent;
         this.root = parent.root;
-
-        if (repeats) {
-            for (var j = 0, len = repeats.length; j < len; j++) {
-                repeats[j].add(this);
-            }
-        }
 
         this.set(data);
     }
@@ -262,13 +247,13 @@
         _bubbleEl: function (el, fn, ret) {
 
             while (el) {
-                if (el._repeatNode)
-                    el = el._repeatNode;
+                if (el.snRepeatNode)
+                    el = el.snRepeatNode;
 
-                if (el.model && el.repeat) {
+                if (el.snModel && el.snRepeat) {
                     if ((val = fn(el)) !== undefined) return val;
 
-                    el = el.repeat.repeatNode;
+                    el = el.snReplacement;
 
                 } else
                     break;
@@ -277,8 +262,8 @@
             return ret === undefined ? this : ret;
         },
 
-        isUnderRoot: function () {
-            for (var model = this; model != null; model = model.parent) {
+        under: function (parent) {
+            for (var model = this.parent; model != null && parent != model; model = model.parent) {
                 if (model instanceof Collection) {
                     return false;
                 }
@@ -288,13 +273,13 @@
 
         isRelativeToEl: function (el) {
             var self = this;
-            var isUnderRoot = this.isUnderRoot();
+            var isUnderRoot = this.under();
             if (isUnderRoot) {
                 return true;
             }
 
             return self._bubbleEl(el, function (el) {
-                if (el.model == self || el.model.contains(self, true))
+                if (el.snModel == self || el.snModel.contains(self, true))
                     return true;
             }, false);
         }
@@ -309,6 +294,8 @@
         var self = this;
         var attrs = this.collectionName.split('.');
         var parent = this.parent;
+
+        this.key = attrs[attrs.length - 1];
 
         while (parent) {
             if (parent.alias == attrs[0]) {
@@ -326,94 +313,89 @@
         this.replacement = replacement;
         this.el.parentNode.insertBefore(replacement, this.el);
         this.el.parentNode.removeChild(this.el);
-        this.collectionRepeats = [];
+        this.snRepeats = [];
 
         if (this.filters) {
-            var code = this.viewModel._compile('{{' + this.filters + '}}', this, function (e, model) {
+            this.filter = this.viewModel._compile('{{' + this.filters + '}}', this, function (e, model) {
 
-                var isUnderRoot = model.isUnderRoot();
+                var isUnderRoot = model.under();
 
-                for (var i = 0; i < self.collectionRepeats.length; i++) {
-                    var collectionRepeat = self.collectionRepeats[i];
+                for (var i = 0; i < self.snRepeats.length; i++) {
+                    var item = self.snRepeats[i];
 
-                    if (isUnderRoot || model.parent == collectionRepeat.collection || model.contains(collectionRepeat.collection)) {
-                        collectionRepeat.update();
+                    if (isUnderRoot || model == item.containsModel || model.under(item.containsModel) || model.parent == item.collection() || model.contains(item.containsModel)) {
+                        item.update();
                     }
                 }
             });
-            this.filter = this.viewModel._attrId();
-
-            this.viewModel._fns.push(code);
         }
+
+        var eventName = "change:" + this.collectionName.replace(/\./g, '/');
+
+        this.syncModels = [];
+
+        this.viewModel.on(eventName + '/add', function (e, collection, models) {
+
+            self.syncModels = self.syncModels.concat(models);
+
+            for (var i = 0; i < self.snRepeats.length; i++) {
+                var snRepeat = self.snRepeats[i];
+
+                if (!self.isChild || collection.parent == snRepeat.containsModel) {
+                    snRepeat.add(models).update();
+                }
+            }
+
+        }).on(eventName + '/remove', function (e, collection, models) {
+            for (var i = 0; i < models.length; i++) {
+                var model = models[i];
+
+                for (var j = self.snRepeats.length - 1; j >= 0; j--) {
+                    self.snRepeats[j].remove(function (item) {
+                        return item.model == model;
+                    });
+                }
+                for (var j = self.syncModels.length - 1; j >= 0; j--) {
+                    if (self.syncModels[j] == model)
+                        self.syncModels.splice(j, 1);
+                }
+            }
+
+        });
     }
 
-    var CollectionRepeat = function (collection, repeat, parentModel) {
+    Repeat.prototype.append = function (options) {
         var self = this;
+        var snRepeat = new SNRepeat(this, options.replacement, options.model);
 
-        this.collection = collection;
-        this.repeat = repeat;
-        this.parentModel = parentModel;
+        self.snRepeats.push(snRepeat);
 
-        repeat.collectionRepeats.push(this);
-
-        if (!repeat.parent) {
-            this.type = 'normal';
-            this.replacement = repeat.replacement;
-
-        } else if (repeat.isChild || parentModel) {
-            this.type = 'children';
-            this.replacement = this.findReplacement(this.parentModel || this.collection.parent);
-            this.repeatNode = this.replacement._repeatNode;
-
-        } else {
-            this.type = 'inset';
-            this.children = [];
-
-            for (var i = 0; i < repeat.parent.collectionRepeats.length; i++) {
-                var parentCollectionRepeat = repeat.parent.collectionRepeats[i];
-
-                parentCollectionRepeat.collection.on('add', function (e, model) {
-                    var child = new CollectionRepeat(collection, repeat, model);
-                    for (var j = 0; j < collection.models.length; j++) {
-                        child.add(collection.models[j]);
-                    }
-                    self.children.push(child);
-                    child.update();
-
-                }).on('remove', function (e, models) {
-                    for (var i = self.children.length - 1; i >= 0; i--) {
-                        var model = self.children[i].parentModel;
-                        for (var j = models.length - 1; j >= 0; j--) {
-                            if (model == models[j]) {
-                                self.children.splice(i, 1);
-                                break;
-                            }
-                        }
-                    }
-
-                }).each(function (model) {
-                    self.children.push(new CollectionRepeat(collection, repeat, model));
-                });
-                parentCollectionRepeat.children.push(this);
+        for (var i = 0; i < self.syncModels.length; i++) {
+            var model = self.syncModels[i];
+            if (!self.isChild || model.parent.parent == snRepeat.containsModel) {
+                snRepeat.add(model);
             }
         }
 
-        this.el = this.cloneNode(repeat.el);
+        snRepeat.update();
+    }
+
+    var SNRepeat = function (repeat, replacement, containsModel) {
+        var self = this;
+
+        this.replacement = replacement;
+        this.repeat = repeat;
+        this.containsModel = containsModel;
+
+        replacement.ownSnRepeat = this;
+
         this.elements = [];
     }
 
+    SNRepeat.prototype = {
 
-    CollectionRepeat.prototype = {
-        findReplacement: function (model) {
-            for (; model != null && model != model.root; model = model.parent) {
-                if (model instanceof Model && model.replacement) {
-                    for (var i = 0; i < model.replacement.length; i++) {
-                        if (model.replacement[i].repeat == this.repeat) {
-                            return model.replacement[i];
-                        }
-                    }
-                }
-            }
+        collection: function () {
+            return this.containsModel.model[this.repeat.key];
         },
 
         _removeEl: function (el) {
@@ -426,32 +408,18 @@
                             break;
                         }
                     }
-
-                } else if (child.nodeType == 8 && child.repeat && child._replacement) {
-                    for (var i = child._replacement.length - 1; i >= 0; i--) {
-                        if (child._replacement[i] == child) {
-                            child._replacement.splice(i, 1);
-                            break;
-                        }
-                    }
                 }
             });
         },
 
         update: function () {
-            if (this.type == 'inset') {
-                for (var i = 0, len = this.children.length; i < len; i++) {
-                    this.children[i].update();
-                }
-                return;
-            }
 
             var fragment = document.createDocumentFragment();
             var index = 0;
             var list = this.elements;
             var repeat = this.repeat;
             var orderBy = repeat.orderBy;
-            var root = this.collection.root;
+            var root = this.containsModel.root;
 
             if (orderBy) {
                 list.sort(function (a, b) {
@@ -461,15 +429,14 @@
                 });
             }
 
-
             for (var i = 0, len = list.length; i < len; i++) {
                 var item = list[i];
                 var el;
 
                 if (repeat.filter === undefined || root.call(repeat.filter, Filters, item.model, this.replacement)) {
-                    el = item.el ? item.el : (item.el = this.cloneNode(this.el, item.model));
+                    el = item.el ? item.el : (item.el = this.cloneNode(this.el || (this.el = this.cloneNode(repeat.el)), item.model));
                     fragment.appendChild(el);
-                    el.setAttribute('sn-index', index);
+                    el.snIndex = index;
                     if (repeat.indexAlias) {
                         el.setAttribute('sn-index-alias', repeat.indexAlias);
 
@@ -490,11 +457,12 @@
             var len;
 
             if (el == this.el) {
-                node.repeat = this;
-                node.model = model;
+                node.snRepeat = this;
+                node.snModel = model;
+                node.snReplacement = this.replacement;
                 repeatNode = node;
             } else {
-                node._repeatNode = repeatNode;
+                node.snRepeatNode = repeatNode;
             }
 
             if (parentNode) parentNode.appendChild(node);
@@ -503,8 +471,10 @@
             if (el.nodeType == 8 && el.repeat) {
                 node.repeat = el.repeat;
                 if (model) {
-                    (model.replacement || (model.replacement = [])).push(node);
-                    node._replacement = model.replacement;
+                    el.repeat.append({
+                        replacement: node,
+                        model: model
+                    });
                 }
 
             } else {
@@ -516,8 +486,9 @@
                         node._origin = el._origin;
                         el._origin._elements.push(node);
                         model.root.render(node);
+
                     } else {
-                        //CollectionRepeat实例化时cloneNode执行
+                        //SNRepeat实例化时cloneNode执行
                         node._origin = el;
                     }
                 }
@@ -530,52 +501,42 @@
             }
             return node;
         },
-        do: function (fn) {
-            if (this.type == 'inset') {
-                for (var i = 0; i < this.children.length; i++) {
-                    this.children[i].do(fn);
+
+        each: function (fn, callback, reverse) {
+            if (typeof callback !== 'function') reverse = callback, callback = null;
+            for (var len = this.elements.length - 1, i = len; i >= 0; i--) {
+                var index = reverse ? i : (len - i);
+                if (fn.call(this, index, this.elements[index]) === false) {
+                    break;
+                }
+            }
+            callback && callback.call(this);
+            return this;
+        },
+        remove: function (start, count) {
+            if (typeof start == 'function') {
+                for (var i = this.elements.length - 1; i >= 0; i--) {
+                    var item = this.elements[i];
+                    if (start(item, i)) {
+                        this.elements.splice(i, 1)
+                        this._removeEl(item.el);
+                    }
                 }
             } else {
-                fn.call(this);
+                this.elements.splice(start, count || 1).forEach((function (item) {
+                    this._removeEl(item.el);
+                }).bind(this));
             }
             return this;
         },
-        each: function (fn, callback, reverse) {
-            if (typeof callback !== 'function') reverse = callback, callback = null;
-            return this.do(function () {
-                for (var len = this.elements.length - 1, i = len; i >= 0; i--) {
-                    var index = reverse ? i : (len - i);
-                    if (fn.call(this, index, this.elements[index]) === false) {
-                        break;
-                    }
-                }
-                callback && callback.call(this);
-            });
-        },
-        remove: function (start, count) {
-            return this.do(function () {
-                if (typeof start == 'function') {
-                    for (var i = this.elements.length - 1; i >= 0; i--) {
-                        var item = this.elements[i];
-                        if (start(item, i)) {
-                            this.elements.splice(i, 1)
-                            this._removeEl(item.el);
-                        }
-                    }
-                } else {
-                    this.elements.splice(start, count || 1).forEach((function (item) {
-                        this._removeEl(item.el);
-                    }).bind(this));
-                }
-            });
-        },
-        add: function (model) {
-            return this.do(function () {
-                this.elements.push({
-                    model: model,
-                    el: this.cloneNode(this.el, model)
+        add: function (models) {
+            var self = this;
+            ($.isArray(models) ? models : [models]).forEach(function (model) {
+                self.elements.push({
+                    model: model
                 });
-            });
+            })
+            return this;
         },
         clear: function () {
             return this.each(function (i, item) {
@@ -588,23 +549,15 @@
     }
 
     var Collection = function (parent, attr, data) {
-        var repeats;
 
         this.models = [];
 
         this.parent = parent;
         this.key = parent.key ? (parent.key + "." + attr) : attr;
         this._key = attr;
+        this.eventName = this.key.replace(/\./g, '/')
 
         this.root = parent.root;
-        this.repeats = [];
-
-        repeats = parent.root.repeats[this.key];
-        if (repeats) {
-            for (var i = 0; i < repeats.length; i++) {
-                this.repeats.push(new CollectionRepeat(this, repeats[i]));
-            }
-        }
 
         this.data = [];
         parent.data[attr] = this.data;
@@ -633,6 +586,7 @@
     Collection.prototype.add = function (data) {
         var model;
         var length;
+        var changes = [];
 
         if (!$.isArray(data)) {
             data = [data];
@@ -641,15 +595,14 @@
         for (var i = 0, dataLen = data.length; i < dataLen; i++) {
             var dataItem = data[i];
             length = this.models.length;
-            model = new Model(this, length, dataItem, this.repeats);
+            model = new Model(this, length, dataItem);
             this.models.push(model);
+            changes.push(model);
 
             this.trigger('add', model);
         }
 
-        for (var i = 0, len = this.repeats.length; i < len; i++) {
-            this.repeats[i].update();
-        }
+        this.root.trigger('change:' + this.eventName + '/add', this, changes);
 
         this._triggerChangeEvent();
     }
@@ -673,33 +626,25 @@
                 }
             }
 
-            for (var i = 0, len = this.repeats.length; i < len; i++) {
-                this.repeats[i].remove(function (el) {
-                    return models.indexOf(el.model) != -1;
-                });
-            }
-
         } else {
             if (!count) count = 1;
 
             models = this.models.splice(start, count);
             this.data.splice(start, count);
-
-            for (var i = 0, len = this.repeats.length; i < len; i++) {
-                this.repeats[i].remove(start, count);
-            }
         }
 
         this._triggerChangeEvent();
         this.trigger('remove', models);
+
+        this.root.trigger('change:' + this.eventName + '/remove', this, models);
     }
 
     Collection.prototype.clear = function (data) {
+        var models = this.models.slice();
         this.models.length = this.data.length = 0;
-        for (var i = 0, len = this.repeats.length; i < len; i++) {
-            this.repeats[i].clear();
-        }
         this._triggerChangeEvent();
+
+        this.root.trigger('change:' + this.eventName + '/remove', this, models);
     }
 
     Collection.prototype.set = function (data) {
@@ -740,16 +685,16 @@
         if (repeat) {
             code += ',{';
             for (var parent = repeat.parent, current = repeat; parent != null; current = parent, parent = parent.parent) {
-                code += parent.alias + ':' + (current.isChild ? 'model.closest(\'' + parent.collectionName + '^child\').data' : 'global.closestModelData(el,"' + parent.alias + '")') + ',';
+                code += parent.alias + ':' + (current.isChild ? 'model.closest(\'' + parent.collectionName + '^child\').data' : 'root._bubbleEl(el,function(el){ if (el.snRepeat.repeat.alias == "' + parent.alias + '") return el.snModel.data; },null)') + ',';
 
                 if (parent.indexAlias) {
-                    code += parent.indexAlias + ':$el.closest(\'[sn-index-alias="' + parent.indexAlias + '"]\').attr("sn-index"),';
+                    code += parent.indexAlias + ':$el.closest(\'[sn-index-alias="' + parent.indexAlias + '"]\').snIndex,';
                 }
             }
             code += repeat.alias + ':model.data';
 
             if (repeat.indexAlias) {
-                code += ',' + repeat.indexAlias + ':$el.closest(\'[sn-index-alias="' + repeat.indexAlias + '"]\').attr("sn-index")';
+                code += ',' + repeat.indexAlias + ':$el.closest(\'[sn-index-alias="' + repeat.indexAlias + '"]\').snIndex';
             }
             code += '}';
         }
@@ -764,7 +709,6 @@
             data = el, el = this.el;
 
         this.cid = util.guid();
-        this._bindListenTo = [];
 
         this.data = $.extend({}, data);
         this.model = {};
@@ -795,6 +739,14 @@
 
         getState: function (key) {
             return this.$state.get(key);
+        },
+
+        compile: function (code) {
+            var index = this._fns.indexOf(code);
+            if (index == -1)
+                this._fns.push(code), index = this._fns.length - 1;
+
+            return (this.fns.length + index);
         },
 
         _compile: function (expression, repeat, listen) {
@@ -858,7 +810,7 @@
                 + withData(repeat, (variables && variables.length ? 'var ' + variables.join(',') + ';' : '') + content.replace('return \'\'+', 'return ').replace(/\+\'\'/g, ''))
                 + '}';
 
-            return code;
+            return this.compile(code);
         },
 
         call: function (id, arg0, arg1, arg2, arg3) {
@@ -913,16 +865,16 @@
                         case 'sn-if':
                             if (util.isFalse(val)) {
                                 if (el.parentNode) {
-                                    if (!el._replacement) {
-                                        el._replacement = document.createComment('if');
-                                        el.parentNode.insertBefore(el._replacement, el);
+                                    if (!el.snReplacement) {
+                                        el.snReplacement = document.createComment('if');
+                                        el.parentNode.insertBefore(el.snReplacement, el);
                                     }
                                     el.parentNode.removeChild(el);
                                 }
 
                             } else {
                                 if (!el.parentNode) {
-                                    el.parentNode.insertBefore(el, el._replacement);
+                                    el.parentNode.insertBefore(el, el.snReplacement);
                                 }
                             }
                             break;
@@ -955,20 +907,18 @@
                         var el = node._elements[i];
 
                         if (model == this || model.isRelativeToEl(el)) {
-
                             self.render(el, attr);
                         }
                     }
                 }
             };
-            (node.bindings || (node._elements = [], node.bindings = {}))[attr] = self._attrId();
 
-            self._fns.push(self._compile(expression, repeat, listen));
+            (node.bindings || (node._elements = [], node.bindings = {}))[attr] = self._compile(expression, repeat, listen);
         },
 
         _closestByEl: function (el) {
             return this._bubbleEl(el, function (el) {
-                return el.model;
+                return el.snModel;
             });
         },
 
@@ -983,8 +933,8 @@
                 return self.$state;
 
             return this._bubbleEl(el, function (el) {
-                if (el.repeat.repeat.alias == alias)
-                    return el.model;
+                if (el.snRepeat.repeat.alias == alias)
+                    return el.snModel;
             });
         },
         _getVal: function (model, name) {
@@ -997,10 +947,6 @@
             var model = this._getByEl(el, name);
 
             model.set(model == this || model == self.$state ? name : name.replace(/^[^\.]+\./, ''), value);
-        },
-
-        _attrId: function () {
-            return (this.fns.length + this._fns.length);
         },
 
         $: function (selector) {
@@ -1045,6 +991,13 @@
                         });
                         (viewModel.repeats[repeat.collectionName] || (viewModel.repeats[repeat.collectionName] = [])).push(repeat);
 
+                        if (!extendRepeat) {
+                            repeat.append({
+                                replacement: repeat.replacement,
+                                model: self
+                            });
+                        }
+
                     } else {
                         repeat = extendRepeat;
                     }
@@ -1077,9 +1030,8 @@
 
                                     var code = 'function(e,model,global){var el=e.currentTarget;' + withData(repeat, content) + "}";
 
-                                    child.setAttribute(attr, self._attrId());
+                                    child.setAttribute(attr, self.compile(code));
 
-                                    self._fns.push(code);
                                 } else {
                                     child.setAttribute(attr, val);
                                 }

@@ -59,7 +59,7 @@
                     isOpen,
                     deltaX = that.touch.dx;
 
-                if (that.touch.isDirectionY || that.swiperPromise) {
+                if (that.touch.isDirectionY || that.swiperPromise || that.swiper) {
                     that.touch.stop();
                     return;
                 }
@@ -153,11 +153,12 @@
                                     currentActivity.destroy();
                                 }
                             }
+                            that.swiper = null;
+                            that.swiperPromise = null;
                             that.queue.resolve();
 
                         }], that.swiper.animate, that.swiper);
 
-                        that.swiperPromise = null;
                     });
                 }
             }

@@ -150,8 +150,6 @@ var touchMove = function (e) {
 
     el.__oPointY = el.__pointY;
     el.__pointY = pointY;
-    el.__isMoved = true;
-    el.__isScroll = true;
 
     if (!el.__isStart) {
         el.__isStart = true;
@@ -162,6 +160,9 @@ var touchMove = function (e) {
             el.__isStop = false;
         }
     }
+
+    el.__isMoved = true;
+    el.__isScroll = true;
 
     if (util.ios && el.$refresh && el.scrollTop < 0) {
         el.isRefresh = el.scrollTop < -70;
@@ -174,17 +175,20 @@ var touchMove = function (e) {
 var scrollStop = function (el) {
     if (el._stm) clearTimeout(el._stm);
     el._stm = setTimeout(function () {
-        console.log('scrollStop');
 
         el._stm = null;
-        $(el).trigger('scrollStop', {
-            x: el.scrollLeft,
-            y: el.scrollTop,
-            width: el.clientWidth,
-            height: el.clientHeight,
-            scrollHeight: el.scrollHeight,
-            scrollWidth: el.scrollWidth
-        });
+
+        if (!el.__params || el.__params.x != el.scrollLeft || el.__params.y != el.scrollTop) {
+            $(el).trigger('scrollStop', (el.__params = {
+                x: el.scrollLeft,
+                y: el.scrollTop,
+                width: el.clientWidth,
+                height: el.clientHeight,
+                scrollHeight: el.scrollHeight,
+                scrollWidth: el.scrollWidth
+            }));
+        }
+
     }, 80);
 }
 
@@ -219,6 +223,8 @@ var touchEnd = function (e) {
     if (el.__isScroll && !el.__isStop) {
         e.stopPropagation();
     }
+    el.__isScroll = false;
+
     if (el.isRefresh) {
         el.isRefresh = false;
         el.$refresh.html('<div class="dataloading"></div>');
