@@ -4,7 +4,7 @@ var Activity = require('activity');
 var bridge = require('bridge');
 var Loading = require('../widget/loading');
 var Slider = require('../widget/slider');
-var model = require('core/model3');
+var model = require('core/model2');
 var Scroll = require('../widget/scroll');
 var barcode = require('../util/barcode');
 var animation = require('animation');
@@ -333,10 +333,11 @@ module.exports = Activity.extend({
             success: function (res) {
 
                 self.model.set({
-                    activity: res.data
+                    activity: res.data,
+                    topbanner: res.topbanner
                 });
 
-                Scroll.bind(self.$('.hm_shop_scroll:not(.s_binded)').addClass('s_binded'), {
+                Scroll.bind(self.$('.js_shop_scroll:not(.s_binded)').addClass('s_binded'), {
                     vScroll: false,
                     hScroll: true
                 });

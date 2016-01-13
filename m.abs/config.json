@@ -13,9 +13,7 @@
             "components/package": null,
             "components/banner": null,
             "models/base": null,
-            "models/user": null,
-            "core/model3": "../webresource/js/core/model2",
-            "core/touch2": "../webresource/m/js/core/touch2"
+            "models/user": null
         }
     },
     "css": {
@@ -33,10 +31,6 @@
         "/": {
             "controller": "index",
             "template": "index"
-        },
-        "/menu": {
-            "controller": "menu",
-            "template": "menu"
         },
         "/about": {
             "controller": "about",
@@ -141,6 +135,10 @@
         "/steward/detail/{id:\\d+}": {
             "controller": "steward/detail",
             "template": "steward/detail"
+        },
+        "/test": {
+            "controller": "test",
+            "template": "test"
         }
     }
 }

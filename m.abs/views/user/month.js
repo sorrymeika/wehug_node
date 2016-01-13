@@ -5,7 +5,7 @@
     var Activity = require('activity');
     var Loading = require('widget/loading');
     var Slider = require('widget/slider');
-    var model = require('core/model3');
+    var model = require('core/model2');
     var Scroll = require('widget/scroll');
     var animation = require('animation');
     var bridge = require('bridge');

@@ -1,6 +1,6 @@
 var $ = require('$');
 var View = require('core/view');
-var model = require('core/model3');
+var model = require('core/model2');
 var bridge = require('bridge');
 
 var Share = View.extend({

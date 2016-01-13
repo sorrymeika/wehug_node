@@ -228,39 +228,26 @@
             this.set(data);
         },
         closest: function (key) {
+            var res;
             for (var parent = this.parent; parent != null; parent = parent.parent) {
-                if (parent.key == key) {
+                res = typeof key == 'function' ? key(parent) : (parent.key == key ? 1 : 0);
+                if (res) {
                     return parent;
+                } else if (res === false) {
+                    return null;
                 }
             }
         },
-        contains: function (model, excollection) {
+        contains: function (model, excludeCollection) {
             for (model = model.parent; model != null; model = model.parent) {
                 if (model == this) {
                     return true;
-                } else if (excollection && model instanceof Collection)
+                } else if (excludeCollection && model instanceof Collection)
                     return false;
             }
             return false;
         },
 
-        _bubbleEl: function (el, fn, ret) {
-
-            while (el) {
-                if (el.snRepeatNode)
-                    el = el.snRepeatNode;
-
-                if (el.snModel && el.snRepeat) {
-                    if ((val = fn(el)) !== undefined) return val;
-
-                    el = el.snReplacement;
-
-                } else
-                    break;
-            }
-
-            return ret === undefined ? this : ret;
-        },
 
         under: function (parent) {
             for (var model = this.parent; model != null && parent != model; model = model.parent) {
@@ -269,19 +256,6 @@
                 }
             }
             return true;
-        },
-
-        isRelativeToEl: function (el) {
-            var self = this;
-            var isUnderRoot = this.under();
-            if (isUnderRoot) {
-                return true;
-            }
-
-            return self._bubbleEl(el, function (el) {
-                if (el.snModel == self || el.snModel.contains(self, true))
-                    return true;
-            }, false);
         }
     }
     ModelProto.reset = ModelProto.clear;
@@ -317,16 +291,18 @@
 
         if (this.filters) {
             this.filter = this.viewModel._compile('{{' + this.filters + '}}', this, function (e, model) {
+                var now = Date.now();
 
                 var isUnderRoot = model.under();
 
                 for (var i = 0; i < self.snRepeats.length; i++) {
                     var item = self.snRepeats[i];
 
-                    if (isUnderRoot || model == item.containsModel || model.under(item.containsModel) || model.parent == item.collection() || model.contains(item.containsModel)) {
+                    if (isUnderRoot || model == item.referenceModel || model.under(item.referenceModel) || model.under(item.collection()) || model.contains(item.referenceModel)) {
                         item.update();
                     }
                 }
+
             });
         }
 
@@ -341,7 +317,7 @@
             for (var i = 0; i < self.snRepeats.length; i++) {
                 var snRepeat = self.snRepeats[i];
 
-                if (!self.isChild || collection.parent == snRepeat.containsModel) {
+                if (!self.isChild || collection.parent == snRepeat.referenceModel) {
                     snRepeat.add(models).update();
                 }
             }
@@ -367,25 +343,27 @@
     Repeat.prototype.append = function (options) {
         var self = this;
         var snRepeat = new SNRepeat(this, options.replacement, options.model);
+        var hasAdd = false;
 
         self.snRepeats.push(snRepeat);
 
         for (var i = 0; i < self.syncModels.length; i++) {
             var model = self.syncModels[i];
-            if (!self.isChild || model.parent.parent == snRepeat.containsModel) {
+            if (!self.isChild || model.parent.parent == snRepeat.referenceModel) {
                 snRepeat.add(model);
+                hasAdd = true;
             }
         }
 
-        snRepeat.update();
+        hasAdd && snRepeat.update();
     }
 
-    var SNRepeat = function (repeat, replacement, containsModel) {
+    var SNRepeat = function (repeat, replacement, referenceModel) {
         var self = this;
 
         this.replacement = replacement;
         this.repeat = repeat;
-        this.containsModel = containsModel;
+        this.referenceModel = referenceModel;
 
         replacement.ownSnRepeat = this;
 
@@ -395,7 +373,7 @@
     SNRepeat.prototype = {
 
         collection: function () {
-            return this.containsModel.model[this.repeat.key];
+            return this.referenceModel.model[this.repeat.key];
         },
 
         _removeEl: function (el) {
@@ -419,7 +397,7 @@
             var list = this.elements;
             var repeat = this.repeat;
             var orderBy = repeat.orderBy;
-            var root = this.containsModel.root;
+            var root = this.referenceModel.root;
 
             if (orderBy) {
                 list.sort(function (a, b) {
@@ -467,7 +445,7 @@
 
             if (parentNode) parentNode.appendChild(node);
 
-            //如果是给repeat占位的CommentElement，则存放到相关model的replacement中以备替换
+            //给repeat占位的CommentElement
             if (el.nodeType == 8 && el.repeat) {
                 node.repeat = el.repeat;
                 if (model) {
@@ -685,7 +663,7 @@
         if (repeat) {
             code += ',{';
             for (var parent = repeat.parent, current = repeat; parent != null; current = parent, parent = parent.parent) {
-                code += parent.alias + ':' + (current.isChild ? 'model.closest(\'' + parent.collectionName + '^child\').data' : 'root._bubbleEl(el,function(el){ if (el.snRepeat.repeat.alias == "' + parent.alias + '") return el.snModel.data; },null)') + ',';
+                code += parent.alias + ':' + (current.isChild ? 'model.closest(\'' + parent.collectionName + '^child\').data' : 'root.eachRepeat(el,function(rp,md){ if (rp.repeat.alias == "' + parent.alias + '") return md.data; },null)') + ',';
 
                 if (parent.indexAlias) {
                     code += parent.indexAlias + ':$el.closest(\'[sn-index-alias="' + parent.indexAlias + '"]\').snIndex,';
@@ -874,7 +852,7 @@
 
                             } else {
                                 if (!el.parentNode) {
-                                    el.parentNode.insertBefore(el, el.snReplacement);
+                                    el.snReplacement.parentNode.insertBefore(el, el.snReplacement);
                                 }
                             }
                             break;
@@ -898,7 +876,7 @@
 
             if (!rmatch.test(expression)) return;
 
-            var listen = function (e, model) {
+            (node.bindings || (node._elements = [], node.bindings = {}))[attr] = self._compile(expression, repeat, function (e, model) {
                 if (!repeat) {
                     self.render(node, attr);
 
@@ -906,19 +884,20 @@
                     for (var i = 0; i < node._elements.length; i++) {
                         var el = node._elements[i];
 
-                        if (model == this || model.isRelativeToEl(el)) {
+                        if (model == this || model.under() || self.eachRepeat(el, function (snRepeat, snModel) {
+                            if (snModel == model || snModel.contains(model, true))
+                                return true;
+                        }, false)) {
                             self.render(el, attr);
                         }
                     }
                 }
-            };
-
-            (node.bindings || (node._elements = [], node.bindings = {}))[attr] = self._compile(expression, repeat, listen);
+            });
         },
 
         _closestByEl: function (el) {
-            return this._bubbleEl(el, function (el) {
-                return el.snModel;
+            return this.eachRepeat(el, function (snRepeat, snModel) {
+                return snModel;
             });
         },
 
@@ -932,9 +911,9 @@
             } else if (alias == "$state")
                 return self.$state;
 
-            return this._bubbleEl(el, function (el) {
-                if (el.snRepeat.repeat.alias == alias)
-                    return el.snModel;
+            return this.eachRepeat(el, function (snRepeat, snModel) {
+                if (snRepeat.repeat.alias == alias)
+                    return snModel;
             });
         },
         _getVal: function (model, name) {
@@ -947,6 +926,24 @@
             var model = this._getByEl(el, name);
 
             model.set(model == this || model == self.$state ? name : name.replace(/^[^\.]+\./, ''), value);
+        },
+
+        eachRepeat: function (el, fn, ret) {
+
+            while (el) {
+                if (el.snRepeatNode)
+                    el = el.snRepeatNode;
+
+                if (el.snModel && el.snRepeat) {
+                    if ((val = fn(el.snRepeat, el.snModel)) !== undefined) return val;
+
+                    el = el.snReplacement;
+
+                } else
+                    break;
+            }
+
+            return ret === undefined ? this : ret;
         },
 
         $: function (selector) {
@@ -1101,6 +1098,8 @@
             for (var i = 0, len = elements.length; i < len; i++) {
                 self.render(elements[i]);
             }
+            return this;
+
         }
 
     }, util.pick(ComponentBase.prototype, ['destroy', 'undelegateEvents', 'listenTo', 'listen', 'onDestroy']));

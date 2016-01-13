@@ -126,10 +126,13 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
     }
     .bd {
         height: 70px;-webkit-box-flex: 1;
-        ul { display: -webkit-box; height: 35px;line-height: 35px;font-size: 3rem;
-            &:first-child{ border-bottom: 1px solid #ddd;}
+        ul { display: -webkit-box; height: 35px;line-height: 35px;font-size: 3rem; position: relative;
+            &:first-child:after{ border-bottom: 1px solid #ddd;display: block; left: 0; right: -100%; bottom: 0; content: ''; position: absolute; -webkit-transform: scale(.5); -webkit-transform-origin: 0 0;}
         }
-        li {width: 0px;-webkit-box-flex: 1; border-left: 1px solid #ddd;}
+        li {
+            width: 0px;-webkit-box-flex: 1;  position: relative;
+            &:after {border-right: 1px solid #ddd; display: block; left: 0; bottom: -100%; top: 0; width: 0px; content: ''; position: absolute; -webkit-transform: scale(.5); -webkit-transform-origin: 0 0;}
+        }
     }
 }
 .hm_shop { color: #333; padding-bottom: 1px; }
@@ -137,8 +140,12 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .hm_shop_cate li { -webkit-box-flex: 1; text-align: center; font-size: 2.4rem; line-height: 1; }
 .hm_shop_cate li i { display: block; width: 45px; height: 45px; background: #e8ba2e; margin: 0 auto 5px auto; border-radius: 4px; padding-top: 1px; }
 .hm_shop_cate li i:before { content: ''; display: block; width: 40px; height: 40px; margin: 1px auto 0 auto; background: url(icon.png) no-repeat -280px -150px; background-size: 320px auto; }
-.hm_shop_banner { margin-top: 12px; }
-.hm_shop_banner img { min-height: 30px; width: 100%; }
+.hm_shop_banner { 
+    margin-top: 12px;
+    ul { display: -webkit-box; }
+    li {-webkit-box-flex: 1;}
+    img { min-height: 30px; display: block; width:100%; }
+}
 .hm_shop_list { display: -webkit-box; padding-right: 8px; }
 .hm_shop_list_item { width: 101px; margin: 8px 0 0 8px; }
 .hm_shop_list_item img { width: 101px; height: 101px; }
@@ -978,15 +985,22 @@ $p:2;
     .banner { width: 100%; display: block; padding: 0; margin-top: 10px; }
 	.list {
 		li { display: -webkit-box; background: #fff; margin-top: 5px;position: relative; }
-		img { display: block;width: 168px; height: 168px;}
+        .img { width: 50%; position: relative;
+            &:before { display: block; padding-top: 100%; content:''; }
+        }
+		img { display: block;width: 100%; height: auto; position: absolute; top: 0px; left: 0px;}
 		.con {
 			position: relative; padding: 10px 6px;-webkit-box-flex:1;
 			:nth-child(n+1) { display: block; }
 			em {color:#e65e5f; margin-top: 10px;}
-			.btn { position: absolute; width: 132px; right: 10px; top: 120px;}
+			.btn { position: absolute; left: 10px; right: 10px; top: 110px; }
+            @media screen and (min-width:414px) {
+			     .btn { top: 140px; }
+            }
 		}
 	}
 }
+
 
 .sp_fastbuy {
 	dl { background: #fff;border-bottom:1px solid #ddd;margin-top: 5px; }

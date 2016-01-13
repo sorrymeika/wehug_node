@@ -71,6 +71,7 @@
             "core/app": "../webresource/m/js/core/app",
             "core/activity": "../webresource/m/js/core/activity",
             "core/touch": "../webresource/m/js/core/touch",
+            "core/touch2": "../webresource/m/js/core/touch2",
             "widget/scrollview": "../webresource/m/js/widget/scrollview",
             "widget/scroll": "../webresource/m/js/widget/scroll",
             "widget/tip": "../webresource/js/widget/tip",

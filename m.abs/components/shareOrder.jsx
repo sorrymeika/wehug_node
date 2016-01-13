@@ -1,5 +1,5 @@
 var $ = require('$');
-var model = require('core/model3');
+var model = require('core/model2');
 var Share = require('components/share');
 var api = require('models/base');
 var userModel = require('models/user');

@@ -5,15 +5,6 @@ var API = Loading.extend({
 });
 exports.API = API;
 
-exports.NewsAPI = API.extend({
-    url: '/api/settings/get_news',
-    checkData: false,
-    params: {
-        id: 0,
-        name: "activity"
-    }
-});
-
 exports.OrderStatusAPI = API.extend({
     url: '/api/user/get_order_status',
     checkData: false,
@@ -46,6 +37,15 @@ var ShopAPI = Loading.extend({
     KEY_PAGE: 'currentpage'
 });
 exports.ShopAPI = ShopAPI;
+
+
+exports.NewsAPI = ShopAPI.extend({
+    url: '/api/prod/getedm',
+    checkData: false,
+    params: {
+        id: 0
+    }
+});
 
 exports.AddressListAPI = ShopAPI.extend({
     url: '/api/user/addresslist',

@@ -1,5 +1,5 @@
 var api = require('models/base');
-var model = require('core/model3');
+var model = require('core/model2');
 var util = require('util');
 var $ = require('$');
 var State = model.State;

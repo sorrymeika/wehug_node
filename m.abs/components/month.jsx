@@ -1,5 +1,5 @@
 var $ = require('$');
-var model = require('core/model3');
+var model = require('core/model2');
 var api = require('models/base');
 var Size = require('components/size');
 var util = require('util');
@@ -7,7 +7,8 @@ var util = require('util');
 var Month = model.ViewModel.extend({
 	el: <div class="main"><div class="uc_month_get" style="margin-bottom:10px">
 		<ul class="list">
-			<li sn-repeat="item in month"><img src="{{item.WPP_LIST_PIC}}">
+			<li sn-repeat="item in month">
+            <p class="img"><img src="{{item.WPP_LIST_PIC}}"></p>
 			<p class="con">
 				<span class="name">{{item.PRD_NAME}}</span>
 				<em>￥0</em>

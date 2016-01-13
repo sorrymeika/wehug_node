@@ -222,6 +222,7 @@ var touchEnd = function (e) {
     e.cancelTap = el.__isScroll;
     if (el.__isScroll && !el.__isStop) {
         e.stopPropagation();
+        e.preventDefault();
     }
     el.__isScroll = false;
 

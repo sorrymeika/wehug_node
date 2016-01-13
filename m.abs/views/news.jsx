@@ -94,12 +94,6 @@ A：优惠券的使用时限、抵用限额及其他限制条件请详见优惠�
                 
                 var $main=$(<div class="main" style="padding:10px;background:#fff;"></div>).appendTo(self.$el);
                 
-                var iframe = self.createIFrame($main);
-                iframe.$el.css({
-                    width: window.innerWidth-20,
-                    height: $main[0].offsetHeight-20
-                })
-                
                 var newsApi = new api.NewsAPI({
                     $el: self.$el,
                     params: {
@@ -108,12 +102,38 @@ A：优惠券的使用时限、抵用限额及其他限制条件请详见优惠�
                     success: function(res) {
                         var content;
                         if (res.success) {
-                            content = res.data.Content;
+                            if (res.edmtype == 1) {
+                                var iframe = self.createIFrame($main);
+                                iframe.$el.css({
+                                    width: window.innerWidth-20,
+                                    height: $main[0].offsetHeight-20
+                                })
+                                iframe.html(res.data.edm_html);
+                            } else {
+                                var $template=$(<div sn-repeat="list in data">
+                                    <div sn-if="{{list.type==1}}">
+                                    <a sn-repeat="pic in list.data" href="{{pic.EDD_URL||'javascript:;'}}"><img class="banner" style="margin-bottom:10px" sn-src="{{list.type==1?pic.EDD_PIC:''}}"  /></a>
+                                    </div>
+                                    <ul class="sp_list" style="overflow:hidden" sn-if="{{list.type==2}}">
+                                    <li sn-repeat="item in list.data" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}?from={{url}}" sn-index="0"> <img src="{{item.WPP_LIST_PIC}}"> 
+                                        <p class="price"><b>￥{{item.PRD_PRICE}}</b><del sn-display="{{item.PRD_PRICE!=0&&item.PRD_PRICE<item.PRD_MEMBER_PRICE}}" style="display: none;">￥{{item.PRD_MEMBER_PRICE}}&nbsp;</del></p> 
+                                        <p class="name">{{item.PRD_NAME}}</p> </li>
+                                    </ul>
+                                </div>);
+                                
+                                $template.appendTo($main);
+                                
+                                self.model.bind($template)
+                                    .set({
+                                        data: res.data
+                                    });
+                                
+                                
+                            }
                         } else {
-                            content = res.msg;
+                            sl.tip(res.msg);
                         }
                         
-                        iframe.html(content);
                     },
                     error: function(res) {
                         sl.tip(res);
