@@ -22,7 +22,6 @@ module.exports = Activity.extend({
     onCreate: function () {
         var self = this;
         
-
         self.swipeRightBackAction = self.route.query.from || '/';
 
         var id = self.route.data.id;
@@ -115,9 +114,9 @@ A：优惠券的使用时限、抵用限额及其他限制条件请详见优惠�
                                     <a sn-repeat="pic in list.data" href="{{pic.EDD_URL||'javascript:;'}}"><img class="banner" style="margin-bottom:10px" sn-src="{{list.type==1?pic.EDD_PIC:''}}"  /></a>
                                     </div>
                                     <ul class="sp_list" style="overflow:hidden" sn-if="{{list.type==2}}">
-                                    <li sn-repeat="item in list.data" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}?from={{url}}" sn-index="0"> <img src="{{item.WPP_LIST_PIC}}"> 
-                                        <p class="price"><b>￥{{item.PRD_PRICE}}</b><del sn-display="{{item.PRD_PRICE!=0&&item.PRD_PRICE<item.PRD_MEMBER_PRICE}}" style="display: none;">￥{{item.PRD_MEMBER_PRICE}}&nbsp;</del></p> 
-                                        <p class="name">{{item.PRD_NAME}}</p> </li>
+                                    <li sn-repeat="item in list.data" class="sp_list_item" data-forward="/item/{{item.PRD_OBJ.PRD_ID}}?from={{url}}" sn-index="0"> <img src="{{item.PRD_OBJ.WPP_LIST_PIC}}"> 
+                                        <p class="price"><b>￥{{item.PRD_OBJ.PRD_PRICE}}</b><del sn-display="{{item.PRD_OBJ.PRD_PRICE!=0&&item.PRD_OBJ.PRD_PRICE<item.PRD_OBJ.PRD_MEMBER_PRICE}}" style="display: none;">￥{{item.PRD_OBJ.PRD_MEMBER_PRICE}}&nbsp;</del></p> 
+                                        <p class="name">{{item.PRD_OBJ.PRD_NAME}}</p> </li>
                                     </ul>
                                 </div>);
                                 

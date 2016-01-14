@@ -341,6 +341,10 @@ module.exports = Activity.extend({
                     vScroll: false,
                     hScroll: true
                 });
+
+                if (self.model.data.tab == 1) {
+                    self.scroll.get('.js_shop').imageLazyLoad();
+                }
             }
         });
 

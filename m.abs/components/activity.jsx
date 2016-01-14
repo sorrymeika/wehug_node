@@ -8,8 +8,8 @@ var Month = model.ViewModel.extend({
 		<div class="hm_shop">
 			<div sn-repeat="item in activity">
 				<div sn-if="{{item.type==1}}" class="hm_shop_banner js_scroll">
-                    <ul style="width:100%">
-                        <li><img sn-src="{{item.data}}" data-forward="{{item.url}}?from={{encodeURIComponent('/news/activity'+id)}}" /></li>
+                    <ul style="width:{{item.data.length*100}}%">
+                        <li><img sn-src="{{img.src}}" sn-repeat="img in item.data" data-forward="{{img.url}}?from={{encodeURIComponent('/news/activity'+id)}}" /></li>
                     </ul>
                 </div>
 				<div sn-if="{{item.type==2}}" class="hm_shop_scroll js_scroll">
@@ -34,6 +34,7 @@ var Month = model.ViewModel.extend({
 				h5name: 'api_prod'+this.data.id
 			},
             success: function (res) {
+                
                 self.set({
                     activity: res.data
                 });

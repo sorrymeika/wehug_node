@@ -105,7 +105,7 @@
                     </div>
                 </div>
                 <div class="banner">
-                    <img src="{{topbanner.data}}" data-forward="{{topbanner.url}}?from=%2f" />
+                    <img src="{{item.src}}" sn-repeat="item in topbanner.data" data-forward="{{item.url}}?from=%2f" />
                 </div>
                 <ul class="hm_shop_cate">
                     <li data-forward="/list?type=new&from=%2f"><i></i>新品<br>上市</li>
@@ -115,8 +115,8 @@
                 </ul>
                 <div sn-repeat="item in activity">
                     <div sn-if="{{item.type==1}}" class="hm_shop_banner js_shop_scroll">
-                        <ul style="width:100%">
-                            <li><img data-src="{{item.data}}" data-forward="{{item.url}}?from=%2f" /></li>
+                        <ul style="width:{{item.data.length*100}}%">
+                            <li><img sn-repeat="img in item.data" data-src="{{img.src}}" data-forward="{{img.url}}?from=%2f" /></li>
                         </ul>
                     </div>
                     <div sn-if="{{item.type==2}}" class="hm_shop_scroll js_shop_scroll" style="padding-right:10px;">
