@@ -119,7 +119,7 @@
                             <li><img sn-repeat="img in item.data" data-src="{{img.src}}" data-forward="{{img.url}}?from=%2f" /></li>
                         </ul>
                     </div>
-                    <div sn-if="{{item.type==2}}" class="hm_shop_scroll js_shop_scroll" style="padding-right:10px;">
+                    <div sn-if="{{item.type==2&&item.data.length}}" class="hm_shop_scroll js_shop_scroll" style="padding-right:10px;">
                         <ul class="hm_shop_list">
                             <li class="hm_shop_list_item" sn-repeat="prd in item.data" data-forward="/item/{{prd.PRD_ID}}?from={{encodeURIComponent('/')}}">
                                 <img data-src="{{prd.WPP_LIST_PIC}}" />

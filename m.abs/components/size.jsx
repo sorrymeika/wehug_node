@@ -24,13 +24,13 @@ var Month = model.ViewModel.extend({
 					<div class="pd_size_select">
 						<div class="hd">尺码</div>
 						<ul>
-							<li sn-repeat="item in spec" class="{{data.PRD_SPEC==item?'curr':''}}" sn-tap="this.setSpec(item)">{{item.split('|')[0]}}</li>
+							<li sn-repeat="item in spec" class="{{data.PRD_SPEC==item?'curr':this.isInList(item,data.PRD_COLOR)?'':'disabled'}}" sn-tap="this.setSpec(item)">{{item.split('|')[0]}}</li>
 						</ul>
 					</div>
 					<div class="pd_size_select">
 						<div class="hd">颜色分类</div>
 						<ul>
-							<li sn-repeat="item in color" class="{{data.PRD_COLOR==item?'curr':''}}" sn-tap="this.setColor(item)">{{item}}</li>
+							<li sn-repeat="item in color" class="{{data.PRD_COLOR==item?'curr':this.isInList(data.PRD_SPEC,item)?'':'disabled'}}" sn-tap="this.setColor(item)">{{item}}</li>
 						</ul>
 					</div>
 				</div>
@@ -45,7 +45,17 @@ var Month = model.ViewModel.extend({
 			</div>
 		</div>,
     
+    isInList: function(spec,color){
+        
+        return !!util.first(this.get('colorSpec'), function (item) {
+			return item.PRD_SPEC == spec && item.PRD_COLOR == color;
+		});
+    },
+    
 	setSpec: function(e, item) {
+        if ($(e.currentTarget).hasClass('disabled')) {
+            return;
+        }
         this.set("data.PRD_SPEC",item);
         this.onChange();
     },

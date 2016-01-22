@@ -3,7 +3,7 @@
         _ = require('util'),
         app = require('bridge');
 
-    var extend = ['$el', 'url', 'method', 'headers', 'dataType', 'xhrFields', 'beforeSend', 'success', 'complete', 'pageIndex', 'pageSize', 'append', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL'];
+    var extend = ['$el', 'url', 'method', 'headers', 'dataType', 'xhrFields', 'beforeSend', 'success', 'complete', 'pageIndex', 'pageSize', 'append', 'checkData', 'check', 'hasData', 'KEY_PAGE', 'KEY_PAGESIZE', 'DATAKEY_TOTAL', 'MSG_NO_MORE'];
 
     var Loading = function (options) {
         $.extend(this, _.pick(options, extend));
@@ -30,6 +30,9 @@
         DATAKEY_TOTAL: 'total',
         DATAKEY_PAGENUM: '',
 
+        MSG_NO_MORE: '没有更多数据了',
+        MSG_LOADING_MORE: '正在加载...',
+
         baseUri: $('meta[name="api-base-url"]').attr('content'),
         method: "POST",
         dataType: 'json',
@@ -38,7 +41,7 @@
         pageSize: 10,
 
         template: '<div class="dataloading"></div>',
-        refresh: '<div class="refreshing"><p class="msg js_msg"></p><p class="loading js_loading"></p></div>',
+        refresh: '<div class="refreshing"><p class="loading js_loading"></p><p class="msg js_msg"></p></div>',
         errorTemplate: '<div class="server_error"><i class="msg js_msg"></i><i class="ico_reload js_reload"></i></div>',
 
         check: function (res) {
@@ -50,14 +53,25 @@
             return res.data && res.data.length;
         },
 
+        showMoreLoading: function () {
+            this.showMoreMsg(this.MSG_LOADING_MORE);
+            this.$refreshing.find('.js_loading').show();
+        },
+
         showMsg: function (msg) {
             if (this.pageIndex == 1) {
                 this.$loading.find('.js_msg').show().html(msg);
                 this.$loading.show().find('.js_loading').hide();
             } else {
-                this.$refreshing.find('.js_msg').show().html(msg);
-                this.$refreshing.show().find('.js_loading').hide();
+                this.showMoreMsg(msg);
             }
+        },
+
+        showMoreMsg: function (msg) {
+            var $refreshing = (this.$refreshing || (this.$refreshing = $(this.refresh)).appendTo(this.$content));
+
+            $refreshing.find('.js_msg').show().html(msg);
+            $refreshing.show().find('.js_loading').hide();
         },
 
         complete: _.noop,
@@ -109,9 +123,7 @@
                 that.$refreshing && that.$refreshing.hide();
 
             } else {
-                $refreshing = this.$refreshing;
-                $refreshing.show().find('.js_msg').html('正在载入...');
-                $refreshing.find('.js_loading').show();
+                that.showMoreLoading();
                 that.$loading && that.$loading.hide();
             }
         },
@@ -282,7 +294,8 @@
         },
 
         enableAutoRefreshing: function () {
-            var $refreshing = (this.$refreshing || (this.$refreshing = $(this.refresh)).appendTo(this.$content)).show();
+
+            this.showMoreLoading('正在载入...');
 
             if (this._autoRefreshingEnabled) return;
             this._autoRefreshingEnabled = true;
@@ -300,7 +313,7 @@
 
             this.$scroll.off('scrollStop', this._scroll);
 
-            this.$refreshing && this.$refreshing.hide();
+            this.showMoreMsg(this.MSG_NO_MORE);
         },
 
         abort: function () {

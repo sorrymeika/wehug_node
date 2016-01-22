@@ -14,7 +14,7 @@ var Month = model.ViewModel.extend({
                 </div>
 				<div sn-if="{{item.type==2}}" class="hm_shop_scroll js_scroll">
 					<ul class="{{type=='H'?'hm_shop_list':'sp_list'}}">
-						<li class="{{type=='H'?'hm_shop_list_item':'sp_list_item'}}" sn-repeat="prd in item.data" data-forward="{{prd.PRD_ID}}?from={{encodeURIComponent('/news/activity'+id)}}">
+						<li class="{{type=='H'?'hm_shop_list_item':'sp_list_item'}}" sn-repeat="prd in item.data" data-forward="/item/{{prd.PRD_ID}}?from={{encodeURIComponent('/news/activity'+id)}}">
 							<img sn-src="{{prd.WPP_LIST_PIC}}" />
 							<p class="price">￥{{prd.PRD_PRICE}} <del sn-display="{{prd.PRD_SPECIAL_FLAG}}">¥{{prd.PRD_MEMBER_PRICE}}</del></p>
 							<p class="name">{{prd.PRD_NAME}}</p>

@@ -345,6 +345,8 @@ module.exports = Activity.extend({
                 if (self.model.data.tab == 1) {
                     self.scroll.get('.js_shop').imageLazyLoad();
                 }
+                
+                this.showMoreMsg('别拉了，就这些<i class="ico_no_more"></i>');
             }
         });
 

@@ -30,6 +30,7 @@ module.exports = Activity.extend({
         id = m[2];
 
         self.model = new model.ViewModel(this.$el, {
+            url: encodeURIComponent(self.route.url),
             back: self.swipeRightBackAction
         });
 
@@ -91,7 +92,7 @@ A：优惠券的使用时限、抵用限额及其他限制条件请详见优惠�
             default:
                 title = "ABS家居";
                 
-                var $main=$(<div class="main" style="padding:10px;background:#fff;"></div>).appendTo(self.$el);
+                var $main=$(<div class="main"></div>).appendTo(self.$el);
                 
                 var newsApi = new api.NewsAPI({
                     $el: self.$el,
@@ -110,10 +111,10 @@ A：优惠券的使用时限、抵用限额及其他限制条件请详见优惠�
                                 iframe.html(res.data.edm_html);
                             } else {
                                 var $template=$(<div sn-repeat="list in data">
-                                    <div sn-if="{{list.type==1}}">
-                                    <a sn-repeat="pic in list.data" href="{{pic.EDD_URL||'javascript:;'}}"><img class="banner" style="margin-bottom:10px" sn-src="{{list.type==1?pic.EDD_PIC:''}}"  /></a>
+                                    <div class="banner" sn-if="{{list.type==1}}">
+                                    <a sn-repeat="pic in list.data" href="{{pic.EDD_URL||'javascript:;'}}"><img sn-src="{{list.type==1?pic.EDD_PIC:''}}"  /></a>
                                     </div>
-                                    <ul class="sp_list" style="overflow:hidden" sn-if="{{list.type==2}}">
+                                    <ul class="sp_list" style="overflow:hidden;margin-top:0" sn-if="{{list.type==2}}">
                                     <li sn-repeat="item in list.data" class="sp_list_item" data-forward="/item/{{item.PRD_OBJ.PRD_ID}}?from={{url}}" sn-index="0"> <img src="{{item.PRD_OBJ.WPP_LIST_PIC}}"> 
                                         <p class="price"><b>￥{{item.PRD_OBJ.PRD_PRICE}}</b><del sn-display="{{item.PRD_OBJ.PRD_PRICE!=0&&item.PRD_OBJ.PRD_PRICE<item.PRD_OBJ.PRD_MEMBER_PRICE}}" style="display: none;">￥{{item.PRD_OBJ.PRD_MEMBER_PRICE}}&nbsp;</del></p> 
                                         <p class="name">{{item.PRD_OBJ.PRD_NAME}}</p> </li>

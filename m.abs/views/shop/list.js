@@ -61,6 +61,7 @@ define(function (require, exports, module) {
                 },
                 KEY_PAGE: 'pages',
                 KEY_PAGESIZE: 'length',
+                MSG_NO_MORE: '别拉了，就这些<i class="ico_no_more"></i>',
                 pageSize: '10',
                 success: function (res) {
                     if (res.data.length == 10) res.total = (this.pageIndex + 1) * parseInt(this.pageSize)

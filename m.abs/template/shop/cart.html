@@ -43,8 +43,8 @@
         </dl>
         <i class="js_delete" data-wacid="{{ppg.SPB_WAC_ID}}" data-groupid="{{ppg.SPB_GROUP}}" data-ppgid="{{ppg.PPG_ID}}"></i>
     </div>
-    <div class="ct_buy_more" data-forward="/all?from=/cart" sn-display="{{prod_amount<=99}}">
-        <i>去凑单</i> 满<em>¥99</em>即可免运费，还差<em>¥{{Math.round((99-prod_amount)*100)/100}}</em>
+    <div class="ct_buy_more" data-forward="/all?from=/cart" sn-display="{{this.getPrice(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points)<=99}}">
+        <i>去凑单</i> 满<em>¥99</em>即可免运费，还差<em>¥{{Math.round((99-this.getPrice(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points))*100)/100}}</em>
     </div>
     <ul class="ct_list_info">
         <li><span>商品总价</span><em><b class="price">￥{{prod_amount}}</b></em></li>

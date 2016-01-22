@@ -5,6 +5,8 @@ body, html { font-size: 5px; color: #333; }
 header { background: #e65e5f; height: 44px; line-height: 44px; }
 .has_status_bar header { border-top-color: #e65e5f; }
 
+.refreshing { background: transparent; color: #333; }
+
 .footer {
     position: absolute; bottom: 0px; width: 100%; height: 50px; border-top: .5px solid #ccc; background: #fff; z-index: 1000; display: -webkit-box; text-align: center; color: #666; -webkit-user-select: none; -webkit-touch-callout: none;
     li {
@@ -141,7 +143,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 .hm_shop_cate li i { display: block; width: 45px; height: 45px; background: #e8ba2e; margin: 0 auto 5px auto; border-radius: 4px; padding-top: 1px; }
 .hm_shop_cate li i:before { content: ''; display: block; width: 40px; height: 40px; margin: 1px auto 0 auto; background: url(icon.png) no-repeat -280px -150px; background-size: 320px auto; }
 .hm_shop_banner { 
-    margin-top: 12px;
+    margin-top: 10px;
     ul { display: -webkit-box; }
     li {-webkit-box-flex: 1;}
     img { min-height: 30px; display: block; width:100%; }
@@ -904,7 +906,9 @@ $p:2;
 .pd_info {
 	h1,.price { font-size: 3.6rem;}
 }
-.sp_list { overflow: hidden; }
+.sp_list { overflow: hidden; 
+    ~.refreshing { color:#333; }
+}
 .sp_list_item {
     position: relative;
     .sold_out { display: block; position: absolute;top: 60px;height: 40px; font-size: 2.4rem; text-align: center; background: rgba(0,0,0,.5); right: 0px; color: #fff; left: 0; padding-top: 8px; }
@@ -1134,3 +1138,5 @@ $p:2;
         &:before { background-image: url(fast_buy_icon.png); }
     }
 }
+
+.ico_no_more { @extend .ex_icon; background-position: -300px 0px; width:14px;height:14px;margin-left: 3px; vertical-align: -2px; }

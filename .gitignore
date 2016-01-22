@@ -6,6 +6,7 @@
 /app/bin
 /.vs
 /m.linshi/upload
+/m.abs/dest
 /webresource/dest.m/upload
 /webresource/dest.m
 .DS_Store
