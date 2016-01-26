@@ -71,6 +71,8 @@ $.extend(Touch.prototype, {
         self.startX = self.x;
         self.startY = self.y;
 
+        self.prevPointX = self.prevPointY = 0;
+
         self.isClickStopMomentum = self._stopMomentum();
 
         self.timestamp = Date.now();
@@ -144,6 +146,9 @@ $.extend(Touch.prototype, {
         self.isMoveLeft = self.pointX - point.pageX > 0 ? true : self.pointX == point.pageX ? self.isMoveLeft : false;
         self.isMoveTop = self.pointY - point.pageY > 0 ? true : self.pointY == point.pageY ? self.isMoveTop : false;
 
+        self.prevPointX = self.oldPointX;
+        self.prevPointY = self.oldPointY;
+
         self.oldPointX = self.pointX;
         self.oldPointY = self.pointY;
 
@@ -190,14 +195,33 @@ $.extend(Touch.prototype, {
             duration;
 
         if (Date.now() - self.timestamp < 50) {
-            changeX = point.pageX - self.oldPointX;
-            changeY = point.pageY - self.oldPointY;
+            changeX = point.pageX - (self.prevPointX || self.oldPointX);
+            changeY = point.pageY - (self.prevPointY || self.oldPointY);
 
-            distX = changeX * Math.abs(changeX);
-            distY = changeY * Math.abs(changeY);
+            distX = changeX * Math.abs(changeX) / 3;
+            distY = changeY * Math.abs(changeY) / 3;
 
-            duration = Math.abs(Math.max(changeX, changeY)) * 80;
+            duration = Math.abs(Math.max(changeX, changeY)) * 100;
+        }
 
+        if (self.options.divisorX) {
+            !distX && (distX = currentX);
+
+            distX = distX % self.options.divisorX == 0 ? distX :
+                self.isMoveLeft ? Math.ceil(distX / self.options.divisorX) * self.options.divisorX :
+                    (Math.floor(distX / self.options.divisorX) * self.options.divisorX);
+        }
+
+        if (self.options.divisorY) {
+            !distY && (distY = currentY);
+
+            distY = distY % self.options.divisorY == 0 ? distY :
+                self.isMoveTop ? Math.ceil(distY / self.options.divisorY) * self.options.divisorY :
+                    (Math.floor(distY / self.options.divisorY) * self.options.divisorY);
+        }
+
+        if (distX || distY) {
+            //惯性移动
             self.momentum = animation.animate(function (d, current, duration) {
                 d = cb.get(current / duration);
                 x = currentX + distX * d * -1;
@@ -218,6 +242,7 @@ $.extend(Touch.prototype, {
                     distY -= currentY;
                     distX -= currentX;
 
+                    //当前惯性移动的值超过阀值减速移动
                     self.momentum = animation.animate(function (d) {
                         self.options.enableHorizontal && (self.x = currentX + distX * d);
                         self.options.enableVertical && (self.y = currentY + distY * d);
@@ -234,7 +259,7 @@ $.extend(Touch.prototype, {
                     self.trigger('move');
                 }
 
-            }, duration, 'ease', function () {
+            }, duration || 200, 'ease', function () {
                 self._stop();
             });
         } else {
