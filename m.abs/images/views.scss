@@ -245,6 +245,7 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
         }
     }
     .btn_confirm { display: block; margin: 0; position: fixed; bottom: 0; right: 0px; left: 0px; border-radius: 0px; }
+    .btn_confirm.disabled { background: #ccc; opacity: 1; }
 }
 .pd_size_con { position: absolute; left: 0; right: 0; bottom: 85px; top: 90px; }
 .pd_size_select {

@@ -41,7 +41,7 @@ var Month = model.ViewModel.extend({
 						<em sn-tap="qty=qty+1">+</em>
 					</p>
 				</div>
-				<b class="btn_large btn_confirm" sn-tap="this.confirm()">{{btn||'确认'}}</b>
+				<b class="btn_large btn_confirm{{data.PRD_NUM===0?' disabled':''}}" sn-tap="this.confirm()">{{data.PRD_NUM===0?'商品已售罄':(btn||'确认')}}</b>
 			</div>
 		</div>,
     
@@ -61,6 +61,9 @@ var Month = model.ViewModel.extend({
     },
     
     setColor: function(e, item) {
+        if ($(e.currentTarget).hasClass('disabled')) {
+            return;
+        }
         this.set("data.PRD_COLOR",item);
         this.onChange();
     },
@@ -73,6 +76,7 @@ var Month = model.ViewModel.extend({
 		var item = util.first(colorSpec, function (item) {
 			return item.PRD_SPEC == data.PRD_SPEC && item.PRD_COLOR == data.PRD_COLOR;
 		});
+        
         if (item) {
             if (item.PRD_PRICE!==undefined) {
                 this.set("data.PRD_PRICE",item.PRD_PRICE);
@@ -80,6 +84,10 @@ var Month = model.ViewModel.extend({
             if (item.PRD_NUM!==undefined) {
                 this.set("data.PRD_NUM",item.PRD_NUM);
             }
+            if (item.WPP_LIST_PIC!==undefined) {
+                this.set("data.WPP_LIST_PIC",item.WPP_LIST_PIC);
+            }
+            
         }
         this.trigger("SizeChange", item);
     },
