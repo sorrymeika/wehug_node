@@ -15,7 +15,10 @@ var Touch = function (el, options) {
     self.el = $el[0];
     self.options = $.extend({
         enableVertical: true,
-        enableHorizontal: false
+        enableHorizontal: false,
+        divisorX: 0,
+        divisorY: 100,
+        maxDuration: 0
 
     }, options);
 
@@ -97,7 +100,6 @@ $.extend(Touch.prototype, {
 
             if (isDirectionY || isDirectionX) {
 
-
                 if (isDirectionY && !self.options.enableVertical || isDirectionX && !self.options.enableHorizontal) {
                     this.stop();
                     return;
@@ -168,7 +170,7 @@ $.extend(Touch.prototype, {
     _end: function (e) {
         var self = this;
 
-        if ((!self.isTouchMoved || self.isTouchStop) && self._isClickStopAni) {
+         if ((!self.isTouchMoved || self.isTouchStop) && self._isClickStopAni) {
             if (self.shouldBounceBack()) {
                 self.bounceBack();
             }
@@ -200,48 +202,62 @@ $.extend(Touch.prototype, {
             distY = 0,
             x,
             y,
-            duration;
+            duration,
+            resultX,
+            resultY;
 
         if (Date.now() - self.timestamp < 50) {
             changeX = point.pageX - (self.prevPointX || self.oldPointX);
             changeY = point.pageY - (self.prevPointY || self.oldPointY);
 
-            distX = changeX * Math.abs(changeX) / 4;
-            distY = changeY * Math.abs(changeY) / 4;
+            distX = changeX * Math.abs(changeX) / -4;
+            distY = changeY * Math.abs(changeY) / -4;
 
             duration = Math.max(Math.abs(changeX), Math.abs(changeY), 10) * 100;
         }
 
+        console.log(distY)
+
         if (self.options.divisorX) {
-            distX = distX % self.options.divisorX == 0 ? distX :
-                self.isMoveLeft ? Math.ceil(distX / self.options.divisorX) * self.options.divisorX :
-                    (Math.floor(distX / self.options.divisorX) * self.options.divisorX);
+
+            resultX = distX + currentX;
+
+            distX = resultX % self.options.divisorX == 0 ? distX :
+                self.isMoveLeft ? Math.ceil(resultX / self.options.divisorX) * self.options.divisorX - currentX :
+                    (Math.floor(resultX / self.options.divisorX) * self.options.divisorX - currentX);
         }
 
         if (self.options.divisorY) {
-            distY = distY % self.options.divisorY == 0 ? distY :
-                self.isMoveTop ? Math.ceil(distY / self.options.divisorY) * self.options.divisorY :
-                    (Math.floor(distY / self.options.divisorY) * self.options.divisorY);
+            resultY = distY + currentY;
+
+            distY = resultY % self.options.divisorY == 0 ? distY :
+                self.isMoveTop ? Math.ceil(resultY / self.options.divisorY) * self.options.divisorY - currentY :
+                    (Math.floor(resultY / self.options.divisorY) * self.options.divisorY - currentY);
+
+            console.log(resultY, distY, self.isMoveTop, Math.ceil(resultY / self.options.divisorY) * self.options.divisorY);
         }
 
         if (distX || distY) {
+
+            !duration && (duration = 200) || self.options.maxDuration && duration > self.options.maxDuration && (duration = self.options.maxDuration); 
+            
             //惯性移动
             self.momentum = animation.animate(function (d, current, duration) {
                 d = cb.get(current / duration);
-                x = currentX + distX * d * -1;
-                y = currentY + distY * d * -1;
+                x = currentX + distX * d;
+                y = currentY + distY * d;
 
                 if (self.options.enableVertical && (y < self.minY || y > self.maxY) || (self.options.enableHorizontal && !self.options.enableVertical && (x < self.minX || x > self.maxX))) {
                     self.momentum && self.momentum.stop();
 
-                    distX = currentX - distX;
-                    distY = currentY - distY;
+                    distX = currentX + distX;
+                    distY = currentY + distY;
 
                     currentX = self.x;
                     currentY = self.y;
 
-                    distX = distX < self.minX ? self.minX + Math.max(-100, (distX - self.minX) / 36) : distX > self.maxX ? self.maxX + Math.min(100, (distX - self.maxX) / 36) : distX;
-                    distY = distY < self.minY ? self.minY + Math.max(-100, (distY - self.minY) / 36) : distY > self.maxY ? self.maxY + Math.min(100, (distY - self.maxY) / 36) : distY;
+                    distX = distX < self.minX ? self.minX + Math.max(-80, (distX - self.minX) / 36) : distX > self.maxX ? self.maxX + Math.min(100, (distX - self.maxX) / 36) : distX;
+                    distY = distY < self.minY ? self.minY + Math.max(-80, (distY - self.minY) / 36) : distY > self.maxY ? self.maxY + Math.min(100, (distY - self.maxY) / 36) : distY;
 
                     distY -= currentY;
                     distX -= currentX;
@@ -263,7 +279,7 @@ $.extend(Touch.prototype, {
                     self.trigger('move');
                 }
 
-            }, duration || 200, 'ease', function () {
+            }, duration, 'ease', function () {
                 self._stop();
             });
         } else {
