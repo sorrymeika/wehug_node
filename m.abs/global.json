@@ -73,6 +73,7 @@
             "core/touch": "../webresource/m/js/core/touch",
             "core/touch2": "../webresource/m/js/core/touch2",
             "widget/scrollview": "../webresource/m/js/widget/scrollview",
+            "widget/scrollview2": "../webresource/m/js/widget/scrollview2",
             "widget/scroll": "../webresource/m/js/widget/scroll",
             "widget/tip": "../webresource/js/widget/tip",
             "widget/dialog": "../webresource/js/widget/dialog",

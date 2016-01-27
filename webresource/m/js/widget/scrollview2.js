@@ -1,6 +1,6 @@
 ﻿var $ = require('$'),
     animation = require('core/animation'),
-    Touch = require('core/touch');
+    Touch = require('core/touch2');
 
 var addScroller = function ($el) {
     return $('<div class="scroller_container" style="width:100%;"></div>').append($el.children()).appendTo($el.html(''));
@@ -35,7 +35,7 @@ var ScrollView = function (el, options) {
 
     }).on('move', function () {
         var self = this;
-        that.scroller.style.webkitTransform = 'translate(' + self.x * -1 + 'px,' + self.y * -1 + 'px)';
+        that.scroller.style.webkitTransform = 'translate3d(' + self.x * -1 + 'px,' + self.y * -1 + 'px,0)';
 
     }).on('stop', function () {
         that.$el.trigger("scrollStop", {

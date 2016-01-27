@@ -160,10 +160,18 @@ $.extend(Touch.prototype, {
         return false;
     },
 
+    shouldBounceBack: function () {
+        var self = this;
+        return self.options.enableHorizontal && (self.x < self.minX || self.x > self.maxX) || self.options.enableVertical && (self.y < self.minY || self.y > self.maxY);
+    },
+
     _end: function (e) {
         var self = this;
 
         if ((!self.isTouchMoved || self.isTouchStop) && self._isClickStopAni) {
+            if (self.shouldBounceBack()) {
+                self.bounceBack();
+            }
             self._stop();
             e.cancelTap = true;
             return;
@@ -178,7 +186,7 @@ $.extend(Touch.prototype, {
         $(e.target).trigger('touchcancel');
         self.trigger('end');
 
-        if (self.options.enableHorizontal && (self.x < self.minX || self.x > self.maxX) || self.options.enableVertical && (self.y < self.minY || self.y > self.maxY)) {
+        if (self.shouldBounceBack()) {
             self.bounceBack();
             return;
         }
@@ -188,8 +196,8 @@ $.extend(Touch.prototype, {
             changeY,
             currentX = self.x,
             currentY = self.y,
-            distX,
-            distY,
+            distX = 0,
+            distY = 0,
             x,
             y,
             duration;
@@ -198,23 +206,19 @@ $.extend(Touch.prototype, {
             changeX = point.pageX - (self.prevPointX || self.oldPointX);
             changeY = point.pageY - (self.prevPointY || self.oldPointY);
 
-            distX = changeX * Math.abs(changeX) / 3;
-            distY = changeY * Math.abs(changeY) / 3;
+            distX = changeX * Math.abs(changeX) / 4;
+            distY = changeY * Math.abs(changeY) / 4;
 
-            duration = Math.abs(Math.max(changeX, changeY)) * 100;
+            duration = Math.max(Math.abs(changeX), Math.abs(changeY), 10) * 100;
         }
 
         if (self.options.divisorX) {
-            !distX && (distX = currentX);
-
             distX = distX % self.options.divisorX == 0 ? distX :
                 self.isMoveLeft ? Math.ceil(distX / self.options.divisorX) * self.options.divisorX :
                     (Math.floor(distX / self.options.divisorX) * self.options.divisorX);
         }
 
         if (self.options.divisorY) {
-            !distY && (distY = currentY);
-
             distY = distY % self.options.divisorY == 0 ? distY :
                 self.isMoveTop ? Math.ceil(distY / self.options.divisorY) * self.options.divisorY :
                     (Math.floor(distY / self.options.divisorY) * self.options.divisorY);

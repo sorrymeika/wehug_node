@@ -21,7 +21,9 @@ define(function (require, exports, module) {
 
             self.swipeRightBackAction = self.route.query.from || '/all';
 
-            Scroll.bind($main);
+            Scroll.bind($main, {
+                useScroll: true
+            });
 
             var categories = util.store('categories');
 
