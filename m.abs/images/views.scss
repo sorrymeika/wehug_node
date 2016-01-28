@@ -1119,7 +1119,7 @@ $p:2;
 
 .uc_coupon_list {
     li.dis { background: #ccc;  }
-    li .name { height: 14px; overflow: hidden; }
+    li .name { height: 14px; overflow: hidden; margin-right: 60px; text-overflow: ellipsis; }
 }
 
 .coupon_tip { position: absolute; top: 0; z-index: 2000; bottom: 0; right: 0; top: 0; left: 0; background: rgba(0, 0, 0, .7); }

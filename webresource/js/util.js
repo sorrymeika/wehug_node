@@ -99,9 +99,12 @@ var util = {
 
     log: function (msg) {
         if (!this.$log) {
-            this.$log = $('<div style="height:40px;position:fixed;top:0;left:0;right:0;z-index:100000;background:#fff;overflow:auto"></div>').appendTo('body');
+            this.$log = $('<div style="height:40px;position:fixed;top:0;left:0;right:0;z-index:100000;background:#fff;overflow-y:scroll;word-break:break-all;word-wrap:break-word;"></div>').appendTo('body');
         }
-        this.$log.html(msg + '|' + this.$log.html());
+        if (arguments.length > 1) {
+            msg += ArrayProto.slice.call(arguments, 1).join(' ');
+        }
+        this.$log.html(msg + '<br>' + this.$log.html());
     },
 
     indexOf: function (arr, val) {

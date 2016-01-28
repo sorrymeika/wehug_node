@@ -33,8 +33,10 @@
         percentReg = /(\d+\.\d+|\d+)\%/g,
         translatePercentReg = /translate\((\-{0,1}\d+(?:\.\d+){0,1}(?:\%|px){0,1})\s*\,\s*(\-{0,1}\d+(?:\.\d+){0,1}(?:\%|px){0,1})\)/,
         matrixReg = /matrix\((\-{0,1}\d+\.\d+|\-{0,1}\d+)\s*\,\s*(\-{0,1}\d+\.\d+|\-{0,1}\d+)\s*\,\s*(\-{0,1}\d+\.\d+|\-{0,1}\d+)\s*\,\s*(\-{0,1}\d+\.\d+|\-{0,1}\d+)\s*\,\s*(\-{0,1}\d+\.\d+|\-{0,1}\d+)\s*\,\s*(\-{0,1}\d+\.\d+|\-{0,1}\d+)\s*\)/,
-        transformReg = /(translate|skew|rotate|scale|matrix)\(([^\)]+)\)/g,
         matrixEndReg = /matrix\([^\)]+\)\s*$/;
+
+    var re_transform_all = /(translate|skew|rotate|scale|matrix)(3d){0,1}\(([^\)]+)\)/g;
+    var re_transform = /^(matrix|translate|skew|rotate|scale|invert)(3d){0,1}$/;
 
     var getEase = function (ease) {
         if (!ease) ease = [tween.easeOut];
@@ -64,41 +66,41 @@
     }
 
     var getMatrixByTransform = function (transform) {
-        var m2d = new Matrix2D();
-        transform.replace(transformReg, function ($0, $1, $2) {
-            m2d[$1 == 'matrix' ? 'append' : $1].apply(m2d, toFloatArr($2.split(',')));
+        var matrix = new Matrix2D();
+        transform.replace(re_transform_all, function ($0, $1, is3d, $2) {
+            matrix[$1 == 'matrix' ? 'append' : $1].apply(matrix, toFloatArr($2.split(',')));
         });
 
-        return m2d;
+        return matrix;
     }
 
     var toTransform = function (css) {
         var result = {},
             origTransform,
-            m2d;
+            matrix;
 
         $.each(css, function (key, val) {
-            if (/matrix|translate|skew|rotate|scale|invert/.test(key)) {
+            var m = key.match(re_transform);
+            if (m) {
                 if (key === 'translate') {
-                    val = (result[TRANSFORM] || '') + ' ' + key + '(' + val + ')';
+                    val = (result[TRANSFORM] || '') + ' ' + key + '(' + val + ') translateZ(0)';
 
                 } else {
-                    if (!m2d) m2d = new Matrix2D();
+                    if (!matrix) matrix = new Matrix2D();
                     origTransform = (result[TRANSFORM] || '');
-                    val = m2d[key == 'matrix' ? 'append' : key].apply(m2d, toFloatArr(val.split(','))).toString();
+                    val = matrix[key == 'matrix' ? 'append' : key].apply(matrix, toFloatArr(val.split(','))).toString();
                     val = matrixEndReg.test(origTransform) ? origTransform.replace(matrixEndReg, val) : (origTransform + ' ' + val);
                 }
-
                 key = TRANSFORM;
 
             } else if (key === 'transform') {
                 key = TRANSFORM;
-                m2d = null;
+                matrix = null;
             }
             result[key] = val;
         });
 
-        return { css: result, matrix: m2d };
+        return { css: result, matrix: matrix };
     };
 
     exports.transform = toTransform;
@@ -210,16 +212,12 @@
                     if (key == TRANSFORM) {
                         var m = originVal.match(matrixReg) || ['', 1, 0, 0, 1, 0, 0];
                         var i = 0;
-                        var m2d = getMatrixByTransform(val);
+                        var matrix = getMatrixByTransform(val);
 
-                        m2d.a = getCurrent(m[1], m2d.a, d);
-                        m2d.b = getCurrent(m[2], m2d.b, d);
-                        m2d.c = getCurrent(m[3], m2d.c, d);
-                        m2d.d = getCurrent(m[4], m2d.d, d);
-                        m2d.tx = getCurrent(m[5], m2d.tx, d);
-                        m2d.ty = getCurrent(m[6], m2d.ty, d);
-
-                        newStyle[key] = m2d.toString();
+                        for (var i = 0; i < 6; i++) {
+                            matrix[i] = getCurrent(m[i + 1], matrix[i], d);
+                        }
+                        newStyle[key] = matrix.toString()+' translateZ(0)';
 
                     } else if (!isNaN(parseFloat(val))) {
                         originVal = isNaN(parseFloat(originVal)) ? defaultStyle[key] || 0 : parseFloat(originVal);
@@ -231,9 +229,7 @@
             } else {
                 newStyle = style;
             }
-
             $(this).css(newStyle);
-            //console.log(this.style.cssText)
         });
 
         this._step && this._step(d);
@@ -323,7 +319,7 @@
     Animation.prototype.step = function (percent) {
         var item,
             list = this.list;
-            
+
         this.per = percent;
 
         for (var i = 0, length = list.length; i < length; i++) {
@@ -469,7 +465,7 @@
 
         else {
             if (divisor && outsideDist == 0) {
-                console.log(result, divisor, dir, result % divisor < divisor / 2,result - result % divisor)
+                console.log(result, divisor, dir, result % divisor < divisor / 2, result - result % divisor)
                 result = result % divisor == 0 ? result : (result % divisor < divisor / 2 || (dir != undefined && dir == 'right')) ? result - result % divisor : (result - result % divisor + divisor);
                 result = result > max ? max : result < min ? min : result;
                 if (newTime < 300) newTime = 300;

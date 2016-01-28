@@ -123,19 +123,20 @@ define(function (require, exports, module) {
                             });
 
                         } else {
+
                             bridge.wx({
                                 type: 'pay',
                                 spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
                                 orderCode: res.code,
                                 orderName: 'ABS商品',
-                                orderPrice: res.puramount
+                                orderPrice: res.pur_amount
 
                             }, function (res) {
                                 sl.tip(res.msg);
                             });
                         }
 
-                        self.forward('/order/' + res.pur_id);
+                        self.forward('/order/' + res.pur_id+"?from=/myorder");
                     }
                 },
                 error: function (res) {

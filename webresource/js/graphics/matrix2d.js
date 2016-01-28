@@ -97,8 +97,9 @@
     * @type Matrix2D
     * @readonly
     **/
-    Matrix2D.identity=null; // set at bottom of class definition.
-
+    Matrix2D.identity = null; // set at bottom of class definition.
+    
+    p.length = 6;
 
     // public methods:
     /**
@@ -114,12 +115,12 @@
     */
     p.setValues=function (a,b,c,d,tx,ty) {
         // don't forget to update docs in the constructor if these change:
-        this.a=(a==null)?1:a;
-        this.b=b||0;
-        this.c=c||0;
-        this.d=(d==null)?1:d;
-        this.tx=tx||0;
-        this.ty=ty||0;
+        this[0]=(a==null)?1:a;
+        this[1]=b||0;
+        this[2]=c||0;
+        this[3]=(d==null)?1:d;
+        this[4]=tx||0;
+        this[5]=ty||0;
         return this;
     };
 
@@ -136,18 +137,18 @@
     * @return {Matrix2D} This matrix. Useful for chaining method calls.
     **/
     p.append=function (a,b,c,d,tx,ty) {
-        var a1=this.a;
-        var b1=this.b;
-        var c1=this.c;
-        var d1=this.d;
+        var a1=this[0];
+        var b1=this[1];
+        var c1=this[2];
+        var d1=this[3];
         if(a!=1||b!=0||c!=0||d!=1) {
-            this.a=a1*a+c1*b;
-            this.b=b1*a+d1*b;
-            this.c=a1*c+c1*d;
-            this.d=b1*c+d1*d;
+            this[0]=a1*a+c1*b;
+            this[1]=b1*a+d1*b;
+            this[2]=a1*c+c1*d;
+            this[3]=b1*c+d1*d;
         }
-        this.tx=a1*tx+c1*ty+this.tx;
-        this.ty=b1*tx+d1*ty+this.ty;
+        this[4]=a1*tx+c1*ty+this[4];
+        this[5]=b1*tx+d1*ty+this[5];
         return this;
     };
 
@@ -165,16 +166,16 @@
     * @return {Matrix2D} This matrix. Useful for chaining method calls.
     **/
     p.prepend=function (a,b,c,d,tx,ty) {
-        var a1=this.a;
-        var c1=this.c;
-        var tx1=this.tx;
+        var a1=this[0];
+        var c1=this[2];
+        var tx1=this[4];
 
-        this.a=a*a1+c*this.b;
-        this.b=b*a1+d*this.b;
-        this.c=a*c1+c*this.d;
-        this.d=b*c1+d*this.d;
-        this.tx=a*tx1+c*this.ty+tx;
-        this.ty=b*tx1+d*this.ty+ty;
+        this[0]=a*a1+c*this[1];
+        this[1]=b*a1+d*this[1];
+        this[2]=a*c1+c*this[3];
+        this[3]=b*c1+d*this[3];
+        this[4]=a*tx1+c*this[5]+tx;
+        this[5]=b*tx1+d*this[5]+ty;
         return this;
     };
 
@@ -248,8 +249,8 @@
 
         if(regX||regY) {
             // append the registration offset:
-            this.tx-=regX*this.a+regY*this.c;
-            this.ty-=regX*this.b+regY*this.d;
+            this[4]-=regX*this[0]+regY*this[2];
+            this[5]-=regX*this[1]+regY*this[3];
         }
         return this;
     };
@@ -291,7 +292,7 @@
 
         if(regX||regY) {
             // prepend the registration offset:
-            this.tx-=regX;this.ty-=regY;
+            this[4]-=regX;this[5]-=regY;
         }
         if(skewX||skewY) {
             // TODO: can this be combined into a single prepend operation?
@@ -316,13 +317,13 @@
         var cos=Math.cos(angle);
         var sin=Math.sin(angle);
 
-        var a1=this.a;
-        var b1=this.b;
+        var a1=this[0];
+        var b1=this[1];
 
-        this.a=a1*cos+this.c*sin;
-        this.b=b1*cos+this.d*sin;
-        this.c= -a1*sin+this.c*cos;
-        this.d= -b1*sin+this.d*cos;
+        this[0]=a1*cos+this[2]*sin;
+        this[1]=b1*cos+this[3]*sin;
+        this[2]= -a1*sin+this[2]*cos;
+        this[3]= -b1*sin+this[3]*cos;
         return this;
     };
 
@@ -348,12 +349,12 @@
     * @return {Matrix2D} This matrix. Useful for chaining method calls.
     **/
     p.scale=function (x,y) {
-        this.a*=x;
-        this.b*=x;
-        this.c*=y;
-        this.d*=y;
-        //this.tx *= x;
-        //this.ty *= y;
+        this[0]*=x;
+        this[1]*=x;
+        this[2]*=y;
+        this[3]*=y;
+        //this[4] *= x;
+        //this[5] *= y;
         return this;
     };
 
@@ -365,8 +366,8 @@
     * @return {Matrix2D} This matrix. Useful for chaining method calls.
     **/
     p.translate=function (x,y) {
-        this.tx+=this.a*x+this.c*y;
-        this.ty+=this.b*x+this.d*y;
+        this[4]+=this[0]*x+this[2]*y;
+        this[5]+=this[1]*x+this[3]*y;
         return this;
     };
 
@@ -376,8 +377,8 @@
     * @return {Matrix2D} This matrix. Useful for chaining method calls.
     **/
     p.identity=function () {
-        this.a=this.d=1;
-        this.b=this.c=this.tx=this.ty=0;
+        this[0]=this[3]=1;
+        this[1]=this[2]=this[4]=this[5]=0;
         return this;
     };
 
@@ -387,19 +388,19 @@
     * @return {Matrix2D} This matrix. Useful for chaining method calls.
     **/
     p.invert=function () {
-        var a1=this.a;
-        var b1=this.b;
-        var c1=this.c;
-        var d1=this.d;
-        var tx1=this.tx;
+        var a1=this[0];
+        var b1=this[1];
+        var c1=this[2];
+        var d1=this[3];
+        var tx1=this[4];
         var n=a1*d1-b1*c1;
 
-        this.a=d1/n;
-        this.b= -b1/n;
-        this.c= -c1/n;
-        this.d=a1/n;
-        this.tx=(c1*this.ty-d1*tx1)/n;
-        this.ty= -(a1*this.ty-b1*tx1)/n;
+        this[0]=d1/n;
+        this[1]= -b1/n;
+        this[2]= -c1/n;
+        this[3]=a1/n;
+        this[4]=(c1*this[5]-d1*tx1)/n;
+        this[5]= -(a1*this[5]-b1*tx1)/n;
         return this;
     };
 
@@ -409,7 +410,7 @@
     * @return {Boolean}
     **/
     p.isIdentity=function () {
-        return this.tx===0&&this.ty===0&&this.a===1&&this.b===0&&this.c===0&&this.d===1;
+        return this[4]===0&&this[5]===0&&this[0]===1&&this[1]===0&&this[2]===0&&this[3]===1;
     };
 
     /**
@@ -419,7 +420,7 @@
     * @return {Boolean}
     **/
     p.equals=function (matrix) {
-        return this.tx===matrix.tx&&this.ty===matrix.ty&&this.a===matrix.a&&this.b===matrix.b&&this.c===matrix.c&&this.d===matrix.d;
+        return this[4]===matrix.tx&&this[5]===matrix.ty&&this[0]===matrix.a&&this[1]===matrix.b&&this[2]===matrix.c&&this[3]===matrix.d;
     };
 
     /**
@@ -432,8 +433,8 @@
     **/
     p.transformPoint=function (x,y,pt) {
         pt=pt||{};
-        pt.x=x*this.a+y*this.c+this.tx;
-        pt.y=x*this.b+y*this.d+this.ty;
+        pt.x=x*this[0]+y*this[2]+this[4];
+        pt.y=x*this[1]+y*this[3]+this[5];
         return pt;
     };
 
@@ -448,18 +449,18 @@
     p.decompose=function (target) {
         // TODO: it would be nice to be able to solve for whether the matrix can be decomposed into only scale/rotation even when scale is negative
         if(target==null) { target={}; }
-        target.x=this.tx;
-        target.y=this.ty;
-        target.scaleX=Math.sqrt(this.a*this.a+this.b*this.b);
-        target.scaleY=Math.sqrt(this.c*this.c+this.d*this.d);
+        target.x=this[4];
+        target.y=this[5];
+        target.scaleX=Math.sqrt(this[0]*this[0]+this[1]*this[1]);
+        target.scaleY=Math.sqrt(this[2]*this[2]+this[3]*this[3]);
 
-        var skewX=Math.atan2(-this.c,this.d);
-        var skewY=Math.atan2(this.b,this.a);
+        var skewX=Math.atan2(-this[2],this[3]);
+        var skewY=Math.atan2(this[1],this[0]);
 
         var delta=Math.abs(1-skewX/skewY);
         if(delta<0.00001) { // effectively identical, can use rotation:
             target.rotation=skewY/Matrix2D.DEG_TO_RAD;
-            if(this.a<0&&this.d>=0) {
+            if(this[0]<0&&this[3]>=0) {
                 target.rotation+=(target.rotation<=0)?180:-180;
             }
             target.skewX=target.skewY=0;
@@ -486,7 +487,7 @@
     * @return {Matrix2D} a clone of the Matrix2D instance.
     **/
     p.clone=function () {
-        return new Matrix2D(this.a,this.b,this.c,this.d,this.tx,this.ty);
+        return new Matrix2D(this[0],this[1],this[2],this[3],this[4],this[5]);
     };
 
     /**
@@ -495,7 +496,7 @@
     * @return {String} a string representation of the instance.
     **/
     p.toString=function () {
-        return "matrix("+this.a+","+this.b+","+this.c+","+this.d+","+this.tx+","+this.ty+")";
+        return "matrix("+this[0]+","+this[1]+","+this[2]+","+this[3]+","+this[4]+","+this[5]+")";
     };
 
     return Matrix2D;

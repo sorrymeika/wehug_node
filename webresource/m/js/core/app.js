@@ -60,6 +60,9 @@
                     deltaX = that.touch.dx;
 
                 if (that.touch.isDirectionY || that.swiperPromise || that.swiper) {
+                    if (that.swiperPromise) {
+                        that.touch.options.stop.call(that);
+                    }
                     that.touch.stop();
                     return;
                 }
@@ -105,21 +108,15 @@
 
             move: function (e) {
                 var that = this,
-                    per,
                     deltaX = that.touch.dx;
 
                 if (!that.swiperPromise) return;
 
                 that.swiperPromise.then(function () {
-                    if (that.isSwipeLeft && deltaX < 0 || !that.isSwipeLeft && deltaX > 0) {
-                        that.swiper.step(0);
-                        return;
-                    }
-
-                    per = Math.abs(deltaX) * 100 / that.width;
-
-                    that.swiper.step(per);
-                }, that);
+                    that.swiper.step(that.isSwipeLeft && deltaX < 0 || !that.isSwipeLeft && deltaX > 0 ?
+                        0 :
+                        (Math.abs(deltaX) * 100 / that.width));
+                });
             },
 
             stop: function () {
@@ -129,6 +126,7 @@
 
                 if (that.swiperPromise) {
                     that.swiperPromise.then(function () {
+
                         that.queue.then([200, that.isCancelSwipe ? 0 : 100, function () {
                             var activity = that.swipeActivity,
                                 currentActivity = that._currentActivity;
@@ -153,13 +151,15 @@
                                     currentActivity.destroy();
                                 }
                             }
-                            that.swiper = null;
-                            that.swiperPromise = null;
                             that.queue.resolve();
 
                         }], that.swiper.animate, that.swiper);
 
+                        that.swiperPromise = null;
+                        that.swiper = null;
                     });
+
+
                 }
             }
         }, application);
@@ -200,19 +200,19 @@
             }
         },
 
-        el: '<div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:2000;display:none"></div><div class="viewport"></div>',
+        el: '<div class="viewport"><div class="screen" style="position:fixed;top:0px;bottom:0px;right:0px;width:100%;background:rgba(0,0,0,0);z-index:20000;display:none"></div></div>',
 
         backGesture: true,
 
         initialize: function () {
-            var that = this,
-                preventEvents = 'tap click touchend touchmove touchstart';
+            var that = this;
+            //var preventEvents = 'tap click touchmove touchstart';
 
-            that.mask = $(that.$el[0]).off(preventEvents).on(preventEvents, false);
+            that.el = that.$el[0];
+            that.mask = that.$el.children('.screen');//.off(preventEvents).on(preventEvents, false);
+            //that.canvas = that.$el[2];
+            //that.$input = that.$el[3];
 
-            that.el = that.$el[1];
-            that.canvas = that.$el[2];
-            that.$input = that.$el[3];
             that.history = [];
 
             if (that.backGesture) bindBackGesture(this);
@@ -357,7 +357,7 @@
                     anim.ease = ease;
                     anim.duration = duration;
 
-                    anim.el.css(animation.transform(anim.start).css).animate(anim.css, duration, ease);
+                    anim.el.css(animation.transform(anim.start).css).animate(animation.transform(anim.css).css, duration, ease);
                 }
 
                 //anim.finish = finish;

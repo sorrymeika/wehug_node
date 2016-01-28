@@ -49,8 +49,6 @@ define(function (require, exports, module) {
             }
         },
 
-        swipeRightBackAction: '/',
-
         validTimeout: function () {
             var self = this;
             var sec = localStorage.getItem('valid_time');
@@ -82,12 +80,14 @@ define(function (require, exports, module) {
 
             var $main = this.$('.main');
 
+            this.swipeRightBackAction = this.route.query.from || '/';
+
             Scroll.bind($main);
 
             this.model = new model.ViewModel(this.$el, {
                 title: '快速登录 / 注册',
                 valid: '获取验证码',
-                back: this.route.query.from || '/'
+                back: this.swipeRightBackAction
             });
 
             this.loading = new Loading({
@@ -103,7 +103,7 @@ define(function (require, exports, module) {
                         if (res.msg == "HAS_BIND") {
                             sl.tip('您已经绑定过了哦');
                         }
-                        var backUrl = self.route.query.success || '/';
+                        var backUrl = self.route.query.success || self.swipeRightBackAction;
 
                         userModel.set(res.data).request(function () {
                             self.back(backUrl);

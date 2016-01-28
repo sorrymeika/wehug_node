@@ -26,7 +26,7 @@ module.exports = Activity.extend({
 
         self.model.getCoupon = function (e) {
             if (!self.user) {
-                self.forward('/login?from=' + encodeURIComponent(self.route.url));
+                self.forward('/login?success=' + encodeURIComponent(self.route.url) + '&from=' + encodeURIComponent(self.route.url));
             } else {
                 getSharedCouponAPI.setParam({
                     UserID: self.user.ID,
