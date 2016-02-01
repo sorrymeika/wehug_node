@@ -176,6 +176,7 @@ $.extend(Touch.prototype, {
             }
             self._stop();
             e.cancelTap = true;
+            console.log('cancelTap',e.cancelTap)
             return;
         }
 

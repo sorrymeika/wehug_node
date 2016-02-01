@@ -1,5 +1,11 @@
 var Loading = require('widget/loading');
 
+var UpdateAPI = Loading.extend({
+    url: '/app/getversion',
+    baseUri: $('meta[name="update-api-base-url"]').attr('content')
+});
+exports.UpdateAPI = UpdateAPI;
+
 var API = Loading.extend({
     baseUri: $('meta[name="api-base-url"]').attr('content')
 });

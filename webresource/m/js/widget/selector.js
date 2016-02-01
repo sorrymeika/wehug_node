@@ -186,7 +186,7 @@
             var that = this;
 
             if (!that._visible) {
-                var $scroll = that.$selector.find('.sl_scroller').css({ color: "#fff" });
+                var $scroll = that.$selector.find('.scroller_container').css({ color: "#fff" });
                 that.$container.show();
                 that.$mask.show();
                 that.$el.show();

@@ -175,21 +175,31 @@ module.exports = Activity.extend({
 
         sl.activity = self;
 
-        $.post(bridge.url('/api/settings/update'), {
-            version: sl.appVersion
+        var update = new api.UpdateAPI({
+            $el: $(''),
+            checkData: false,
+            params: {
+                version: sl.appVersion,
+                platform: util.ios ? 1 : 2
+            },
+            success: function (res) {
 
-        }, function (res) {
-            if (res.success && res.updateUrl) {
-                var confirm = new Confirm({
-                    content: res.text,
-                    confirm: function () {
-                        bridge.update(res.updateUrl, res.versionName);
-                    }
-                });
-                confirm.$el.appendTo($('body'));
-                confirm.show();
+                if (res.success && res.data.AVS_UPDATE_URL) {
+                    var confirm = new Confirm({
+                        content: res.data.AVS_UPDATE_MSG,
+                        alwaysOpen: res.data.AVS_FORCE_FLAG,
+                        confirm: function () {
+                            bridge.update(res.data.AVS_UPDATE_URL, res.data.AVS_VERSION);
+                        }
+                    });
+                    confirm.$el.appendTo($('body'));
+                    confirm.show();
+                }
+            },
+            error: function () {
             }
-        }, 'json');
+        });
+        update.load();
 
         this.model = new model.ViewModel(this.$el, {
             menu: 'head_menu',
@@ -243,10 +253,10 @@ module.exports = Activity.extend({
 
         /*/<!--
         var touch2 = new Touch2($(this.$main[0]).children());
-
+        
         touch2.on('start', function () {
             this.maxY = this.el.offsetHeight - this.el.parentNode.clientHeight;
-
+        
         }).on('move', function () {
             var self = this;
             self.el.style.webkitTransform = 'translate(0px,' + self.y * -1 + 'px)';
@@ -339,13 +349,14 @@ module.exports = Activity.extend({
 
                 Scroll.bind(self.$('.js_shop_scroll:not(.s_binded)').addClass('s_binded'), {
                     vScroll: false,
-                    hScroll: true
+                    hScroll: true,
+                    useScroll: true
                 });
 
                 if (self.model.data.tab == 1) {
                     self.scroll.get('.js_shop').imageLazyLoad();
                 }
-                
+
                 this.showMoreMsg('别拉了，就这些<i class="ico_no_more"></i>');
             }
         });

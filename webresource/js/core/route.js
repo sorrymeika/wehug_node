@@ -57,25 +57,25 @@ Route.prototype.append = function (options) {
 
 Route.prototype.match = function (url) {
     var result = null,
-        queries = {},
+        query = {},
         hash = url = standardizeHash(url),
         index = url.indexOf('?'),
-        query,
+        search,
         routes = this.routes,
         route,
         match;
 
     if (index != -1) {
-        query = url.substr(index + 1);
+        search = url.substr(index + 1);
 
         url = url.substr(0, index);
 
-        query.replace(/(?:^|&)([^=&]+)=([^&]*)/g, function (r0, r1, r2) {
-            queries[r1] = decodeURIComponent(r2);
+        search.replace(/(?:^|&)([^=&]+)=([^&]*)/g, function (r0, r1, r2) {
+            query[r1] = decodeURIComponent(r2);
             return '';
         })
     } else {
-        query = '';
+        search = '';
     }
 
     for (var i = 0, length = routes.length; i < length; i++) {
@@ -93,9 +93,8 @@ Route.prototype.match = function (url) {
                 package: this.isDebug ? false : util.combinePath(route.root, 'controller'),
                 view: route.view,
                 data: {},
-                queryString: query,
-                query: queries,
-                queries: queries
+                search: search,
+                query: query
             };
 
             for (var j = 0, len = route.parts.length; j < len; j++) {

@@ -337,7 +337,7 @@
                     activity.trigger('Appear');
                 });
 
-                var ease = isOpen ? 'cubic-bezier(.34,.86,.54,.99)' : 'cubic-bezier(.34,.86,.54,.99)',
+                var ease = 'cubic-bezier(.34,.86,.54,.99)',
                     anims = getToggleAnimation(isOpen, currentActivity, activity, options.toggleAnim),
                     anim;
 
@@ -346,11 +346,11 @@
                     activity.referrerDir = currentActivity.swipeRightForwardAction == url ? "Left" : "Right";
                 }
 
-                setTimeout(function () {
+                var finish = function () {
                     activity.finishEnterAnimation();
                     callback && callback(activity);
                     that.queue.resolve();
-                }, duration + 48);
+                };
 
                 for (var i = 0, n = anims.length; i < n; i++) {
                     anim = anims[i];
@@ -359,6 +359,8 @@
 
                     anim.el.css(animation.transform(anim.start).css).animate(animation.transform(anim.css).css, duration, ease);
                 }
+
+                setTimeout(finish, duration + 48);
 
                 //anim.finish = finish;
                 //animation.parallel(anims);

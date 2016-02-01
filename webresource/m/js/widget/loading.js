@@ -17,12 +17,14 @@
         this.$scroll = options.$scroll || this.$el;
         this.$content = options.$content || this.$scroll;
         this.pageEnabled = !!(options.pageEnabled || this.append);
-        this.isShowLoading = options.showLoading !== false;
+        options.showLoading != undefined && (this.isShowLoading = options.showLoading !== false);
 
         this.setUrl(this.url);
     }
 
     Loading.prototype = {
+        isShowLoading: true,
+        
         KEY_PAGE: 'page',
         KEY_PAGESIZE: 'pageSize',
 

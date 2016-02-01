@@ -219,7 +219,7 @@ var touchEnd = function (e) {
         el.__hasMomentum = true;
     }
 
-    e.cancelTap = el.__isScroll;
+    e.cancelTap === undefined && (e.cancelTap = el.__isScroll);
     if (el.__isScroll && !el.__isStop) {
         e.stopPropagation();
         e.preventDefault();
@@ -373,7 +373,7 @@ exports.bind = function (selector, options) {
 
         if (options && options.refresh) {
 
-            var $scroller = $el.children('.sl_scroller'),
+            var $scroller = $el.children('.scroller_container'),
                 $refresh = $('<div class="refresh" style="height:50px;text-align:center;line-height:50px;">下拉刷新</div>');
 
             if (!$scroller.length) $scroller = ScrollView.addScroller($el);

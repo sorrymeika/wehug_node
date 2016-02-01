@@ -5,7 +5,7 @@ var Confirm = model.ViewModel.extend({
 	el: <div class="cp_mask" style="display:none">
 		<div class="cp_confirm" style="height:{{height}}px;margin-top:-{{height/2}}px">
 			<div class="cp_confirm_bd" sn-html="{{content}}"></div>
-			<div class="cp_confirm_ft"><b class="btn" sn-tap="this.cancel">取消</b><b class="btn js_confirm"  sn-tap="this.confirm">确定</b></div>
+			<div class="cp_confirm_ft"><b sn-if="{{!alwaysOpen}}" class="btn" sn-tap="this.cancel">取消</b><b class="btn js_confirm"  sn-tap="this.confirm">确定</b></div>
 		</div>
 	</div>,
 	
@@ -35,7 +35,9 @@ var Confirm = model.ViewModel.extend({
 		!this.$el.hasClass('show')&&this.$el.hide();
 	},
 	hide: function(){
-		this.$el.removeClass('show');
+        if (!this.data.alwaysOpen) {
+		  this.$el.removeClass('show');
+        }
 	}
 });
 

@@ -4,66 +4,66 @@ var Event = require('core/event');
 
 var Deletion = function (options) {
 
-	var self = this;
-	var events = options.events;
+    var self = this;
+    var events = options.events;
 
-	!options.width && (options.width = 80);
+    !options.width && (options.width = 80);
 
-	this.$mask = $('<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0);display:none;z-index:3000"></div>').appendTo('body').on('touchend', function (e) {
-		var point = e.changedTouches[0];
-		self.$mask.hide();
-		self.touch.scrollTo(0, 0, 200);
-		
-		if (this._cancel) { 
-			return;
-		}
+    this.$mask = $('<div style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0);display:none;z-index:3000"></div>').appendTo('body').on('touchend', function (e) {
+        var point = e.changedTouches[0];
+        self.$mask.hide();
+        self.touch.scrollTo(0, 0, 200);
 
-		var el = document.elementFromPoint(point.pageX, point.pageY);
-		var target = self.$target[0].parentNode;
+        if (this._cancel) {
+            return;
+        }
 
-		if (events && (target == el || $.contains(target, el))) {
-			for (var key in events) {
-				for (var node = el; node != target.parentNode; node = node.parentNode) {
-					if ($(node).is(key)) {
-						events[key].call(self, Event.createEvent('tap', { currentTarget: node, target: el }));
-						return false;
-					}
-				}
-			}
-		}
-	}).on('touchstart', function () { 
-		this._cancel = false;
-	}).on('touchmove', function () { 
-		this._cancel = true;
-	});
+        var el = document.elementFromPoint(point.pageX, point.pageY);
+        var target = self.$target[0].parentNode;
 
-	this.touch = new Touch2(options.el, {
-		enableVertical: false,
-		enableHorizontal: true,
-		children: options.children
-	});
+        if (events && (target == el || $.contains(target, el))) {
+            for (var key in events) {
+                for (var node = el; node != target.parentNode; node = node.parentNode) {
+                    if ($(node).is(key)) {
+                        events[key].call(self, Event.createEvent('tap', { currentTarget: node, target: el }));
+                        return false;
+                    }
+                }
+            }
+        }
+    }).on('touchstart', function () {
+        this._cancel = false;
+    }).on('touchmove', function () {
+        this._cancel = true;
+    });
 
-	this.touch.on('start', function (e) {
-		self.$target = $(e.currentTarget);
-		this.maxX = options.width;
-		this.minX = 0;
+    this.touch = new Touch2(options.el, {
+        enableVertical: false,
+        enableHorizontal: true,
+        children: options.children
+    });
 
-	}).on('move', function (e) {
+    this.touch.on('start', function (e) {
+        self.$target = $(e.currentTarget);
+        this.maxX = options.width;
+        this.minX = 0;
 
-		self.$target.css({
-			"-webkit-transform": 'translate(-' + this.x + 'px,0px)'
-		});
+    }).on('move', function (e) {
 
-	}).on('end', function () {
-		console.log('end')
+        self.$target.css({
+            "-webkit-transform": 'translate(-' + this.x + 'px,0px)'
+        });
 
-		self.$mask.show();
+    }).on('end', function () {
+        console.log('end')
 
-	}).on('stop', function () {
-		if (this.x != options.width) {
-			this.scrollTo(options.width, 0, 50);
-		}
-	});
+        self.$mask.show();
+
+    }).on('stop', function () {
+        if (this.x != options.width && this.x != 0) {
+            this.scrollTo(options.width, 0, 50);
+        }
+    });
 };
 
 Deletion.prototype = Object.create(Event);

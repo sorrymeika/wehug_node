@@ -3,9 +3,11 @@
     "dest": "./dest",
     "api": "http://172.16.168.185:6005",
     "shopApi": "http://127.0.0.1:5559/proxy",
+    "updateApi": "http://127.0.0.1:5559/proxy2",
     "proxy": {
         "/proxy1/*": "appuser2.abs.cn",
-        "/proxy/*": "appapi2.abs.cn"
+        "/proxy/*": "appapi2.abs.cn",
+        "/proxy2/*": "appversion.abs.cn"
     },
     "css": [
         "../webresource/m/images/style.css",
@@ -27,19 +29,23 @@
     "env": {
         "production": {
             "api": "http://appuser.abs.cn",
-            "shopApi": "http://appapi.abs.cn"
+            "shopApi": "http://appapi.abs.cn",
+            "updateApi": "http://appversion.abs.cn"
         },
         "test": {
             "api": "http://appuser2.abs.cn",
-            "shopApi": "http://appapi2.abs.cn"
+            "shopApi": "http://appapi2.abs.cn",
+            "updateApi": "http://appversion.abs.cn"
         },
         "debug": {
             "api": "http://10.0.79.244:5559/proxy1",
-            "shopApi": "http://10.0.79.244:5559/proxy"
+            "shopApi": "http://10.0.79.244:5559/proxy",
+            "updateApi": "http://appversion.abs.cn"
         },
         "dev": {
             "api": "http://172.16.168.158:6005",
-            "shopApi": "http://127.0.0.1:5559/proxy"
+            "shopApi": "http://127.0.0.1:5559/proxy",
+            "updateApi": "http://appversion.abs.cn"
         }
     },
     "framework": {

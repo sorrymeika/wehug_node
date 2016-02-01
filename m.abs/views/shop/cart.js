@@ -86,12 +86,16 @@ define(function (require, exports, module) {
 
             $.extend(self.model, {
 
-                getPrice: function (bag_amount, couponPrice, Points) {
+                getPrice: function (bag_amount, coupon, Points) {
+                    var couponPrice = coupon && coupon.VCA_DEDUCT_AMOUNT ? coupon.VCA_DEDUCT_AMOUNT : 0;
+                    if (coupon && coupon.VCT_ID == 5) {
+                        couponPrice = 0;
+                    }
                     return Math.max(0, bag_amount - couponPrice - (Points / 100));
                 },
 
-                getFreight: function (bag_amount, couponPrice, Points, freecouponcode) {
-                    var price = Math.max(0, bag_amount - couponPrice - (Points / 100));
+                getFreight: function (bag_amount, coupon, Points, freecouponcode) {
+                    var price = this.getPrice(bag_amount, coupon, Points);
                     var freight = ((price >= 99 || freecouponcode) ? 0 : 15);
 
                     return price >= 99 ? "免邮费" : ('¥' + Math.round(freight * 100) / 100);
@@ -105,7 +109,7 @@ define(function (require, exports, module) {
 
                     if (coupon && coupon.VCT_ID == 5) {
                         price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                        freight = ((price >= 99 || freecouponcode) ? 0 : 15);
+                        freight = ((bag_amount - (Points / 100) >= 99 || freecouponcode) ? 0 : 15);
                         total = Math.max(0, bag_amount + freight - couponPrice - (Points / 100));
 
                     } else {
@@ -163,14 +167,14 @@ define(function (require, exports, module) {
                         } else {
                             usedCoupons.push(coupon);
                         }
-                        
+
                         var codes = [];
                         var amount = 0;
                         usedCoupons.forEach(function (item) {
                             codes.push(item.CSV_CODE);
                             amount += item.VCA_DEDUCT_AMOUNT;
                         });
-                        
+
                         this.set({
                             usedCoupons: usedCoupons,
                             couponcode: {

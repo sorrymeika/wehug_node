@@ -187,7 +187,7 @@
     * @return {Matrix2D} This matrix. Useful for chaining method calls.
     **/
     p.appendMatrix=function (matrix) {
-        return this.append(matrix.a,matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty);
+        return this.append(matrix[0],matrix[1],matrix[2],matrix[3],matrix[4],matrix[5]);
     };
 
     /**
@@ -206,7 +206,7 @@
     * @return {Matrix2D} This matrix. Useful for chaining method calls.
     **/
     p.prependMatrix=function (matrix) {
-        return this.prepend(matrix.a,matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty);
+        return this.prepend(matrix[0],matrix[1],matrix[2],matrix[3],matrix[4],matrix[5]);
     };
 
     /**
@@ -420,7 +420,7 @@
     * @return {Boolean}
     **/
     p.equals=function (matrix) {
-        return this[4]===matrix.tx&&this[5]===matrix.ty&&this[0]===matrix.a&&this[1]===matrix.b&&this[2]===matrix.c&&this[3]===matrix.d;
+        return this[4]===matrix[4]&&this[5]===matrix[5]&&this[0]===matrix[0]&&this[1]===matrix[1]&&this[2]===matrix[2]&&this[3]===matrix[3];
     };
 
     /**
@@ -478,7 +478,7 @@
     * @return {Matrix2D} This matrix. Useful for chaining method calls.
     */
     p.copy=function (matrix) {
-        return this.setValues(matrix.a,matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty);
+        return this.setValues(matrix[0],matrix[1],matrix[2],matrix[3],matrix[4],matrix[5]);
     };
 
     /**

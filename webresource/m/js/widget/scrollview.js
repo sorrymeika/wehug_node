@@ -6,7 +6,7 @@
     var util = require('util');
 
     var addScroller = function ($el) {
-        return $('<div class="sl_scroller" style="width:100%;"></div>').append($el.children()).appendTo($el.html(''));
+        return $('<div class="scroller_container" style="width:100%;"></div>').append($el.children()).appendTo($el.html(''));
     };
 
     var ScrollView = function (el, options) {
@@ -37,11 +37,11 @@
         trigger: event.trigger,
         init: function () {
             var matrix = this.$scroller.matrix();
-
-            this.x = -matrix.tx;
+            
+            this.x = -matrix[4];
             this.minX = 0;
 
-            this.y = -matrix.ty;
+            this.y = -matrix[5];
             this.minY = 0;
         },
         start: function () {
@@ -78,6 +78,8 @@
             }
         },
         move: function () {
+            
+
             if (this.options.hScroll) {
                 var newX = this.startLeft + this.touch.deltaX;
                 if (newX < this.minX || newX > this.maxX) {

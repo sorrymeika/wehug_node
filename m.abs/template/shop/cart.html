@@ -43,8 +43,8 @@
         </dl>
         <i class="js_delete" data-wacid="{{ppg.SPB_WAC_ID}}" data-groupid="{{ppg.SPB_GROUP}}" data-ppgid="{{ppg.PPG_ID}}"></i>
     </div>
-    <div class="ct_buy_more" data-forward="/all?from=/cart" sn-display="{{this.getPrice(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points)<=99}}">
-        <i>去凑单</i> 满<em>¥99</em>即可免运费，还差<em>¥{{Math.round((99-this.getPrice(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points))*100)/100}}</em>
+    <div class="ct_buy_more" data-forward="/all?from=/cart" sn-display="{{this.getPrice(bag_amount,couponcode,Points)<=99}}">
+        <i>去凑单</i> 满<em>¥99</em>即可免运费，还差<em>¥{{Math.round((99-this.getPrice(bag_amount,couponcode,Points))*100)/100}}</em>
     </div>
     <ul class="ct_list_info">
         <li><span>商品总价</span><em><b class="price">￥{{prod_amount}}</b></em></li>
@@ -54,11 +54,11 @@
             <em sn-display="{{Points}}"><b>-¥{{Points/100}}</b></em>
             <em sn-display="{{!Points}}"><b>{{user.Points}}</b>积分可用</em>
         </li>
-        <li class="link js_use_freecard" sn-display="{{freeCount&&this.getPrice(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points)<99}}">
+        <li class="link js_use_freecard" sn-display="{{freeCount&&this.getPrice(bag_amount,couponcode,Points)<99}}">
             <span>选择免邮卡</span>
             <em sn-display="{{freecouponcode.CSV_CODE}}"><b>已选1张</b></em> <em sn-display="{{!freecouponcode.CSV_CODE}}"><b>{{freeCount||0}}</b>张免邮卡可用</em></li>
         <li><span>运费</span>
-            <em><b>{{this.getFreight(bag_amount,couponcode.VCA_DEDUCT_AMOUNT||0,Points||0,freecouponcode.CSV_CODE)}}</b></em>
+            <em><b>{{this.getFreight(bag_amount,couponcode,Points||0,freecouponcode.CSV_CODE)}}</b></em>
         </li>
         <li><span>总计</span><em><b class="price">{{this.getTotal(bag_amount,couponcode,Points||0,freecouponcode.CSV_CODE)}}</b></em></li>
     </ul>

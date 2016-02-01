@@ -17,10 +17,6 @@ var ScrollView = function (el, options) {
     that.$scroller = addScroller(that.$el);
     that.scroller = that.$scroller[0];
 
-    if (options.hScroll) {
-        that.$scroller.css({ overflowX: 'auto' });
-    }
-
     this.touch = new Touch(that.$el, {
         enableVertical: options.vScroll,
         enableHorizontal: options.hScroll
@@ -29,9 +25,12 @@ var ScrollView = function (el, options) {
     this.touch.on('start', function () {
         this.maxY = Math.max(that.scroller.offsetHeight - that.el.clientHeight, 0);
 
-        var scrollWidth = that.scroller.scrollWidth;
-        that.scroller.style.width = scrollWidth + 'px';
-        this.maxX = Math.max(scrollWidth - that.el.clientWidth, 0);
+        if (options.hScroll) {
+            that.$scroller.css({ overflowX: 'auto' });
+            var scrollWidth = that.scroller.scrollWidth;
+            that.scroller.style.width = scrollWidth + 'px';
+            this.maxX = Math.max(scrollWidth - that.el.clientWidth, 0);
+        }
 
     }).on('move', function () {
         var self = this;

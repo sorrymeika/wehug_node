@@ -18,9 +18,10 @@
         var arr = str.split('.');
         var result = [];
         var code = '';
+        var gb = arr[0] == '$state' ? arr.shift() : '$data';
 
         for (var i = 0; i < arr.length; i++) {
-            result[i] = (i == 0 ? '$data' : result[i - 1]) + '.' + arr[i];
+            result[i] = (i == 0 ? gb : result[i - 1]) + '.' + arr[i];
         }
         for (var i = 0; i < result.length; i++) {
             code += (i ? '&&' : '') + result[i] + '!==null&&' + result[i] + '!==undefined';
@@ -752,7 +753,7 @@
 
                             if (alias == "$state") {
                                 self.$state.on('change:' + name.replace('$state.', '').replace(/\./g, '/'), listen);
-                                return prefix + name;
+                                return prefix + isNull(name);
 
                             } else if (!alias || Filters[alias] || snGlobal.indexOf(alias) != -1 || (variables && variables.indexOf(alias) != -1) || rvalue.test(name)) {
 
@@ -787,6 +788,8 @@
             var code = 'function(global,model,el){'
                 + withData(repeat, (variables && variables.length ? 'var ' + variables.join(',') + ';' : '') + content.replace('return \'\'+', 'return ').replace(/\+\'\'/g, ''))
                 + '}';
+
+            console.log(code)
 
             return this.compile(code);
         },

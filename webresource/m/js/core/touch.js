@@ -52,6 +52,8 @@
             that.startTime = e.timeStamp || Date.now();
 
             that.isClickStopMomentum = that._stopMomentum();
+            
+            console.log('start')
         },
         _move: function (e) {
             if (this.isTouchStop) return;

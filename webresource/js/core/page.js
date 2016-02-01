@@ -26,10 +26,9 @@
             this.hash = route.hash;
             this.url = route.url;
             this.path = route.path;
-            this._queries = this.queries;
-            this.queries = $.extend({}, route.queries);
+            this._query = this.query;
+            this.query = $.extend({}, route.query);
         },
-
 
         loadTemplate: function () {
             var that = this,
@@ -127,26 +126,26 @@
 
         queryString: function (key, val) {
             if (typeof val === 'undefined')
-                return this.route.queries[key];
+                return this.route.query[key];
 
             else if (val === null || val === false || val === '')
-                delete this.route.queries[key];
+                delete this.route.query[key];
             else
-                this.route.queries[key] = val || '';
+                this.route.query[key] = val || '';
 
-            var queries = $.param(this.route.queries);
-            location.hash = this.route.path + (queries ? '?' + queries : '');
+            var query = $.param(this.route.query);
+            location.hash = this.route.path + (query ? '?' + query : '');
         },
 
         _queryActions: {},
         checkQuery: function () {
             var that = this;
-            var queries = that.queries;
-            var prevQueries = that._queries;
+            var query = that.query;
+            var prevQueries = that._query;
             var actionName;
 
             $.each(that._queryActions, function (name, option) {
-                actionName = queries[name] || '';
+                actionName = query[name] || '';
 
                 if ((actionName && !prevQueries) || (prevQueries && actionName != prevQueries[name])) {
                     var action = option.map[actionName];

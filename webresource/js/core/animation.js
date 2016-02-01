@@ -5,7 +5,7 @@
     var tween = require("graphics/tween");
     var CubicBezier = require("graphics/cubicBezier");
     var util = require("util");
-
+    var CubicBezier = require('../graphics/cubicBezier');
     var vendors = ['webkit'/*,'moz','o','ms'*/];
 
     for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
@@ -38,20 +38,6 @@
     var re_transform_all = /(translate|skew|rotate|scale|matrix)(3d){0,1}\(([^\)]+)\)/g;
     var re_transform = /^(matrix|translate|skew|rotate|scale|invert)(3d){0,1}$/;
 
-    var getEase = function (ease) {
-        if (!ease) ease = [tween.easeOut];
-        else {
-            if (!(ease instanceof Array)) ease = [ease];
-
-            for (var i = 0, n = ease.length; i < n; i++) {
-                if (typeof ease[i] == "string")
-                    ease[i] = tween[ease[i].replace(/\-([a-z])/g, function ($0, $1) {
-                        return $1.toUpperCase();
-                    })];
-            }
-        }
-        return ease;
-    }
 
     var toFloatArr = function (arr) {
         var result = [];
@@ -124,8 +110,7 @@
         if (list.length) {
             animationStop = false;
 
-            var start,
-                ease,
+            var timeUse,
                 arr,
                 flag = false,
                 startTime = +new Date,
@@ -136,28 +121,19 @@
                 nextItem = item._idlePrev;
                 first = item.data;
 
-                start = Date.now() - first.startTime;
+                timeUse = Date.now() - first.startTime;
                 arr = [];
-                ease = first.ease;
 
-                if (start <= first.duration) {
-                    for (var i = 0, n = ease.length; i < n; i++) {
-                        arr.push(ease[i](start, first.from, first.to - first.from, first.duration) / 100);
-                    }
-                    arr.push(start, first.duration);
-                    first.step.apply(first, arr);
+                if (timeUse <= first.duration) {
+
+                    first.step(first.ease instanceof CubicBezier ? first.ease.get(timeUse / first.duration) : first.ease(timeUse, first.from, first.to - first.from, first.duration) / 100, timeUse, first.duration);
 
                 } else {
-                    var to = first.to / 100;
-                    for (var i = 0, n = ease.length; i < n; i++) {
-                        arr.push(to);
-                    }
-                    arr.push(first.duration, first.duration);
-                    first.step.apply(first, arr);
+                    first.step(first.to / 100, first.duration, first.duration);
 
                     list._remove(item);
 
-                    first.finish && first.finish(to);
+                    first.finish && first.finish(first.to / 100);
                 }
 
                 item = nextItem;
@@ -170,8 +146,14 @@
     };
 
     var init = function (item) {
+        var ease = item.ease;
+
         item.startTime = Date.now();
-        item.ease = getEase(item.ease);
+
+        !ease && (item.ease = tween.easeOut) || (typeof ease == "string") && (item.ease = ease.indexOf('cubic-bezier') == 0 ? new CubicBezier(ease) : tween[ease.replace(/\-([a-z])/g, function ($0, $1) {
+            return $1.toUpperCase();
+        })]);
+
         item.stop = function () {
             list.remove(item);
         };
@@ -217,7 +199,7 @@
                         for (var i = 0; i < 6; i++) {
                             matrix[i] = getCurrent(m[i + 1], matrix[i], d);
                         }
-                        newStyle[key] = matrix.toString()+' translateZ(0)';
+                        newStyle[key] = matrix.toString() + ' translateZ(0)';
 
                     } else if (!isNaN(parseFloat(val))) {
                         originVal = isNaN(parseFloat(originVal)) ? defaultStyle[key] || 0 : parseFloat(originVal);
@@ -354,6 +336,8 @@
         parallel(prepare(animations));
     };
 
+    exports.step = getCurrent;
+
     exports.animate = function (/*[el,css]|step,duration,ease,finish*/) {
         var args = arguments,
             item = {},
@@ -476,8 +460,6 @@
 
         return { dist: newDist, time: Math.round(newTime), outside: outsideDist, result: result, current: current, start: current, max: max, min: min, divisor: divisor };
     }
-
-    exports.step = getCurrent;
 
     exports.momentum = function (options, maxDuration, step, ease, end, context) {
         var momentums = [],

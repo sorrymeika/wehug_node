@@ -1,6 +1,14 @@
 ﻿define(function (require, exports, module) {
 
     function CubicBezier(mX1, mY1, mX2, mY2) {
+        var m;
+        if (typeof mX1 == 'string') {
+            m = mX1.replace('cubic-bezier(', '').replace(')', '').split(',');
+            mX1 = +m[0];
+            mY1 = +m[1];
+            mX2 = +m[2];
+            mY2 = +m[3];
+        }
 
         var _this = this;
         var _preCalculatedPercents = [];

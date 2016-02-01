@@ -14,7 +14,7 @@
                 <li><span>商品价</span><em>¥{{prod_amount}}</em></li>
                 <li><span>优惠券</span><em>-¥{{$state.selectedCoupon.VCA_DEDUCT_AMOUNT||0}}</em></li>
                 <li><span>积分</span><em>-¥{{Points/100||0}}</em></li>
-                <li><span>运费</span><em>{{var a=Math.max(0,bag_amount-couponprice-(Points/100)),(($state.selectedFreeCoupon || a >= 99) ? '免运费' : ('+¥'+15))}}</em></li>
+                <li><span>运费</span><em>{{this.getFreight(bag_amount,$state.selectedCoupon,Points||0,$state.selectedFreeCoupon.CSV_CODE)}}</em></li>
                 <li><span>总计</span><b>{{this.getTotal(bag_amount,$state.selectedCoupon,Points||0,$state.selectedFreeCoupon)}}</b></li>
             </ul>
         </div>
