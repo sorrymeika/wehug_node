@@ -122,9 +122,9 @@ canvas.home_points_bg { width: 190px; position: absolute; left: 50%; top: 44px; 
 /*去购物*/
 .hm_cate {
     display: -webkit-box;width: 100%;border-top: 1px solid #ddd; text-align: center;background: #fff;
-    .hd { 
-        width: 50px; height: 70px; position: relative;color: #f60; font-weight: bold; padding-top: 10px; line-height: 1.6;
-        &:before { display: block; content: ""; width: 14px; height: 18px; background: url(icon_leaf.png) no-repeat; background-size: 100% auto; position: absolute; right: 0px; top: 6px; }
+    .hd {
+        font-size: 3.4rem; width: 50px; height: 70px; position: relative;color: #e04447; font-weight: bold; padding-top: 15px; line-height: 1.2;
+        &:before { display: none; content: ""; width: 14px; height: 18px; background: url(icon_leaf.png) no-repeat; background-size: 100% auto; position: absolute; right: 0px; top: 6px; }
     }
     .bd {
         height: 70px;-webkit-box-flex: 1;

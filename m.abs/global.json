@@ -29,12 +29,12 @@
     "env": {
         "production": {
             "api": "http://appuser.abs.cn",
-            "shopApi": "http://appapi.abs.cn",
+            "shopApi": "http://appapi-1-1-0.abs.cn",
             "updateApi": "http://appversion.abs.cn"
         },
         "test": {
             "api": "http://appuser2.abs.cn",
-            "shopApi": "http://appapi2.abs.cn",
+            "shopApi": "http://appapi-1-1-0.abs.cn",
             "updateApi": "http://appversion.abs.cn"
         },
         "debug": {

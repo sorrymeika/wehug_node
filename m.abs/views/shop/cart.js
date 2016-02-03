@@ -123,7 +123,8 @@ define(function (require, exports, module) {
                 usePoint: function (e, points) {
                     if (!points) {
                         self.model.set({
-                            isShowPoint: false
+                            isShowPoint: false,
+                            Points: 0
                         });
                         return;
                     }

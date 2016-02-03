@@ -37,7 +37,7 @@ var Month = model.ViewModel.extend({
 				<div class="pd_size_buy">
 					<p class="hd">购买数量</p>
 					<p class="qty"><em sn-tap="qty=Math.max(1,qty-1)">-</em>
-						<input type="text" class="qty" value="{{qty}}" />
+						<input type="text" class="qty" sn-model="qty" value="{{qty}}" />
 						<em sn-tap="qty=qty+1">+</em>
 					</p>
 				</div>
