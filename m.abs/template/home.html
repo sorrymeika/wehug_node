@@ -1,12 +1,13 @@
 <div sn-display="{{!showGuide}}">
     <header sn-display="{{isLogin}}">
-        <div class="head_menu" sn-display="{{bottomTab==3}}" data-forward="/settings"></div>
+        <div class="head_menu" sn-display="{{bottomTab==4}}" data-forward="/settings"></div>
         <ul class="head_tab" sn-display="{{bottomTab==0}}">
             <li class="{{tab==0?'curr':''}}">会员卡</li>
             <li class="{{tab==1?'curr':''}}">去购物</li>
             <i class="cursor" style="-webkit-transform: translate3d({{tab==1?100:0}}%, 0%, 0);"></i>
         </ul>
-        <div class="head_title" style="display:{{bottomTab!=0?'block':'none'}}">{{bottomTab==1?'查找店铺':bottomTab==2?"购物车":"我"}}</div>
+        <form class="head_search head_disc" sn-if="{{bottomTab==2}}"><input type="search" placeholder="搜索专题" ref="search" /></form>
+        <div class="head_title" style="display:{{bottomTab!=0&&bottomTab!=2?'block':'none'}}">{{bottomTab==1?'查找店铺':bottomTab==2?"发现":bottomTab==3?"购物车":"我"}}</div>
         <div class="head_msg" data-forward="/messages">
             <i sn-display="{{msg_count!=0}}">{{msg_count}}</i>
         </div>
@@ -135,9 +136,12 @@
             <div class="baiduMap" sn-html="{{baiduMap}}">
             </div>
         </div>
-        <div class="main js_cart" style="display:{{bottomTab==2?'block':'none'}}">
+        <div ref="discovery" class="main" style="display:{{bottomTab==2?'block':'none'}}">
+            
         </div>
-        <div class="main" style="display:{{bottomTab==3?'block':'none'}}" data-index="3">
+        <div class="main js_cart" style="display:{{bottomTab==3?'block':'none'}}">
+        </div>
+        <div class="main" style="display:{{bottomTab==4?'block':'none'}}" data-index="3">
             <div class="hm_my_card">
                 <div class="vip_name">{{vipName}}</div>
                 <div class="energy">
@@ -191,6 +195,7 @@
     <ul class="footer" sn-display="{{isLogin}}">
         <li class="curr">首页</li>
         <li>附近门店</li>
+        <li>发现</li>
         <li>购物车<i sn-display="$state.cartQty!=0">{{$state.cartQty}}</i></li>
         <li>我</li>
     </ul>

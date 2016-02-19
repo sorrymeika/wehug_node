@@ -38,6 +38,11 @@ var Month = model.ViewModel.extend({
                 sl.tip(res.msg);
             }
         });
+        
+        self.share = new Share({
+            head: '分享'
+        });
+        
         orderShareAPI.load();
         
         self.user = userModel.get();
@@ -60,10 +65,7 @@ var Month = model.ViewModel.extend({
                 sl.tip(res.msg);
             }
         });
-		
-        self.share = new Share({
-            head: '分享'
-        });
+        
         self.share.callback=function(res){
         }
         self.share.$el.appendTo(self.$el);

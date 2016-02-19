@@ -18,8 +18,8 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .footer li.curr { color: #e65e60; background-color: #fff; }
 .footer li.curr:before { background-position-y: -60px; }
 .footer li:nth-child(2):before { background-position-x: -60px; }
-.footer li:nth-child(3):before { background-position-x: -30px; }
-.footer li:nth-child(4):before { background-position-x: -90px; }
+.footer li:nth-child(4):before { background-position-x: -30px; }
+.footer li:nth-child(5):before { background-position-x: -90px; }
 
 .btn { background: #e65e5f; border-radius: 4px; }
 .has_status_bar header.header_trans { border-top-color: transparent; }
@@ -48,6 +48,10 @@ header { background: #e65e5f; height: 44px; line-height: 44px; }
 .head_search input { text-align: center; -webkit-box-flex: 1; border-radius: 12px; color: #fff; display: block; border: 0px; background: #e04447;height: 100%; }
 .head_search input::-webkit-input-placeholder{ color: #fff; }
 .head_all:before { background-position: -210px -120px;}
+
+.head_disc {margin-left: 10px;}
+.head_disc input {text-align: left;margin-left: 4px; }
+.head_disc:before { @extend .icon; width:16px; height: 16px; background-position: -300px -30px;margin: 5px 0 0 10px; }
 
 .main { background: #eeefef; padding-top: .1px; top: 44px; }
 .btn_large { height: 40px; line-height: 40px; background-color: #e65e5f; font-size: 3rem; }
@@ -849,27 +853,18 @@ $p:2;
 		.closed {width: 400px; height: 400px; z-index:2;position:absolute;background: #f7605e;left: -121px;top: -341px;box-shadow: 5px 2px 6px #333;-webkit-transform: rotate(-32deg) skew(28deg); }
   		.logo{ background: url(gift_logo.png) no-repeat; background-size: 100% auto; display: block; position: absolute;width:16px; height: 15px; z-index: 4; bottom: 20px; left: 50%; margin-left:-6px;}
 	}
-	.get { margin: 26px auto 0 auto; display: block; height: 50px;line-height: 50px;width:214px; background: #d42c2c; font-size: 3.5rem; }
+	.get { margin: 26px auto 0 auto; display: block; height: 50px;line-height: 50px;width:214px; background: #d42c2c; font-size: 4rem; font-weight: bold; }
 	.steps {
-		display: -webkit-box;margin: 30px auto 0 5%;
-		p{color: #d42c2c;font-size: 2.6rem; border-radius: 4px; border:1px solid #d42c2c;width: 40px;height:40px;padding-top:4px; text-align: center;}
+		display: -webkit-box;margin: 30px auto 0 auto; width: 253px;
+		p{color: #d42c2c;font-size: 2.6rem; border-radius: 4px; border:1px solid #d42c2c;width: 40px;height:40px;padding:5px 6px; text-align: center;}
 		i{ display: block;width:14px;background:url(gift_arrow.png) no-repeat; height: 22px; margin: 10px 10px 0 6px; background-size: 100% auto;  }
 	}
 }
-.co_share_user {
-	.hd { text-align: center; margin-top: 15px;font-size: 4rem;color:#000; }
-	.list {
-		position: relative; min-height: 100px;
-		li {
-			display: -webkit-box; margin: 20px 10px 0 20px;
-			img { display: block;width:45px; height: 45px; overflow: hidden;border-radius: 50%; }
-			.con {-webkit-box-flex:1;margin-left: 6px;}
-			.name {display: block;font-size:2.4rem;}
-			.date {color: #999;margin-left:15px;}
-			.text { color:#999;margin-top:5px; font-size: 2.4rem;}
-		}
-	}
-}
+
+.co_share_user .hd { text-align: center; margin-top: 25px;font-size: 4rem;color:#000; position: relative; }
+.co_share_user .hd:before { content: '使用规则';color:#999; background: #fff; display: block;width:100px; height: 20px; margin: 0 auto; }
+.co_share_user .hd:after { content: ''; display: block; border-bottom: 1px solid #999; position: absolute; top: 50%; left: 5%; width: 90%; z-index: -1; }
+.co_share_user .con { padding: 20px 5%; color:#999; line-height: 1.4; }
 
 /*------append-------*/
 .sp_all_cates {
@@ -899,8 +894,8 @@ $p:2;
 	}
 	b { position: absolute; right: 0px; top: 0px;color: #e65e5f; background: #fff; padding-right: 10px; }
 }
-.ct_list_wrap .js_delete { display: block; width: 45px; text-align: center; background: #e65e5f; position: absolute; right: 0; bottom: 0; top: 0; color: #fff; font-size: 3.2rem; z-index: 1; 
-	&:after { position: absolute; display: block; content: "删除"; top: 50%; left:0; line-height: 20px; height: 20px; margin: -10px 0 0 8px; }
+.ct_list_wrap .js_delete { display: block; width: 70px; text-align: center; background: #e65e5f; position: absolute; right: 0; bottom: 0; top: 0; color: #fff; font-size: 3.2rem; z-index: 1; 
+	&:after { position: absolute; display: block; content: "删除"; top: 50%; left:0; line-height: 20px; height: 20px; margin: -10px 0 0 20px; }
 }
 .ct_list_item:after { display: none; }
 
@@ -1141,3 +1136,14 @@ $p:2;
 }
 
 .ico_no_more { @extend .ex_icon; background-position: -300px 0px; width:14px;height:14px;margin-left: 3px; vertical-align: -2px; }
+
+.discovery { padding-top: 13px;  }
+.disc_nav { display: -webkit-box; text-align: center; }
+.disc_nav li { -webkit-box-flex: 1;width:0px; }
+.disc_nav li p { border-radius: 4px; padding-top: 15px;margin: 0 auto; width: 67px; height: 67px; background: #e04447; position: relative; overflow: hidden; }
+.disc_nav li p em {  margin: 0 auto; width: 40px; display: block; color: #fff;z-index: 1; position: relative;}
+.disc_nav li p img { border-radius: 4px; position: absolute; top: 0; left: 0;width:100%; height:100%; display:block;z-index: 0; }
+
+.disc_list { margin-top: 13px; }
+.disc_list li { margin-bottom: 8px; }
+.disc_list li img { width: 100%; display: block; }

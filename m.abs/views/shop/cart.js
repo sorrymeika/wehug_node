@@ -270,7 +270,7 @@ define(function (require, exports, module) {
             new Deletion({
                 el: self.$('.ct_list_wrap'),
                 children: '.js_delete_item',
-                width: 45,
+                width: 70,
                 events: {
                     '.js_delete': function (e) {
                         var $target = $(e.currentTarget);

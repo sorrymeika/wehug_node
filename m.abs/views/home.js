@@ -4,15 +4,18 @@ var Activity = require('activity');
 var bridge = require('bridge');
 var Loading = require('../widget/loading');
 var Slider = require('../widget/slider');
-var model = require('core/model2');
+var Model = require('core/model2');
 var Scroll = require('../widget/scroll');
 var barcode = require('../util/barcode');
 var animation = require('animation');
 var Confirm = require("components/confirm");
 var api = require("models/base");
 var userModel = require("models/user");
+var ViewModel = Model.ViewModel;
 
-model.State.set({
+var Discovery = require('./discovery/discovery_index');
+
+Model.State.set({
     cartQty: 0
 });
 
@@ -20,7 +23,7 @@ var cartQtyApi = new api.CartQtyAPI({
     $el: $(''),
     checkData: false,
     success: function (res) {
-        model.State.set({
+        Model.State.set({
             cartQty: res.data
         });
     },
@@ -55,12 +58,9 @@ module.exports = Activity.extend({
             var $target = $(e.currentTarget);
             var index = $target.index();
 
-            if (index == 2) {
+            if (index == 3) {
                 self.forward('/cart');
-                return;
-            }
-
-            if (!$target.hasClass('curr')) {
+            } else if (!$target.hasClass('curr')) {
                 $target.addClass('curr').siblings('.curr').removeClass('curr');
 
                 this.model.set({
@@ -76,6 +76,13 @@ module.exports = Activity.extend({
                     bridge.getLocation(function (res) {
                         self.$baiduMap[0].src = bridge.url("/baiduMap.html?v3#longitude=" + res.longitude + "&latitude=" + res.latitude);
                     });
+
+                } else if (index == 2) {
+                    if (!self.discovery) {
+                        self.discovery = new Discovery();
+
+                        self.discovery.$el.appendTo(self.model.refs.discovery)
+                    }
                 }
             }
         },
@@ -175,6 +182,7 @@ module.exports = Activity.extend({
 
         sl.activity = self;
 
+
         var update = new api.UpdateAPI({
             $el: $(''),
             checkData: false,
@@ -201,7 +209,7 @@ module.exports = Activity.extend({
         });
         update.load();
 
-        this.model = new model.ViewModel(this.$el, {
+        var model = this.model = new ViewModel(this.$el, {
             menu: 'head_menu',
             titleClass: 'head_title',
             isOffline: false,
@@ -219,7 +227,7 @@ module.exports = Activity.extend({
             }
         });
 
-        this.model.on('change:tab', function () {
+        model.on('change:tab', function () {
             if (this.data.tab == 1) {
                 self.scroll.get('.js_shop').imageLazyLoad();
             }
@@ -229,7 +237,7 @@ module.exports = Activity.extend({
 
             util.store('IS_SHOW_GUIDE', 1);
 
-            this.model.set('showGuide', true);
+            model.set('showGuide', true);
 
             this.guideSlider = new Slider(self.$('.hm_guide'), {
                 itemTemplate: '<img class="guide<%=id%>" src="http://appuser.abs.cn/dest/images/guide<%=id%>.jpg" />',
@@ -282,7 +290,7 @@ module.exports = Activity.extend({
             success: function (res) {
                 self.user.StewardNum = res.data;
                 userModel.set(self.user);
-                self.model.set('user.StewardNum', res.data);
+                model.set('user.StewardNum', res.data);
             }
         });
 
@@ -319,7 +327,7 @@ module.exports = Activity.extend({
         self.onResult("Login", function () {
             self.user = userModel.get();
 
-            self.model.set({
+            model.set({
                 isOffline: false,
                 user: self.user
             });
@@ -329,7 +337,7 @@ module.exports = Activity.extend({
             self.requestUser();
 
         }).onResult("Logout", function () {
-            self.model.set({
+            model.set({
                 isLogin: false,
                 user: null
             });
@@ -342,7 +350,7 @@ module.exports = Activity.extend({
             $el: self.$('.hm_shop'),
             success: function (res) {
 
-                self.model.set({
+                model.set({
                     activity: res.data,
                     topbanner: res.topbanner
                 });
@@ -353,7 +361,7 @@ module.exports = Activity.extend({
                     useScroll: true
                 });
 
-                if (self.model.data.tab == 1) {
+                if (model.data.tab == 1) {
                     self.scroll.get('.js_shop').imageLazyLoad();
                 }
 
@@ -367,6 +375,16 @@ module.exports = Activity.extend({
             self.getUnreadMsg();
 
         }, 10000);
+
+        console.log(this.model.refs.search);
+
+        this.listenTo($(this.model.refs.search), 'keydown', function (e) {
+            if (e.keyCode == 13) {
+                self.forward('/discovery/list?s=' + encodeURIComponent(e.target.value) + '&from=/');
+                e.preventDefault();
+                return false;
+            }
+        });
 
     },
 

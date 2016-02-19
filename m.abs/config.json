@@ -13,7 +13,8 @@
             "components/package": null,
             "components/banner": null,
             "models/base": null,
-            "models/user": null
+            "models/user": null,
+            "models/discovery": null
         }
     },
     "css": {
@@ -28,10 +29,7 @@
         "./images"
     ],
     "route": {
-        "/": {
-            "controller": "index",
-            "template": "index"
-        },
+        "/":  "home",
         "/about": {
             "controller": "about",
             "template": "about"
@@ -139,6 +137,11 @@
         "/test": {
             "controller": "test",
             "template": "test"
-        }
+        },
+        "/discovery": "discovery/discovery_index",
+        "/discovery/{id:\\d+}": "discovery/discovery",
+        "/discovery/list": "discovery/discovery_list",
+        "/discovery/list/{id:\\d+}": "discovery/discovery_list",
+        "/discovery/comment/{id:\\d+}": "discovery/discovery_comment"        
     }
 }

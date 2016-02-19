@@ -381,3 +381,16 @@ exports.PackageRelativeAPI = ShopAPI.extend({
         prdId: ''
     }
 });
+
+exports.DiscoverTypeAPI = ShopAPI.extend({
+    url: '/api/discover/discovertype'
+});
+
+exports.DiscoverListAPI = ShopAPI.extend({
+    url: '/api/discover/discoverlist',
+    params: {
+        currentpage: 1,
+        pageSize: 10,
+        dctid: 0
+    }
+});

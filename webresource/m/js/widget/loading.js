@@ -24,7 +24,7 @@
 
     Loading.prototype = {
         isShowLoading: true,
-        
+
         KEY_PAGE: 'page',
         KEY_PAGESIZE: 'pageSize',
 
@@ -83,7 +83,7 @@
 
             if (this.pageIndex == 1) {
 
-                this.$loading.animate({
+                that.$loading && this.$loading.animate({
                     opacity: 0
                 }, 300, 'ease-out', function () {
                     that.$loading.hide().css({ opacity: '' });
@@ -250,6 +250,8 @@
                     that.complete();
                 }
             });
+
+            return that;
         },
 
         _refresh: function () {

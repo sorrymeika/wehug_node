@@ -214,7 +214,7 @@
         },
 
         _triggerChangeEvent: function (eventName, origin, value) {
-            if (!this.root.init) {
+            if (!this.root._initSet) {
                 this.root.trigger('change' + (eventName ? ":" + eventName : '').replace(/\./g, '/'), this, origin, value);
             }
             return this;
@@ -694,15 +694,17 @@
         this.repeats = {};
         this._fns = [];
         this.fns = [];
+        this.refs = {};
         this.root = this;
 
         el && this.bind(el);
 
-        this.init = true;
+        this._initSet = true;
         this.set(this.data);
-        this.init = false;
+        this._initSet = false;
 
-        this.on('Destroy', this.onDestroy);
+        this.onDestroy && this.on('Destroy', this.onDestroy);
+
         this.initialize.call(this, el, data);
     }
 
@@ -949,10 +951,6 @@
             return ret === undefined ? this : ret;
         },
 
-        $: function (selector) {
-            return this.$el.filter(selector).add(this.$el.find(selector));
-        },
-
         bind: function (el) {
             var self = this;
             var elements = [];
@@ -961,6 +959,8 @@
                 if (e._stopModelEvent == true) return;
                 var target = e.currentTarget;
                 var name = target.getAttribute('sn-model');
+
+                console.log(target.value);
 
                 self._setByEl(target, name, target.value);
                 e._stopModelEvent = true;
@@ -1012,28 +1012,38 @@
                             } else if (attr == 'sn-src') {
                                 attr = 'src'
                             }
-                            if (attr == 'sn-display' || attr == 'sn-html' || attr == 'sn-if' || attr == 'sn-style' || attr.indexOf('sn-') != 0) {
+                            if (attr == "ref") {
+                                self.refs[val] = child;
+
+                            } else if (attr == 'sn-display' || attr == 'sn-html' || attr == 'sn-if' || attr == 'sn-style' || attr.indexOf('sn-') != 0) {
                                 if (attr.indexOf('sn-') == 0 && val.indexOf("{{") == -1 && val.indexOf("}}") == -1) {
                                     val = '{{' + val + '}}';
                                 }
                                 self._bindAttr(child, attr, val, repeat);
 
-                            } else if (snEvents.indexOf(attr.replace(/^sn-/, '')) != -1) {
-                                child.removeAttribute(attr);
-                                attr += self.cid + '-';
+                            } else {
+                                var origAttr = attr;
 
-                                if (rset.test(val) || rthis.test(val)) {
-                                    var content = val.replace(rthis, function (match, $1, $2) {
-                                        return $1 + "e" + ($2 ? ',' : '') + $2 + ")";
+                                attr = attr.replace(/^sn-/, '');
 
-                                    }).replace(rset, 'this._setByEl(e.currentTarget,"$1",$2)');
+                                if (snEvents.indexOf(attr) != -1) {
+                                    child.removeAttribute(origAttr);
 
-                                    var code = 'function(e,model,global){var el=e.currentTarget;' + withData(repeat, content) + "}";
+                                    attr = "sn-" + self.cid + attr;
 
-                                    child.setAttribute(attr, self.compile(code));
+                                    if (rset.test(val) || rthis.test(val)) {
+                                        var content = val.replace(rthis, function (match, $1, $2) {
+                                            return $1 + "e" + ($2 ? ',' : '') + $2 + ")";
 
-                                } else {
-                                    child.setAttribute(attr, val);
+                                        }).replace(rset, 'this._setByEl(e.currentTarget,"$1",$2)');
+
+                                        var code = 'function(e,model,global){var el=e.currentTarget;' + withData(repeat, content) + "}";
+
+                                        child.setAttribute(attr, self.compile(code));
+
+                                    } else {
+                                        child.setAttribute(attr, val);
+                                    }
                                 }
                             }
                         }
@@ -1056,7 +1066,7 @@
                 if (e._stopModelEvent == true) return;
 
                 var target = e.currentTarget;
-                var eventCode = target.getAttribute('sn-' + e.type + self.cid + '-');
+                var eventCode = target.getAttribute('sn-' + self.cid + e.type);
                 var fn;
                 var ctx;
 
@@ -1091,7 +1101,7 @@
             };
             for (var i = 0, eventName, attr; i < snEvents.length; i++) {
                 eventName = snEvents[i] == 'transition-end' ? $.fx.transitionEnd : snEvents[i];
-                attr = '[sn-' + snEvents[i] + self.cid + '-]';
+                attr = '[sn-' + self.cid + snEvents[i] + ']';
                 $el.on(eventName, attr, _handleEvent).filter(attr).on(eventName, _handleEvent);
             }
 
@@ -1102,10 +1112,9 @@
                 self.render(elements[i]);
             }
             return this;
-
         }
 
-    }, util.pick(ComponentBase.prototype, ['destroy', 'undelegateEvents', 'listenTo', 'listen', 'onDestroy']));
+    }, util.pick(ComponentBase.prototype, ['$', 'undelegateEvents', 'listenTo', 'listen', 'destroy']));
 
     ViewModel.extend = util.extend;
 

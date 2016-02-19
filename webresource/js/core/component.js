@@ -15,7 +15,7 @@
 
         self.setElement(self.el);
 
-        self.on('Destroy', self.onDestroy);
+        self.onDestroy && self.on('Destroy', self.onDestroy);
     };
 
     Component.prototype = $.extend(Object.create(Event), {
@@ -76,7 +76,7 @@
             args[0] = target;
             args[args.length - 1] = $.proxy(fn, this);
 
-            (this._bindListenTo || (this._bindListenTo = [])).push(slice.apply(args));
+            (this._bindListenTo || (this._bindListenTo = [])).push(args.slice());
 
             args.shift().on.apply(target, args);
 
@@ -84,10 +84,8 @@
         },
 
         $: function (selector) {
-            return this.$el.find(selector);
+            return this.$el.filter(selector).add(this.$el.find(selector));
         },
-
-        onDestroy: util.noop,
 
         destroy: function () {
             var $el = this.$el,

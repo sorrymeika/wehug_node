@@ -84,6 +84,7 @@ define(function (require, exports, module) {
                 checkData: false,
                 beforeSend: function () {
                     var code = self.model.get('code');
+                    
                     if (!code) {
                         sl.tip('请输入券号');
                         return false;
