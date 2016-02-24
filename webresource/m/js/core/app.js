@@ -4,7 +4,7 @@
         util = require('util'),
         bridge = require('bridge'),
         Base = require('./base'),
-        view = require('./view'),
+        View = require('./view'),
         Master = require('./master'),
         animation = require('./animation'),
         LinkList = require('./linklist'),
@@ -165,7 +165,7 @@
         }, application);
     };
 
-    var Application = Master.extend({
+    var Application = View.extend($.extend(Master, {
         events: {
             'tap,click a[href]:not(.js-link-default)': function (e) {
                 var that = this,
@@ -434,7 +434,7 @@
                 }, this);
             }
         }
-    });
+    }));
 
     return Application;
 });

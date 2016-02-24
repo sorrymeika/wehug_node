@@ -261,7 +261,7 @@
     }
     ModelProto.reset = ModelProto.clear;
 
-    Model.prototype = $.extend(Object.create(Event), ModelProto);
+    Model.prototype = $.extend({}, Event, ModelProto);
 
     var Repeat = function (options) {
         $.extend(this, options);

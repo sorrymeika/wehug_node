@@ -3,7 +3,7 @@
     var $ = require('$'),
         util = require('util'),
         Base = require('./base'),
-        view = require('./view'),
+        View = require('./view'),
         Route = require('./route'),
         Master = require('./master'),
         Promise = require('./promise');
@@ -14,7 +14,7 @@
         standardizeHash = Route.standardizeHash,
         checkQueryString = Master.checkQueryString;
 
-    var Navigation = Master.extend({
+    var Navigation = View.extend($.extend(Master, {
         events: {
             'click a[href]:not(.js-link-default)': function (e) {
                 var that = this,
@@ -135,7 +135,7 @@
                 return promise;
             });
         }
-    });
+    }));
 
     sl.Navigation = Navigation;
 

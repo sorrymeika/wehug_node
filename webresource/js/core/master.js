@@ -7,7 +7,7 @@
 
     var getPath = util.getPath;
 
-    var Master = View.extend({
+    var Master = {
         checkQueryString: function (activity, route) {
             if (activity.route.url != route.url) {
                 activity._setRoute(route);
@@ -80,7 +80,7 @@
         remove: function (url) {
             this._activities[getPath(url)] = void 0;
         }
-    });
+    };
 
     module.exports = Master;
 });

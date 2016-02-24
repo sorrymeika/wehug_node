@@ -1,1 +1,0 @@
-var util=require("util"),T={html:function($data){var __="";with($data||{})__+="";return __},helpers:{}};T.template=T.html,module.exports=T;

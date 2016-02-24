@@ -1,0 +1,68 @@
+﻿{
+    "debug": true,
+    "dest": "./dest",
+    "api": "http://127.0.0.1:6002",
+    "proxy": {
+        "/proxy/*": "testappapi-1-1-0.abs.cn"
+    },
+    "css": [
+        "../webresource/images/reset.css",
+        "../webresource/images/manage.css"
+    ],
+    "images": [
+        "../webresource/images"
+    ],
+    "path": [
+        "../webresource",
+        "../webresource/js"
+    ],
+    "port": 6002,
+    "projects": [
+        "./"
+    ],
+    "env": {
+        "production": {
+            "api": "http://appuser.abs.cn"
+        },
+        "test": {
+            "api": "http://appuser2.abs.cn"
+        },
+        "debug": {
+            "api": "http://10.0.79.244:5559/proxy1"
+        },
+        "dev": {
+            "api": "http://172.16.168.158:6005"
+        }
+    },
+    "framework": {
+        "slan.m": {
+            "seajs": "../webresource/js/seajs/sea",
+            "zepto": "../webresource/js/zepto",
+            "extend/touch": "../webresource/m/js/extend/touch",
+            "extend/fx": "../webresource/js/extend/fx",
+            "extend/matchMedia": "../webresource/m/js/extend/matchMedia",
+            "extend/ortchange": "../webresource/m/js/extend/ortchange",
+            "util": "../webresource/js/util",
+            "util/md5": "../webresource/js/util/md5",
+            "bridge": "../webresource/m/js/bridge",
+            "graphics/cubicBezier": "../webresource/js/graphics/cubicBezier",
+            "graphics/matrix2d": "../webresource/js/graphics/matrix2d",
+            "graphics/tween": "../webresource/js/graphics/tween",
+            "core/base": "../webresource/js/core/base",
+            "core/promise": "../webresource/js/core/promise",
+            "core/linklist": "../webresource/js/core/linklist",
+            "core/event": "../webresource/js/core/event",
+            "core/component": "../webresource/js/core/component",
+            "core/view": "../webresource/js/core/view",
+            "core/model2": "../webresource/js/core/model2",
+            "core/master": "../webresource/js/core/master",
+            "core/navigation": "../webresource/js/core/navigation",
+            "core/page": "../webresource/js/core/page",
+            "core/route": "../webresource/js/core/route",
+            "core/animation": "../webresource/js/core/animation",
+            "widget/tip": "../webresource/js/widget/tip",
+            "widget/dialog": "../webresource/js/widget/dialog",
+            "widget/loading": "../webresource/m/js/widget/loading"
+        }
+    }
+}

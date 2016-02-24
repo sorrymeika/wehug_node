@@ -119,6 +119,7 @@ define(function (require, exports, module) {
                     that.complete();
                 }
             });
+            return this;
         },
 
         abort: function () {

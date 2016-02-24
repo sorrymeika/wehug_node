@@ -40,18 +40,44 @@
                 validator: 'updateValid',
                 enctype: '',
                 fields: [{
-                    label: 'Key',
-                    field: 'Key',
-                    emptyAble: false,
-                    emptyText: '必填'
+                    label: 'Version',
+                    field: 'Version',
+                    value: '1.1.0',
+                    type: 'select',
+                    options: {
+                        data: [{
+                            text: '<1.1.0',
+                            value: ''
+                        }, {
+                                text: '1.1.0',
+                                value: '1.1.0'
+                            }, {
+                                text: '1.2.0',
+                                value: '1.2.0'
+                            }]
+                    }
                 }, {
+                        label: 'Key',
+                        field: 'Key',
+                        emptyAble: false,
+                        emptyText: '必填'
+                    }, {
                         label: 'Value',
                         field: 'Value'
                     }]
+
             });
 
             this.model.before('.js_action', form.$el);
-            
+
+
+            form.$el.on('change', '[name="Version"]', function () {
+                api.setParam({
+                    v: self.model.data.mapping.Version
+
+                }).request();
+            });
+
             var form2 = new Form({
                 model: this.model,
                 name: 'upload',
@@ -65,13 +91,13 @@
                     type: 'file'
                 }]
             });
-            
+
             this.model.before('.js_action1', form2.$el);
-            
+
             this.model.set({
                 buttons1: [{
-                    click: function () { 
-                        form2.submit(function (res) { 
+                    click: function () {
+                        form2.submit(function (res) {
                             if (res.success) {
                                 sl.tip('上传成功');
 
@@ -84,10 +110,13 @@
                 }]
             })
 
-            new API({
+            var api = new API({
                 url: '/api/settings/resourceMapping',
+                params: {
+                    v: ''
+                },
                 success: function (res) {
-                    if (res.success && res.data) {
+                    if (res.success) {
                         self.$('.js_data').html(JSON.stringify(res.data));
                     }
                 }

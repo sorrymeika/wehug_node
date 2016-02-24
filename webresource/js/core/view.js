@@ -24,12 +24,12 @@
 
         if (that.options.initialize) that.options.initialize.apply(that, args);
     };
+    
+    View.prototype = $.extend({}, Component.prototype);
 
-    View.prototype = Object.create(Component.prototype);
-
-    View.extend = function (options) {  
+    View.extend = function (options) {
         var child = util.extend.call(this, options);
-        
+
         child.prototype.events = $.extend({}, child.__super__.events, child.prototype.events);
 
         return child;

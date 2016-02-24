@@ -47,9 +47,9 @@ define(function (require, exports, module) {
                 },
 
                 getFreight: function (bag_amount, coupon, Points, freecouponcode) {
-                    
+
                     console.log(bag_amount, coupon, Points, freecouponcode);
-                    
+
                     var price = this.getPrice(bag_amount, coupon, Points);
                     var freight = ((price >= 99 || freecouponcode) ? 0 : 15);
 

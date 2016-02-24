@@ -1029,7 +1029,6 @@ $p:2;
 		}
 		.btn {height: 26px;line-height: 26px;font-size: 3rem;width: 80px; display: block;}
 		.btn.over {background: #ccc;}
-		
 	}
 }
 
@@ -1042,6 +1041,7 @@ $p:2;
 	.text {font-size: 2.4rem;margin-top: 6px;}
 	&:before { display: block;content: ''; background:url(icon.png) no-repeat -180px 0px; width: 30px; height: 30px;background-size: 320px auto; margin-right: 6px;  }
 }
+.has_status_bar .sp_package_hd {box-sizing: content-box; border-top: 20px solid #e65e5f; }
 
 .checked_extend {
 	&:before {content: ''; display:block; background: url("icon.png") no-repeat 0px 0px;background-size: 320px auto;width: 30px;height: 30px;background-position: -240px -30px;margin-top: 12px; margin-right: 4px;}

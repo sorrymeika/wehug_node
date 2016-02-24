@@ -8,7 +8,7 @@ app.post('/connect', function (req, res) {
     pools.connect({
         host: "localhost",
         user: 'root',
-        password: '123456'
+        password: '12345Qwert'
 
     }, function (err, conn) {
         res.json({
