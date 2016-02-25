@@ -34,7 +34,7 @@
         },
         "test": {
             "api": "http://appuser2.abs.cn",
-            "shopApi": "http://appapi-1-1-0.abs.cn",
+            "shopApi": "http://testappapi-1-1-0.abs.cn",
             "updateApi": "http://appversion.abs.cn"
         },
         "debug": {
