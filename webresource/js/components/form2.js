@@ -1,8 +1,9 @@
 ﻿define(function (require, exports, module) {
     var $ = require('$');
-    var form = require('./form2.tpl');
+    var form = require('./form2.html');
     var util = require('util');
     var Validator = require('./validator');
+    var model = require('core/model2');
     var Promise = require('core/promise');
     var TimePicker = require('./timepicker');
 
@@ -46,17 +47,16 @@
             } else
                 this[key] = option;
         }
-        if (!this.validator) this.validator = this.name + 'Valid';
-
-        this.model.set(this.name, {});
-        this.formModel = this.model.get(this.name);
-        this.data = this.formModel.data;
-
-        this.valid = new Validator(validator, this.data);
+        
+        this.validator = 'Valid';
+        
         this.$el = $(this.template.html(this));
         this.el = this.$el[0];
 
-        this.model.bind(this.$el);
+        this.model = new model.ViewModel(this.$el, {
+        });
+        
+        this.valid = new Validator(validator, this.model.data);
 
         this.$el.on('blur', '[name]', $.proxy(this._validInput, this))
 
@@ -64,11 +64,11 @@
             var plugin = this.plugins[i];
             var $hidden = this.$el.find('[name="' + plugin.field + '"]');
             var compo = this.compo[plugin.field] = new (exports.require(plugin.type))($hidden, plugin);
-            var value = this.formModel.data[plugin.field];
+            var value = this.model.data[plugin.field];
             if (value)
-                compo.val(this.formModel.data[plugin.field]);
+                compo.val(this.model.data[plugin.field]);
 
-            this.formModel.on('change:' + plugin.field, (function (compo) {
+            this.model.on('change:' + plugin.field, (function (compo) {
                 return function (e, value) {
                     compo.val(value);
                 }

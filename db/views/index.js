@@ -12,8 +12,8 @@
         events: {
             'keyup': function (e) {
                 var self = this;
-                if (e.keyCode == 13 && e.ctrlKey) {
-
+                
+                if (e.keyCode == 116) {
                     $.post('/api/mysql/query', {
                         query: this.model.data.query
 
@@ -46,7 +46,12 @@
                 database: ''
             });
 
-            self.model.on('change:database', function (e, value) {
+            self.model.on('change:database', function (e, mod, origin, value) {
+
+                self.menu.set({
+                    database: value,
+                    table: ''
+                });
 
                 $.get('/api/mysql/use?database=' + value, function (res) {
 
@@ -75,8 +80,13 @@
             });
 
 
-            self.model.on('change:table', function (e, value) {
+            self.model.on('change:table', function (e, mod, origin, value) {
                 if (value) {
+
+                    self.menu.set({
+                        table: value
+                    });
+
                     $.post('/api/mysql/query', {
                         query: "select COLUMN_NAME,COLUMN_TYPE,IS_NULLABLE,COLUMN_KEY,PRIVILEGES from information_schema.COLUMNS where table_name=@p0 and table_schema=@p1",
                         params: JSON.stringify([self.model.data.table, self.model.data.database])
@@ -117,7 +127,6 @@
         },
         onShow: function () {
             this.menu = menu.get('/');
-            this.$el.before(this.menu.$el);
         },
 
         onDestory: function () {

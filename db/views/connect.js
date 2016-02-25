@@ -15,16 +15,9 @@
 
             self.$el.siblings().hide();
 
-
-
             this.model = new model.ViewModel(this.$el, {
                 title: '连接服务器',
-                selectConnection: function (e) {
-                    var model = e.model;
-                    this.set({
-                        user: model.data
-                    });
-                },
+
                 buttons: [{
                     value: '确认',
                     click: function () {
@@ -61,20 +54,25 @@
                     emptyAble: false,
                     emptyText: '不可为空'
                 }, {
-                    label: '用户名',
-                    field: 'user',
-                    emptyAble: false,
-                    emptyText: '不可为空'
-                }, {
-                    label: '密码',
-                    field: 'password',
-                    type: 'password',
-                    emptyAble: false,
-                    emptyText: '不可为空'
-                }]
+                        label: '用户名',
+                        field: 'user',
+                        emptyAble: false,
+                        emptyText: '不可为空'
+                    }, {
+                        label: '密码',
+                        field: 'password',
+                        type: 'password',
+                        emptyAble: false,
+                        emptyText: '不可为空'
+                    }]
             });
 
-            form.$el.insertBefore(this.$('.action'))
+            form.$el.insertBefore(this.$('.action'));
+
+            this.model.selectConnection = function (e, conn) {
+
+                form.model.set(conn);
+            };
         },
 
         onShow: function () {

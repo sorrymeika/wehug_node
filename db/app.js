@@ -78,7 +78,7 @@ exports.loadConfig = function (callback) {
 }
 
 exports.createIndex = function (config, callback) {
-    fs.readFile('./index.html', { encoding: 'utf-8' }, function (err, html) {
+    fs.readFile('./root.html', { encoding: 'utf-8' }, function (err, html) {
 
         var T = razor.nodeFn(html.replace(/^\uFEFF/i, ''));
 

@@ -33,10 +33,6 @@
         this.data = data;
     };
 
-    exports.prototype.set = function (data) {
-        this.data = data;
-    };
-
     exports.prototype.valid = function (single, value) {
         if (!single) return { success: true };
         if ((value === '' || value == null) && (single.emptyAble === false || ($.isFunction(single.emptyAble) && !single.emptyAble())))

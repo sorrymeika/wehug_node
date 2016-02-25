@@ -791,8 +791,6 @@
                 + withData(repeat, (variables && variables.length ? 'var ' + variables.join(',') + ';' : '') + content.replace('return \'\'+', 'return ').replace(/\+\'\'/g, ''))
                 + '}';
 
-            console.log(code)
-
             return this.compile(code);
         },
 
@@ -868,6 +866,9 @@
                         case 'sn-style':
                         case 'style':
                             el.style.cssText += val;
+                            break;
+                        case 'checked':
+                            (el.checked = !!val) ? el.setAttribute(attr, 'checked') : el.removeAttribute(attr);
                             break;
                         default:
                             el.setAttribute(attr, val);
@@ -959,8 +960,6 @@
                 if (e._stopModelEvent == true) return;
                 var target = e.currentTarget;
                 var name = target.getAttribute('sn-model');
-
-                console.log(target.value);
 
                 self._setByEl(target, name, target.value);
                 e._stopModelEvent = true;

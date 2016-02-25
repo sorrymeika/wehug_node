@@ -1,9 +1,9 @@
-﻿{
+{
     "debug": true,
     "dest": "./dest",
     "api": "http://127.0.0.1:6002",
     "proxy": {
-        "/proxy/*": "testappapi-1-1-0.abs.cn"
+        "/proxy/*": "172.16.168.185:6005"
     },
     "css": [
         "../webresource/images/reset.css",
@@ -25,27 +25,18 @@
             "api": "http://appuser.abs.cn"
         },
         "test": {
-            "api": "http://appuser2.abs.cn"
-        },
-        "debug": {
-            "api": "http://10.0.79.244:5559/proxy1"
+            "api": "http://localhost:6004"
         },
         "dev": {
-            "api": "http://172.16.168.158:6005"
+            "api": "http://127.0.0.1:6001/proxy"
         }
     },
     "framework": {
-        "slan.m": {
+        "slan": {
             "seajs": "../webresource/js/seajs/sea",
             "zepto": "../webresource/js/zepto",
-            "extend/touch": "../webresource/m/js/extend/touch",
             "extend/fx": "../webresource/js/extend/fx",
-            "extend/matchMedia": "../webresource/m/js/extend/matchMedia",
-            "extend/ortchange": "../webresource/m/js/extend/ortchange",
             "util": "../webresource/js/util",
-            "util/md5": "../webresource/js/util/md5",
-            "bridge": "../webresource/m/js/bridge",
-            "graphics/cubicBezier": "../webresource/js/graphics/cubicBezier",
             "graphics/matrix2d": "../webresource/js/graphics/matrix2d",
             "graphics/tween": "../webresource/js/graphics/tween",
             "core/base": "../webresource/js/core/base",
@@ -54,15 +45,26 @@
             "core/event": "../webresource/js/core/event",
             "core/component": "../webresource/js/core/component",
             "core/view": "../webresource/js/core/view",
+            "core/model": "../webresource/js/core/model",
             "core/model2": "../webresource/js/core/model2",
             "core/master": "../webresource/js/core/master",
-            "core/navigation": "../webresource/js/core/navigation",
             "core/page": "../webresource/js/core/page",
+            "core/navigation": "../webresource/js/core/navigation",
             "core/route": "../webresource/js/core/route",
             "core/animation": "../webresource/js/core/animation",
+            "core/http": "../webresource/js/core/http",
+            "common/page": "./common/page",
+            "common/menu.html": "./common/menu.html",
+            "common/menu": "./common/menu",
+            "models/api": "./models/api",
+            "components/timepicker": "../webresource/js/components/timepicker",
+            "components/validator": "../webresource/js/components/validator",
+            "components/form.tpl": "../webresource/js/components/form.tpl",
+            "components/form": "../webresource/js/components/form",
+            "components/grid": "../webresource/js/components/grid",
+            "components/page": "../webresource/js/components/page",
             "widget/tip": "../webresource/js/widget/tip",
-            "widget/dialog": "../webresource/js/widget/dialog",
-            "widget/loading": "../webresource/m/js/widget/loading"
+            "widget/dialog": "../webresource/js/widget/dialog"
         }
     }
 }
