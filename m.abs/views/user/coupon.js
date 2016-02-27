@@ -145,7 +145,7 @@ define(function (require, exports, module) {
                     Auth: self.user.Auth
 
                 }).load(function (err, res) {
-                    if (!err) {
+                    if (!err&&res.success) {
                         if (res.overdue) {
                             return;
                         }
