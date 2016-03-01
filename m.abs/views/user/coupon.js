@@ -84,7 +84,7 @@ define(function (require, exports, module) {
                 checkData: false,
                 beforeSend: function () {
                     var code = self.model.get('code');
-                    
+
                     if (!code) {
                         sl.tip('请输入券号');
                         return false;
@@ -145,7 +145,7 @@ define(function (require, exports, module) {
                     Auth: self.user.Auth
 
                 }).load(function (err, res) {
-                    if (!err&&res.success) {
+                    if (!err && res.success) {
                         if (res.overdue) {
                             return;
                         }
@@ -156,7 +156,7 @@ define(function (require, exports, module) {
 
                         }).show();
                     } else {
-                        sl.tip(err.msg);
+                        sl.tip(err && err.msg || res.msg);
                     }
                 });
 
