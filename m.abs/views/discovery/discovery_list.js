@@ -22,7 +22,7 @@ module.exports = Activity.extend({
 
         self.model = new model.ViewModel(this.$el, {
             back: self.swipeRightBackAction,
-            title: ''
+            title: self.route.query.name
         });
 
         self.discoverListAPI = new api.DiscoverListAPI({

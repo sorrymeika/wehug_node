@@ -8,6 +8,10 @@
         <li>最新</li>
     </ul>
     <ul class="disc_list">
-        <li sn-repeat="item in data"><img src="{{item.DCV_SUBTITLE_PIC}}" /></li>
+        <li sn-repeat="item in data">
+            <img src="{{item.DCV_SUBTITLE_PIC}}" />
+            <em class="see">{{item.DCV_VIEW_QTY}}</em>
+            <em class="fav">{{item.DCV_LIKE_QTY}}</em>
+        </li>
     </ul>
 </div>

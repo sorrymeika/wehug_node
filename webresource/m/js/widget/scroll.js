@@ -334,9 +334,9 @@ exports.bind = function (selector, options) {
             images.each(function () {
                 var parent = this.offsetParent;
                 var imgTop = this.offsetTop;
-                while (parent != el && parent != document.body) {
+                while (parent && parent != el && parent != document.body) {
                     imgTop += parent.offsetTop;
-                    parent = this.offsetParent;
+                    parent = parent.offsetParent;
                 }
 
                 if (imgTop <= top) {

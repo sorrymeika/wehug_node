@@ -394,3 +394,22 @@ exports.DiscoverListAPI = ShopAPI.extend({
         dctid: 0
     }
 });
+
+exports.RecDiscoveryAPI = ShopAPI.extend({
+    url: '/api/discover/recdiscovery'
+});
+
+exports.DiscoveryAPI = ShopAPI.extend({
+    url: '/api/discover/discover',
+    params: {
+        id: 0
+    }
+});
+
+exports.DiscoveryAddShareAPI = ShopAPI.extend({
+    url: '/api/discover/addshare',
+    params: {
+        pspcode: '',
+        dcvid: 0
+    }
+});

@@ -37,7 +37,7 @@
             var child = childNodes[i];
             var nextExtend = fn(child, i, extend);
 
-            if (child.nodeType == 1 && child.childNodes.length) {
+            if (nextExtend !== false && child.nodeType == 1 && child.childNodes.length) {
                 eachElement(child.childNodes, fn, nextExtend);
             }
         }
@@ -963,14 +963,13 @@
 
                 self._setByEl(target, name, target.value);
                 e._stopModelEvent = true;
-            }).each(function () {
-                this.snViewModel = self.cid;
-                this.model = self;
             });
 
             self.$el = !self.$el ? $el : self.$el.add($el);
 
             eachElement($el, function (child, i, extendRepeat) {
+                if (child.snViewModel) return false;
+
                 if (child.nodeType == 1) {
                     var repeat = child.getAttribute('sn-repeat');
                     if (repeat != null) {
@@ -1059,6 +1058,11 @@
                     }
                 }
             });
+            
+            $el.each(function () {
+                this.snViewModel = self.cid;
+                this.model = self;
+            })
             
             //事件处理
             var _handleEvent = function (e) {
