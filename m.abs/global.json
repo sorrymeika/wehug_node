@@ -7,7 +7,7 @@
     "proxy": {
         "/proxy1/*": "appuser2.abs.cn",
         "/proxy/*": "testappapi-1-2-0.abs.cn",
-        "/proxy2/*": "appversion.abs.cn"
+        "/proxy2/*": "testappversion.abs.cn"
     },
     "css": [
         "../webresource/m/images/style.css",
@@ -35,17 +35,17 @@
         "test": {
             "api": "http://appuser2.abs.cn",
             "shopApi": "http://testappapi-1-2-0.abs.cn",
-            "updateApi": "http://appversion.abs.cn"
+            "updateApi": "http://testappversion.abs.cn"
         },
         "debug": {
             "api": "http://10.0.79.244:5559/proxy1",
             "shopApi": "http://10.0.79.244:5559/proxy",
-            "updateApi": "http://appversion.abs.cn"
+            "updateApi": "http://testappversion.abs.cn"
         },
         "dev": {
-            "api": "http://172.16.168.158:6005",
+            "api": "http://172.16.168.185:6005",
             "shopApi": "http://127.0.0.1:5559/proxy",
-            "updateApi": "http://appversion.abs.cn"
+            "updateApi": "http://testappversion.abs.cn"
         }
     },
     "framework": {

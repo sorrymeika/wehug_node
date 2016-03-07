@@ -20,13 +20,22 @@
                 }
             }
             that._scrolls = Scroll.bind(that.$('.scrollview'));
+            that._hasUpdate = false;
         },
 
-        onLoad: util.noop,
+        _onUpdate: function () {
+            this.onLoad && this.onLoad();
+
+            if (!this._hasUpdate || this.isForward) {
+                this.trigger('Update');
+                this.onUpdate && this.onUpdate();
+            }
+            this._hasUpdate = true;
+        },
 
         initialize: function () {
             this.on('Create', this.onHtmlLoad);
-            this.one('Show', this.onLoad);
+            this.on('Show', this._onUpdate);
             this.on('Destroy', this._onDestroy);
 
             Page.prototype.initialize.apply(this, arguments);
@@ -60,7 +69,6 @@
                 that.trigger('Show');
             });
         },
-
 
         createIFrame: function ($container) {
             var $iframe = $('<iframe width="' + window.innerWidth + 'px" frameborder="0" />').appendTo($container);

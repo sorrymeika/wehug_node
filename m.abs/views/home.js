@@ -58,9 +58,7 @@ module.exports = Activity.extend({
             var $target = $(e.currentTarget);
             var index = $target.index();
 
-            if (index == 3) {
-                self.forward('/cart');
-            } else if (!$target.hasClass('curr')) {
+            if (!$target.hasClass('curr')) {
                 $target.addClass('curr').siblings('.curr').removeClass('curr');
 
                 this.model.set({
@@ -82,6 +80,25 @@ module.exports = Activity.extend({
                         self.discovery = new Discovery();
 
                         self.discovery.$el.appendTo(self.model.refs.discovery)
+                    }
+                } else if (index == 3) {
+                    
+                    if (!self.recDiscovery) {
+                        self.recDiscovery = new api.RecDiscoveryAPI({
+                            $el: self.model.refs.messages,
+                            success: function (res) {
+                                console.log(res);
+
+                                self.model.set({
+                                    rec: res.data
+                                })
+                            },
+
+                            error: function () {
+                            }
+                        });
+
+                        self.recDiscovery.load();
                     }
                 }
             }
@@ -182,6 +199,17 @@ module.exports = Activity.extend({
 
         sl.activity = self;
 
+        self.appIconAPI = new api.AppIconAPI({
+            $el: $(''),
+            checkData: false,
+            params: function () {
+                id: 2
+            },
+            success: function (res) {
+                console.log(res);
+            }
+        });
+        self.appIconAPI.load();
 
         var update = new api.UpdateAPI({
             $el: $(''),

@@ -131,7 +131,7 @@ define(function (require, exports, module) {
                         self.setResult('OrderChange')
                             .setResult('ResetCart')
                             .setResult('UserChange');
-
+                            
                         if (self.model.get('payType') == 1) {
                             bridge.ali({
                                 type: 'pay',
