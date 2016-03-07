@@ -1,9 +1,9 @@
 ﻿<form action="@(url)" method="@method" enctype="@(enctype||"multipart/form-data")" class="form">
 @for (var i=0,len=hiddens.length;i<len;i++) {
     var field=hiddens[i];
-    <input type="hidden" name="@(field.field)" sn-model="@(name).@(field.field)" sn-binding="value:@(name).@(field.field)" />
+    <input type="hidden" name="@(field.field)" sn-model="@(field.field)" value="{{@(field.field)}}" />
 }
-<table width="100%">
+<table>
     <tbody>
         @for (var i=0,len=fields.length;i<len;i++) {
             var items=fields[i],
@@ -41,7 +41,7 @@
 
                     } else if (field.type=='captcha'){
                         <input class="@(field.className||'text_normal')" type="text"@html(attr)/>
-                        <img class="captcha" src="@(field.captcha)?v=@(Date.now())" onclick="this.src='@(field.captcha)?v='+Date.now()" sn-binding="src:captcha|or:'@(field.captcha)'"/>
+                        <img class="captcha" src="@(field.captcha)?v=@(Date.now())" onclick="this.src='@(field.captcha)?v='+Date.now()" src="{{captcha||'@(field.captcha)'}}"/>
 
                     } else if (field.type=='file'){
                         <input type="file" name="@(field.field)" sn-model="@(field.field)"/>
