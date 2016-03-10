@@ -47,15 +47,15 @@
             } else
                 this[key] = option;
         }
-        
+
         this.validator = 'Valid';
-        
+
         this.$el = $(this.template.html(this));
         this.el = this.$el[0];
 
         this.model = new model.ViewModel(this.$el, {
         });
-        
+
         this.valid = new Validator(validator, this.model.data);
 
         this.$el.on('blur', '[name]', $.proxy(this._validInput, this))
@@ -65,12 +65,13 @@
             var $hidden = this.$el.find('[name="' + plugin.field + '"]');
             var compo = this.compo[plugin.field] = new (exports.require(plugin.type))($hidden, plugin);
             var value = this.model.data[plugin.field];
-            if (value)
-                compo.val(this.model.data[plugin.field]);
+
+            if (value !== undefined && value !== null)
+                compo.val(value);
 
             this.model.on('change:' + plugin.field, (function (compo) {
                 return function (e, value) {
-                    compo.val(value);
+                    compo.val(value.data[plugin.field]);
                 }
             })(compo))
         }
@@ -87,10 +88,12 @@
         fields: [],
 
         reset: function () {
+            var data = {};
             for (var key in this.compo) {
                 this.compo[key].val('');
+                data[key] = '';
             }
-            this.el.reset();
+            this.model.reset();
         },
 
         submit: function (success, error) {
@@ -124,6 +127,7 @@
                         url: this.url,
                         type: 'POST',
                         dataType: 'json',
+                        xhrFields: this.xhrFields,
                         data: this.$el.serialize(),
                         success: $.proxy(success, this),
                         error: error && $.proxy(error, this)
@@ -209,4 +213,52 @@
 
     exports.define('RichTextBox', RichTextBox);
     exports.define('TimePicker', TimePicker);
+
+    var CheckBoxList = function ($input, options) {
+        var self = this;
+        self.$input = $input;
+        self.options = options;
+
+        options.options.forEach(function (item) {
+            $('<input pname="' + options.field + '" type="checkbox" value="' + item.value + '" /><span style="margin-right: 10px">' + item.text + '</span>').insertBefore($input);
+        })
+        
+        self.$checkBoxList = self.$input.siblings('[pname="' + self.options.field + '"]');
+
+        self.$checkBoxList.on('click', function () {
+            var res = [];
+            self.$checkBoxList.each(function () { 
+                if (this.checked) { 
+                    res.push(this.value);
+                }
+            });
+            var original = $input[0].value;
+            var content = res.join('|');
+
+            $input.val(content);
+            if (original !== content) $input.trigger('change');
+            $input.trigger('blur');
+        });
+
+        console.log(options)
+    }
+    CheckBoxList.prototype = {
+        val: function (val) {
+            var self = this;
+
+            self.$input.siblings('[pname="' + self.options.field + '"]').removeAttr('checked').each(function () {
+                this.checked = false;
+
+            }).filter((val || 'null').split('|').map(function (item) {
+                return '[value="' + item + '"]';
+
+            }).join(',')).attr('checked', 'checked').each(function () {
+                this.checked = true;
+            });
+
+            self.$input.val(val).trigger('change');
+        }
+    }
+    exports.define('CheckBoxList', CheckBoxList);
+
 });
