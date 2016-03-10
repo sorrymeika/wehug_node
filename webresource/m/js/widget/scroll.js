@@ -11,13 +11,13 @@ var _start = function (e) {
     } else {
         var point = e.touches[0],
             matrix = self.$.matrix();
-
+            
         self.isStart = false;
         self.isStop = false;
         self.isMoved = false;
         self.sy = self.oy = self.pointY = point.pageY;
         self.sx = point.pageX;
-        self.st = matrix.ty;
+        self.st = matrix[5];
         self.isLoading = self.isDataLoading;
     }
 }
@@ -49,7 +49,7 @@ var _move = function (e) {
         self.isMoved = true;
         self.refreshAgain = true;
         self.ty = self.st + deltaY * .5;
-
+        
         self.$.css({ '-webkit-transform': 'translate(0px,' + self.ty + 'px) translateZ(0)' });
 
         if (!this.isLoading) {
@@ -111,7 +111,7 @@ var _refresh = function () {
             self.isDataLoading = false;
             if (self.refreshAgain) return;
 
-            var from = self.$.matrix().ty,
+            var from = self.$.matrix()[5],
                 end = Math.max(from - 50, 0);
 
             self.$.animate({

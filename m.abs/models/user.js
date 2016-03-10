@@ -44,7 +44,7 @@ var User = {
 };
 
 var userApi = new api.API({
-    el: 'body',
+    el: $(''),
     url: '/api/user/get',
     checkData: false,
 

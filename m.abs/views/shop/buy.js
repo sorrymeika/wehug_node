@@ -131,29 +131,32 @@ define(function (require, exports, module) {
                         self.setResult('OrderChange')
                             .setResult('ResetCart')
                             .setResult('UserChange');
-                            
-                        if (self.model.get('payType') == 1) {
-                            bridge.ali({
-                                type: 'pay',
-                                spUrl: api.API.prototype.baseUri + '/AlipayApp/Pay',
-                                orderCode: res.code
 
-                            }, function (res) {
-                                sl.tip(res.msg);
-                            });
+                        if (self.model.refs.total.innerHTML != '0') {
 
-                        } else {
+                            if (self.model.get('payType') == 1) {
+                                bridge.ali({
+                                    type: 'pay',
+                                    spUrl: api.API.prototype.baseUri + '/AlipayApp/Pay',
+                                    orderCode: res.code
 
-                            bridge.wx({
-                                type: 'pay',
-                                spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
-                                orderCode: res.code,
-                                orderName: 'ABS商品',
-                                orderPrice: res.pur_amount
+                                }, function (res) {
+                                    sl.tip(res.msg);
+                                });
 
-                            }, function (res) {
-                                sl.tip(res.msg);
-                            });
+                            } else {
+
+                                bridge.wx({
+                                    type: 'pay',
+                                    spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
+                                    orderCode: res.code,
+                                    orderName: 'ABS商品',
+                                    orderPrice: res.pur_amount
+
+                                }, function (res) {
+                                    sl.tip(res.msg);
+                                });
+                            }
                         }
 
                         self.forward('/order/' + res.pur_id + "?from=/myorder");
