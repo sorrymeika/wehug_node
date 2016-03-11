@@ -22,12 +22,11 @@ module.exports = Activity.extend({
 
         self.model = new model.ViewModel(this.$el, {
             back: self.swipeRightBackAction,
-            title: self.route.query.name
+            title: self.route.query.name||'态度'
         });
 
         self.discoverListAPI = new api.DiscoverListAPI({
             $el: self.$el,
-            showLoading: false,
 
             success: function (res) {
                 console.log(res);
@@ -40,12 +39,18 @@ module.exports = Activity.extend({
             error: function () {
             }
         });
-
-        self.discoverListAPI.load();
     },
 
-    onShow: function () {
+    onUpdate: function () {
         var self = this;
+
+        self.discoverListAPI.setParam({
+            dctid: this.route.data.id || 0,
+            wd: this.route.query.s || '',
+            orderby: 'asc',
+            order: 'VIEW'
+
+        }).load();
     },
 
     onDestory: function () {

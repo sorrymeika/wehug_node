@@ -408,8 +408,35 @@ exports.DiscoveryAPI = ShopAPI.extend({
 
 exports.DiscoveryAddShareAPI = ShopAPI.extend({
     url: '/api/discover/addshare',
+    checkData: false,
     params: {
         pspcode: '',
         dcvid: 0
+    }
+});
+
+exports.DiscoveryFavAPI = ShopAPI.extend({
+    url: '/api/discover/addlikes',
+    checkData: false,
+    params: {
+        pspcode: '',
+        dcvid: 0
+    }
+});
+
+exports.DiscoveryRemoveFavAPI = ShopAPI.extend({
+    url: '/api/discover/removelikes',
+    checkData: false,
+    params: {
+        pspcode: '',
+        dcvid: 0
+    }
+});
+
+exports.AppIconAPI = ShopAPI.extend({
+    url: '/system/getappicon',
+    checkData: false,
+    params: {
+        id: 2
     }
 });

@@ -69,8 +69,6 @@ var Share = View.extend({
         
 		this.model=new model.ViewModel(this.$el,this.options);
         
-        console.log(this.model.data);
-        
 	},
 	
 	set: function(data){

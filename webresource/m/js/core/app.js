@@ -19,18 +19,18 @@
         getPath = util.getPath,
         standardizeHash = Route.standardizeHash;
 
-    var getToggleAnimation = function (isOpen, currentActivity, activity, toggleAnim) {
-        if (!toggleAnim) toggleAnim = (isOpen ? activity : currentActivity).toggleAnim;
+    var getToggleAnimation = function (isForward, currentActivity, activity, toggleAnim) {
+        if (!toggleAnim) toggleAnim = (isForward ? activity : currentActivity).toggleAnim;
 
         var anim = require('anim/' + toggleAnim),
-            type = isOpen ? "open" : "close",
-            ease = isOpen ? 'ease-out' : 'ease-out',
+            type = isForward ? "open" : "close",
+            ease = isForward ? 'ease-out' : 'ease-out',
             enterFrom = $.extend({}, anim[type + 'EnterAnimationFrom']),
             exitFrom = $.extend({}, anim[type + 'ExitAnimationFrom']);
 
-        enterFrom.zIndex = isOpen ? anim.openEnterZIndex : anim.closeEnterZIndex;
+        enterFrom.zIndex = isForward ? anim.openEnterZIndex : anim.closeEnterZIndex;
         enterFrom.display = 'block';
-        exitFrom.zIndex = isOpen ? anim.openExitZIndex : anim.closeExitZIndex;
+        exitFrom.zIndex = isForward ? anim.openExitZIndex : anim.closeExitZIndex;
 
         return [{
             el: activity.$el,
@@ -56,7 +56,7 @@
             start: function () {
                 var that = this,
                     action,
-                    isOpen,
+                    isForward,
                     deltaX = that.touch.dx;
 
                 if (that.touch.isDirectionY || that.swiperPromise || that.swiper) {
@@ -73,8 +73,8 @@
 
                 that.swiper = null;
 
-                action = isSwipeLeft ? (currentActivity.swipeLeftForwardAction ? (isOpen = true, currentActivity.swipeLeftForwardAction) : (isOpen = false, currentActivity.swipeLeftBackAction))
-                    : (currentActivity.swipeRightForwardAction ? (isOpen = true, currentActivity.swipeRightForwardAction) : (isOpen = false, currentActivity.swipeRightBackAction));
+                action = isSwipeLeft ? (currentActivity.swipeLeftForwardAction ? (isForward = true, currentActivity.swipeLeftForwardAction) : (isForward = false, currentActivity.swipeLeftBackAction))
+                    : (currentActivity.swipeRightForwardAction ? (isForward = true, currentActivity.swipeRightForwardAction) : (isForward = false, currentActivity.swipeRightBackAction));
 
                 if (!action) {
                     if (isSwipeLeft && currentActivity.referrerDir == "Left") {
@@ -82,7 +82,7 @@
                     } else if (!isSwipeLeft && currentActivity.referrerDir != "Left") {
                         action = currentActivity.referrer;
                     }
-                    isOpen = false;
+                    isForward = false;
                 }
 
                 if (action) {
@@ -93,9 +93,9 @@
                         that.needRemove = activity.el.parentNode === null;
                         adjustActivity(currentActivity, activity);
 
-                        that.isSwipeOpen = isOpen;
+                        that.isSwipeOpen = isForward;
 
-                        that.swiper = new animation.Animation(getToggleAnimation(isOpen, currentActivity, activity));
+                        that.swiper = new animation.Animation(getToggleAnimation(isForward, currentActivity, activity));
                         that.swipeActivity = activity;
 
                         that.swiperPromise.resolve();
@@ -136,7 +136,9 @@
                                 currentActivity.$el.addClass('active');
                                 that.needRemove && activity.$el.remove();
                                 that.mask.hide();
+                                
                             } else {
+                                activity.isForward = that.isSwipeOpen;
 
                                 that._currentActivity = that.swipeActivity;
                                 that.navigate(activity.url, that.isSwipeOpen);
@@ -314,10 +316,10 @@
             var that = this,
                 currentActivity = that._currentActivity,
                 url = route.url,
-                isOpen = options.isForward,
+                isForward = options.isForward,
                 duration = options.duration || 400;
 
-            that.navigate(url, isOpen);
+            that.navigate(url, isForward);
 
             if (currentActivity.path == route.path) {
                 that.checkQueryString(currentActivity, route);
@@ -338,10 +340,12 @@
                 });
 
                 var ease = 'cubic-bezier(.34,.86,.54,.99)',
-                    anims = getToggleAnimation(isOpen, currentActivity, activity, options.toggleAnim),
+                    anims = getToggleAnimation(isForward, currentActivity, activity, options.toggleAnim),
                     anim;
+                    
+                activity.isForward = isForward;
 
-                if (isOpen) {
+                if (isForward) {
                     activity.referrer = currentActivity.url;
                     activity.referrerDir = currentActivity.swipeRightForwardAction == url ? "Left" : "Right";
                 }

@@ -132,28 +132,31 @@ define(function (require, exports, module) {
                             .setResult('ResetCart')
                             .setResult('UserChange');
 
-                        if (self.model.get('payType') == 1) {
-                            bridge.ali({
-                                type: 'pay',
-                                spUrl: api.API.prototype.baseUri + '/AlipayApp/Pay',
-                                orderCode: res.code
+                        if (self.model.refs.total.innerHTML != '0') {
 
-                            }, function (res) {
-                                sl.tip(res.msg);
-                            });
+                            if (self.model.get('payType') == 1) {
+                                bridge.ali({
+                                    type: 'pay',
+                                    spUrl: api.API.prototype.baseUri + '/AlipayApp/Pay',
+                                    orderCode: res.code
 
-                        } else {
+                                }, function (res) {
+                                    sl.tip(res.msg);
+                                });
 
-                            bridge.wx({
-                                type: 'pay',
-                                spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
-                                orderCode: res.code,
-                                orderName: 'ABS商品',
-                                orderPrice: res.pur_amount
+                            } else {
 
-                            }, function (res) {
-                                sl.tip(res.msg);
-                            });
+                                bridge.wx({
+                                    type: 'pay',
+                                    spUrl: api.API.prototype.baseUri + '/api/shop/wxcreateorder',
+                                    orderCode: res.code,
+                                    orderName: 'ABS商品',
+                                    orderPrice: res.pur_amount
+
+                                }, function (res) {
+                                    sl.tip(res.msg);
+                                });
+                            }
                         }
 
                         self.forward('/order/' + res.pur_id + "?from=/myorder");

@@ -17,7 +17,15 @@ define(function (require, exports, module) {
 
             var $main = this.$('.main');
 
-            Scroll.bind($main);
+            Scroll.bind($main, {
+                refresh: function (resolve, reject) {
+                    self.loading.isShowLoading = false;
+                    self.loading.reload(function () {
+                        self.loading.isShowLoading = true;
+                        resolve();
+                    });
+                }
+            });
 
             this.model = new model.ViewModel(this.$el, {
                 back: '/',

@@ -58,9 +58,7 @@ module.exports = Activity.extend({
             var $target = $(e.currentTarget);
             var index = $target.index();
 
-            if (index == 3) {
-                self.forward('/cart');
-            } else if (!$target.hasClass('curr')) {
+            if (!$target.hasClass('curr')) {
                 $target.addClass('curr').siblings('.curr').removeClass('curr');
 
                 this.model.set({
@@ -82,6 +80,25 @@ module.exports = Activity.extend({
                         self.discovery = new Discovery();
 
                         self.discovery.$el.appendTo(self.model.refs.discovery)
+                    }
+                } else if (index == 3) {
+
+                    if (!self.recDiscovery) {
+                        self.recDiscovery = new api.RecDiscoveryAPI({
+                            $el: self.model.refs.messages,
+                            success: function (res) {
+                                console.log(res);
+
+                                self.model.set({
+                                    rec: res.data
+                                })
+                            },
+
+                            error: function () {
+                            }
+                        });
+
+                        self.recDiscovery.load();
                     }
                 }
             }
@@ -182,6 +199,17 @@ module.exports = Activity.extend({
 
         sl.activity = self;
 
+        self.appIconAPI = new api.AppIconAPI({
+            $el: $(''),
+            checkData: false,
+            params: function () {
+                id: 2
+            },
+            success: function (res) {
+                console.log(res);
+            }
+        });
+        self.appIconAPI.load();
 
         var update = new api.UpdateAPI({
             $el: $(''),
@@ -255,21 +283,16 @@ module.exports = Activity.extend({
             });
         }
 
-        var $main = this.$main = this.$('.main');
 
-        this.scroll = Scroll.bind($main);
+        Scroll.bind(this.$('.main:not(.js_shop)'));
 
-        /*/<!--
-        var touch2 = new Touch2($(this.$main[0]).children());
-        
-        touch2.on('start', function () {
-            this.maxY = this.el.offsetHeight - this.el.parentNode.clientHeight;
-        
-        }).on('move', function () {
-            var self = this;
-            self.el.style.webkitTransform = 'translate(0px,' + self.y * -1 + 'px)';
-        })
-        //-->*/
+        this.scroll = Scroll.bind(this.$('.js_shop'), {
+            refresh: function (resolve, reject) {
+                self.shopApi.load(function () {
+                    resolve();
+                });
+            }
+        });
 
         self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function (e) {
             if (!self.$open_msg.hasClass('show')) {
@@ -285,7 +308,6 @@ module.exports = Activity.extend({
         this.context = canvas.getContext('2d');
 
         this.stewardQtyApi = new api.StewardQtyAPI({
-            $el: this.$el,
             checkData: false,
             success: function (res) {
                 self.user.StewardNum = res.data;

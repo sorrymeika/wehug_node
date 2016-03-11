@@ -102,22 +102,30 @@ define(function (require, exports, module) {
                 },
 
                 getTotal: function (bag_amount, coupon, Points, freecouponcode) {
-                    var couponPrice = coupon && coupon.VCA_DEDUCT_AMOUNT ? coupon.VCA_DEDUCT_AMOUNT : 0;
-                    var total;
-                    var price;
-                    var freight;
 
-                    if (coupon && coupon.VCT_ID == 5) {
-                        price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                        freight = ((bag_amount - (Points / 100) >= 99 || freecouponcode) ? 0 : 15);
-                        total = Math.max(0, bag_amount + freight - couponPrice - (Points / 100));
+                    if (util.isTrue(this.data.data_baglist) || util.isTrue(this.data.data_package)) {
 
-                    } else {
-                        price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                        total = price + ((price >= 99 || freecouponcode) ? 0 : 15);
+                        var couponPrice = coupon && coupon.VCA_DEDUCT_AMOUNT ? coupon.VCA_DEDUCT_AMOUNT : 0;
+                        var total;
+                        var price;
+                        var freight;
+
+                        if (coupon && coupon.VCT_ID == 5) {
+                            price = Math.max(0, bag_amount - couponPrice - (Points / 100));
+                            freight = ((bag_amount - (Points / 100) >= 99 || freecouponcode) ? 0 : 15);
+                            total = Math.max(0, bag_amount + freight - couponPrice - (Points / 100));
+
+                        } else {
+                            price = Math.max(0, bag_amount - couponPrice - (Points / 100));
+                            total = price + ((price >= 99 || freecouponcode) ? 0 : 15);
+                        }
+
+                        return '¥' + (Math.round(total * 100) / 100);
+                        
+                    } else { 
+                        return '¥0';
                     }
 
-                    return '¥' + (Math.round(total * 100) / 100);
                 },
 
                 usePoint: function (e, points) {

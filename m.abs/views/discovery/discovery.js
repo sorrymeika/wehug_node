@@ -8,6 +8,7 @@ var animation = require('animation');
 var api = require("models/base");
 var discoveryModel = require("models/discovery");
 var Share = require('components/share');
+var userModel = require('models/user');
 
 module.exports = Activity.extend({
     events: {
@@ -21,11 +22,15 @@ module.exports = Activity.extend({
 
         Scroll.bind(self.$('.main'));
 
+        self.user = userModel.get();
+
         self.share = new Share({
             head: '分享'
         });
         self.share.callback = function (res) {
-
+            discoveryAddShareAPI.setParam({
+                pspcode: self.user.PSP_CODE
+            }).load();
         }
         self.share.$el.appendTo(self.$el);
 
@@ -38,10 +43,43 @@ module.exports = Activity.extend({
 
         Scroll.bind(self.model.refs.productScroll);
 
-        var DiscoveryAddShareAPI = new api.DiscoveryAddShareAPI({
+
+        var discoveryAddShareAPI = new api.DiscoveryAddShareAPI({
             $el: self.$el,
             params: {
-                id: self.route.data.id
+                dcvid: self.route.data.id
+            }
+        });
+
+        var discoveryFavAPI = new api.DiscoveryFavAPI({
+            $el: self.$el,
+            params: {
+                dcvid: self.route.data.id
+            },
+            success: function () {
+                self.model.set({
+                    Like_Flag: true
+                });
+            },
+
+            error: function (res) {
+                sl.tip(res.msg)
+            }
+        });
+
+        var discoveryRemoveFavAPI = new api.DiscoveryRemoveFavAPI({
+            $el: self.$el,
+            params: {
+                dcvid: self.route.data.id
+            },
+            success: function () {
+                self.model.set({
+                    Like_Flag: false
+                });
+            },
+
+            error: function (res) {
+                sl.tip(res.msg)
             }
         });
 
@@ -59,20 +97,31 @@ module.exports = Activity.extend({
                     plist: res.plist.length ? res.plist : [res.plist]
                 });
 
-
                 self.share.set({
                     title: res.data.DCV_TITLE,
                     linkURL: api.API.prototype.baseUri + '/dest' + sl.appVersion + '/index.html#/discovery/' + self.route.data.id,
                     description: ''
                 });
-
-                console.log(res.data.DCV_TITLE)
             },
 
             error: function () {
 
             }
         });
+
+        self.model.fav = function () {
+            if (self.model.data.data.Like_Flag) {
+
+                discoveryFavAPI.setParam({
+                    pspcode: self.user.PSP_CODE
+                }).load();
+
+            } else {
+                discoveryRemoveFavAPI.setParam({
+                    pspcode: self.user.PSP_CODE
+                }).load();
+            }
+        }
 
         discoveryAPI.load();
     },
