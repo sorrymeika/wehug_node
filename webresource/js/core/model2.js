@@ -118,6 +118,7 @@
                 attrs,
                 model = self.model,
                 parent;
+            var keys;
 
             if (cover !== true)
                 val = key, key = cover, cover = false;
@@ -138,7 +139,20 @@
                 return this._triggerChangeEvent(this.key);
 
             } else {
-                (attrs = {})[key] = val;
+                attrs = {};
+                keys = key.split('.');
+                if (keys.length > 1) {
+                    var lastKey = keys.pop();
+                    var lastData = attrs;
+                    for (var i = 0, len = keys.length, prev; i < len; i++) {
+                        key = keys[i];
+                        lastData = lastData[key] = {};
+                    }
+                    lastData[lastKey] = val;
+
+                } else {
+                    attrs[key] = val;
+                }
             }
             if (!$.isPlainObject(this.data)) this.data = {};
 
@@ -158,30 +172,7 @@
 
                 if (origin !== value) {
 
-                    var keys = attr.split('.');
-                    if (keys.length > 1) {
-                        key = keys.pop();
-                        model = this;
-                        for (var i = 0, len = keys.length, prev; i < len; i++) {
-                            attr = keys[i];
-                            prev = model;
-
-                            if (model instanceof Model) {
-                                model = model.model[attr];
-                                if (!model) {
-                                    model = prev.model[attr] = new Model(prev, attr, null);
-                                }
-
-                            } else if (model instanceof Collection) {
-                                model = model.models[attr];
-                                if (!model) {
-                                    throw new Error('[Collection index is bigger than length!]');
-                                }
-                            }
-                        }
-                        model.set(key, value);
-
-                    } else if (origin instanceof Model) {
+                    if (origin instanceof Model) {
                         value === null || value === undefined ? origin.clear() : origin.set(value);
 
                     } else if (origin instanceof Collection) {
@@ -834,7 +825,6 @@
                         case 'value':
                             if (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA') {
                                 if (el.value != val || el.value === '' && val === 0) {
-
                                     el.value = val;
                                 }
                             } else
@@ -1059,7 +1049,7 @@
                     }
                 }
             });
-            
+
             $el.each(function () {
                 this.snViewModel = self.cid;
                 this.model = self;
