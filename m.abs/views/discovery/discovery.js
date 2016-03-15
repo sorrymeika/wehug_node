@@ -12,12 +12,12 @@ var userModel = require('models/user');
 
 module.exports = Activity.extend({
     events: {
-        'tap .js_share': function () {
+        'tap .js_share': function() {
             this.share.show();
         }
     },
 
-    onCreate: function () {
+    onCreate: function() {
         var self = this;
 
         Scroll.bind(self.$('.main'));
@@ -27,7 +27,7 @@ module.exports = Activity.extend({
         self.share = new Share({
             head: '分享'
         });
-        self.share.callback = function (res) {
+        self.share.callback = function(res) {
             discoveryAddShareAPI.setParam({
                 pspcode: self.user.PSP_CODE
             }).load();
@@ -56,13 +56,11 @@ module.exports = Activity.extend({
             params: {
                 dcvid: self.route.data.id
             },
-            success: function () {
-                self.model.set({
-                    Like_Flag: true
-                });
+            success: function() {
+                self.model.set('data.Like_Flag', true);
             },
 
-            error: function (res) {
+            error: function(res) {
                 sl.tip(res.msg)
             }
         });
@@ -72,13 +70,11 @@ module.exports = Activity.extend({
             params: {
                 dcvid: self.route.data.id
             },
-            success: function () {
-                self.model.set({
-                    Like_Flag: false
-                });
+            success: function() {
+                self.model.set('data.Like_Flag', false);
             },
 
-            error: function (res) {
+            error: function(res) {
                 sl.tip(res.msg)
             }
         });
@@ -86,31 +82,31 @@ module.exports = Activity.extend({
         var discoveryAPI = new api.DiscoveryAPI({
             $el: self.$el,
             params: {
-                id: self.route.data.id
+                id: self.route.data.id,
+                pspcode: self.user.PSP_CODE
             },
             checkData: false,
-            success: function (res) {
-                console.log(res);
+            success: function(res) {
 
                 self.model.set({
                     data: res.data,
-                    plist: res.plist.length ? res.plist : [res.plist]
+                    plist: !res.plist || res.plist.length !== undefined ? res.plist : [res.plist]
                 });
 
                 self.share.set({
-                    title: res.data.DCV_TITLE,
-                    linkURL: api.API.prototype.baseUri + '/dest' + sl.appVersion + '/index.html#/discovery/' + self.route.data.id,
+                    title: res.data ? res.data.DCV_TITLE : '',
+                    linkURL: res.data ? res.data.Share_Url : '',
                     description: ''
                 });
             },
 
-            error: function () {
+            error: function() {
 
             }
         });
 
-        self.model.fav = function () {
-            if (self.model.data.data.Like_Flag) {
+        self.model.fav = function() {
+            if (!this.data.data.Like_Flag) {
 
                 discoveryFavAPI.setParam({
                     pspcode: self.user.PSP_CODE
@@ -126,10 +122,10 @@ module.exports = Activity.extend({
         discoveryAPI.load();
     },
 
-    onShow: function () {
+    onShow: function() {
         var self = this;
     },
 
-    onDestory: function () {
+    onDestory: function() {
     }
 });

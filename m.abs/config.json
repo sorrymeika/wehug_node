@@ -138,6 +138,7 @@
             "controller": "test",
             "template": "test"
         },
+        "/coupon/activity/{id:\\d+}": "coupon/activity",
         "/discovery": "discovery/discovery_index",
         "/discovery/{id:\\d+}": "discovery/discovery",
         "/discovery/list": "discovery/discovery_list",

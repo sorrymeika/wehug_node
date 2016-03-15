@@ -18,7 +18,7 @@
             <div class="name">{{item.VCA_VCT_ID==4?'免邮卡':item.VCA_NAME}}</div>
             <div class="time">有效期:{{item.IsOverdue?'已过期':(util.formatDate(item.CSV_START_DT,'yyyy/MM/dd')+'-'+util.formatDate(item.CSV_END_DT,'yyyy/MM/dd'))}}</div>    
             <div class="share" sn-tap="this.share(item)">
-                <i>分享</i>
+                <i>赠送</i>
             </div>
         </li>
     </ul>
@@ -28,7 +28,7 @@
             <div class="name">{{item.VCA_VCT_ID==4?'免邮卡':item.VCA_NAME}}</div>
             <div class="time">有效期:{{util.formatDate(item.CSV_START_DT,'yyyy/MM/dd')}}-{{util.formatDate(item.CSV_END_DT,'yyyy/MM/dd')}}</div>
             <div class="share" sn-tap="this.share(item)">
-                <i>分享</i>
+                <i>赠送</i>
             </div>
         </li>
     </ul>

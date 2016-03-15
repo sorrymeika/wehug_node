@@ -7,7 +7,7 @@
 </header>
 <div class="main discovery">
     <div class="disc_con" html="{{data.DCV_CONTENT}}"></div>
-    <div class="disc_relative">
+    <div sn-if="{{plist}}" class="disc_relative">
         <div class="hd">相关商品</div>
        <div class="hm_shop_scroll" ref="productScroll" style="padding-right:10px;">
             <ul class="hm_shop_list">

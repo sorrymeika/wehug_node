@@ -1,9 +1,9 @@
-﻿define(function (require, exports, module) {
+﻿define(function(require, exports, module) {
     var $ = require('$'),
         _ = require('util'),
         ScrollView = require('./scrollview');
 
-    var Slider = function (el, options) {
+    var Slider = function(el, options) {
         options = $.extend({
             maxDuration: 400,
             ease: 'ease-out',
@@ -29,10 +29,7 @@
 
         if (options.index != undefined) options.index = options.index;
 
-        ScrollView.call(this, $(that.template({
-            items: '',
-            navs: ''
-        })).appendTo($(el)), options);
+        ScrollView.call(this, $(that.template).appendTo($(el)), options);
 
         options = this.options;
 
@@ -40,8 +37,10 @@
 
         $slider = that.$slider = that.$el.find('.js_slider');
 
+        that.$dots = that.$el.find('.js_slide_navs').appendTo(that.$el);
+
         if (options.imagelazyload) {
-            that.bind("Change", function () {
+            that.bind("Change", function() {
                 that._loadImage();
             });
             that._loadImage();
@@ -51,10 +50,10 @@
             that._prev = $('<span class="slider-pre js_pre"></span>').appendTo(that.$el);
             that._next = $('<span class="slider-next js_next"></span>').appendTo(that.$el);
 
-            that.$el.on('tap', '.js_pre', function (e) {
+            that.$el.on('tap', '.js_pre', function(e) {
                 that.index(options.index - 1, 300);
             })
-                .on('tap', '.js_next', function (e) {
+                .on('tap', '.js_next', function(e) {
                     that.index(options.index + 1, 300);
                 });
         }
@@ -73,8 +72,11 @@
     $.extend(Slider.prototype, ScrollView.prototype, {
         loop: false,
         x: 0,
+        renderItem: _.template('<li class="js_slide_item slider-item"><%=$data%></li>'),
+        itemTemplate: '<%= %>',
+        template: '<div class="slider"><ul class="js_slider slider-con"></ul><ol class="js_slide_navs slider-nav"></ol></div>',
 
-        _set: function (data) {
+        _set: function(data) {
             var that = this,
                 itemsHtml = '',
                 $slider,
@@ -84,12 +86,20 @@
             that._data = data;
             that.length = data.length;
 
+            var dotsHtml = '';
             for (var i = 0, n = data.length; i < n; i++) {
                 itemsHtml += that.render(data[i]);
+                dotsHtml += '<li class="slider-nav-item"></li>';
             }
+
             $slider = that.$slider.html(itemsHtml);
             that.$items = $slider.children();
             that.slider = $slider[0];
+
+            if (options.dots) {
+                that.$dots.html(dotsHtml);
+                that.$dots.children().eq(options.index).addClass('curr')
+            }
 
             //that.index=index== -1?that.length%2==0?that.length/2-1:Math.floor(that.length/2):index;
             if (that.length < 2) that.loop = false;
@@ -104,45 +114,46 @@
             } else {
                 length = that.length;
             }
+
         },
 
-        prepend: function (data) {
+        prepend: function(data) {
             this._data.unshift(data);
             this.$slider.prepend(this.render(data));
             this._adjust();
             this.startLeft += this.wrapperW;
         },
 
-        append: function (data) {
+        append: function(data) {
             this._data.push(data);
             this._set(this._data);
             this._adjust();
         },
 
-        set: function (data) {
+        set: function(data) {
             this._set(data);
 
             this._adjustWidth();
             this.index(this.options.index);
         },
 
-        startAutoLoop: function () {
+        startAutoLoop: function() {
             var that = this;
             if (that.loopTimer) return;
 
-            that.loopTimer = setTimeout(function () {
+            that.loopTimer = setTimeout(function() {
                 that.index(that.options.index + 1);
 
                 that.loopTimer = setTimeout(arguments.callee, that.options.autoLoop);
             }, that.options.autoLoop);
         },
 
-        stopAutoLoop: function () {
+        stopAutoLoop: function() {
             clearTimeout(this.loopTimer);
             this.loopTimer = null;
         },
 
-        start: function () {
+        start: function() {
             var that = this,
                 touch = that.touch,
                 index = this._getIndex();
@@ -159,7 +170,7 @@
             that.stopAutoLoop();
         },
 
-        index: function (index, duration) {
+        index: function(index, duration) {
             var options = this.options,
                 x,
                 changeFlag;
@@ -186,18 +197,18 @@
 
             x = index * this.wrapperW;
             this.maxX = x;
-            
+
             this.scrollTo(x, 0, duration);
         },
-        _getIndex: function () {
+        _getIndex: function() {
             var index = Math.round(this.x / this.wrapperW);
 
             return index;
         },
-        data: function (index) {
+        data: function(index) {
             return this._data[index || this.options.index];
         },
-        appendItem: function () {
+        appendItem: function() {
             var item = $(this.renderItem(''));
             this.$slider.append(item);
             this.length++;
@@ -205,7 +216,7 @@
 
             return item;
         },
-        prependItem: function () {
+        prependItem: function() {
             var item = $(this.renderItem(''));
             this.$slider.prepend(item);
             this.length++;
@@ -213,14 +224,11 @@
 
             return item;
         },
-        render: function (dataItem) {
+        render: function(dataItem) {
             return this.renderItem(this.itemTemplate(dataItem));
         },
-        renderItem: _.template('<li class="js_slide_item slider-item"><%=$data%></li>'),
-        itemTemplate: '<%= %>',
-        navTemplate: _.template('<ol class="js_slide_navs slider-nav"><%for(var i=0,len=items.length;i<len;i++){%><li class="slide-nav-item <%=current%> slide-nav-item"></li><%}%></ol>'),
-        template: _.template('<div class="slider"><ul class="js_slider slider-con"><%=items%></ul><%=navs%></div>'),
-        stop: function () {
+
+        stop: function() {
             var that = this;
             var x = that.x;
             var index = this._getIndex();
@@ -232,7 +240,7 @@
             }
             that.trigger('stop');
         },
-        _loadImage: function () {
+        _loadImage: function() {
             var that = this;
 
             var item = that.$items.eq(that.options.index);
@@ -246,7 +254,7 @@
                     }
                 }
 
-                item.find('img[lazyload]').each(function () {
+                item.find('img[lazyload]').each(function() {
                     this.src = this.getAttribute('lazyload');
                     this.removeAttribute('lazyload');
                 });
@@ -255,7 +263,7 @@
             }
         },
 
-        _adjust: function () {
+        _adjust: function() {
             var that = this,
                 slider = that.$slider,
                 children = slider.children(),
@@ -271,7 +279,7 @@
 
             children.css({ width: 100 / length + '%' });
         },
-        _adjustWidth: function () {
+        _adjustWidth: function() {
             var that = this;
 
             that._adjust();
@@ -280,16 +288,18 @@
             that.$scroller.css({ '-webkit-transform': 'translate(' + (-that.x) + 'px,0px) translateZ(0)' });
         },
 
-        _change: function () {
+        _change: function() {
             var that = this,
                 options = that.options,
                 index = that.loop ? options.index - 1 : options.index;
 
             if (options.onChange) options.onChange.call(that, options.index);
             that.trigger('change', options.index, that.currentData);
+
+            that.$dots.children().removeClass('curr').eq(options.index).addClass('curr')
         },
 
-        destory: function () {
+        destory: function() {
             $(window).off('ortchange', this._adjustWidth);
             that.$el.off('tap');
             this.touch.destory();

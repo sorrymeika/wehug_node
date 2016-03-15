@@ -1171,9 +1171,13 @@ $p:2;
 .disc_list li { margin-bottom: 8px; position: relative;}
 .disc_list li em { display: block; position: absolute; background: rgba(255,255,255,.6); color: #000;right: 0; bottom: 10px; height: 25px; line-height: 25px; border-bottom-left-radius: 12px; border-top-left-radius: 12px; padding: 0 10px; }
 .disc_list li em:before { @extend .icon; background-position: -300px -60px;width:20px; height: 20px; display: inline-block;vertical-align: -7px; margin-right: 5px; }
+.disc_list li em.fav.curr:before {background-position: -270px -60px;}
 .disc_list li em.see { bottom: 45px;}
 .disc_list li em.see:before { background-position: -300px -90px;margin-right: 6px;}
 .disc_list li img { width: 100%; display: block; min-height: 90px;}
+.disc_list li p { background: #555; color:#fff; padding: 10px; }
+.disc_list li p.tit { font-size: 14px; }
+.disc_list li p.desc { font-size: 12px; }
 
 .disc_list_sort { display: -webkit-box;}
 .disc_list_sort li { -webkit-box-flex: 1;width:0px; background: #fff; text-align: center; height: 35px; line-height: 35px;font-size: 3rem;  }

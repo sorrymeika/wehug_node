@@ -433,6 +433,23 @@ exports.DiscoveryRemoveFavAPI = ShopAPI.extend({
     }
 });
 
+exports.AppShareActivityAPI = ShopAPI.extend({
+    url: '/api/discover/appshareactivity',
+    checkData: false,
+    params: {
+        id: 0
+    }
+});
+
+exports.AddActivityCouponAPI = ShopAPI.extend({
+    url: '/api/discover/addcashvoucher',
+    checkData: false,
+    params: {
+        pspcode: '',
+        vca_id: 20
+    }
+});
+
 exports.AppIconAPI = ShopAPI.extend({
     url: '/system/getappicon',
     checkData: false,
