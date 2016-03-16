@@ -6,29 +6,31 @@ var model = require('core/model2');
 var Scroll = require('widget/scroll');
 var animation = require('animation');
 var api = require("models/base");
+var userModel = require('models/user');
 
 module.exports = Activity.extend({
     events: {
-        'tap .js_bind:not(.disabled)': function () {
+        'tap .js_bind:not(.disabled)': function() {
         }
     },
 
-    onCreate: function () {
+    onCreate: function() {
         var self = this;
 
         Scroll.bind(self.$('.main'));
+        self.user = userModel.get();
 
         self.swipeRightBackAction = self.route.query.from || self.route.referrer || '/';
 
         self.model = new model.ViewModel(this.$el, {
             back: self.swipeRightBackAction,
-            title: self.route.query.name||'态度'
+            title: self.route.query.name || '态度'
         });
 
         self.discoverListAPI = new api.DiscoverListAPI({
             $el: self.$el,
 
-            success: function (res) {
+            success: function(res) {
                 console.log(res);
 
                 self.model.set({
@@ -36,23 +38,24 @@ module.exports = Activity.extend({
                 });
             },
 
-            error: function () {
+            error: function() {
             }
         });
     },
 
-    onUpdate: function () {
+    onUpdate: function() {
         var self = this;
 
         self.discoverListAPI.setParam({
             dctid: this.route.data.id || 0,
             wd: this.route.query.s || '',
+            pspcode: self.user.PSP_CODE,
             orderby: 'asc',
             order: 'VIEW'
 
         }).load();
     },
 
-    onDestory: function () {
+    onDestory: function() {
     }
 });

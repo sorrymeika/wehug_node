@@ -37,6 +37,7 @@ module.exports = model.ViewModel.extend({
         });
 
         var discoverTypeAPI = new api.DiscoverTypeAPI({
+            showLoading: false,
 
             success: function(res) {
 
@@ -55,6 +56,8 @@ module.exports = model.ViewModel.extend({
         discoverTypeAPI.load();
 
         var recDiscoveryAPI = new api.RecDiscoveryAPI({
+            showLoading: false,
+            
             success: function(res) {
                 console.log(res);
 
@@ -71,7 +74,6 @@ module.exports = model.ViewModel.extend({
 
         var discoverListAPI = new api.DiscoverListAPI({
             $el: self.$el,
-            showLoading: false,
 
             params: {
                 pspcode: self.user.PSP_CODE
