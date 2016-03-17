@@ -1,4 +1,4 @@
-﻿define(function (require, exports, module) {
+﻿define(function(require, exports, module) {
     var $ = require('$');
     var form = require('./form2.html');
     var util = require('util');
@@ -7,13 +7,15 @@
     var Promise = require('core/promise');
     var TimePicker = require('./timepicker');
 
-    var valid_keys = ['emptyAble', 'emptyText', 'regex', 'regexText', 'compare', 'compareText', 'validate', 'validateText', 'success'];
+    var valid_keys = ['emptyAble', 'emptyText', 'regex', 'regexText', 'compare', 'compareText', 'validate', 'validateText', 'success', 'msg'];
     var guid = 0;
 
-    module.exports = exports = function (options) {
+    module.exports = exports = function(options) {
         var self = this,
             option,
             fields;
+
+        var items = {};
 
         this.hiddens = [];
         this.fields = [];
@@ -28,6 +30,8 @@
                 for (var i = 0, len = option.length; i < len; i++) {
                     fields = option[i];
                     if (fields.type === 'hidden') {
+                        items[fields.field] = fields;
+
                         this.hiddens.push(fields);
                     } else {
                         if (!fields.length) fields = [fields];
@@ -36,6 +40,8 @@
                         for (var j = 0, length = fields.length; j < length; j++) {
                             var field = fields[j];
                             var valid = util.pick(field, valid_keys);
+
+                            items[field.field] = field;
 
                             if (!util.isEmptyObject(valid)) {
                                 validator[field.field] = valid;
@@ -54,11 +60,23 @@
         this.el = this.$el[0];
 
         this.model = new model.ViewModel(this.$el, {
+            fields: items
         });
 
         this.valid = new Validator(validator, this.model.data);
 
         this.$el.on('blur', '[name]', $.proxy(this._validInput, this))
+            .on('focus', '[name]', function(e) {
+                var $target = $(e.currentTarget);
+                var name = $target.attr('name');
+                var valid = validator[name];
+
+                valid.msg && self.model.set(self.validator + '.result.' + name, {
+                    success: -1,
+                    msg: valid.msg
+                });
+
+            })
 
         for (var i = 0, len = this.plugins.length; i < len; i++) {
             var plugin = this.plugins[i];
@@ -69,8 +87,8 @@
             if (value !== undefined && value !== null)
                 compo.val(value);
 
-            this.model.on('change:' + plugin.field, (function (compo) {
-                return function (e, value) {
+            this.model.on('change:' + plugin.field, (function(compo) {
+                return function(e, value) {
                     compo.val(value.data[plugin.field]);
                 }
             })(compo))
@@ -87,28 +105,40 @@
         method: "post",
         fields: [],
 
-        reset: function () {
+        reset: function() {
             var data = {};
             for (var key in this.compo) {
-                this.compo[key].val('');
-                data[key] = '';
+                if (key != 'fields') {
+
+                    this.compo[key].val('');
+                    data[key] = '';
+                }
             }
             this.model.reset();
         },
 
-        submit: function (success, error) {
-            var res = this.valid.validate();
+        submit: function(success, error) {
             var self = this;
+
+            this.$el.find('select').each(function() {
+                if (this.selectedIndex == -1) {
+                    this.selectedIndex = 0;
+                }
+                self.model.set(this.name, this.value);
+            });
+
+            var res = this.valid.validate();
             this.model.set(this.validator, res);
 
             if (res.success) {
+
                 if (this.useIframe || this.$el.has('[type="file"]').length) {
                     guid++;
                     var target = "_submit_iframe" + guid;
                     var resultText;
                     var $iframe = $('<iframe style="top:-999px;left:-999px;position:absolute;display:none;" frameborder="0" width="0" height="0" name="' + target + '"></iframe>')
                         .appendTo(document.body)
-                        .on('load', function () {
+                        .on('load', function() {
                             var result = $.trim((this.contentWindow.document.body.innerHTML));
                             if (!resultText || result != resultText) {
                                 resultText = result;
@@ -138,7 +168,7 @@
             }
         },
 
-        _validInput: function (e) {
+        _validInput: function(e) {
             var $target = $(e.currentTarget);
             var name = $target.attr('name');
             var res = this.valid.validate(name);
@@ -148,21 +178,21 @@
             this.model.set(this.validator + '.result.' + name, res);
         },
 
-        destory: function () {
+        destory: function() {
             this.$el.on('off', '[name]', this._validInput);
         }
     };
 
     var plugins = {};
-    exports.define = function (id, Func) {
+    exports.define = function(id, Func) {
         plugins[id.toLowerCase()] = Func;
     };
 
-    exports.require = function (id) {
+    exports.require = function(id) {
         return plugins[id.toLowerCase()];
     };
 
-    var RichTextBox = function ($input, options) {
+    var RichTextBox = function($input, options) {
         var self = this;
         self.$input = $input;
         self.id = 'UMEditor' + (RichTextBox.guid++);
@@ -172,17 +202,17 @@
         window.UMEDITOR_HOME_URL = seajs.resolve('components/umeditor/');
         self.promise = Promise();
 
-        (function (fn) {
+        (function(fn) {
             window.jQuery ? fn() : seajs.use(['components/umeditor/third-party/jquery.min'], fn);
 
-        })(function () {
-            seajs.use(['components/umeditor/umeditor.config', 'components/umeditor/umeditor', 'components/umeditor/themes/default/css/umeditor.css'], function (a) {
+        })(function() {
+            seajs.use(['components/umeditor/umeditor.config', 'components/umeditor/umeditor', 'components/umeditor/themes/default/css/umeditor.css'], function(a) {
                 var editorOptions = {};
                 if (options.toolbar) editorOptions.toolbar = options.toolbar;
                 else if (options.simple) editorOptions.toolbar = ['source | undo redo | bold italic underline strikethrough | removeformat | justifyleft justifycenter justifyright justifyjustify | link unlink | image'];
 
                 var editor = UM.getEditor(self.id, editorOptions);
-                editor.addListener('blur', function () {
+                editor.addListener('blur', function() {
                     var content = editor.getContent();
                     var original = $input[0].value;
 
@@ -192,7 +222,7 @@
                 });
 
                 self.editor = editor;
-                editor.ready(function () {
+                editor.ready(function() {
                     self.promise.resolve();
                 });
             });
@@ -200,9 +230,9 @@
     };
 
     RichTextBox.prototype = {
-        val: function (val) {
+        val: function(val) {
             var self = this;
-            self.promise.then(function () {
+            self.promise.then(function() {
                 self.editor.setContent(val, false);
             });
             self.$input.val(val).trigger('change');
@@ -214,21 +244,21 @@
     exports.define('RichTextBox', RichTextBox);
     exports.define('TimePicker', TimePicker);
 
-    var CheckBoxList = function ($input, options) {
+    var CheckBoxList = function($input, options) {
         var self = this;
         self.$input = $input;
         self.options = options;
 
-        options.options.forEach(function (item) {
+        options.options.forEach(function(item) {
             $('<input pname="' + options.field + '" type="checkbox" value="' + item.value + '" /><span style="margin-right: 10px">' + item.text + '</span>').insertBefore($input);
         })
-        
+
         self.$checkBoxList = self.$input.siblings('[pname="' + self.options.field + '"]');
 
-        self.$checkBoxList.on('click', function () {
+        self.$checkBoxList.on('click', function() {
             var res = [];
-            self.$checkBoxList.each(function () { 
-                if (this.checked) { 
+            self.$checkBoxList.each(function() {
+                if (this.checked) {
                     res.push(this.value);
                 }
             });
@@ -243,16 +273,16 @@
         console.log(options)
     }
     CheckBoxList.prototype = {
-        val: function (val) {
+        val: function(val) {
             var self = this;
 
-            self.$input.siblings('[pname="' + self.options.field + '"]').removeAttr('checked').each(function () {
+            self.$input.siblings('[pname="' + self.options.field + '"]').removeAttr('checked').each(function() {
                 this.checked = false;
 
-            }).filter((val || 'null').split('|').map(function (item) {
+            }).filter((val || 'null').split('|').map(function(item) {
                 return '[value="' + item + '"]';
 
-            }).join(',')).attr('checked', 'checked').each(function () {
+            }).join(',')).attr('checked', 'checked').each(function() {
                 this.checked = true;
             });
 
