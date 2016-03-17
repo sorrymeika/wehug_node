@@ -46,6 +46,8 @@
                     }  else if (field.type=='radio'||field.type=='checkbox'){
                         <input type="@(field.type)" name="@(field.field)" sn-model="@(field.field)" checked="{{@(field.field)|or:undefined}}"/>
 
+                    } else if (field.type=='custom'){
+                        @html(field.html)
                     } else {
                         $data.plugins.push(field);
                         <input type="hidden"@html(attr)>
