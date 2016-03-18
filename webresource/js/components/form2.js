@@ -71,7 +71,7 @@
                 var name = $target.attr('name');
                 var valid = validator[name];
 
-                valid.msg && self.model.set(self.validator + '.result.' + name, {
+                valid && valid.msg && self.model.set(self.validator + '.result.' + name, {
                     success: -1,
                     msg: valid.msg
                 });
@@ -108,13 +108,12 @@
         reset: function() {
             var data = {};
             for (var key in this.compo) {
-                if (key != 'fields') {
-
-                    this.compo[key].val('');
-                    data[key] = '';
-                }
+                this.compo[key].val('');
+                data[key] = '';
             }
-            this.model.reset();
+            this.model.set(true, {
+                fields: this.model.data.fields
+            });
         },
 
         submit: function(success, error) {
