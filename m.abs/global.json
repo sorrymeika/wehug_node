@@ -5,7 +5,7 @@
     "shopApi": "http://127.0.0.1:5559/proxy",
     "updateApi": "http://127.0.0.1:5559/proxy2",
     "proxy": {
-        "/proxy1/*": "appuser2.abs.cn",
+        "/proxy1/*": "172.16.168.185:6005",
         "/proxy/*": "testappapi-1-2-0.abs.cn",
         "/proxy2/*": "testappversion.abs.cn"
     },

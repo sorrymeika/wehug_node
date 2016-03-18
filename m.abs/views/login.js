@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+define(function(require, exports, module) {
 
     var $ = require('$');
     var util = require('util');
@@ -11,7 +11,7 @@ define(function (require, exports, module) {
 
     return Activity.extend({
         events: {
-            'tap .js_login:not(.disabled)': function () {
+            'tap .js_login:not(.disabled)': function() {
                 var mobile = this.model.get('mobile');
                 var smsCode = this.model.get('smsCode');
 
@@ -34,7 +34,7 @@ define(function (require, exports, module) {
 
                 }).load();
             },
-            'tap .js_valid:not(.disabled)': function (e) {
+            'tap .js_valid:not(.disabled)': function(e) {
                 var mobile = this.model.get('mobile');
                 if (!mobile || !util.validateMobile(mobile)) {
                     sl.tip('请输入正确的手机');
@@ -49,7 +49,7 @@ define(function (require, exports, module) {
             }
         },
 
-        validTimeout: function () {
+        validTimeout: function() {
             var self = this;
             var sec = localStorage.getItem('valid_time');
 
@@ -60,7 +60,7 @@ define(function (require, exports, module) {
 
                 self.$valid.addClass('disabled');
 
-                setTimeout(function () {
+                setTimeout(function() {
                     if (sec <= 0) {
                         self.$valid.removeClass('disabled');
                         self.model.set('valid', '获取验证码');
@@ -75,7 +75,7 @@ define(function (require, exports, module) {
             }
         },
 
-        onCreate: function () {
+        onCreate: function() {
             var self = this;
 
             var $main = this.$('.main');
@@ -96,24 +96,23 @@ define(function (require, exports, module) {
                 check: false,
                 checkData: false,
                 $el: this.$el,
-                success: function (res) {
+                success: function(res) {
                     if (!res.success)
                         sl.tip(res.msg);
                     else {
-                        if (res.msg == "HAS_BIND") {
-                            sl.tip('您已经绑定过了哦');
-                        }
+                        util.store('ivcode', res.ivcode || null);
+
                         var backUrl = self.route.query.success || self.swipeRightBackAction;
 
-                        userModel.set(res.data).request(function () {
+                        userModel.set(res.data).request(function() {
                             self.back(backUrl);
-                            setTimeout(function () {
+                            setTimeout(function() {
                                 self.setResult("Login");
                             }, 0);
                         });
                     }
                 },
-                error: function (res) {
+                error: function(res) {
                     sl.tip(res.msg);
                 }
             });
@@ -127,7 +126,7 @@ define(function (require, exports, module) {
                 check: false,
                 checkData: false,
                 $el: this.$el,
-                success: function (res) {
+                success: function(res) {
                     if (!res.success) {
                         sl.tip(res.msg)
                     } else {
@@ -136,7 +135,7 @@ define(function (require, exports, module) {
                         self.validTimeout();
                     }
                 },
-                error: function (res) {
+                error: function(res) {
                     sl.tip(res.msg);
                     self.$valid.removeClass('disabled');
                     this.hideLoading();
@@ -147,11 +146,11 @@ define(function (require, exports, module) {
             self.validTimeout();
         },
 
-        onShow: function () {
+        onShow: function() {
             var that = this;
         },
 
-        onDestory: function () {
+        onDestory: function() {
         }
     });
 });

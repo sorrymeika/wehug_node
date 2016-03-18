@@ -199,20 +199,38 @@ module.exports = Activity.extend({
 
         sl.activity = self;
 
+        var model = this.model = new ViewModel(this.$el, {
+            menu: 'head_menu',
+            titleClass: 'head_title',
+            isOffline: false,
+            isLogin: !!self.user,
+            isFirstOpen: util.store('isFirstOpen') === null,
+            msg: 0,
+            tab: 0,
+            bottomTab: 0,
+            chartType: 0,
+            open: function() {
+                bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
+            },
+            openUrl: function(e, url) {
+                bridge.openInApp(url || 'http://m.abs.cn');
+            }
+        });
+
         self.appIconAPI = new api.AppIconAPI({
             $el: $(''),
             checkData: false,
-            params: function() {
+            params: {
                 id: 2
             },
             success: function(res) {
                 console.log(res);
             }
         });
+
         self.appIconAPI.load();
 
         var update = new api.UpdateAPI({
-            $el: $(''),
             checkData: false,
             params: {
                 version: sl.appVersion,
@@ -237,23 +255,57 @@ module.exports = Activity.extend({
         });
         update.load();
 
-        var model = this.model = new ViewModel(this.$el, {
-            menu: 'head_menu',
-            titleClass: 'head_title',
-            isOffline: false,
-            isLogin: !!self.user,
-            isFirstOpen: util.store('isFirstOpen') === null,
-            msg: 0,
-            tab: 0,
-            bottomTab: 0,
-            chartType: 0,
-            open: function() {
-                bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
-            },
-            openUrl: function(e, url) {
-                bridge.openInApp(url || 'http://m.abs.cn');
+        this.stewardQtyApi = new api.StewardQtyAPI({
+            checkData: false,
+            success: function(res) {
+                self.user.StewardNum = res.data;
+                userModel.set(self.user);
+                model.set('user.StewardNum', res.data);
             }
         });
+
+        this.launchLoading = new Loading({
+            url: '/api/settings/ad_list?name=launch&type=base64',
+            check: false,
+            checkData: false,
+            success: function(res) {
+                if (res && res.data && res.data.length) {
+                    localStorage.setItem('LAUNCH_IMAGE', res.data[0].Src);
+                }
+            }
+        });
+        this.launchLoading.load();
+
+        self.shopApi = new api.ActivityAPI({
+            $el: self.$('.hm_shop'),
+            success: function(res) {
+
+                model.set({
+                    activity: res.data,
+                    topbanner: res.topbanner
+                });
+
+                new Slider(model.refs.topbanner, {
+                    data: res.topbanner.data,
+                    dots: true,
+                    itemTemplate: '<img src="<%=src%>" data-forward="<%=url%>?from=%2f" />'
+                });
+
+                Scroll.bind(self.$('.js_shop_scroll:not(.s_binded)').addClass('s_binded'), {
+                    vScroll: false,
+                    hScroll: true,
+                    useScroll: true
+                });
+
+                if (model.data.tab == 1) {
+                    self.scroll.get('.js_shop').imageLazyLoad();
+                }
+
+                this.showMoreMsg('别拉了，就这些<i class="ico_no_more"></i>');
+            }
+        });
+
+        self.shopApi.load();
 
         model.on('change:tab', function() {
             if (this.data.tab == 1) {
@@ -283,7 +335,6 @@ module.exports = Activity.extend({
             });
         }
 
-
         Scroll.bind(this.$('.main:not(.js_shop)'));
 
         this.scroll = Scroll.bind(this.$('.js_shop'), {
@@ -306,28 +357,6 @@ module.exports = Activity.extend({
         canvas.height = 170;
         this.canvas = canvas;
         this.context = canvas.getContext('2d');
-
-        this.stewardQtyApi = new api.StewardQtyAPI({
-            checkData: false,
-            success: function(res) {
-                self.user.StewardNum = res.data;
-                userModel.set(self.user);
-                model.set('user.StewardNum', res.data);
-            }
-        });
-
-        this.launchLoading = new Loading({
-            url: '/api/settings/ad_list?name=launch&type=base64',
-            check: false,
-            checkData: false,
-            $el: $(''),
-            success: function(res) {
-                if (res && res.data && res.data.length) {
-                    localStorage.setItem('LAUNCH_IMAGE', res.data[0].Src);
-                }
-            }
-        });
-        this.launchLoading.load();
 
         var $launchImgs = this.$('.launch img');
         var $mask = this.$('.home_mask').on($.fx.transitionEnd, function(e) {
@@ -368,43 +397,10 @@ module.exports = Activity.extend({
             self.getCartQty();
         });
 
-        self.shopApi = new api.ActivityAPI({
-            $el: self.$('.hm_shop'),
-            success: function(res) {
-
-                model.set({
-                    activity: res.data,
-                    topbanner: res.topbanner
-                });
-
-                new Slider(model.refs.topbanner, {
-                    data: res.topbanner.data,
-                    dots: true,
-                    itemTemplate: '<img src="<%=src%>" data-forward="<%=url%>?from=%2f" />'
-                });
-
-                Scroll.bind(self.$('.js_shop_scroll:not(.s_binded)').addClass('s_binded'), {
-                    vScroll: false,
-                    hScroll: true,
-                    useScroll: true
-                });
-
-                if (model.data.tab == 1) {
-                    self.scroll.get('.js_shop').imageLazyLoad();
-                }
-
-                this.showMoreMsg('别拉了，就这些<i class="ico_no_more"></i>');
-            }
-        });
-
-        self.shopApi.load();
-
         setInterval(function() {
             self.getUnreadMsg();
 
         }, 10000);
-
-        console.log(this.model.refs.search);
 
         this.listenTo($(this.model.refs.search), 'keydown', function(e) {
             if (e.keyCode == 13) {
@@ -455,15 +451,21 @@ module.exports = Activity.extend({
             }).load();
 
             if (res.vdpMessage) {
-                self.model.set('showTipStep', 1);
-                self.$open_msg.show();
-                self.$open_msg[0].clientHeight;
-                self.$open_msg.addClass('show');
-
-                self.model.set({
-                    message: res.vdpMessage
-                });
+                self.showMessageDialog(res.vdpMessage);
+                util.store('ivcode', null);
             }
+        }, util.store('ivcode') || '0000');
+    },
+
+    showMessageDialog: function(message) {
+        var self = this;
+        self.model.set('showTipStep', 1);
+        self.$open_msg.show();
+        self.$open_msg[0].clientHeight;
+        self.$open_msg.addClass('show');
+
+        self.model.set({
+            message: message
         });
     },
 
