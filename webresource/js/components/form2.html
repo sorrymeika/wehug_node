@@ -27,10 +27,7 @@
 
                     } else if (field.type=='select') {
                         <select class="@(field.className||'text')"@html(attr)>
-                            @for (var ii=0,len1=field.options.data.length;ii<len1;ii++){
-                                var option=field.options.data[ii];
-                            <option value="@option[field.options.value||"value"]">@option[field.options.text||"text"]</option>
-                            }
+                            <option sn-repeat="item in fields.@(field.field).options" value="{{item.value}}">{{item.text}}</option>
                         </select>
 
                     } else if (field.type=='number'){
@@ -49,6 +46,8 @@
                     }  else if (field.type=='radio'||field.type=='checkbox'){
                         <input type="@(field.type)" name="@(field.field)" sn-model="@(field.field)" checked="{{@(field.field)|or:undefined}}"/>
 
+                    } else if (field.type=='custom'){
+                        @html(field.html)
                     } else {
                         $data.plugins.push(field);
                         <input type="hidden"@html(attr)>

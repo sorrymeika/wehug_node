@@ -1,4 +1,4 @@
-﻿var matchPair = function (input, left, right, from) {
+﻿var matchPair = function(input, left, right, from) {
     var i = from || 0,
         len = input.length,
         count = 0,
@@ -60,7 +60,7 @@ function XRegExp(str) {
 
 XRegExp.prototype = {
 
-    exec: function (input) {
+    exec: function(input) {
         var result = [],
             start = 0,
             part = this.parts;
@@ -110,11 +110,11 @@ var rcode = new XRegExp('{...}');
 
 var rdom = /<(\/{0,1}[a-zA-Z]+)(?:\s+[a-zA-Z1-9_-]+="[^"]*"|\s+[^\s]+)*?\s*(\/){0,1}\s*>/m;
 
-var isEmpty = function (c) {
+var isEmpty = function(c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 };
 
-var matchDom = function (input) {
+var matchDom = function(input) {
     if (!input) return '';
 
     var m = rdom.exec(input),
@@ -169,10 +169,10 @@ var matchDom = function (input) {
         str += parse(dom).code;
     }
 
-    return str + input;
+    return str + parse(input).code;
 }
 
-var parse = function (templateStr) {
+var parse = function(templateStr) {
 
     var functions = {},
         helpers = {},
@@ -270,7 +270,7 @@ var parse = function (templateStr) {
 
 var razor = {};
 
-razor.parse = function (templateStr, args) {
+razor.parse = function(templateStr, args) {
     if (typeof args !== 'string') args = "$data";
 
     var str = "var __='';" + (args === "$data" ? "with($data||{})" : "") + "{",
@@ -285,10 +285,10 @@ razor.parse = function (templateStr, args) {
     return res;
 };
 
-razor.create = function (templateStr) {
+razor.create = function(templateStr) {
     var str = 'var util=require("util");', result;
 
-    templateStr = templateStr.replace(ruse, function (match, qt, id, name) {
+    templateStr = templateStr.replace(ruse, function(match, qt, id, name) {
         str += 'var ' + name + '=require("' + id + '");';
 
         return '';
@@ -318,15 +318,15 @@ razor.create = function (templateStr) {
     return str;
 };
 
-razor.nodeFn = function (templateStr) {
+razor.nodeFn = function(templateStr) {
     return eval('[(function(){' + razor.create(templateStr) + ' return T;})()][0]');
 };
 
-razor.web = function (templateStr) {
+razor.web = function(templateStr) {
     return 'define(function(require){' + razor.create(templateStr) + ' return T;});';
 };
 
-razor.node = function (templateStr) {
+razor.node = function(templateStr) {
     return razor.create(templateStr) + "module.exports=T;";
 };
 
