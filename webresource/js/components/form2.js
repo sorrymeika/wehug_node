@@ -16,7 +16,7 @@
             fields;
 
         var items = {};
-
+        var data = {};
         this.hiddens = [];
         this.fields = [];
         this.plugins = [];
@@ -31,6 +31,7 @@
                     fields = option[i];
                     if (fields.type === 'hidden') {
                         items[fields.field] = fields;
+                        data[fields.field] = fields.value;
 
                         this.hiddens.push(fields);
                     } else {
@@ -42,28 +43,29 @@
                             var valid = util.pick(field, valid_keys);
 
                             items[field.field] = field;
+                            data[field.field] = field.value;
 
                             if (!util.isEmptyObject(valid)) {
                                 validator[field.field] = valid;
                             }
                         }
                     }
+
                 }
 
             } else
                 this[key] = option;
         }
 
-        this.validator = 'Valid';
-
         this.$el = $(this.template.html(this));
         this.el = this.$el[0];
 
         this.model = new model.ViewModel(this.$el, {
-            fields: items
+            fields: items,
+            data: data
         });
 
-        this.valid = new Validator(validator, this.model.data);
+        this.valid = new Validator(validator, this.model.data.data);
 
         this.$el.on('blur', '[name]', $.proxy(this._validInput, this))
             .on('focus', '[name]', function(e) {
@@ -71,7 +73,7 @@
                 var name = $target.attr('name');
                 var valid = validator[name];
 
-                valid && valid.msg && self.model.set(self.validator + '.result.' + name, {
+                valid && valid.msg && self.model.set('result.' + name, {
                     success: -1,
                     msg: valid.msg
                 });
@@ -81,13 +83,13 @@
         for (var i = 0, len = this.plugins.length; i < len; i++) {
             var plugin = this.plugins[i];
             var $hidden = this.$el.find('[name="' + plugin.field + '"]');
-            var compo = this.compo[plugin.field] = new (exports.require(plugin.type))($hidden, plugin);
-            var value = this.model.data[plugin.field];
+            var compo = this.compo[plugin.field] = plugin.render ? plugin.render.call(this, $hidden, plugin) : new (exports.require(plugin.type))($hidden, plugin);
+            var value = this.model.data.data[plugin.field];
 
             if (value !== undefined && value !== null)
                 compo.val(value);
 
-            this.model.on('change:' + plugin.field, (function(compo) {
+            this.model.on('change:data/' + plugin.field, (function(compo) {
                 return function(e, value) {
                     compo.val(value.data[plugin.field]);
                 }
@@ -105,15 +107,19 @@
         method: "post",
         fields: [],
 
+        set: function(arg0, arg1, arg2) {
+            this.model.getModel('data').set(arg0, arg1, arg2);
+            return this;
+        },
+
         reset: function() {
-            var data = {};
             for (var key in this.compo) {
                 this.compo[key].val('');
-                data[key] = '';
             }
             this.model.set(true, {
                 fields: this.model.data.fields
             });
+            return this;
         },
 
         submit: function(success, error) {
@@ -123,11 +129,11 @@
                 if (this.selectedIndex == -1) {
                     this.selectedIndex = 0;
                 }
-                self.model.set(this.name, this.value);
+                self.set(this.name, this.value);
             });
 
             var res = this.valid.validate();
-            this.model.set(this.validator, res);
+            this.model.set(res);
 
             if (res.success) {
 
@@ -172,9 +178,9 @@
             var name = $target.attr('name');
             var res = this.valid.validate(name);
 
-            if (!this.model.data[this.validator]) this.model.set(this.validator, { result: {} });
+            if (!this.model.data.result) this.model.set({ result: {} });
 
-            this.model.set(this.validator + '.result.' + name, res);
+            this.model.set('result.' + name, res);
         },
 
         destory: function() {
