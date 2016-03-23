@@ -7,7 +7,7 @@
     var Promise = require('core/promise');
     var TimePicker = require('./timepicker');
 
-    var valid_keys = ['emptyAble', 'emptyText', 'regex', 'regexText', 'compare', 'compareText', 'validate', 'validateText', 'success', 'msg'];
+    var valid_keys = ["stringifyData", 'emptyAble', 'emptyText', 'regex', 'regexText', 'compare', 'compareText', 'validate', 'validateText', 'success', 'msg'];
     var guid = 0;
 
     module.exports = exports = function(options) {
@@ -109,6 +109,7 @@
 
         set: function(arg0, arg1, arg2) {
             this.model.getModel('data').set(arg0, arg1, arg2);
+
             return this;
         },
 
@@ -116,9 +117,8 @@
             for (var key in this.compo) {
                 this.compo[key].val('');
             }
-            this.model.set(true, {
-                fields: this.model.data.fields
-            });
+            this.model.getModel("data").reset();
+
             return this;
         },
 
@@ -132,8 +132,7 @@
                 self.set(this.name, this.value);
             });
 
-            var res = this.valid.validate();
-            this.model.set(res);
+            var res = this.validate();
 
             if (res.success) {
 
@@ -163,7 +162,8 @@
                         type: 'POST',
                         dataType: 'json',
                         xhrFields: this.xhrFields,
-                        data: this.$el.serialize(),
+                        contentType: this.stringifyData ? "application/json" : undefined,
+                        data: this.stringifyData ? JSON.stringify(this.model.data.data) : this.$el.serialize(),
                         success: $.proxy(success, this),
                         error: error && $.proxy(error, this)
                     });
@@ -171,6 +171,13 @@
             } else {
                 sl.tip("请检查填写是否有误");
             }
+        },
+
+        validate: function() {
+            var res = this.valid.validate();
+            this.model.set(res);
+
+            return res;
         },
 
         _validInput: function(e) {

@@ -824,6 +824,7 @@
                             break;
                         case 'value':
                             if (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA') {
+                                console.log(el.tagName,val)
                                 if (el.value != val || el.value === '' && val === 0) {
                                     el.value = val;
                                 }
@@ -859,7 +860,7 @@
                             el.style.cssText += val;
                             break;
                         case 'checked':
-                            (el.checked = !!val) ? el.setAttribute(attr, 'checked') : el.removeAttribute(attr);
+                            (el[attr] = !!val) ? el.setAttribute(attr, attr) : el.removeAttribute(attr);
                             break;
                         default:
                             el.setAttribute(attr, val);
@@ -943,17 +944,19 @@
             return ret === undefined ? this : ret;
         },
 
+        isCurrentEvent: function() {
+        },
+
         bind: function(el) {
             var self = this;
             var elements = [];
+            var snModelName = 'sn-' + self.cid + 'model';
 
-            var $el = $(el).on('input change', '[sn-model]', function(e) {
-                if (e._stopModelEvent == true) return;
+            var $el = $(el).on('input change blur', '[' + snModelName + ']', function(e) {
                 var target = e.currentTarget;
-                var name = target.getAttribute('sn-model');
+                var name = target.getAttribute(snModelName);
 
                 self._setByEl(target, name, target.value);
-                e._stopModelEvent = true;
             });
 
             self.$el = !self.$el ? $el : self.$el.add($el);
@@ -1010,6 +1013,10 @@
                                 }
                                 self._bindAttr(child, attr, val, repeat);
 
+                            } else if (attr == 'sn-model') {
+                                child.removeAttribute(attr);
+                                child.setAttribute("sn-" + self.cid + "model", val);
+
                             } else {
                                 var origAttr = attr;
 
@@ -1057,8 +1064,6 @@
 
             //事件处理
             var _handleEvent = function(e) {
-                if (e._stopModelEvent == true) return;
-
                 var target = e.currentTarget;
                 var eventCode = target.getAttribute('sn-' + self.cid + e.type);
                 var fn;
@@ -1091,7 +1096,6 @@
 
                     fn.apply(ctx, args);
                 }
-                e._stopModelEvent = true;
             };
             for (var i = 0, eventName, attr; i < snEvents.length; i++) {
                 eventName = snEvents[i] == 'transition-end' ? $.fx.transitionEnd : snEvents[i];

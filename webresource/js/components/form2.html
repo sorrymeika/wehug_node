@@ -44,7 +44,7 @@
                         <input type="file" name="@(field.field)" sn-model="data.@(field.field)"/>
 
                     }  else if (field.type=='radio'||field.type=='checkbox'){
-                        <input type="@(field.type)" name="@(field.field)" sn-model="data.@(field.field)" checked="{{@(field.field)|or:undefined}}"/>
+                        <input type="@(field.type)" name="@(field.field)" sn-model="data.@(field.field)" checked="{{data.@(field.field)||undefined}}"/>
 
                     } else {
                         $data.plugins.push(field);
