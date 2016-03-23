@@ -989,20 +989,16 @@ $p:2;
     &.see_all { background:#fff url(seeall.png) no-repeat 0px 18px; background-size: 100% auto;  }
 }
 
- .od_share {
-	 height: 100%; background: #fff; position: relative;
-	 &:before { display: block; content: '';background: url(orderShare.png) no-repeat; height: 200px; width: 100%; background-size: 100% auto; top: 10px; position: absolute;}
-	 h1,h2 { position: absolute; left: 36%; top: 50px;font-size: 5rem; color:#e65e5f;}
-	 h2{ top: 80px; font-size: 3rem;font-weight: normal;}
-	 .con {
-		 text-align: center; top: 180px; position: relative;
-         img {width:100%;}
-		 h3,h4,h5 {font-size: 3rem;font-weight: normal; line-height: 1.5;}
-		 h4,h5 em {color:#e65e5f;}
-		 h5 {font-size: 2.4rem;width: 80%; margin: 10px auto 0 auto;}
-		 .btn {width: 60%; margin: 25px auto 0 auto; height: 45px;line-height: 45px;}
-	 }
- }
+.od_share { height: 100%; background: #fff; position: relative; }
+.od_share:before { display: block; content: ''; background: url(orderShare.png) no-repeat; height: 200px; width: 100%; background-size: 100% auto; top: 10px; position: absolute; }
+.od_share h1, .od_share h2 { position: absolute; left: 36%; top: 10%; font-size: 5rem; color: #e65e5f; }
+.od_share h2 { top: 15%; font-size: 3rem; font-weight: normal; }
+.od_share .con { text-align: center; top: 180px; position: relative; }
+.od_share .con img { width: 100%; }
+.od_share .con h3, .od_share .con h4, .od_share .con h5 { font-size: 3rem; font-weight: normal; line-height: 1.5; }
+.od_share .con h4, .od_share .con h5 em { color: #e65e5f; }
+.od_share .con h5 { font-size: 2.4rem; width: 80%; margin: 10px auto 0 auto; }
+.od_share .con .btn { width: 60%; margin: 25px auto 0 auto; height: 45px; line-height: 45px; }
 
 .uc_month_get {
     .banner { width: 100%; display: block; padding: 0; margin-top: 10px; }

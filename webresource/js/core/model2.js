@@ -544,7 +544,7 @@
         return this;
     }
 
-    Collection.prototype.find = function (fn) {
+    Collection.prototype.first = function (fn) {
         for (var i = 0; i < this.models.length; i++) {
             if (fn.call(this, this.data[i], i)) {
                 return this.models[i];

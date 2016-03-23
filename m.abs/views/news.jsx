@@ -105,10 +105,10 @@ A：优惠券的使用时限、抵用限额及其他限制条件请详见优惠�
                             if (res.edmtype == 1) {
                                 var iframe = self.createIFrame($main);
                                 iframe.$el.css({
-                                    width: window.innerWidth-20,
-                                    height: $main[0].offsetHeight-20
+                                    width: window.innerWidth,
+                                    height: $main[0].offsetHeight
                                 })
-                                iframe.html(res.data.edm_html);
+                                iframe.html("<style>body,html{background:#fff}</style>"+res.data.edm_html);
                             } else {
                                 var $template=$(<div sn-repeat="list in data">
                                     <div class="banner" sn-if="{{list.type==1}}">

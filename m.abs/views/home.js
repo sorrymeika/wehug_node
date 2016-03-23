@@ -285,11 +285,14 @@ module.exports = Activity.extend({
                     topbanner: res.topbanner
                 });
 
-                new Slider(model.refs.topbanner, {
-                    data: res.topbanner.data,
-                    dots: true,
-                    itemTemplate: '<img src="<%=src%>" data-forward="<%=url%>?from=%2f" />'
-                });
+                if (self.slider)
+                    self.slider.set(res.topbanner.data);
+                else
+                    self.slider = new Slider(model.refs.topbanner, {
+                        data: res.topbanner.data,
+                        dots: true,
+                        itemTemplate: '<img src="<%=src%>" data-forward="<%=url%>?from=%2f" />'
+                    });
 
                 Scroll.bind(self.$('.js_shop_scroll:not(.s_binded)').addClass('s_binded'), {
                     vScroll: false,
@@ -388,6 +391,7 @@ module.exports = Activity.extend({
             self.requestUser();
 
         }).onResult("Logout", function() {
+            self.user = null;
             model.set({
                 isLogin: false,
                 user: null

@@ -27,7 +27,7 @@
     </ul>
     <div class="stw_category" sn-if="{{displayType==0}}">
         <div class="stw_category_item{{cate.currCate?' curr':''}}" sn-repeat="cate in cates">
-            <div class="hd" sn-tap="cate.currCate=!cate.currCate">
+            <div class="hd" sn-tap="this.setCate(cate)">
                 <span>{{cate.name}}</span>
             </div>
             <ul class="stw_list">

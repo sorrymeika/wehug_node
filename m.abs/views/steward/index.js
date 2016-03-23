@@ -57,6 +57,23 @@ module.exports = Activity.extend({
             user: self.user
         });
 
+        self.model.setCate = function(e, cate) {
+
+            self.model.getModel('cates').each(function(item) {
+                if (item.data.id == cate.id) {
+
+                    if (util.indexOf(self.model.get('data'), function(prh) {
+                        return prh.CAT_ID == cate.id;
+                    }) != -1) {
+                        item.set('currCate', !item.data.currCate);
+
+                    } else {
+                        sl.tip('没有记录哦');
+                    }
+                }
+            });
+        }
+
         var categories = util.store('categories');
 
         var cate = new api.CategoryAPI({
@@ -82,7 +99,7 @@ module.exports = Activity.extend({
                     pctId = cate ? cate.PCG_PARENT_ID : 0;
                 }
                 item.CAT_ID = cate ? cate.PCG_ID : 0;
-                
+
                 cate = util.first(cates, function(cateItem) {
                     return cateItem.id == item.CAT_ID;
                 })
