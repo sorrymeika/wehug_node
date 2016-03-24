@@ -7,11 +7,34 @@ var Scroll = require('widget/scroll');
 var api = require('models/base');
 var Share = require('components/share');
 var userModel = require('models/user');
+var bridge = require('bridge');
 
 module.exports = Activity.extend({
     events: {
         'tap .js_share_activity': function() {
-            this.share.show();
+            var self = this;
+
+            bridge.wx({
+                type: 'shareLinkURL',
+                linkURL: this.model.data.data.SCA_SHARE_URL,
+                tagName: 'abs',
+                title: this.model.data.data.SCA_SHARE_TITLE,
+                description: this.model.data.data.SCA_SHARE_DESC,
+                image: this.model.data.data.SCA_SHARE_PIC,
+                scene: 1
+            }, function(res) {
+
+                if (res.success) {
+                    self.addActivityCouponAPI.setParam({
+                        pspcode: self.user.PSP_CODE,
+                        vca_id: self.model.data.data.SCA_VCA_ID
+                    }).load();
+
+                } else {
+                    sl.tip('您已取消分享');
+                }
+            })
+
         }
     },
 
@@ -31,25 +54,12 @@ module.exports = Activity.extend({
 
         self.user = userModel.get();
 
-        self.share = new Share({
-            head: '分享'
-        });
-        self.share.clickToShare = function(type) {
-            self.addActivityCouponAPI.setParam({
-                pspcode: self.user.PSP_CODE,
-                vca_id: self.model.data.data.SCA_VCA_ID
-            }).load();
-        }
-        self.share.$el.appendTo(self.$el);
-
         var appShareActivityAPI = new api.AppShareActivityAPI({
             $el: self.$el,
             params: {
                 id: self.route.data.id
             },
             success: function(res) {
-                console.log(res);
-
                 self.model.set({
                     data: res.data
                 });
@@ -65,7 +75,8 @@ module.exports = Activity.extend({
             },
             success: function(res) {
                 if (res.success) {
-                    sl.tip('恭喜您获得了一张抵用券');
+                    self.confirm(res.msg, function() {
+                    });
                 }
             },
             error: function() {

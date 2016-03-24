@@ -16,7 +16,7 @@
         .js_shopname { background: #fff; border: 0; -webkit-box-flex: 1; height: 100%; display: block; padding-left: 15px; box-sizing: border-box; }
         ul, li { list-style: none; }
     </style>
-    <script type="text/javascript" src="http://api.map.baidu.com/api?type=quick&ak=ruKePGl5aEpASfCZtQm6a2U5&v=1.0"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ruKePGl5aEpASfCZtQm6a2U5"></script>
 
     <script type="text/javascript" src="slan.js?v1"></script>
 
@@ -87,42 +87,55 @@
         var onPositionChange = function (coords) {
             if (coords.longitude != 0 && coords.latitude != 0) {
                 var point = new BMap.Point(coords.longitude, coords.latitude);
-                map.centerAndZoom(point, 13);
 
-                var marker1 = new BMap.Marker(point);  //创建标注
-                map.addOverlay(marker1);
+                var convertor = new BMap.Convertor();
+                var pointArr = [];
+                pointArr.push(point);
+                convertor.translate(pointArr, 3, 5, function (data) {
+                    if (data.status === 0) {
 
-                promise.then(function () {
+                        point = data.points[0];
 
-                    this.shopList.sort(function (a, b) {
-                        try {
-                            a.Distance = getDistance(a.point.lat, a.point.lng, point.lat, point.lng);
-                            b.Distance = getDistance(b.point.lat, b.point.lng, point.lat, point.lng);
+                        map.centerAndZoom(point, 13);
 
-                            return a.Distance < b.Distance ? -1 : a.Distance == b.Distance ? 0 : 1;
+                        var marker1 = new BMap.Marker(point);  //创建标注
+                        map.addOverlay(marker1);
 
-                        } catch (e) {
-                            return 0;
-                        }
-                    });
+                        promise.then(function () {
 
-                    var a = this.shopList[0];
+                            this.shopList.sort(function (a, b) {
+                                try {
+                                    a.Distance = getDistance(a.point.lat, a.point.lng, point.lat, point.lng);
+                                    b.Distance = getDistance(b.point.lat, b.point.lng, point.lat, point.lng);
 
-                    var html = '';
-                    var result = [];
+                                    return a.Distance < b.Distance ? -1 : a.Distance == b.Distance ? 0 : 1;
 
-                    for (var i = 0, len = Math.min(this.shopList.length, 5) ; i < len; i++) {
-                        var item = this.shopList[i];
-                        html += '<li data-longitude="' + item.point.lng + '" data-latitude="' + item.point.lat + '"><b>' + item.STR_NAME + '</b><span>' + item.STR_ADDRESS + '</span><span>' + (item.Distance < 1 ? Math.round(item.Distance * 100) + 'm' : (Math.round(item.Distance * 100) / 100 + 'km')) + '</span></li>'
+                                } catch (e) {
+                                    return 0;
+                                }
+                            });
 
-                        result.push(item);
+                            var a = this.shopList[0];
+
+                            var html = '';
+                            var result = [];
+
+                            for (var i = 0, len = Math.min(this.shopList.length, 5) ; i < len; i++) {
+                                var item = this.shopList[i];
+                                html += '<li data-longitude="' + item.point.lng + '" data-latitude="' + item.point.lat + '"><b>' + item.STR_NAME + '</b><span>' + item.STR_ADDRESS + '</span><span>' + (item.Distance < 1 ? Math.round(item.Distance * 100) + 'm' : (Math.round(item.Distance * 100) / 100 + 'km')) + '</span></li>'
+
+                                result.push(item);
+                            }
+
+                            console.log(result);
+
+                            model.set('data', result);
+
+                        });
+
                     }
-
-                    console.log(result);
-
-                    model.set('data', result);
-
                 });
+
             }
         }
 
