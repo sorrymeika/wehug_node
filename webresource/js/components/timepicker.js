@@ -232,6 +232,12 @@
     TimePicker.prototype = {
         _update: function() {
             var timeStore = this.timeStore;
+            if (timeStore[1] == 0) {
+                timeStore[1] = 1;
+            }
+            if (timeStore[2] == 0) {
+                timeStore[2] = 1;
+            }
             var val = util.pad(timeStore[0], 4) + '-' + util.pad(timeStore[1]) + '-' + util.pad(timeStore[2]) + ' ' + util.pad(timeStore[3]) + ':' + util.pad(timeStore[4]) + ':' + util.pad(timeStore[5]);
 
             if (this.$input.val() != val) {

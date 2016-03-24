@@ -824,7 +824,6 @@
                             break;
                         case 'value':
                             if (el.tagName == 'INPUT' || el.tagName == 'SELECT' || el.tagName == 'TEXTAREA') {
-                                console.log(el.tagName,val)
                                 if (el.value != val || el.value === '' && val === 0) {
                                     el.value = val;
                                 }

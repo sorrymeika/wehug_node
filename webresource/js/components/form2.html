@@ -1,7 +1,7 @@
 ﻿<form action="@(url)" method="@method" enctype="@(enctype||"multipart/form-data")" class="form">
 @for (var i=0,len=hiddens.length;i<len;i++) {
     var field=hiddens[i];
-    <input type="hidden" name="@(field.field)" sn-model="@(field.field)" value="{{@(field.field)}}" />
+    <input type="hidden" name="@(field.field)" sn-model="data.@(field.field)" value="{{data.@(field.field)}}" />
 }
 <table>
     <tbody>

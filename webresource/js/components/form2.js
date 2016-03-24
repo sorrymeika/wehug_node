@@ -89,11 +89,11 @@
             if (value !== undefined && value !== null)
                 compo.val(value);
 
-            this.model.on('change:data/' + plugin.field, (function(compo) {
+            this.model.on('change:data/' + plugin.field, (function(compo, plugin) {
                 return function(e, value) {
                     compo.val(value.data[plugin.field]);
                 }
-            })(compo))
+            })(compo, plugin))
         }
     };
 
@@ -110,7 +110,13 @@
         set: function(arg0, arg1, arg2) {
             this.model.getModel('data').set(arg0, arg1, arg2);
 
+            console.log(this.model.data.data);
+
             return this;
+        },
+
+        get: function(key) {
+            return this.model.getModel('data').get(key);
         },
 
         reset: function() {
