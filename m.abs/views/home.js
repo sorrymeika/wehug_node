@@ -46,7 +46,7 @@ module.exports = Activity.extend({
             }
         },
         'tap .js_offline .btn': function() {
-            userModel.request();
+            this.requestUser();
         },
         'tap .js_comment_list [data-id]': function(e) {
         },

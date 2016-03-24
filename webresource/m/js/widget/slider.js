@@ -203,7 +203,7 @@
         _getIndex: function() {
             var index = Math.round(this.x / this.wrapperW);
 
-            return index;
+            return index || 0;
         },
         data: function(index) {
             return this._data[index || this.options.index];
