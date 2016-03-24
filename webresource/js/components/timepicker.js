@@ -1,37 +1,257 @@
-﻿define(function(require, exports, module) {
-    var $ = require('$'),
-        util = require('util');
+﻿var $ = require('$');
+var util = require('util');
+var model = require('core/model2');
 
-    var optionHeight = 20;
+var optionHeight = 20;
 
-    util.style('.calendar.curr{z-index:5001;}.calendar{height:22px;padding:1px;zoom:1;display:inline-block;*display:inline;position:relative;overflow:visible;z-index:0;color:#000;}\
+util.style('.calendar.curr{z-index:5001;width:280px;}.calendar{height:22px;padding:1px;zoom:1;display:inline-block;*display:inline;position:relative;overflow:visible;z-index:0;color:#000;}\
         .calendar span {cursor:pointer;border:0;margin:0;padding:0 2px;height:20px;line-height:20px;display:inline-block;position:relative;color:#000;background-color:#f1f1f1;}\
-        .calendar span.calendar-year {}\
         .calendar-icon{margin-top: 0px;display: inline-block;vertical-align: middle;position: relative;font-size: 12px;width: 10px;height: 8px;overflow: hidden;line-height: 12px;font-family: "SimSun";}\
         .calendar-icon em {display: inline-block;height: 0px;overflow: hidden;position: absolute;top: 0px;left: 0px;  border-top: 4px solid #000;border-right: 4px solid #fff;border-left: 4px solid #fff;}\
         .calendar-up .calendar-icon em {border-top: 4px solid #fff;border-bottom: 4px solid #000;}\
         .calendar-up,.calendar-down {cursor:pointer;}\
-        .calendar-bd {display:none;position:absolute;border:1px solid #cdcdcd;background:#fff;width:35px;text-align:center;top:0;left:0;}\
-        .calendar-bd i { display: block; height: ' + optionHeight + 'px;font-style:normal; }\
-        .calendar-bd i.curr { background:#ddd; }');
+        .calendar-wrap {top:0;left:0;position:absolute;border:1px solid #cdcdcd;background:#fff;overflow:hidden;}\
+        .calendar-bd {width:35px;text-align:center;float:left;}\
+        .calendar-bd i { display: block; height: ' + optionHeight + 'px;font-style:normal; cursor: default; }\
+        .calendar-con{height:200px;overflow:hidden;}\
+        .calendar-bd i.curr { background: #ddd; }');
 
+var TimePicker = model.ViewModel.extend({
+    el: <div class="calendar{{isShow?' curr':''}}" >
+        <div sn-click="this.show()">
+            <span><em>{{ yyyy }}</em></span> /
+            <span><em>{{ util.pad(MM) }}</em></span> /
+            <span><em>{{ util.pad(dd) }}</em></span>
+            <span><em>{{ util.pad(hh) }}</em></span>&nbsp;:
+            <span><em>{{ util.pad(mm) }}</em></span>&nbsp;:
+            <span><em>{{ util.pad(ss) }}</em></span>
+        </div>
+        <div class="calendar-wrap" sn-display="{{isShow}}" style="display:none;">
+            <div class="calendar-bd">
+                <div class="calendar-up" sn-click="yearIndex=(yearIndex>0?yearIndex-1:yearIndex)"><em class="calendar-icon"><em></em></em></div>
+                <div class="calendar-con"><div style="margin-top:-{{parseInt(yearIndex*200)}}px"><i sn-repeat="item in years" class="{{yyyy==item?'curr':''}}" sn-click="this.setYear(item)">{{ item }}</i></div></div>
+                <div class="calendar-down" sn-click="yearIndex=years.length>(yearIndex+1)*10?yearIndex+1:yearIndex"><em class="calendar-icon"><em></em></em></div>
+                <i sn-click="this.today()">今天</i>
+            </div>
+            <div class="calendar-bd">
+                <div class="calendar-up" sn-click="monthIndex=(monthIndex>0?monthIndex-1:monthIndex)"><em class="calendar-icon"><em></em></em></div>
+                <div class="calendar-con"><div style="margin-top:-{{parseInt(monthIndex*200)}}px"><i sn-repeat="item in months" class="{{MM==item?'curr':''}}" sn-click="this.setMonth(item)">{{ util.pad(item) }}</i></div></div>
+                <div class="calendar-down" sn-click="monthIndex=months.length>(monthIndex+1)*10?monthIndex+1:monthIndex"><em class="calendar-icon"><em></em></em></div>
+                <i sn-click="this.now()">现在</i>
+            </div>
+            <div class="calendar-bd">
+                <div class="calendar-up" sn-click="dayIndex=(dayIndex>0?dayIndex-1:dayIndex)"><em class="calendar-icon"><em></em></em></div>
+                <div class="calendar-con"><div style="margin-top:-{{parseInt(dayIndex*200)}}px"><i sn-repeat="item in days" class="{{dd==item?'curr':''}}" sn-click="this.setDay(item)">{{ util.pad(item) }}</i></div></div>
+                <div class="calendar-down" sn-click="dayIndex=days.length>(dayIndex+1)*10?dayIndex+1:dayIndex"><em class="calendar-icon"><em></em></em></div>
+                <i sn-click="this.clearInput()">清空</i>
+            </div>
 
-    var contentTmpl = '<%for(var i=0,len=$data.length,item;i<len;i++){item=$data[i];%><div class="calendar-bd <%=item.css%>"><div class="calendar-up"><em class="calendar-icon"><em></em></em></div><div class="calendar-con"><%=item.content%></div><i class="js_calendar_now"><%=item.text%></i><div class="calendar-down"><em class="calendar-icon"><em></em></em></div></div><%}%>',
-        calendarTmpl = '<div class="calendar"><span class="calendar-year" style="z-index:10;"><em data-val="<%=year%>"><%=yyyy%></em></span>/<span style="z-index:9;"><em data-val="<%=month%>"><%=MM%></em></span>/<span style="z-index:8;"><em data-val="<%=day%>"><%=dd%></em></span> <span style="z-index:7;"><em data-val="<%=hour%>"><%=hh%></em></span>:<span style="z-index:6;"><em data-val="<%=minutes%>"><%=mm%></em></span>:<span style="z-index:5;"><em data-val="<%=seconds%>"><%=ss%></em></span></div>';
+            <div class="calendar-bd">
+                <div class="calendar-up" sn-click="hourIndex=(hourIndex>0?hourIndex-1:hourIndex)"><em class="calendar-icon"><em></em></em></div>
+                <div class="calendar-con"><div style="margin-top:-{{parseInt(hourIndex*200)}}px"><i sn-repeat="item in hours" class="{{hh==item?'curr':''}}" sn-click="this.setHours(item)">{{ util.pad(item) }}</i></div></div>
+                <div class="calendar-down" sn-click="hourIndex=years.length>(hourIndex+1)*10?hourIndex+1:hourIndex"><em class="calendar-icon"><em></em></em></div>
+            </div>
+            <div class="calendar-bd">
+                <div class="calendar-up" sn-click="minuteIndex=(minuteIndex>0?minuteIndex-1:minuteIndex)"><em class="calendar-icon"><em></em></em></div>
+                <div class="calendar-con"><div style="margin-top:-{{parseInt(minuteIndex*200)}}px"><i sn-repeat="item in minutes" class="{{mm==item?'curr':''}}" sn-click="this.setMinutes(item)">{{ util.pad(item) }}</i></div></div>
+                <div class="calendar-down" sn-click="minuteIndex=months.length>(minuteIndex+1)*10?minuteIndex+1:minuteIndex"><em class="calendar-icon"><em></em></em></div>
+            </div>
+            <div class="calendar-bd">
+                <div class="calendar-up" sn-click="secondIndex=(secondIndex>0?secondIndex-1:secondIndex)"><em class="calendar-icon"><em></em></em></div>
+                <div class="calendar-con"><div style="margin-top:-{{parseInt(secondIndex*200)}}px"><i sn-repeat="item in seconds" class="{{ss==item?'curr':''}}" sn-click="this.setSeconds(item)">{{ util.pad(item) }}</i></div></div>
+                <div class="calendar-down" sn-click="secondIndex=days.length>(secondIndex+1)*10?secondIndex+1:secondIndex"><em class="calendar-icon"><em></em></em></div>
+                <i class="js_hide">确定</i>
+            </div>
+        </div>
+    </div>,
 
-
-    var getTimeItems = function(from, to, pad) {
-        var result = "";
-        for (var i = from; i <= to; i++) {
-            result += '<i data-val="' + util.pad(i, pad) + '">' + util.pad(i, pad) + '</i>';
+    setYear: function(e, year) {
+        var update;
+        if (typeof e === 'number') {
+            update = year;
+            year = e;
         }
-        if (to - from >= 10) {
-            return '<div style="height:200px;overflow:hidden;">' + result + '</div>';
-        }
-        return result;
-    };
+        this.set({
+            yyyy: year,
+            yearIndex: parseInt(this.data.years.indexOf(year) / 10)
+        });
 
-    var TimePicker = function($input, options) {
+        return this._syncDays()._update(update);
+    },
+
+    setMonth: function(e, month) {
+        var update;
+        if (typeof e === 'number') {
+            update = month;
+            month = e;
+        }
+        var index = this.data.months.indexOf(month);
+
+        this.set({
+            MM: month,
+            monthIndex: parseInt(index / 10),
+        });
+
+        return this._syncDays()._update(update);
+    },
+
+    setDay: function(e, day) {
+        var update
+        if (typeof e === 'number') {
+            update = day;
+            day = e;
+        }
+
+        return this.set({
+            dd: day,
+            dayIndex: parseInt(this.data.days.indexOf(day) / 10),
+        })._update(update);
+    },
+
+    setHours: function(e, num) {
+        var update
+        if (typeof e === 'number') {
+            update = num;
+            num = e;
+        }
+
+        return this.set({
+            hh: num,
+            hourIndex: parseInt(this.data.hours.indexOf(num) / 10),
+        })._update(update);
+    },
+
+    setMinutes: function(e, num) {
+        var update
+        if (typeof e === 'number') {
+            update = num;
+            num = e;
+        }
+
+        return this.set({
+            mm: num,
+            minuteIndex: parseInt(this.data.minutes.indexOf(num) / 10),
+        })._update(update);
+    },
+
+    setSeconds: function(e, num) {
+        var update
+        if (typeof e === 'number') {
+            update = num;
+            num = e;
+        }
+
+        return this.set({
+            ss: num,
+            secondIndex: parseInt(this.data.seconds.indexOf(num) / 10),
+        })._update(update);
+    },
+
+    _syncDays: function() {
+
+        var days = [];
+        var index = this.data.months.indexOf(this.data.MM);
+        var year = parseInt(this.data.yyyy) || 0;
+        if (val % 4 == 0 && (val % 100 != 0 || val % 400 == 0)) {
+            this.aDays[1] = 29;
+        } else {
+            this.aDays[1] = 28;
+        }
+        var mDays = this.aDays[index];
+
+
+        for (var i = 1; i <= mDays; i++) {
+            days.push(i);
+        }
+
+        return this.set({
+            dayIndex: 1,
+            days: days
+        });
+    },
+
+    today: function() {
+        var now = new Date();
+
+        return this.setYear(now.getFullYear())
+            .setMonth(now.getMonth() + 1)
+            .setDay(now.getDate());
+    },
+
+    now: function() {
+        var now = new Date();
+
+        return this.setTime(now);
+    },
+
+    setTime: function(time) {
+        if (!time) {
+            return this.clearInput();
+        }
+        if (typeof time == 'number' || (typeof time == 'string' && /^\d+$/.test(time))) {
+            time = new Date(time);
+        }
+
+        return this.setYear(time.getFullYear(), false)
+            .setMonth(time.getMonth() + 1, false)
+            .setDay(time.getDate(), false)
+            .setHours(time.getHours(), false)
+            .setMinutes(time.getMinutes(), false)
+            .setSeconds(time.getSeconds(), false)
+            ._update();
+    },
+
+    clearInput: function() {
+
+        return this.set({
+            yyyy: '----',
+            MM: '--',
+            dd: '--',
+            hh: '--',
+            mm: '--',
+            ss: '--'
+        })._update();
+    },
+
+    _update: function(isUpdate) {
+        if (isUpdate !== false) {
+            var data = this.data;
+            var time = data.yyyy != '----'
+                ? (data.yyyy + '/' + data.MM + '/' + data.dd).replace(/--/g, '1') + ' ' + (data.hh + ':' + data.mm + ':' + data.ss).replace(/--/g, '00')
+                : '';
+
+            if (time != this.$input.val())
+                this.$input.val(time).trigger('onTimeChange');
+        }
+        return this;
+    },
+
+    getTime: function() {
+        return Date.parse(this.$input.val().replace(/-/g, '/')) || 0;
+    },
+
+    show: function() {
+        var self = this;
+
+        $(document.body).on('mouseup', function(e) {
+            if (self.$el.has(e.target).length == 0 || $(e.target).hasClass('js_hide')) {
+                self.hide();
+                $(this).off('mouseup', arguments.callee);
+            }
+        });
+
+        return this.set({
+            isShow: true
+        });
+    },
+
+    hide: function() {
+        this.set({
+            isShow: false
+        });
+    },
+
+    constructor: function($input, options) {
         var now = new Date();
         var self = this;
 
@@ -42,220 +262,56 @@
 
         this.$input = $input;
 
-        var $calendar = $(util.template(calendarTmpl, {
-            yyyy: '----', MM: '--', dd: '--', hh: '--', mm: '--', ss: '--',
-            year: now.getFullYear(),
-            day: now.getDate(),
-            month: now.getMonth() + 1,
-            hour: now.getHours(),
-            minutes: now.getMinutes(),
-            seconds: now.getSeconds(),
-        }))
-            .insertBefore($input);
+        this.aDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-        var textList = $calendar.find('span em'),
-            calendarSelectors = $(util.template(contentTmpl, [{
-                css: 'js_calendar_year',
-                content: getTimeItems(options.yearFrom, options.yearTo, 4),
-                text: '今天'
-            }, {
-                    css: 'js_calendar_month',
-                    content: getTimeItems(1, 12),
-                    text: '今天'
-                }, {
-                    css: 'js_calendar_day',
-                    text: '今天'
-                }, {
-                    css: 'js_calendar_hours',
-                    content: getTimeItems(0, 23),
-                    text: '现在'
-                }, {
-                    css: 'js_calendar_minutes',
-                    content: getTimeItems(0, 59),
-                    text: '现在'
-                }, {
-                    css: 'js_calendar_seconds',
-                    content: getTimeItems(0, 59),
-                    text: '现在'
-                }])),
-            timeStore = [0, 0, 0, 0, 0, 0],
-            aDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-        this.timeStore = timeStore;
-
-        $input.on('timeChange', function() {
-            var value = this.value;
-            if (!value) {
-                textList.html('--');
-                textList.eq(0).html('----');
-                calendarSelectors.eq(2).find('.calendar-con').html('');
-                return;
-            }
-
-            $.each(value.split(/\s|\:|-|\//), function(i, item) {
-                item = parseInt(item.replace(/^0+/, '')) || 0;
-                timeStore[i] = item;
-                textList.eq(i).text(item || item === 0 ? util.pad(item, i == 0 ? 4 : 2) : '--');
-            });
-            var val = timeStore[0], day;
-            if (val % 4 == 0 && (val % 100 != 0 || val % 400 == 0)) {
-                day = aDays[1] = 29;
-            } else {
-                day = aDays[1] = 28;
-            }
-            val = timeStore[1];
-            day = aDays[val - 1];
-            if (timeStore[2] > day) {
-                timeStore[2] = day;
-                textList.eq(2).text(util.pad(day));
-            };
-            calendarSelectors.eq(2).find('.calendar-con').html(getTimeItems(1, day, 2));
-
-            self._update();
-        });
-
-        $calendar.children('span').each(function(j) {
-            var item = $(this),
-                itemText = item.find('em'),
-                selector = calendarSelectors.eq(j);
-
-            item.click(function(e) {
-
-                var val = itemText.text();
-                if (val[0] == '-') val = itemText.data('val');
-
-                var selectorItems = selector.find('.calendar-con i'),
-                    firstSelectorItem = selectorItems.eq(0),
-                    selectorItem = selectorItems.filter('[data-val="' + val + '"]'),
-                    index = selectorItem.index();
-
-                selectorItems.filter('.curr').removeClass('curr');
-                if (index != -1) {
-                    selectorItem.addClass('curr');
-                    var top = (5 - index) * optionHeight;
-                    top = Math.max(top, (selectorItems.length - 10) * optionHeight * -1);
-                    top = Math.min(top, 0);
-
-                    firstSelectorItem.css({ 'margin-top': top });
-                    selector.css({ 'margin-top': Math.max(item.offset().top * -1, -1 * index * optionHeight - top - 20) });
-                } else {
-                    selector.css({ 'margin-top': Math.max(item.offset().top * -1, -1 * 5 * optionHeight - 20) });
-                }
-                selector.show();
-
-                $calendar.addClass('curr');
-
-                $(document.body).on('mouseup', function(e) {
-                    if (selector.has(e.target).length == 0) {
-                        selector.hide();
-                        $calendar.removeClass('curr');
-                        $(this).off('mouseup', arguments.callee);
-                    }
-                });
-
-                e.preventDefault();
-                return false;
-            })
-                .append(selector);
-
-            selector.delegate('.calendar-con i', 'click', function(e) {
-                var val = $(this).attr('data-val'),
-                    day;
-                selector.hide();
-                itemText.text(val);
-                val = parseInt(val.replace(/^0+/, '')) || 0;
-                timeStore[j] = val;
-
-                if (selector.hasClass('js_calendar_year')) {
-                    if (val % 4 == 0 && (val % 100 != 0 || val % 400 == 0)) {
-                        day = aDays[1] = 29;
-                    } else {
-                        day = aDays[1] = 28;
-                    }
-                    if (timeStore[1] == 2 && timeStore[2] > day) {
-                        timeStore[2] = day;
-                        textList.eq(2).text(util.pad(day));
-                    }
-                } else if (selector.hasClass('js_calendar_month')) {
-                    day = aDays[val - 1];
-                    if (timeStore[2] > day) {
-                        timeStore[2] = day;
-                        textList.eq(2).text(util.pad(day));
-                    };
-                    calendarSelectors.eq(2).find('.calendar-con').html(getTimeItems(1, day, 2));
-                }
-
-                self._update();
-                $input.trigger('onTimeChange');
-                e.preventDefault();
-                return false;
-            });
-
-            selector.find('.calendar-down').click(function(e) {
-                var selectorItems = selector.find('.calendar-con i'),
-                    firstSelectorItem = selectorItems.eq(0);
-
-                var top = parseInt(firstSelectorItem.css('margin-top'));
-                top -= optionHeight * 10;
-                firstSelectorItem.css({ 'margin-top': Math.max(top, (selectorItems.length - 10) * optionHeight * -1) });
-                return false;
-            });
-
-            selector.find('.calendar-up').click(function(e) {
-                var selectorItems = selector.find('.calendar-con i'),
-                    firstSelectorItem = selectorItems.eq(0),
-                    top = parseInt(firstSelectorItem.css('margin-top'));
-                top += optionHeight * 10;
-                firstSelectorItem.css({ 'margin-top': Math.min(top, 0) });
-                return false;
-            });
-        });
-        $calendar.find('.js_calendar_now').click(function(e) {
-            var d = new Date();
-            timeStore[0] = d.getFullYear();
-            timeStore[1] = d.getMonth() + 1;
-            timeStore[2] = d.getDate();
-            if ($(this).text() == '现在') {
-                timeStore[3] = d.getHours();
-                timeStore[4] = d.getMinutes();
-                timeStore[5] = d.getSeconds();
-            }
-
-            self._update();
-            $calendar.find('.calendar-bd').hide();
-            return false;
-        });
-
-        if ($input.val() != '') $input.trigger('timeChange');
-    }
-
-    TimePicker.prototype = {
-        _update: function() {
-            var timeStore = this.timeStore;
-            if (timeStore[1] == 0) {
-                timeStore[1] = 1;
-            }
-            if (timeStore[2] == 0) {
-                timeStore[2] = 1;
-            }
-            var val = util.pad(timeStore[0], 4) + '-' + util.pad(timeStore[1]) + '-' + util.pad(timeStore[2]) + ' ' + util.pad(timeStore[3]) + ':' + util.pad(timeStore[4]) + ':' + util.pad(timeStore[5]);
-
-            if (this.$input.val() != val) {
-                this.$input.val(val).trigger('timeChange').trigger('change');
-            }
-        },
-
-        getTime: function() {
-            return Date.parse(this.$input.val().replace(/-/g, '/')) || 0;
-        },
-        val: function(dt) {
-            if (/^\d+$/.test(dt)) {
-                dt = util.formatDate(dt);
-            }
-            this.$input.val(dt).trigger('timeChange');
+        var years = [];
+        for (var i = options.yearFrom; i <= options.yearTo; i++) {
+            years.push(i);
         }
-    };
+        var months = [];
+        for (var i = 1; i <= 12; i++) {
+            months.push(i);
+        }
 
-    module.exports = TimePicker;
+        var hours = [];
+        for (var i = 0; i <= 23; i++) {
+            hours.push(i);
+        }
 
-});
+        var minutes = [];
+        var seconds = [];
+        for (var i = 0; i <= 59; i++) {
+            minutes.push(i);
+            seconds.push(i);
+        }
+
+        model.ViewModel.call(this, {
+            yyyy: '----',
+            MM: '--',
+            dd: '--',
+            hh: '--',
+            mm: '--',
+            ss: '--',
+            yearIndex: 0,
+            monthIndex: 0,
+            dayIndex: 0,
+            hourIndex: 0,
+            minuteIndex: 0,
+            secondIndex: 0,
+
+            years: years,
+            months: months,
+            hours: hours,
+            minutes: minutes,
+            seconds: seconds
+        });
+
+        this.$el.insertBefore($input);
+    },
+
+    val: function(time) {
+        this.setTime(time);
+    }
+})
+
+module.exports = TimePicker;
