@@ -289,6 +289,7 @@ module.exports = Activity.extend({
                     self.slider.set(res.topbanner.data);
                 else
                     self.slider = new Slider(model.refs.topbanner, {
+                        loop: true,
                         data: res.topbanner.data,
                         dots: true,
                         itemTemplate: '<img src="<%=src%>" data-forward="<%=url%>?from=%2f" />'

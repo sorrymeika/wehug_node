@@ -293,10 +293,10 @@
                 options = that.options,
                 index = that.loop ? options.index - 1 : options.index;
 
-            if (options.onChange) options.onChange.call(that, options.index);
-            that.trigger('change', options.index, that.currentData);
+            if (options.onChange) options.onChange.call(that, index);
+            that.trigger('change', index, that.currentData);
 
-            that.$dots.children().removeClass('curr').eq(options.index).addClass('curr')
+            that.$dots.children().removeClass('curr').eq(index).addClass('curr')
         },
 
         destory: function() {
