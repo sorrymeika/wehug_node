@@ -19,38 +19,38 @@ model.State.set({
 var cartQtyApi = new api.CartQtyAPI({
     $el: $(''),
     checkData: false,
-    success: function (res) {
+    success: function(res) {
         model.State.set({
             cartQty: res.data
         });
     },
-    error: function () {
+    error: function() {
     }
 });
 
 module.exports = Activity.extend({
     events: {
-        'tap .head_tab li': function (e) {
+        'tap .head_tab li': function(e) {
             this.model.set('tab', $(e.target).index());
         },
-        'tap .home_tip_mask': function (e) {
+        'tap .home_tip_mask': function(e) {
             util.store('showTipStep', 2);
             this.model.set({ showTipStep: 2 });
         },
-        'tap .open_msg': function (e) {
+        'tap .open_msg': function(e) {
             if ($(e.target).hasClass('open_msg')) {
                 $(e.target).removeClass('show');
             }
         },
-        'tap .js_offline .btn': function () {
+        'tap .js_offline .btn': function() {
             userModel.request();
         },
-        'tap .js_comment_list [data-id]': function (e) {
+        'tap .js_comment_list [data-id]': function(e) {
         },
-        'tap .rainbow_bd': function (e) {
+        'tap .rainbow_bd': function(e) {
             this.$('.footer li').eq(3).trigger('tap');
         },
-        'tap .footer li': function (e) {
+        'tap .footer li': function(e) {
             var self = this;
             var $target = $(e.currentTarget);
             var index = $target.index();
@@ -73,13 +73,13 @@ module.exports = Activity.extend({
                         this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
                     }
 
-                    bridge.getLocation(function (res) {
+                    bridge.getLocation(function(res) {
                         self.$baiduMap[0].src = bridge.url("/baiduMap.html?v3#longitude=" + res.longitude + "&latitude=" + res.latitude);
                     });
                 }
             }
         },
-        'touchstart .hm_tab_con': function (e) {
+        'touchstart .hm_tab_con': function(e) {
             var self = this;
 
             this.pointY = this.startY = e.touches[0].pageY;
@@ -92,7 +92,7 @@ module.exports = Activity.extend({
             this.x = !self.model.data.tab ? 0 : -window.innerWidth;
             this.x1 = !self.model.data.tab ? window.innerWidth : 0;
         },
-        'touchmove .hm_tab_con': function (e) {
+        'touchmove .hm_tab_con': function(e) {
             var self = this,
                 pointX = e.touches[0].pageX,
                 pointY = e.touches[0].pageY;
@@ -134,7 +134,7 @@ module.exports = Activity.extend({
 
             self.isTouchMoved = true;
         },
-        'touchend .hm_tab_con': function (e) {
+        'touchend .hm_tab_con': function(e) {
             var self = this;
 
             if (!self.isTouchMoved) return;
@@ -147,7 +147,7 @@ module.exports = Activity.extend({
 
             self.$tabs.css({
                 '-webkit-transition': '-webkit-transform 300ms ease-out 0ms'
-            }).each(function () {
+            }).each(function() {
                 this.clientHeight;
             });
 
@@ -159,7 +159,7 @@ module.exports = Activity.extend({
 
             return false;
         },
-        'tap .guide3': function () {
+        'tap .guide3': function() {
             this.model.set({
                 showGuide: false
             })
@@ -168,7 +168,7 @@ module.exports = Activity.extend({
 
     className: 'home',
 
-    onCreate: function () {
+    onCreate: function() {
         var self = this;
         self.user = userModel.get();
         self.$tabs = self.$('.hm_tab_con');
@@ -182,13 +182,13 @@ module.exports = Activity.extend({
                 version: sl.appVersion,
                 platform: util.ios ? 1 : 2
             },
-            success: function (res) {
+            success: function(res) {
 
                 if (res.success && res.data.AVS_UPDATE_URL) {
                     var confirm = new Confirm({
                         content: res.data.AVS_UPDATE_MSG,
                         alwaysOpen: res.data.AVS_FORCE_FLAG,
-                        confirm: function () {
+                        confirm: function() {
                             bridge.update(res.data.AVS_UPDATE_URL, res.data.AVS_VERSION);
                         }
                     });
@@ -196,7 +196,7 @@ module.exports = Activity.extend({
                     confirm.show();
                 }
             },
-            error: function () {
+            error: function() {
             }
         });
         update.load();
@@ -211,15 +211,15 @@ module.exports = Activity.extend({
             tab: 0,
             bottomTab: 0,
             chartType: 0,
-            open: function () {
+            open: function() {
                 bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
             },
-            openUrl: function (e, url) {
+            openUrl: function(e, url) {
                 bridge.openInApp(url || 'http://m.abs.cn');
             }
         });
 
-        this.model.on('change:tab', function () {
+        this.model.on('change:tab', function() {
             if (this.data.tab == 1) {
                 self.scroll.get('.js_shop').imageLazyLoad();
             }
@@ -242,7 +242,7 @@ module.exports = Activity.extend({
                     }, {
                         id: 3
                     }],
-                onChange: function (index) {
+                onChange: function(index) {
                 }
             });
         }
@@ -263,7 +263,7 @@ module.exports = Activity.extend({
         })
         //-->*/
 
-        self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function (e) {
+        self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function(e) {
             if (!self.$open_msg.hasClass('show')) {
                 self.$open_msg.hide();
             }
@@ -279,7 +279,7 @@ module.exports = Activity.extend({
         this.stewardQtyApi = new api.StewardQtyAPI({
             $el: this.$el,
             checkData: false,
-            success: function (res) {
+            success: function(res) {
                 self.user.StewardNum = res.data;
                 userModel.set(self.user);
                 self.model.set('user.StewardNum', res.data);
@@ -291,7 +291,7 @@ module.exports = Activity.extend({
             check: false,
             checkData: false,
             $el: $(''),
-            success: function (res) {
+            success: function(res) {
                 if (res && res.data && res.data.length) {
                     localStorage.setItem('LAUNCH_IMAGE', res.data[0].Src);
                 }
@@ -300,7 +300,7 @@ module.exports = Activity.extend({
         this.launchLoading.load();
 
         var $launchImgs = this.$('.launch img');
-        var $mask = this.$('.home_mask').on($.fx.transitionEnd, function (e) {
+        var $mask = this.$('.home_mask').on($.fx.transitionEnd, function(e) {
             if ($mask.hasClass('toggle')) {
                 $mask.removeClass('toggle');
 
@@ -310,13 +310,13 @@ module.exports = Activity.extend({
             }
         });
 
-        setTimeout(function () {
+        setTimeout(function() {
             $mask.addClass('toggle');
 
             setTimeout(arguments.callee, 3200)
         }, 3200);
 
-        self.onResult("Login", function () {
+        self.onResult("Login", function() {
             self.user = userModel.get();
 
             self.model.set({
@@ -325,22 +325,22 @@ module.exports = Activity.extend({
             });
             self.doWhenLogin();
 
-        }).onResult("UserChange", function () {
+        }).onResult("UserChange", function() {
             self.requestUser();
 
-        }).onResult("Logout", function () {
+        }).onResult("Logout", function() {
             self.model.set({
                 isLogin: false,
                 user: null
             });
-        }).onResult('CartChange', function () {
+        }).onResult('CartChange', function() {
 
             self.getCartQty();
         });
 
         self.shopApi = new api.ActivityAPI({
             $el: self.$('.hm_shop'),
-            success: function (res) {
+            success: function(res) {
 
                 self.model.set({
                     activity: res.data,
@@ -363,14 +363,14 @@ module.exports = Activity.extend({
 
         self.shopApi.load();
 
-        setInterval(function () {
+        setInterval(function() {
             self.getUnreadMsg();
 
         }, 10000);
 
     },
 
-    getCartQty: function () {
+    getCartQty: function() {
         if (this.user.PSP_CODE) {
             cartQtyApi.setParam({
                 pspcode: this.user.PSP_CODE
@@ -379,10 +379,10 @@ module.exports = Activity.extend({
         }
     },
 
-    requestUser: function () {
+    requestUser: function() {
         var self = this;
 
-        userModel.request(function (err, res) {
+        userModel.request(function(err, res) {
 
             if (err) {
                 if (err.error_code == 503) {
@@ -417,13 +417,14 @@ module.exports = Activity.extend({
                 self.model.set({
                     message: res.vdpMessage
                 });
+                util.store('ivcode', null);
             }
-        });
+        }, util.store('ivcode') || '0000');
     },
 
     _angleFrom: 0,
 
-    drawCircle: function (percent) {
+    drawCircle: function(percent) {
         if (!this._angleFrom) {
             this._angleFrom = 1.5 * Math.PI;
         }
@@ -446,7 +447,7 @@ module.exports = Activity.extend({
         //this._angleFrom = angleTo;
     },
 
-    showEnergy: function () {
+    showEnergy: function() {
         if (!this.user) return;
 
         var self = this;
@@ -475,7 +476,7 @@ module.exports = Activity.extend({
             self.model.set({
                 energy: total
             });
-            animation.animate(function (d) {
+            animation.animate(function(d) {
                 var num = Math.round(animation.step(0, total, d));
 
                 self.model.set('energyAnimNum', num);
@@ -486,7 +487,7 @@ module.exports = Activity.extend({
         }
     },
 
-    getUnreadMsg: function () {
+    getUnreadMsg: function() {
         var self = this;
 
         if (self.user && self.user.Auth) {
@@ -494,7 +495,7 @@ module.exports = Activity.extend({
                 UserID: self.user.ID,
                 Auth: self.user.Auth
 
-            }, function (res) {
+            }, function(res) {
                 if (res.success) {
                     self.model.set('msg_count', res.count);
                 }
@@ -503,7 +504,7 @@ module.exports = Activity.extend({
         }
     },
 
-    doWhenLogin: function () {
+    doWhenLogin: function() {
         var self = this;
         var user = userModel.get();
 
@@ -512,7 +513,7 @@ module.exports = Activity.extend({
             isLogin: true
         });
 
-        var load = function (token) {
+        var load = function(token) {
 
             userModel.setParam({
                 IMEI: !token ? 'CAN_NOT_GET' : (typeof token == 'string' ? token : token.imei)
@@ -523,7 +524,7 @@ module.exports = Activity.extend({
         util.isInApp ? bridge.getDeviceToken(load) : load();
     },
 
-    onLoad: function () {
+    onLoad: function() {
 
         if (this.user) {
             this.showEnergy();
@@ -531,7 +532,7 @@ module.exports = Activity.extend({
         }
     },
 
-    onShow: function () {
+    onShow: function() {
         var self = this;
 
         this.setResult('ResetCart');
@@ -539,9 +540,9 @@ module.exports = Activity.extend({
         this.guideSlider && this.guideSlider._adjustWidth();
     },
 
-    onPause: function () {
+    onPause: function() {
     },
 
-    onDestory: function () {
+    onDestory: function() {
     }
 });
