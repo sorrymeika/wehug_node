@@ -49,17 +49,17 @@ var TimePicker = model.ViewModel.extend({
             <div class="calendar-bd">
                 <div class="calendar-up" sn-click="hourIndex=(hourIndex>0?hourIndex-1:hourIndex)"><em class="calendar-icon"><em></em></em></div>
                 <div class="calendar-con"><div style="margin-top:-{{parseInt(hourIndex*200)}}px"><i sn-repeat="item in hours" class="{{hh==item?'curr':''}}" sn-click="this.setHours(item)">{{ util.pad(item) }}</i></div></div>
-                <div class="calendar-down" sn-click="hourIndex=years.length>(hourIndex+1)*10?hourIndex+1:hourIndex"><em class="calendar-icon"><em></em></em></div>
+                <div class="calendar-down" sn-click="hourIndex=hours.length>(hourIndex+1)*10?hourIndex+1:hourIndex"><em class="calendar-icon"><em></em></em></div>
             </div>
             <div class="calendar-bd">
                 <div class="calendar-up" sn-click="minuteIndex=(minuteIndex>0?minuteIndex-1:minuteIndex)"><em class="calendar-icon"><em></em></em></div>
                 <div class="calendar-con"><div style="margin-top:-{{parseInt(minuteIndex*200)}}px"><i sn-repeat="item in minutes" class="{{mm==item?'curr':''}}" sn-click="this.setMinutes(item)">{{ util.pad(item) }}</i></div></div>
-                <div class="calendar-down" sn-click="minuteIndex=months.length>(minuteIndex+1)*10?minuteIndex+1:minuteIndex"><em class="calendar-icon"><em></em></em></div>
+                <div class="calendar-down" sn-click="minuteIndex=minutes.length>(minuteIndex+1)*10?minuteIndex+1:minuteIndex"><em class="calendar-icon"><em></em></em></div>
             </div>
             <div class="calendar-bd">
                 <div class="calendar-up" sn-click="secondIndex=(secondIndex>0?secondIndex-1:secondIndex)"><em class="calendar-icon"><em></em></em></div>
                 <div class="calendar-con"><div style="margin-top:-{{parseInt(secondIndex*200)}}px"><i sn-repeat="item in seconds" class="{{ss==item?'curr':''}}" sn-click="this.setSeconds(item)">{{ util.pad(item) }}</i></div></div>
-                <div class="calendar-down" sn-click="secondIndex=days.length>(secondIndex+1)*10?secondIndex+1:secondIndex"><em class="calendar-icon"><em></em></em></div>
+                <div class="calendar-down" sn-click="secondIndex=seconds.length>(secondIndex+1)*10?secondIndex+1:secondIndex"><em class="calendar-icon"><em></em></em></div>
                 <i class="js_hide">确定</i>
             </div>
         </div>
@@ -96,7 +96,7 @@ var TimePicker = model.ViewModel.extend({
     },
 
     setDay: function(e, day) {
-        var update
+        var update;
         if (typeof e === 'number') {
             update = day;
             day = e;
@@ -109,7 +109,7 @@ var TimePicker = model.ViewModel.extend({
     },
 
     setHours: function(e, num) {
-        var update
+        var update;
         if (typeof e === 'number') {
             update = num;
             num = e;
@@ -122,7 +122,7 @@ var TimePicker = model.ViewModel.extend({
     },
 
     setMinutes: function(e, num) {
-        var update
+        var update;
         if (typeof e === 'number') {
             update = num;
             num = e;
