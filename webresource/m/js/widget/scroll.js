@@ -130,13 +130,14 @@ var touchStart = function(e) {
         point = e.touches[0],
         now = +new Date;
 
-    el.__sy = el.__pointY = el.__startY = point.pageY;
+    el.__sy = el.__pointY = point.pageY;
     el.__sx = point.pageX;
     el.__hasMomentum = false;
     el.__isMoved = false;
     el.__isStart = false;
     el.__isStop = false;
-    el.__isScroll = now - el.__timestamp <= 32;
+    el.__isScroll = false;
+    el.__isHoldScroll = now - el.__timestamp <= 32;
 };
 
 var touchMove = function(e) {
@@ -148,7 +149,7 @@ var touchMove = function(e) {
         deltaY = point.pageY - el.__sy,
         deltaX = point.pageX - el.__sx;
 
-    el.__oPointY = el.__pointY;
+    el.__lastPY = el.__pointY;
     el.__pointY = pointY;
 
     if (!el.__isStart) {
@@ -207,7 +208,7 @@ var touchEnd = function(e) {
     var el = this,
         $el = $(el),
         pointY = e.changedTouches[0].pageY,
-        dy = Math.abs(el.__oPointY - pointY);
+        dy = Math.abs(el.__lastPY - pointY);
 
     scrollStop(el);
 
@@ -219,8 +220,8 @@ var touchEnd = function(e) {
         el.__hasMomentum = true;
     }
 
-    e.cancelTap === undefined && (e.cancelTap = el.__isScroll);
-    if (el.__isScroll && !el.__isStop) {
+    e.cancelTap === undefined && (e.cancelTap = el.__isScroll || el.__isHoldScroll);
+    if (el.__isScroll && !el.__isStop || el.__isHoldScroll) {
         e.stopPropagation();
         e.preventDefault();
     }

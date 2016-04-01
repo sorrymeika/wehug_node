@@ -46,7 +46,7 @@ module.exports = Activity.extend({
             }
         },
         'tap .js_offline .btn': function() {
-            userModel.request();
+            this.requestUser();
         },
         'tap .js_comment_list [data-id]': function(e) {
         },
@@ -289,6 +289,7 @@ module.exports = Activity.extend({
                     self.slider.set(res.topbanner.data);
                 else
                     self.slider = new Slider(model.refs.topbanner, {
+                        loop: true,
                         data: res.topbanner.data,
                         dots: true,
                         itemTemplate: '<img src="<%=src%>" data-forward="<%=url%>?from=%2f" />'

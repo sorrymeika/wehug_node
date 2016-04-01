@@ -12,6 +12,7 @@ var Share = View.extend({
                 linkURL: this.model.data.linkURL,
                 tagName: 'abs',
                 title: this.model.data.title,
+                image: this.model.data.image,
                 description: this.model.data.description,
                 scene: 1
             }, function(res) {
@@ -26,6 +27,7 @@ var Share = View.extend({
                 linkURL: this.model.data.linkURL,
                 tagName: 'abs',
                 title: this.model.data.title,
+                image: this.model.data.image,
                 description: this.model.data.description,
                 scene: 0
             }, function(res) {
@@ -39,6 +41,7 @@ var Share = View.extend({
                 type: 'shareLinkURL',
                 linkURL: this.model.data.linkURL,
                 title: this.model.data.title,
+                image: this.model.data.image,
                 description: this.model.data.description
             }, function(res) {
                 self.callback(res);

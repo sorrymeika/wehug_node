@@ -6,7 +6,7 @@ var util = require('util');
 
 var Month = model.ViewModel.extend({
 	el: <div class="main sp_package">
-		<div class="sp_package_hd">
+		<div class="sp_package_hd" style="display:none">
 			<div class="con">
 				<h1>{{PPG_NAME}}</h1>
 				<div class="text">{{PPG_MEMO}}</div>

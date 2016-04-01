@@ -1,4 +1,4 @@
-﻿define(function (require, exports) {
+﻿define(function(require, exports) {
     var $ = require("$");
     var LinkList = require("./linklist");
     var Matrix2D = require("graphics/matrix2d");
@@ -11,14 +11,14 @@
     for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
         window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
         window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] ||
-        window[vendors[x] + 'CancelRequestAnimationFrame'];
+            window[vendors[x] + 'CancelRequestAnimationFrame'];
     }
 
     if (!window.requestAnimationFrame) {
-        window.requestAnimationFrame = function (callback) {
+        window.requestAnimationFrame = function(callback) {
             return setTimeout(callback, 16.7);
         };
-        window.cancelAnimationFrame = function (id) {
+        window.cancelAnimationFrame = function(id) {
             clearTimeout(id);
         };
     }
@@ -39,33 +39,33 @@
     var re_transform = /^(matrix|translate|skew|rotate|scale|invert)(3d){0,1}$/;
 
 
-    var toFloatArr = function (arr) {
+    var toFloatArr = function(arr) {
         var result = [];
-        $.each(arr, function (i, item) {
+        $.each(arr, function(i, item) {
             result.push(isNaN(parseFloat(item)) ? 0 : parseFloat(item))
         });
         return result;
     }
 
-    var getCurrent = function (from, end, d) {
+    var getCurrent = function(from, end, d) {
         return parseFloat(from) + (parseFloat(end) - parseFloat(from)) * d;
     }
 
-    var getMatrixByTransform = function (transform) {
+    var getMatrixByTransform = function(transform) {
         var matrix = new Matrix2D();
-        transform.replace(re_transform_all, function ($0, $1, is3d, $2) {
+        transform.replace(re_transform_all, function($0, $1, is3d, $2) {
             matrix[$1 == 'matrix' ? 'append' : $1].apply(matrix, toFloatArr($2.split(',')));
         });
 
         return matrix;
     }
 
-    var toTransform = function (css) {
+    var toTransform = function(css) {
         var result = {},
             origTransform,
             matrix;
 
-        $.each(css, function (key, val) {
+        $.each(css, function(key, val) {
             var m = key.match(re_transform);
             if (m) {
                 if (key === 'translate') {
@@ -91,13 +91,13 @@
 
     exports.transform = toTransform;
 
-    $.fn.transform = function (css) {
+    $.fn.transform = function(css) {
         this.css(toTransform(css).css);
 
         return this;
     };
 
-    $.fn.matrix = function (matrix) {
+    $.fn.matrix = function(matrix) {
         if (matrix instanceof Matrix2D) {
             this.css(TRANSFORM, matrix.toString());
 
@@ -106,7 +106,7 @@
             return getMatrixByTransform(getComputedStyle(this[0], null)[TRANSFORM]);
     };
 
-    var run = function () {
+    var run = function() {
         if (list.length) {
             animationStop = false;
 
@@ -145,16 +145,16 @@
         }
     };
 
-    var init = function (item) {
+    var init = function(item) {
         var ease = item.ease;
 
         item.startTime = Date.now();
 
-        !ease && (item.ease = tween.easeOut) || (typeof ease == "string") && (item.ease = ease.indexOf('cubic-bezier') == 0 ? new CubicBezier(ease) : tween[ease.replace(/\-([a-z])/g, function ($0, $1) {
+        !ease && (item.ease = tween.easeOut) || (typeof ease == "string") && (item.ease = ease.indexOf('cubic-bezier') == 0 ? new CubicBezier(ease) : tween[ease.replace(/\-([a-z])/g, function($0, $1) {
             return $1.toUpperCase();
         })]);
 
-        item.stop = function () {
+        item.stop = function() {
             list.remove(item);
         };
         if (item.from === void 0) item.from = 0;
@@ -164,7 +164,7 @@
         return item;
     }
 
-    var parallel = function (animations) {
+    var parallel = function(animations) {
         for (var i = 0, n = animations.length, item; i < n; i++) {
             list.append(init(animations[i]));
         }
@@ -172,14 +172,14 @@
         if (animationStop) run();
     }
 
-    var eachStep = function (d) {
+    var eachStep = function(d) {
         var style,
             originStyle,
             originVal,
             val,
             newStyle;
 
-        this.el.each(function () {
+        this.el.each(function() {
             style = this._animationStyle;
             originStyle = this._originStyle;
 
@@ -217,12 +217,12 @@
         this._step && this._step(d);
     }
 
-    var animationEnd = function (per) {
+    var animationEnd = function(per) {
         if (per == 1) this.el.css(this.css);
         this._finish && this._finish(per);
     }
 
-    var prepare = function (animations) {
+    var prepare = function(animations) {
         var item,
             $el,
             el,
@@ -244,27 +244,27 @@
                     $el.transform(item.start);
                 }
 
-                $el.each(function () {
+                $el.each(function() {
                     var el = this,
                         animationStyle = {},
                         originStyle = {},
                         style = getComputedStyle(el, null);
 
-                    $.each(item.css, function (key, val) {
+                    $.each(item.css, function(key, val) {
                         if (typeof val === 'string') {
                             if (key == TRANSFORM) {
-                                val = val.replace(translatePercentReg, function ($0, $1, $2) {
+                                val = val.replace(translatePercentReg, function($0, $1, $2) {
                                     return 'translate(' + ($1.indexOf('%') !== -1 ? el.offsetWidth * parseFloat($1) / 100 : parseFloat($1)) + 'px,' + ($2.indexOf('%') !== -1 ? el.offsetHeight * parseFloat($2) / 100 : parseFloat($2)) + 'px)';
                                 });
                                 //console.log(val)
 
                             } else if (/^(top|margin(-t|T)op)$/.test(key)) {
-                                val = val.replace(percentReg, function ($0) {
+                                val = val.replace(percentReg, function($0) {
                                     return el.parentNode.offsetHeight * parseFloat($0) / 100 + "px";
                                 });
 
                             } else if (/^(left|margin(-l|L)eft|padding(-l|L)eft|padding(-t|T)op)$/.test(key)) {
-                                val = val.replace(percentReg, function ($0) {
+                                val = val.replace(percentReg, function($0) {
                                     return el.parentNode.offsetWidth * parseFloat($0) / 100 + "px";
                                 });
                             }
@@ -290,7 +290,7 @@
         return animations;
     }
 
-    var Animation = function (animations) {
+    var Animation = function(animations) {
         if (!$.isArray(animations)) animations = [animations];
 
         prepare(animations);
@@ -298,7 +298,7 @@
         this.list = animations;
     }
 
-    Animation.prototype.step = function (percent) {
+    Animation.prototype.step = function(percent) {
         var item,
             list = this.list;
 
@@ -312,7 +312,7 @@
         return this;
     }
 
-    Animation.prototype.animate = function (duration, percent, callback) {
+    Animation.prototype.animate = function(duration, percent, callback) {
         var item,
             animations = this.list;
 
@@ -332,13 +332,13 @@
 
     exports.Animation = Animation;
 
-    exports.parallel = function (animations) {
+    exports.parallel = function(animations) {
         parallel(prepare(animations));
     };
 
     exports.step = getCurrent;
 
-    exports.animate = function (/*[el,css]|step,duration,ease,finish*/) {
+    exports.animate = function(/*[el,css]|step,duration,ease,finish*/) {
         var args = arguments,
             item = {},
             i = 0,
@@ -361,7 +361,7 @@
     };
 
     var momentum = {
-        step: function (d) {
+        step: function(d) {
             for (var i = 0, n = this.momentums.length, m; i < n; i++) {
                 m = this.momentums[i];
                 m.current = m.start + (m.result - m.start) * d;
@@ -369,10 +369,10 @@
 
             this.momentumStep.apply(this.ctx, this.momentums);
         },
-        finish: function () {
+        finish: function() {
             this.bounce();
         },
-        bounce: function () {
+        bounce: function() {
             var count = 0,
                 divisor,
                 current;
@@ -403,7 +403,7 @@
         }
     };
 
-    var _momentum = function (start, current, time, min, max, size, divisor, dir) {
+    var _momentum = function(start, current, time, min, max, size, divisor, dir) {
         var dist = current - start,
             maxDistUpper = max - current,
             maxDistLower = current - min,
@@ -450,7 +450,7 @@
         else {
             if (divisor && outsideDist == 0) {
                 console.log(result, divisor, dir, result % divisor < divisor / 2, result - result % divisor)
-                result = result % divisor == 0 ? result : (result % divisor < divisor / 2 || (dir != undefined && dir == 'right')) ? result - result % divisor : (result - result % divisor + divisor);
+                result = result % divisor == 0 ? result : (result % divisor < divisor / 2 || dir == "right") && dir != 'left' ? result - result % divisor : (result - result % divisor + divisor);
                 result = result > max ? max : result < min ? min : result;
                 if (newTime < 300) newTime = 300;
                 newDist = result - current;
@@ -461,7 +461,7 @@
         return { dist: newDist, time: Math.round(newTime), outside: outsideDist, result: result, current: current, start: current, max: max, min: min, divisor: divisor };
     }
 
-    exports.momentum = function (options, maxDuration, step, ease, end, context) {
+    exports.momentum = function(options, maxDuration, step, ease, end, context) {
         var momentums = [],
             anim = {},
             newDuration = 0;
