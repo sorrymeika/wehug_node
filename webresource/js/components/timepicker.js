@@ -152,7 +152,7 @@ var TimePicker = model.ViewModel.extend({
         var days = [];
         var index = this.data.months.indexOf(this.data.MM);
         var year = parseInt(this.data.yyyy) || 0;
-        if (val % 4 == 0 && (val % 100 != 0 || val % 400 == 0)) {
+        if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
             this.aDays[1] = 29;
         } else {
             this.aDays[1] = 28;

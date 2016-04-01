@@ -4,31 +4,31 @@ var model = require('core/model2');
 
 var Menu = model.ViewModel.extend({
     el: <div class="menu">
-            <div class="menu_hd">
-                菜单
-            </div>
-            <div class="menu_sub_hd"><a href="/login">退出系统</a></div>
-            <div class="menu_bd">
-                <dl sn-repeat="item in data">
-                    <dt class="{{item.current?'curr':''}}">
-                        <a href="{{item.url}}">{{item.title}}</a>
-                    </dt>
-                    <dd sn-repeat="child in item.children" class="{{child.current?'curr':''}}">
-                        <a href="{{child.url}}">{{child.title}}</a>
-                    </dd>
-                </dl>
-                <dl sn-repeat="item in databases">
-                    <dt class="{{item.Database==database?'curr':''}}">
-                        <a href="/?database={{item.Database}}">{{item.Database}}</a>
-                    </dt>
-                    <dd sn-repeat="child in item.children" class="{{child.name==table?'curr':''}}">
-                        <a href="/?database={{item.Database}}&table={{child.name}}">{{child.name}}</a>
-                    </dd>
-                </dl>
-            </div>
-        </div>,
-        
-    setDatabases: function (databases) {
+        <div class="menu_hd">
+            菜单
+        </div>
+        <div class="menu_sub_hd"><a href="/login">断开链接</a></div>
+        <div class="menu_bd">
+            <dl sn-repeat="item in data">
+                <dt class="{{item.current?'curr':''}}">
+                    <a href="{{item.url}}">{{ item.title }}</a>
+                </dt>
+                <dd sn-repeat="child in item.children" class="{{child.current?'curr':''}}">
+                    <a href="{{child.url}}">{{ child.title }}</a>
+                </dd>
+            </dl>
+            <dl sn-repeat="item in databases">
+                <dt class="{{item.Database==database?'curr':''}}">
+                    <a href="/?database={{item.Database}}">{{ item.Database }}</a>
+                </dt>
+                <dd sn-repeat="child in item.children" class="{{child.name==table?'curr':''}}">
+                    <a href="/?database={{item.Database}}&table={{child.name}}">{{ child.name }}</a>
+                </dd>
+            </dl>
+        </div>
+    </div>,
+
+    setDatabases: function(databases) {
 
         this.set({
             databases: databases
@@ -38,7 +38,7 @@ var Menu = model.ViewModel.extend({
 
 var cache = null;
 
-Menu.get=function(id){
+Menu.get = function(id) {
     !cache && (cache = new Menu({
         data: [{
             url: '/',
@@ -72,7 +72,7 @@ Menu.get=function(id){
         }
     }
     cache.$el.show();
-    
+
     $('.viewport').prepend(cache.$el);
     return cache;
 }
