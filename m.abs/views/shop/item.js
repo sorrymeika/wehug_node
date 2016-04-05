@@ -1,4 +1,4 @@
-define(function (require, exports, module) {
+define(function(require, exports, module) {
 
     var $ = require('$');
     var util = require('util');
@@ -13,21 +13,21 @@ define(function (require, exports, module) {
 
     return Activity.extend({
         events: {
-            'tap .js_buy:not(.disabled)': function () {
+            'tap .js_buy:not(.disabled)': function() {
                 var self = this;
                 this.size.show();
             },
-            'tap .js_share': function () {
+            'tap .js_share': function() {
                 this.share.show();
             },
-            'tap .js_select_size': function () {
+            'tap .js_select_size': function() {
                 this.size.show();
             }
         },
 
         className: 'pd_item_bg',
 
-        onCreate: function () {
+        onCreate: function() {
             var self = this;
             var $main = self.$('.main');
 
@@ -50,12 +50,12 @@ define(function (require, exports, module) {
 
             self.size.$el.appendTo(self.$el);
 
-            self.size.on('SizeChange', function (e, item) {
+            self.size.on('SizeChange', function(e, item) {
 
                 var data = {
                     PRD_NUM: item.PRD_NUM
                 }
-                
+
                 item.WPP_LIST_PIC && (data.WPP_LIST_PIC = item.WPP_LIST_PIC);
 
                 self.model.set({
@@ -69,7 +69,7 @@ define(function (require, exports, module) {
                     id: self.route.data.id
                 },
                 checkData: false,
-                success: function (res) {
+                success: function(res) {
                     console.log(res.data);
                     res.data.PSV_QTY = res.psvqty;
                     self.model.set({
@@ -85,7 +85,8 @@ define(function (require, exports, module) {
                         head: '分享商品至',
                         title: res.data.PRD_NAME,
                         linkURL: 'http://m.abs.cn/single/' + res.data.PRD_ID + '.html',
-                        description: res.data.PRD_NAME
+                        description: res.data.PRD_NAME,
+                        image: "http://www.absimg.com/media/H5/app/logo.jpg"
                     });
                     self.share.$el.appendTo(self.$el);
 
@@ -99,7 +100,7 @@ define(function (require, exports, module) {
             var colorAndSpec = new api.ProductColorAndSpec({
                 $el: self.$el,
                 checkData: false,
-                success: function (res) {
+                success: function(res) {
                     var color = [];
                     var spec = [];
                     for (var i = 0, len = res.data.length; i < len; i++) {
@@ -132,7 +133,7 @@ define(function (require, exports, module) {
                     prdId: this.route.data.id
                 },
                 checkData: false,
-                success: function (res) {
+                success: function(res) {
                     console.log(res);
                     self.model.set({
                         Package: res.data
@@ -143,11 +144,11 @@ define(function (require, exports, module) {
             packageRelativeAPI.load();
         },
 
-        onShow: function () {
+        onShow: function() {
             var self = this;
         },
 
-        onDestory: function () {
+        onDestory: function() {
         }
     });
 });

@@ -9,11 +9,11 @@ var api = require('models/base');
 
 module.exports = Activity.extend({
     events: {
-        'tap .js_bind:not(.disabled)': function () {
+        'tap .js_bind:not(.disabled)': function() {
         }
     },
 
-    onCreate: function () {
+    onCreate: function() {
         var self = this;
         var $main = self.$('.main');
 
@@ -24,7 +24,7 @@ module.exports = Activity.extend({
         self.model = new model.ViewModel(this.$el, {
         });
 
-        self.model.getCoupon = function (e) {
+        self.model.getCoupon = function(e) {
             if (!self.user) {
                 self.forward('/login?success=' + encodeURIComponent(self.route.url) + '&from=' + encodeURIComponent(self.route.url));
             } else {
@@ -42,12 +42,12 @@ module.exports = Activity.extend({
                 data: self.route.query.code
             },
             checkData: false,
-            success: function (res) {
+            success: function(res) {
                 sl.tip("恭喜您获得一张优惠券");
 
             },
 
-            error: function (res) {
+            error: function(res) {
                 sl.tip(res.msg);
             }
         });
@@ -58,7 +58,7 @@ module.exports = Activity.extend({
                 data: self.route.query.code
             },
             checkData: false,
-            success: function (res) {
+            success: function(res) {
                 console.log(res)
 
                 self.model.set({
@@ -70,12 +70,12 @@ module.exports = Activity.extend({
         couponUserAPI.load();
     },
 
-    onShow: function () {
+    onShow: function() {
         var self = this;
 
         self.user = util.store('user');
     },
 
-    onDestory: function () {
+    onDestory: function() {
     }
 });

@@ -214,8 +214,27 @@ module.exports = Activity.extend({
             },
             openUrl: function(e, url) {
                 bridge.openInApp(url || 'http://m.abs.cn');
-            }
+            },
+            searchHistory: util.store("searchHistory")
         });
+
+        model.showSearch = function() {
+            this.set({
+                isShowSearch: true
+            });
+            $(this.refs.searchwrap).show();
+
+            this.refs.searchText.focus();
+        }
+
+        model.hideSearch = function() {
+            this.set({
+                isShowSearch: false
+            });
+            this.refs.searchText.blur();
+
+            $(this.refs.searchwrap).hide();
+        }
 
         self.appIconAPI = new api.AppIconAPI({
             $el: $(''),
@@ -310,6 +329,24 @@ module.exports = Activity.extend({
         });
 
         self.shopApi.load();
+
+        new api.ShopAPI({
+            url: '/api/prod/newproductlist',
+            checkData: false,
+            check: false,
+            success: function(res) {
+                if (res.success) {
+                    model.set({
+                        newproducts: res.data
+                    });
+                }
+
+            },
+            error: function() {
+
+            }
+        }).load();
+
 
         model.on('change:tab', function() {
             if (this.data.tab == 1) {
@@ -414,6 +451,32 @@ module.exports = Activity.extend({
                 return false;
             }
         });
+
+        this.listenTo($(this.model.refs.searchText), 'keydown', function(e) {
+            if (e.keyCode == 13) {
+
+                model.search(e, e.target.value);
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        model.search = function(e, item) {
+            var searchHistory = util.store('searchHistory') || [];
+            var index = searchHistory.indexOf(item);
+
+            if (index != -1) {
+                searchHistory.splice(index, 1);
+            }
+            searchHistory.unshift(item);
+
+            self.model.set({
+                searchHistory: searchHistory
+            });
+            util.store('searchHistory', searchHistory);
+
+            self.forward('/list?s=' + encodeURIComponent(item) + '&from=/');
+        }
 
     },
 

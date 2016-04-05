@@ -1,3 +1,9 @@
 ﻿.ct_coupon_list li .name { height: auto; }
 .pd_buy .btn_cart:before { background:url(icon.png) no-repeat -40px -190px;background-size:320px auto; }
 .footer {border-top: 0;}
+.head_all:before {background-image:url(icon.png);}
+.searchwrap { z-index: 1001; position: absolute; top: 0;left: 0;right: 0;bottom: 0; background: #fff; }
+.searchwrap .main { bottom: 0; }
+.head_search { position: relative; z-index: 1; }
+.head_right { font-size: 14px; }
+.searchlist li { height: 40px; color: #666; font-weight: normal; line-height:40px; border-bottom: 1px solid #ddd; background: #fff; padding-left: 10px; }

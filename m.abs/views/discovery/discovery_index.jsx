@@ -7,6 +7,7 @@ var animation = require('animation');
 var api = require("models/base");
 var discoveryModel = require("models/discovery");
 var userModel = require('models/user');
+var Confirm = require('components/confirm');
 
 module.exports = model.ViewModel.extend({
     el: <div class="discovery_index">
@@ -57,7 +58,7 @@ module.exports = model.ViewModel.extend({
 
         var recDiscoveryAPI = new api.RecDiscoveryAPI({
             showLoading: false,
-            
+
             success: function(res) {
                 console.log(res);
 
@@ -99,5 +100,29 @@ module.exports = model.ViewModel.extend({
         });
 
         discoverListAPI.load();
+
+        //首次进入弹框
+        if (!util.store("discovery_tip")) {
+
+            new api.ShopAPI({
+                url: '/api/discover/standtips',
+                checkData: false,
+                success: function(res) {
+
+                    var confirm = new Confirm({
+                        content: res.data
+
+                    });
+                    confirm.$el.appendTo($('body'));
+
+                    confirm.show();
+                    util.store("discovery_tip", sl.appVersion);
+                },
+                error: function(res) {
+
+                }
+            }).load();
+        }
+
     }
 });

@@ -18,7 +18,7 @@ var Month = model.ViewModel.extend({
 					</p>
 					<p class="fast_btn">
 						<span>仅限<em>{{prod.flp_stock}}</em>件</span>
-						<b class="btn{{!prod.qty||(item.timeLeft&&item.timeLeft.indexOf('-')==0)?' over':''}}" sn-tap="this.goto(prod)">{{(item.timeLeft?(item.timeLeft.indexOf('-')!=0?(!prod.qty?'已抢完':'立即抢购'):'已结束'):'即将开始')}}</b>
+						<b class="btn{{!prod.qty||(item.timeLeft&&item.timeLeft.indexOf('-')==0)?' over':''}}" sn-tap="this.goto(prod)">{{item.timeLeft?(item.timeLeft.indexOf('-')!=0?(!prod.qty?'已抢完':'立即抢购'):'已结束'):'即将开始'}}</b>
 					</p>
 				</div>
 			</dd>

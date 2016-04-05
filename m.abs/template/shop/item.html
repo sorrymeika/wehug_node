@@ -19,6 +19,7 @@
                     <span class="code">商品编码 {{data.PRD_CODE}}</span>
                     <span class="sale">销售 {{data.PSV_QTY}} 件</span>
                 </p>
+                <p class="pd_code" style="padding:5px 0;" sn-html="{{data.PRH_DESC}}"></p>
             </div>
         </div>
         <ul class="pd_sign">
@@ -31,10 +32,7 @@
         <div class="pd_select_size js_select_size">
             选择 尺码 颜色分类
         </div>
-        <div class="pd_item_con">
-            <h2>商品特点：</h2>
-            <div class="con" sn-html="{{data.PRH_FEATURE}}"></div>
-        </div>
+
         <div class="pd_jump_detail" data-forward="/detail/{{data.PRD_ID}}"><b>图文详情</b><em>建议在WIFI情况下查看</em></div>
         <div class="pd_help">
             如果您有任何疑问，欢迎联系我们的客服。
