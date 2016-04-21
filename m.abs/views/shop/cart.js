@@ -96,7 +96,7 @@ define(function (require, exports, module) {
 
                 getFreight: function (bag_amount, coupon, Points, freecouponcode) {
                     var price = this.getPrice(bag_amount, coupon, Points);
-                    var freight = ((price >= 99 || freecouponcode) ? 0 : 15);
+                    var freight = ((self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || price >= 99 || freecouponcode) ? 0 : 15);
 
                     return price >= 99 ? "免邮费" : ('¥' + Math.round(freight * 100) / 100);
                 },
@@ -112,17 +112,17 @@ define(function (require, exports, module) {
 
                         if (coupon && coupon.VCT_ID == 5) {
                             price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                            freight = ((bag_amount - (Points / 100) >= 99 || freecouponcode) ? 0 : 15);
+                            freight = ((self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || bag_amount - (Points / 100) >= 99 || freecouponcode) ? 0 : 15);
                             total = Math.max(0, bag_amount + freight - couponPrice - (Points / 100));
 
                         } else {
                             price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                            total = price + ((price >= 99 || freecouponcode) ? 0 : 15);
+                            total = price + ((self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || price >= 99 || freecouponcode) ? 0 : 15);
                         }
 
                         return '¥' + (Math.round(total * 100) / 100);
-                        
-                    } else { 
+
+                    } else {
                         return '¥0';
                     }
 
