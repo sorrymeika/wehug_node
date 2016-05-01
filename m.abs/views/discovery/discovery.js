@@ -41,7 +41,9 @@ module.exports = Activity.extend({
             url: encodeURIComponent(self.route.url)
         });
 
-        Scroll.bind(self.model.refs.productScroll);
+        Scroll.bind(self.model.refs.productScroll,{
+            hScroll: true
+        });
 
 
         var discoveryAddShareAPI = new api.DiscoveryAddShareAPI({

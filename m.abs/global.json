@@ -43,9 +43,9 @@
             "updateApi": "http://testappversion.abs.cn"
         },
         "dev": {
-            "api": "http://172.16.168.185:6005",
+            "api": "http://127.0.0.1:5559/proxy1",
             "shopApi": "http://127.0.0.1:5559/proxy",
-            "updateApi": "http://testappversion.abs.cn"
+            "updateApi": "http://127.0.0.1:5559/proxy2"
         }
     },
     "framework": {
