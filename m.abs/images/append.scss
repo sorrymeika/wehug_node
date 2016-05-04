@@ -7,3 +7,6 @@
 .head_search { position: relative; z-index: 1; }
 .head_right { font-size: 14px; }
 .searchlist li { height: 40px; color: #666; font-weight: normal; line-height:40px; border-bottom: 1px solid #ddd; background: #fff; padding-left: 10px; }
+
+.disc_list li p.tit { font-size: 18px; position: relative; }
+.disc_list li p.tit:before { content: ''; display: block; position: absolute; bottom: 0; left: 10px; right: 10px; border-bottom: 1px solid #fff;}

@@ -19,7 +19,7 @@ module.exports = model.ViewModel.extend({
             <li sn-repeat="item in rec" data-forward="/discovery/{{item.DCV_ID}}">
                 <img src="{{item.DCV_REC_PIC}}" />
                 <p class="tit">{{ item.DCV_SUBTITLE }}</p>
-                <p class="desc">{{ item.DCV_REC_CONTENT }}</p>
+                <p class="desc" sn-html="{{item.DCV_REC_CONTENT}}"></p>
             </li>
             <li sn-repeat="item in data" data-forward="/discovery/{{item.DCV_ID}}">
                 <img src="{{item.DCV_SUBTITLE_PIC}}" />

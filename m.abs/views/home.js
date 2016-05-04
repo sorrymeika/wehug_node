@@ -183,7 +183,7 @@ module.exports = Activity.extend({
 
             return false;
         },
-        'tap .guide3': function () {
+        'tap .guide1': function () {
             this.model.set({
                 showGuide: false
             })
@@ -361,15 +361,11 @@ module.exports = Activity.extend({
             model.set('showGuide', true);
 
             this.guideSlider = new Slider(self.$('.hm_guide'), {
-                itemTemplate: '<img class="guide<%=id%>" src="http://appuser.abs.cn/dest/images/guide<%=id%>.jpg" />',
+                itemTemplate: '<img class="guide<%=id%>" src="http://appuser.abs.cn/dest1.2.0/images/guide<%=id%>.jpg" />',
                 data: [{
                     id: 0
                 }, {
                         id: 1
-                    }, {
-                        id: 2
-                    }, {
-                        id: 3
                     }],
                 onChange: function (index) {
                 }
