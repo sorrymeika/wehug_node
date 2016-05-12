@@ -10,3 +10,5 @@
 
 .disc_list li p.tit { font-size: 18px; position: relative; }
 .disc_list li p.tit:before { content: ''; display: block; position: absolute; bottom: 0; left: 10px; right: 10px; border-bottom: 1px solid #fff;}
+.disc_list li p p { padding: 0; }
+.banner { min-height: 60px; }

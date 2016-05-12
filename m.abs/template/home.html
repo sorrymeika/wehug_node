@@ -24,7 +24,7 @@
         </form>
         <div class="head_title" style="display:{{bottomTab!=0&&bottomTab!=2?'block':'none'}}">{{bottomTab==1?'查找店铺':bottomTab==2?"发现":bottomTab==3?"消息":"我"}}</div>
         <div class="head_msg" data-forward="/cart">
-            <i sn-display="{{msg_count!=0}}">{{msg_count}}</i>
+            <i sn-display="{{$state.cartQty!=0}}">{{$state.cartQty}}</i>
         </div>
         <div class="head_all" sn-tap="this.showSearch()" sn-display="{{tab==1&&bottomTab==0}}">
         </div>
@@ -103,8 +103,7 @@
         data-index="1">
             <div class="hm_shop">
                 <div class="hm_cate">
-                    <div class="hd" data-forward="/all">所有
-                        <br>商品</div>
+                    <div class="hd" data-forward="/all">所有<br>商品</div>
                     <div class="bd">
                         <ul>
                             <li data-forward="/all?id=1">出行</li>
@@ -124,14 +123,10 @@
 
                 </div>
                 <ul class="hm_shop_cate">
-                    <li data-forward="/list?type=new&from=%2f"><i></i>新品
-                        <br>上市</li>
-                    <li data-forward="/news/activity2"><i></i>最热
-                        <br>商品</li>
-                    <li data-forward="/news/fastbuy?from=%2f"><i></i>周一
-                        <br>闪购</li>
-                    <li data-forward="/news/activity3"><i></i>APP
-                        <br>专享</li>
+                    <li data-forward="/list?type=new&from=%2f"><i></i>新品<br>上市</li>
+                    <li data-forward="/news/activity2"><i></i>最热<br>商品</li>
+                    <li data-forward="/news/fastbuy?from=%2f"><i></i>周一<br>闪购</li>
+                    <li data-forward="/news/activity3"><i></i>APP<br>专享</li>
                 </ul>
                 <div sn-repeat="item in activity">
                     <div sn-if="{{item.type==1}}" class="hm_shop_banner">

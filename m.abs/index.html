@@ -83,7 +83,7 @@
                     });
                     seajs.on("error", function(errorData){
                         errorData.pause=true;
-                        
+                        alert(errorData.uri);
                         sl.offline(function(){
                             seajs.request(errorData.uri,errorData.callback);
                         });

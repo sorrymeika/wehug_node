@@ -20,6 +20,10 @@ module.exports = Activity.extend({
 
         Scroll.bind($main);
 
+        seajs.use('views/test1', function (asdf) {
+        });
+
+
         var now = Date.now();
         console.log(now);
 
@@ -33,7 +37,7 @@ module.exports = Activity.extend({
             children: []
         };
 
-        for (var i = 0; i < 100; i++) {
+        for (var i = 0; i < 10; i++) {
             data.data.push({
                 name: 'nn' + i,
                 children: [{

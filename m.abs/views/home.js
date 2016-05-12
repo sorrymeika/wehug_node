@@ -197,6 +197,14 @@ module.exports = Activity.extend({
         self.user = userModel.get();
         self.$tabs = self.$('.hm_tab_con');
 
+        self.$tabs.on($.fx.transitionEnd, function () {
+            if (self.model.data.tab == 1 && self.slider) {
+                setTimeout(function () {
+                    self.slider._adjustWidth();
+                }, 400)
+            }
+        })
+
         sl.activity = self;
 
         var model = this.model = new ViewModel(this.$el, {
@@ -309,6 +317,7 @@ module.exports = Activity.extend({
                 else
                     self.slider = new Slider(model.refs.topbanner, {
                         loop: true,
+                        autoLoop: 3000,
                         data: res.topbanner.data,
                         dots: true,
                         itemTemplate: '<img src="<%=src%>" data-forward="<%=url%>?from=%2f" />'

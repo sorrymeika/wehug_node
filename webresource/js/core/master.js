@@ -41,7 +41,7 @@
 
             if (activity == null) {
                 (function (fn) {
-                    route.package ? seajs.request(route.package + ".js?v" + sl.buildVersion, fn) : fn();
+                    route.package ? seajs.use(route.package + ".js?v" + sl.buildVersion, fn) : fn();
 
                 })(function () {
 

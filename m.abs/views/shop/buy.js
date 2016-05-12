@@ -159,7 +159,7 @@ define(function (require, exports, module) {
                             }
                         }
 
-                        self.forward('/order/' + res.pur_id + "?from=/myorder");
+                        self.forward('/order/' + res.pur_id + "?from=/myorder&refresh=1");
                     }
                 },
                 error: function (res) {
