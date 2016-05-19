@@ -78,7 +78,6 @@
                     seajs.on('fetch', function (emitData) {
                         var id = emitData.uri.replace(seajs.data.base, '').replace(/\.js(\?.*)*/, '');
                         
-                        if (resourceMapping&&resourceMapping[id]) emitData.requestUri = resourceMapping[id];
                         
                     });
                     seajs.on("error", function(errorData){

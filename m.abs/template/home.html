@@ -7,6 +7,7 @@
             <div class="head_right" sn-tap="this.hideSearch()">取消</div>
         </header>
         <div class="main">
+            <div class="searchhistory"><i class="icon-clear" sn-tap="this.clearSearch()"></i> 历史记录</div>
             <ul class="searchlist">
                 <li sn-repeat="item in searchHistory" sn-tap="this.search(item)">{{item}}</li>
             </ul>
@@ -147,7 +148,7 @@
                 </div>
 
                 <ul class="sp_list">
-                    <li sn-repeat="item in newproducts" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}?from={{url}}">
+                    <li sn-repeat="item in newproducts" class="sp_list_item" data-forward="/item/{{item.PRD_ID}}">
                         <img src="{{item.WPP_LIST_PIC1}}" />
                         <p class="price"><b>￥{{item.PRD_PRICE}}</b><del sn-display="{{item.PRD_PRICE!=0&&item.PRD_PRICE<item.PRD_MEMBER_PRICE}}">￥{{item.PRD_MEMBER_PRICE}}&nbsp;</del></p>
                         <p class="name">{{item.PRD_NAME}}</p>

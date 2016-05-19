@@ -10,7 +10,7 @@
 
         if (options.el)
             this.$el = $(options.el);
-        !this.$el && (this.$el=$());
+        !this.$el && (this.$el = $());
         this.el = this.$el[0];
 
         this.params = $.extend({}, this.params, options.params);

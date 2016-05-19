@@ -223,13 +223,27 @@ define(function (require, exports, module) {
 
                     var couponCount = 0;
                     var freeCount = 0;
+                    var cpItem;
+                    var matchCoupon;
                     for (var i = 0; i < res.coupon.length; i++) {
-                        if (res.coupon[i].VCT_ID == 4) {
+                        cpItem = res.coupon[i];
+                        if (cpItem.VCT_ID == 4) {
                             freeCount++
                         } else {
                             couponCount++;
+
+                            if (self.model.data.couponcode && cpItem.CSV_CODE == self.model.data.couponcode.CSV_CODE) {
+                                matchCoupon = cpItem;
+                            }
                         }
                     }
+
+                    if (self.model.data.couponcode && ((self.model.data.couponcode.VCT_ID != 5 && !matchCoupon) || (self.model.data.couponcode.VCT_ID == 1 && self.model.data.couponcode.VCA_MIN_AMOUNT > self.model.data.bag_amount))) {
+                        self.model.set({
+                            couponcode: null
+                        });
+                    }
+
                     self.model.set({
                         freeCount: freeCount,
                         couponCount: couponCount

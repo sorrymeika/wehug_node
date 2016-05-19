@@ -67,7 +67,7 @@ module.exports = Activity.extend({
 
                 if (index == 1) {
                     if (!this.model.data.baiduMap) {
-                        this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html?v3") + '" frameborder="0" ></iframe>');
+                        this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html?v4") + '" frameborder="0" ></iframe>');
                         this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
                     }
 
@@ -233,6 +233,14 @@ module.exports = Activity.extend({
             $(this.refs.searchwrap).show();
 
             this.refs.searchText.focus();
+        }
+
+        model.clearSearch = function () {
+            util.store("searchHistory", null);
+
+            this.set({
+                searchHistory: null
+            });
         }
 
         model.hideSearch = function () {
@@ -661,6 +669,15 @@ module.exports = Activity.extend({
     },
 
     onPause: function () {
+    },
+
+    onQueryChange: function () {
+        if (this.query.tab) {
+            this.$('.footer li:nth-child(1)').trigger('tap');
+            this.model.set({
+                tab: this.query.tab
+            });
+        }
     },
 
     onDestory: function () {

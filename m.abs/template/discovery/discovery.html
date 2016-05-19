@@ -33,7 +33,7 @@
 </div>
 <footer class="disc_bottom">
     <ul>
-        <li class="fav">{{data.DCV_LIKE_QTY}}</li>
+        <li class="fav {{data.Like_Flag?'curr':''}}" sn-tap="this.fav()">{{data.DCV_LIKE_QTY}}</li>
         <li class="share js_share">{{data.DCV_SHARE_QTY}}</li>
         <li class="see">{{data.DCV_VIEW_QTY}}</li>
     </ul>

@@ -12,12 +12,12 @@ var userModel = require('models/user');
 
 module.exports = Activity.extend({
     events: {
-        'tap .js_share': function() {
+        'tap .js_share': function () {
             this.share.show();
         }
     },
 
-    onCreate: function() {
+    onCreate: function () {
         var self = this;
 
         Scroll.bind(self.$('.main'));
@@ -27,7 +27,7 @@ module.exports = Activity.extend({
         self.share = new Share({
             head: '分享'
         });
-        self.share.callback = function(res) {
+        self.share.callback = function (res) {
             discoveryAddShareAPI.setParam({
                 pspcode: self.user.PSP_CODE
             }).load();
@@ -41,7 +41,7 @@ module.exports = Activity.extend({
             url: encodeURIComponent(self.route.url)
         });
 
-        Scroll.bind(self.model.refs.productScroll,{
+        Scroll.bind(self.model.refs.productScroll, {
             hScroll: true
         });
 
@@ -58,11 +58,11 @@ module.exports = Activity.extend({
             params: {
                 dcvid: self.route.data.id
             },
-            success: function() {
-                self.model.set('data.Like_Flag', true);
+            success: function () {
+                self.model.set('data.Like_Flag', true).set("data.DCV_LIKE_QTY", (self.model.data.data.DCV_LIKE_QTY || 0) + 1);
             },
 
-            error: function(res) {
+            error: function (res) {
                 sl.tip(res.msg)
             }
         });
@@ -72,11 +72,11 @@ module.exports = Activity.extend({
             params: {
                 dcvid: self.route.data.id
             },
-            success: function() {
-                self.model.set('data.Like_Flag', false);
+            success: function () {
+                self.model.set('data.Like_Flag', false).set("data.DCV_LIKE_QTY", (self.model.data.data.DCV_LIKE_QTY || 1) - 1);
             },
 
-            error: function(res) {
+            error: function (res) {
                 sl.tip(res.msg)
             }
         });
@@ -88,7 +88,7 @@ module.exports = Activity.extend({
                 pspcode: self.user.PSP_CODE
             },
             checkData: false,
-            success: function(res) {
+            success: function (res) {
 
                 self.model.set({
                     data: res.data,
@@ -102,12 +102,12 @@ module.exports = Activity.extend({
                 });
             },
 
-            error: function() {
+            error: function () {
 
             }
         });
 
-        self.model.fav = function() {
+        self.model.fav = function () {
             if (!this.data.data.Like_Flag) {
 
                 discoveryFavAPI.setParam({
@@ -124,10 +124,10 @@ module.exports = Activity.extend({
         discoveryAPI.load();
     },
 
-    onShow: function() {
+    onShow: function () {
         var self = this;
     },
 
-    onDestory: function() {
+    onDestory: function () {
     }
 });
