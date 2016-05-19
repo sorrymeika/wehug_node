@@ -10,11 +10,11 @@ var userModel = require('models/user');
 
 module.exports = Activity.extend({
     events: {
-        'tap .js_bind:not(.disabled)': function() {
+        'tap .js_bind:not(.disabled)': function () {
         }
     },
 
-    onCreate: function() {
+    onCreate: function () {
         var self = this;
 
         Scroll.bind(self.$('.main'));
@@ -27,10 +27,20 @@ module.exports = Activity.extend({
             title: self.route.query.name || '态度'
         });
 
+        self.model.sortBy = function (e, sort) {
+            self.discoverListAPI.setParam({
+                orderby: sort == "POST" ? 'desc' : 'asc',
+                order: sort
+
+            }).reload();
+
+            $(e.currentTarget).addClass('curr').siblings('.curr').removeClass('curr')
+        }
+
         self.discoverListAPI = new api.DiscoverListAPI({
             $el: self.$el,
 
-            success: function(res) {
+            success: function (res) {
                 console.log(res);
 
                 self.model.set({
@@ -38,12 +48,12 @@ module.exports = Activity.extend({
                 });
             },
 
-            error: function() {
+            error: function () {
             }
         });
     },
 
-    onUpdate: function() {
+    onUpdate: function () {
         var self = this;
 
         self.discoverListAPI.setParam({
@@ -56,6 +66,6 @@ module.exports = Activity.extend({
         }).load();
     },
 
-    onDestory: function() {
+    onDestory: function () {
     }
 });

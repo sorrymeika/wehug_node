@@ -54,7 +54,7 @@
             sl.isDebug=@debug;
             sl.buildVersion=@(Date.now());
             sl.isInApp=util.isInApp=!!matchUA;
-            sl.appVersion=matchUA?matchUA[1]:'1.1.0';
+            sl.appVersion=matchUA?matchUA[1]:'1.2.0';
             sl.$globalOffline=$('.js_global_offline');
             sl.offline=function(reloadFn){
                 sl.$globalOffline.show().find('.btn').one('tap',function(){
@@ -78,12 +78,11 @@
                     seajs.on('fetch', function (emitData) {
                         var id = emitData.uri.replace(seajs.data.base, '').replace(/\.js(\?.*)*/, '');
                         
-                        if (resourceMapping&&resourceMapping[id]) emitData.requestUri = resourceMapping[id];
                         
                     });
                     seajs.on("error", function(errorData){
                         errorData.pause=true;
-                        
+                        alert(errorData.uri);
                         sl.offline(function(){
                             seajs.request(errorData.uri,errorData.callback);
                         });

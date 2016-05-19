@@ -4,7 +4,7 @@
     ua = navigator.userAgent,
     ios = ua.match(/(iPhone|iPad|iPod).*OS\s([\d_]+)/i),
     ie = ua.match(/MSIE (\d+)/i),
-    android = ua.match(/(Android);?[\s\/]+([\d.]+)?/),
+    android = ua.match(/(Android);?[\s\/]+([\d\.]+)?/),
     isAndroid = !!android,
     guid = 0,
     osVersion,

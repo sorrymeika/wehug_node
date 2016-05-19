@@ -4,8 +4,8 @@
 </header>
 <div class="main">
     <ul class="disc_list_sort">
-        <li class="curr">热门</li>
-        <li>最新</li>
+        <li class="curr" sn-tap="this.sortBy('VIEW')">热门</li>
+        <li sn-tap="this.sortBy('POST')">最新</li>
     </ul>
     <ul class="disc_list">
         <li sn-repeat="item in data" data-forward="/discovery/{{item.DCV_ID}}">

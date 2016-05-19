@@ -11,7 +11,8 @@ var bridge = require('bridge');
 
 module.exports = Activity.extend({
     events: {
-        'tap .js_share_activity': function() {
+        'tap .js_share_activity': function () {
+
             var self = this;
 
             bridge.wx({
@@ -22,7 +23,7 @@ module.exports = Activity.extend({
                 description: this.model.data.data.SCA_SHARE_DESC,
                 image: this.model.data.data.SCA_SHARE_PIC,
                 scene: 1
-            }, function(res) {
+            }, function (res) {
 
                 if (res.success) {
                     self.addActivityCouponAPI.setParam({
@@ -40,7 +41,7 @@ module.exports = Activity.extend({
 
     defBackUrl: '/',
 
-    onCreate: function() {
+    onCreate: function () {
         var self = this;
 
         self.swipeRightBackAction = self.route.query.from || self.route.referrer || self.defBackUrl;
@@ -59,7 +60,7 @@ module.exports = Activity.extend({
             params: {
                 id: self.route.data.id
             },
-            success: function(res) {
+            success: function (res) {
                 self.model.set({
                     data: res.data
                 });
@@ -73,21 +74,21 @@ module.exports = Activity.extend({
             params: {
                 id: 20
             },
-            success: function(res) {
+            success: function (res) {
                 if (res.success) {
-                    self.confirm(res.msg, function() {
+                    self.confirm(res.msg, function () {
                     });
                 }
             },
-            error: function() {
+            error: function () {
             }
         });
     },
 
-    onShow: function() {
+    onShow: function () {
         var self = this;
     },
 
-    onDestory: function() {
+    onDestory: function () {
     }
 });

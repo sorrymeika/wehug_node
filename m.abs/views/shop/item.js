@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function (require, exports, module) {
 
     var $ = require('$');
     var util = require('util');
@@ -10,28 +10,29 @@ define(function(require, exports, module) {
     var Size = require('components/size');
     var animation = require('animation');
     var api = require('models/base');
+    var Slider = require('widget/slider');
 
     return Activity.extend({
         events: {
-            'tap .js_buy:not(.disabled)': function() {
+            'tap .js_buy:not(.disabled)': function () {
                 var self = this;
                 this.size.show();
             },
-            'tap .js_share': function() {
+            'tap .js_share': function () {
                 this.share.show();
             },
-            'tap .js_select_size': function() {
+            'tap .js_select_size': function () {
                 this.size.show();
             }
         },
 
         className: 'pd_item_bg',
 
-        onCreate: function() {
+        onCreate: function () {
             var self = this;
             var $main = self.$('.main');
 
-            self.swipeRightBackAction = self.route.query.from || '/list';
+            self.swipeRightBackAction = self.route.query.from || self.route.referrer || self.defBackUrl;
 
             Scroll.bind($main);
 
@@ -50,7 +51,7 @@ define(function(require, exports, module) {
 
             self.size.$el.appendTo(self.$el);
 
-            self.size.on('SizeChange', function(e, item) {
+            self.size.on('SizeChange', function (e, item) {
 
                 var data = {
                     PRD_NUM: item.PRD_NUM
@@ -69,7 +70,7 @@ define(function(require, exports, module) {
                     id: self.route.data.id
                 },
                 checkData: false,
-                success: function(res) {
+                success: function (res) {
                     console.log(res.data);
                     res.data.PSV_QTY = res.psvqty;
                     self.model.set({
@@ -79,6 +80,21 @@ define(function(require, exports, module) {
                     self.size.set({
                         qty: 1,
                         data: res.data
+                    });
+
+                    if (!res.prhpic) {
+                        res.prhpic = [];
+                    }
+                    res.prhpic.unshift({
+                        PHP_PIC_M: res.data.WPP_M_PIC
+                    });
+
+                    self.slider = new Slider(self.model.refs.image, {
+                        loop: true,
+                        autoLoop: 3000,
+                        data: res.prhpic,
+                        dots: res.prhpic.length >= 1,
+                        itemTemplate: '<img width="100%" height="100%" src="<%=PHP_PIC_M%>" />'
                     });
 
                     self.share = new Share({
@@ -100,7 +116,7 @@ define(function(require, exports, module) {
             var colorAndSpec = new api.ProductColorAndSpec({
                 $el: self.$el,
                 checkData: false,
-                success: function(res) {
+                success: function (res) {
                     var color = [];
                     var spec = [];
                     for (var i = 0, len = res.data.length; i < len; i++) {
@@ -133,7 +149,7 @@ define(function(require, exports, module) {
                     prdId: this.route.data.id
                 },
                 checkData: false,
-                success: function(res) {
+                success: function (res) {
                     console.log(res);
                     self.model.set({
                         Package: res.data
@@ -144,11 +160,11 @@ define(function(require, exports, module) {
             packageRelativeAPI.load();
         },
 
-        onShow: function() {
+        onShow: function () {
             var self = this;
         },
 
-        onDestory: function() {
+        onDestory: function () {
         }
     });
 });

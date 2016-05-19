@@ -11,13 +11,13 @@ var bridge = require('bridge');
 
 module.exports = Activity.extend({
     events: {
-        'tap .js_pay:not(.disabled)': function() {
+        'tap .js_pay:not(.disabled)': function () {
             var self = this;
             var order = this.model.get('data');
 
             self.orderApi.showLoading();
 
-            setTimeout(function() {
+            setTimeout(function () {
                 self.orderApi.hideLoading();
             }, 3000);
 
@@ -31,7 +31,7 @@ module.exports = Activity.extend({
                     spUrl: api.API.prototype.baseUri + '/AlipayApp/Pay',
                     orderCode: order.PUR_CODE
 
-                }, function(res) {
+                }, function (res) {
                     sl.tip(res.msg);
                     self.orderApi.hideLoading();
                 });
@@ -44,7 +44,7 @@ module.exports = Activity.extend({
                     orderCode: order.PUR_CODE,
                     orderName: 'ABS商品',
                     orderPrice: order.PUR_AMOUNT
-                }, function(res) {
+                }, function (res) {
                     sl.tip(res.msg);
                     self.orderApi.hideLoading();
                 });
@@ -52,7 +52,7 @@ module.exports = Activity.extend({
         }
     },
 
-    onCreate: function() {
+    onCreate: function () {
         var self = this;
         var $main = self.$('.main');
 
@@ -75,7 +75,7 @@ module.exports = Activity.extend({
                 UserID: self.user.ID,
                 Auth: self.user.Auth
             },
-            success: function(res) {
+            success: function (res) {
                 console.log(res);
 
                 self.model.set({
@@ -94,9 +94,9 @@ module.exports = Activity.extend({
             $el: this.$el,
             check: false,
             checkData: false,
-            success: function(res) {
+            success: function (res) {
                 if (res.status != 2) {
-                    self.timer = setTimeout(function() {
+                    self.timer = setTimeout(function () {
                         self.checkStatus();
                     }, 2000);
 
@@ -106,9 +106,13 @@ module.exports = Activity.extend({
                 }
             }
         });
+
+        if (self.route.query.refresh) {
+            self.checkStatus();
+        }
     },
 
-    checkStatus: function() {
+    checkStatus: function () {
         var self = this;
 
         self.timer && clearTimeout(self.timer);
@@ -119,11 +123,11 @@ module.exports = Activity.extend({
         }).load();
     },
 
-    onShow: function() {
+    onShow: function () {
         var self = this;
     },
 
-    onDestory: function() {
+    onDestory: function () {
         self.timer && clearTimeout(self.timer);
     }
 });

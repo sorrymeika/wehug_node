@@ -7,3 +7,12 @@
 .head_search { position: relative; z-index: 1; }
 .head_right { font-size: 14px; }
 .searchlist li { height: 40px; color: #666; font-weight: normal; line-height:40px; border-bottom: 1px solid #ddd; background: #fff; padding-left: 10px; }
+
+.disc_list li p.tit { font-size: 18px; position: relative; }
+.disc_list li p.tit:before { content: ''; display: block; position: absolute; bottom: 0; left: 10px; right: 10px; border-bottom: 1px solid #fff;}
+.disc_list li p p { padding: 0; }
+.banner { min-height: 60px; }
+.searchhistory { height: 48px; border-bottom: 1px solid #ddd;background: #fff; color:#999; line-height: 48px; padding-left:10px; }
+.icon-clear { width: 30px; height: 30px; float: right; }
+.icon-clear:before { width: 20px; height: 25px; display: block; content: ''; background: url(icon_append.png) no-repeat 0px 0px; background-size: 30px auto; margin-top: 13px; }
+.disc_bottom ul li.curr.fav:before { background-position: -210px -150px; }

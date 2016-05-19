@@ -40,7 +40,9 @@ module.exports = Activity.extend({
         switch (type) {
             case 'order':
                 title = "支付成功";
-                component = new ShareOrder();
+                component = new ShareOrder({
+                    id: id
+                });
                 component.$el.appendTo(self.$el);
                 break;
             case 'month':

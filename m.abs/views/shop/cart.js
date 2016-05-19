@@ -96,7 +96,7 @@ define(function (require, exports, module) {
 
                 getFreight: function (bag_amount, coupon, Points, freecouponcode) {
                     var price = this.getPrice(bag_amount, coupon, Points);
-                    var freight = ((price >= 99 || freecouponcode) ? 0 : 15);
+                    var freight = ((self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || price >= 99 || freecouponcode) ? 0 : 15);
 
                     return price >= 99 ? "免邮费" : ('¥' + Math.round(freight * 100) / 100);
                 },
@@ -112,17 +112,17 @@ define(function (require, exports, module) {
 
                         if (coupon && coupon.VCT_ID == 5) {
                             price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                            freight = ((bag_amount - (Points / 100) >= 99 || freecouponcode) ? 0 : 15);
+                            freight = ((self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || bag_amount - (Points / 100) >= 99 || freecouponcode) ? 0 : 15);
                             total = Math.max(0, bag_amount + freight - couponPrice - (Points / 100));
 
                         } else {
                             price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                            total = price + ((price >= 99 || freecouponcode) ? 0 : 15);
+                            total = price + ((self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || price >= 99 || freecouponcode) ? 0 : 15);
                         }
 
                         return '¥' + (Math.round(total * 100) / 100);
-                        
-                    } else { 
+
+                    } else {
                         return '¥0';
                     }
 
@@ -223,13 +223,27 @@ define(function (require, exports, module) {
 
                     var couponCount = 0;
                     var freeCount = 0;
+                    var cpItem;
+                    var matchCoupon;
                     for (var i = 0; i < res.coupon.length; i++) {
-                        if (res.coupon[i].VCT_ID == 4) {
+                        cpItem = res.coupon[i];
+                        if (cpItem.VCT_ID == 4) {
                             freeCount++
                         } else {
                             couponCount++;
+
+                            if (self.model.data.couponcode && cpItem.CSV_CODE == self.model.data.couponcode.CSV_CODE) {
+                                matchCoupon = cpItem;
+                            }
                         }
                     }
+
+                    if (self.model.data.couponcode && ((self.model.data.couponcode.VCT_ID != 5 && !matchCoupon) || (self.model.data.couponcode.VCT_ID == 1 && self.model.data.couponcode.VCA_MIN_AMOUNT > self.model.data.bag_amount))) {
+                        self.model.set({
+                            couponcode: null
+                        });
+                    }
+
                     self.model.set({
                         freeCount: freeCount,
                         couponCount: couponCount

@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function (require, exports, module) {
 
     var $ = require('$');
     var util = require('util');
@@ -13,15 +13,15 @@ define(function(require, exports, module) {
 
     return Activity.extend({
         events: {
-            'tap .js_buy:not(.disabled)': function() {
+            'tap .js_buy:not(.disabled)': function () {
                 this.orderCreateApi.load();
             },
-            'tap .js_address': function() {
+            'tap .js_address': function () {
                 this.forward('/address?buy=1&from=' + encodeURIComponent(this.route.url));
             }
         },
 
-        onCreate: function() {
+        onCreate: function () {
             var self = this;
             var $main = self.$('.main');
 
@@ -38,7 +38,7 @@ define(function(require, exports, module) {
             });
 
             $.extend(self.model, {
-                getPrice: function(bag_amount, coupon, Points) {
+                getPrice: function (bag_amount, coupon, Points) {
                     var couponPrice = coupon && coupon.VCA_DEDUCT_AMOUNT ? coupon.VCA_DEDUCT_AMOUNT : 0;
                     if (coupon && coupon.VCT_ID == 5) {
                         couponPrice = 0;
@@ -46,17 +46,17 @@ define(function(require, exports, module) {
                     return Math.max(0, bag_amount - couponPrice - (Points / 100));
                 },
 
-                getFreight: function(bag_amount, coupon, Points, freecouponcode) {
+                getFreight: function (bag_amount, coupon, Points, freecouponcode) {
 
                     console.log(bag_amount, coupon, Points, freecouponcode);
 
                     var price = this.getPrice(bag_amount, coupon, Points);
-                    var freight = ((price >= 99 || freecouponcode) ? 0 : 15);
+                    var freight = ((self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || price >= 99 || freecouponcode) ? 0 : 15);
 
-                    return price >= 99 ? "免邮费" : ('¥' + Math.round(freight * 100) / 100);
+                    return (self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || price >= 99) ? "免邮费" : ('¥' + Math.round(freight * 100) / 100);
                 },
 
-                getTotal: function(bag_amount, coupon, Points, freecouponcode) {
+                getTotal: function (bag_amount, coupon, Points, freecouponcode) {
                     var couponPrice = coupon && coupon.VCA_DEDUCT_AMOUNT ? coupon.VCA_DEDUCT_AMOUNT : 0;
                     var total;
                     var price;
@@ -64,12 +64,12 @@ define(function(require, exports, module) {
 
                     if (coupon && coupon.VCT_ID == 5) {
                         price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                        freight = ((bag_amount - (Points / 100) >= 99 || freecouponcode) ? 0 : 15);
+                        freight = ((self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || bag_amount - (Points / 100) >= 99 || freecouponcode) ? 0 : 15);
                         total = Math.max(0, bag_amount + freight - couponPrice - (Points / 100));
 
                     } else {
                         price = Math.max(0, bag_amount - couponPrice - (Points / 100));
-                        total = price + ((price >= 99 || freecouponcode) ? 0 : 15);
+                        total = price + ((self.user.XPS_CTG_ID && self.user.XPS_CTG_ID >= 4 || price >= 99 || freecouponcode) ? 0 : 15);
                     }
 
                     return '¥' + (Math.round(total * 100) / 100);
@@ -82,10 +82,10 @@ define(function(require, exports, module) {
                     pspcode: self.user.PSP_CODE
                 },
                 checkData: false,
-                success: function(res) {
+                success: function (res) {
                     if (res.data && res.data[0]) {
                         self.model.set({
-                            address: util.first(res.data, function(item) {
+                            address: util.first(res.data, function (item) {
                                 return item.MBA_DEFAULT_FLAG
                             }) || res.data[0]
                         });
@@ -97,7 +97,7 @@ define(function(require, exports, module) {
             self.cart = new api.CartAPI({
                 $el: self.$el,
                 checkData: false,
-                success: function(res) {
+                success: function (res) {
                     console.log(res);
                     self.model.set(res).set({
                         loading: false
@@ -111,7 +111,7 @@ define(function(require, exports, module) {
 
             self.orderCreateApi = new api.OrderCreateAPI({
                 $el: this.$el,
-                beforeSend: function() {
+                beforeSend: function () {
                     var address = self.model.get('address');
                     if (!address) {
                         sl.tip('请填写收货地址信息');
@@ -124,7 +124,7 @@ define(function(require, exports, module) {
                     });
                 },
                 checkData: false,
-                success: function(res) {
+                success: function (res) {
                     if (res.success) {
                         sl.tip("生成订单成功！");
 
@@ -140,7 +140,7 @@ define(function(require, exports, module) {
                                     spUrl: api.API.prototype.baseUri + '/AlipayApp/Pay',
                                     orderCode: res.code
 
-                                }, function(res) {
+                                }, function (res) {
                                     sl.tip(res.msg);
                                 });
 
@@ -153,28 +153,28 @@ define(function(require, exports, module) {
                                     orderName: 'ABS商品',
                                     orderPrice: res.pur_amount
 
-                                }, function(res) {
+                                }, function (res) {
                                     sl.tip(res.msg);
                                 });
                             }
                         }
 
-                        self.forward('/order/' + res.pur_id + "?from=/myorder");
+                        self.forward('/order/' + res.pur_id + "?from=/myorder&refresh=1");
                     }
                 },
-                error: function(res) {
+                error: function (res) {
                     sl.tip(res.msg);
                 }
             });
 
-            self.onResult('useAddress', function(e, address) {
+            self.onResult('useAddress', function (e, address) {
                 self.model.set({
                     address: address
                 });
             });
         },
 
-        onShow: function() {
+        onShow: function () {
             var self = this;
             self.user = userModel.get();
 
@@ -193,7 +193,7 @@ define(function(require, exports, module) {
             self.cart.load();
         },
 
-        onDestory: function() {
+        onDestory: function () {
         }
     });
 });

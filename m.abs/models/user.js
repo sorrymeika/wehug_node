@@ -9,7 +9,7 @@ var User = {
     on: Event.on,
     trigger: Event.trigger,
     off: Event.off,
-    get: function() {
+    get: function () {
         var user = State.get('user');
         if (!user) {
             user = util.store('user');
@@ -20,7 +20,7 @@ var User = {
         return user;
     },
 
-    set: function(user) {
+    set: function (user) {
         if (user != null) {
             user = $.extend({}, User.get(), user);
         }
@@ -29,19 +29,28 @@ var User = {
         return this;
     },
 
-    setParam: function(params) {
+    setParam: function (params) {
         userApi.setParam(params);
         return this;
     },
 
-    request: function(callback, ivcode) {
+    request: function (callback, ivcode) {
         var self = this;
         var user = this.get();
+        var recordVersion = util.store('recordVersionTime');
+
+        if (!recordVersion || Date.now() - recordVersion > 24 * 60 * 60 * 1000) {
+            recordVersion = 1;
+            util.store('recordVersionTime', Date.now());
+        } else {
+            recordVersion = 0;
+        }
 
         userApi.setParam({
             UserID: user.ID,
             Auth: user.Auth,
-            ivcode: ivcode ? ivcode : ''
+            ivcode: ivcode ? ivcode : '',
+            recordVersion: recordVersion
 
         }).load(callback);
         return this;
@@ -53,13 +62,13 @@ var userApi = new api.API({
     url: '/api/user/get',
     checkData: false,
 
-    success: function(res) {
+    success: function (res) {
         if (res.success) {
             User.set(res.data);
         }
     },
 
-    error: function() {
+    error: function () {
     }
 });
 

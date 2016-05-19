@@ -19,7 +19,7 @@ module.exports = model.ViewModel.extend({
             <li sn-repeat="item in rec" data-forward="/discovery/{{item.DCV_ID}}">
                 <img src="{{item.DCV_REC_PIC}}" />
                 <p class="tit">{{ item.DCV_SUBTITLE }}</p>
-                <p class="desc">{{ item.DCV_REC_CONTENT }}</p>
+                <p class="desc" sn-html="{{item.DCV_REC_CONTENT}}"></p>
             </li>
             <li sn-repeat="item in data" data-forward="/discovery/{{item.DCV_ID}}">
                 <img src="{{item.DCV_SUBTITLE_PIC}}" />
@@ -29,7 +29,7 @@ module.exports = model.ViewModel.extend({
         </ul>
     </div>,
 
-    initialize: function() {
+    initialize: function () {
         var self = this;
         self.user = userModel.get();
 
@@ -40,7 +40,7 @@ module.exports = model.ViewModel.extend({
         var discoverTypeAPI = new api.DiscoverTypeAPI({
             showLoading: false,
 
-            success: function(res) {
+            success: function (res) {
 
                 util.store('DiscoverType', res.data)
 
@@ -49,7 +49,7 @@ module.exports = model.ViewModel.extend({
                 });
             },
 
-            error: function() {
+            error: function () {
 
             }
         });
@@ -59,7 +59,7 @@ module.exports = model.ViewModel.extend({
         var recDiscoveryAPI = new api.RecDiscoveryAPI({
             showLoading: false,
 
-            success: function(res) {
+            success: function (res) {
                 console.log(res);
 
                 self.set({
@@ -67,7 +67,7 @@ module.exports = model.ViewModel.extend({
                 })
             },
 
-            error: function() {
+            error: function () {
             }
         });
 
@@ -80,7 +80,7 @@ module.exports = model.ViewModel.extend({
                 pspcode: self.user.PSP_CODE
             },
 
-            success: function(res) {
+            success: function (res) {
 
                 discoveryModel.add(res.data);
 
@@ -89,13 +89,13 @@ module.exports = model.ViewModel.extend({
                 });
             },
 
-            append: function(res) {
+            append: function (res) {
                 if (res.data.length == 10) res.total = (this.pageIndex + 1) * parseInt(this.pageSize);
 
                 self.model.getModel('data').add(res.data);
             },
 
-            error: function() {
+            error: function () {
             }
         });
 
@@ -107,18 +107,22 @@ module.exports = model.ViewModel.extend({
             new api.ShopAPI({
                 url: '/api/discover/standtips',
                 checkData: false,
-                success: function(res) {
+                success: function (res) {
 
                     var confirm = new Confirm({
                         content: res.data
 
                     });
-                    confirm.$el.appendTo($('body'));
+                    confirm.$el.appendTo($('body')).find('img').on('load', function () {
+                        confirm.set({
+                            height: 0
+                        }).show();
+                    });
 
                     confirm.show();
                     util.store("discovery_tip", sl.appVersion);
                 },
-                error: function(res) {
+                error: function (res) {
 
                 }
             }).load();
