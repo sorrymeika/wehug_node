@@ -170,13 +170,13 @@ $.extend(Touch.prototype, {
     _end: function (e) {
         var self = this;
 
-         if ((!self.isTouchMoved || self.isTouchStop) && self._isClickStopAni) {
+        if ((!self.isTouchMoved || self.isTouchStop) && self._isClickStopAni) {
             if (self.shouldBounceBack()) {
                 self.bounceBack();
             }
             self._stop();
             e.cancelTap = true;
-            console.log('cancelTap',e.cancelTap)
+            console.log('cancelTap', e.cancelTap)
             return;
         }
 
@@ -211,10 +211,14 @@ $.extend(Touch.prototype, {
             changeX = point.pageX - (self.prevPointX || self.oldPointX);
             changeY = point.pageY - (self.prevPointY || self.oldPointY);
 
+            changeY = changeY > 80 ? 80 : changeY < -80 ? -80 : changeY;
+
             distX = changeX * Math.abs(changeX) / -4;
             distY = changeY * Math.abs(changeY) / -4;
 
-            duration = Math.max(Math.abs(changeX), Math.abs(changeY), 10) * 100;
+            distY *= 1.2;
+
+            duration = Math.max(Math.abs(changeX), Math.abs(changeY), 10) * 60;
         }
 
         console.log(distY)
@@ -240,8 +244,8 @@ $.extend(Touch.prototype, {
 
         if (distX || distY) {
 
-            !duration && (duration = 200) || self.options.maxDuration && duration > self.options.maxDuration && (duration = self.options.maxDuration); 
-            
+            !duration && (duration = 200) || self.options.maxDuration && duration > self.options.maxDuration && (duration = self.options.maxDuration);
+
             //惯性移动
             self.momentum = animation.animate(function (d, current, duration) {
                 d = cb.get(current / duration);
