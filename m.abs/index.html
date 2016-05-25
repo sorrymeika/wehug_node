@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html>
+
 <head>
     <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
     <meta charset="utf-8" />
@@ -10,12 +11,19 @@
     <title></title>
     @html(style)
     <style>
-        .viewport.applaunch { background: url(images/launch101.jpg) no-repeat center top; background-size: auto 100%; }
-        @@media screen and (max-height:480px) {
-            .viewport.applaunch { background-image: url(images/launch101_480.jpg); }
+        .viewport.applaunch {
+            background: url(images/launch101.jpg) no-repeat center top;
+            background-size: auto 100%;
+        }
+        
+        @@media screen and (max-height: 480px) {
+            .viewport.applaunch {
+                background-image: url(images/launch101_480.jpg);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="viewport applaunch js_global_launch"></div>
     <div class="viewport js_global_offline" style="display:none;z-index:1000;">
@@ -78,7 +86,7 @@
                     seajs.on('fetch', function (emitData) {
                         var id = emitData.uri.replace(seajs.data.base, '').replace(/\.js(\?.*)*/, '');
                         
-                        
+                        /**/if (resourceMapping&&resourceMapping[id]) emitData.requestUri = resourceMapping[id];
                     });
                     seajs.on("error", function(errorData){
                         errorData.pause=true;
@@ -99,4 +107,5 @@
         });
     </script>
 </body>
+
 </html>

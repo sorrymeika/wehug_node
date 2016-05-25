@@ -8,8 +8,8 @@
 
         <dl sn-repeat="item in data|filter:contains(item.name,name)">
             <dt>{{item.name}}</dt>
-            <dd sn-repeat="p in children">{{p.name}}
-                <p>{{p.id}}</p>
+            <dd sn-repeat="p,j in children">{{p.name}}
+                <p>{{p.id}}|{{j}}</p>
                 <p>{{p.content}}</p>{{item.name}}
                 <p sn-repeat="c in p.children" style="color:#f90">{{c.name}}</p>
             </dd>

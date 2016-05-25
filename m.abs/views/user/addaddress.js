@@ -195,7 +195,7 @@ module.exports = Activity.extend({
                 if (self.route.query.buy) {
                     var addr = self.model.get('address');
                     self.setResult('useAddress', {
-                        AddressID: addr.mbaId,
+                        AddressID: addr.mbaId || res.data,
                         MBA_CTY_ID: addr.mbaCtyId,
                         MBA_REG_ID: addr.mbaRegId,
                         MBA_NAME: addr.mbaName,

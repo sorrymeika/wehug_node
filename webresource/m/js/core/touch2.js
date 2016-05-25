@@ -212,11 +212,11 @@ $.extend(Touch.prototype, {
             changeY = point.pageY - (self.prevPointY || self.oldPointY);
 
             changeY = changeY > 80 ? 80 : changeY < -80 ? -80 : changeY;
+            changeX = changeX > 80 ? 80 : changeX < -80 ? -80 : changeX;
 
-            distX = changeX * Math.abs(changeX) / -4;
-            distY = changeY * Math.abs(changeY) / -4;
+            distX = (changeX * Math.abs(changeX) / -4) * 1.2;
+            distY = (changeY * Math.abs(changeY) / -4) * 1.2;
 
-            distY *= 1.2;
 
             duration = Math.max(Math.abs(changeX), Math.abs(changeY), 10) * 60;
         }

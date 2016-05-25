@@ -28,6 +28,8 @@ module.exports = Activity.extend({
         console.log(now);
 
         var data = {
+            back: self.swipeRightBackAction,
+            title: '标题',
             data: [{
                 name: '1234',
                 children: [{
@@ -37,7 +39,7 @@ module.exports = Activity.extend({
             children: []
         };
 
-        for (var i = 0; i < 10; i++) {
+        for (var i = 0; i < 100; i++) {
             data.data.push({
                 name: 'nn' + i,
                 children: [{
@@ -56,11 +58,7 @@ module.exports = Activity.extend({
             });
         }
 
-        self.model = new model.ViewModel(this.$el, {
-            back: self.swipeRightBackAction,
-            title: '标题',
-            data: [{ name: '' }]
-        });
+        self.model = new model.ViewModel(this.$el, {});
 
         self.model.set(data);
 

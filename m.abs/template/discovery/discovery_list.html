@@ -11,7 +11,7 @@
         <li sn-repeat="item in data" data-forward="/discovery/{{item.DCV_ID}}">
             <img src="{{item.DCV_SUBTITLE_PIC}}" />
             <em class="see">{{item.DCV_VIEW_QTY}}</em>
-            <em class="fav">{{item.DCV_LIKE_QTY}}</em>
+            <em class="fav{{item.Like_Flag?' curr':''}}">{{item.DCV_LIKE_QTY}}</em>
         </li>
     </ul>
 </div>
