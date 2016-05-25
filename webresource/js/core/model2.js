@@ -7,6 +7,7 @@
 
     var eventsCache = [];
     var changeEventsTimer;
+    var elementId = 0;
 
     var snEvents = ['tap', 'click', 'change', 'focus', 'blur', 'transition-end'];
     var snGlobal = ['this', '$', 'Math', 'new', 'Date', 'encodeURIComponent', 'window', 'document'];
@@ -322,6 +323,12 @@
                 }
             }
             return true;
+        },
+
+        _pushNode: function (source, node) {
+            var id = source.snElementId || (source.snElementId = ++elementId);
+
+            (this._elements[id] || (this._elements[id] = [])).push(node);
         }
     }
     ModelProto.reset = ModelProto.clear;
@@ -549,10 +556,13 @@
                     node.bindings = el.bindings;
 
                     if (model) {
-                        node._origin = el._origin;
-                        el._origin._elements.push(node);
-                        (model._elements[el._origin] || (model._elements[el._origin] = []).push(node);
-                        model.root._render(node);
+                        (node._origin = el._origin)._elements.push(node);
+
+                        model.root.upperRepeatEl(node, function (elem) {
+
+                            elem.snModel._pushNode(el._origin, node);
+
+                        })._render(node);
 
                     } else {
                         //SNRepeat实例化时cloneNode执行
@@ -581,6 +591,7 @@
             return this;
         },
         remove: function (start, count) {
+            var self = this;
             if (typeof start == 'function') {
                 for (var i = this.elements.length - 1; i >= 0; i--) {
                     var item = this.elements[i];
@@ -590,9 +601,9 @@
                     }
                 }
             } else {
-                this.elements.splice(start, count || 1).forEach((function (item) {
-                    this._removeEl(item.el);
-                }).bind(this));
+                this.elements.splice(start, count || 1).forEach(function (item) {
+                    self._removeEl(item.el);
+                });
             }
             return this;
         },
@@ -676,8 +687,8 @@
 
     Collection.prototype._triggerChangeEvent = function () {
         if (!this._silent) {
-            this.root._triggerChangeEvent(this.key)
-                ._triggerChangeEvent(this.key + '/length');
+            this.root._triggerChangeEvent(this.key, this)
+                ._triggerChangeEvent(this.key + '/length', this);
         }
     }
 
@@ -759,6 +770,7 @@
         this.fns = [];
         this.refs = {};
         this.root = this;
+        this._elements = {};
 
         el && this.bind(el);
 
@@ -880,7 +892,7 @@
             }
         },
 
-        _render: function (el, attribute, $data) {
+        _render: function (el, attribute) {
             var self = this;
             if (el.bindings) {
                 var attrs;
@@ -945,8 +957,16 @@
                 }
             }
         },
+
+        _renderEls: function (elements, attr) {
+            for (var i = 0, n = elements && elements.length; i < n; i++) {
+                this._render(elements[i], attr);
+            }
+
+        },
         _bindAttr: function (node, attr, expression, repeat) {
             var self = this;
+            var elements;
 
             if (!rmatch.test(expression)) return;
 
@@ -954,28 +974,25 @@
                 if (!repeat) {
                     self._render(node, attr);
 
-                } else {
-                    var isArray = $.isArray(model);
+                } else if (model instanceof Model) {
+                    elements = (model == self || model.under()) ? node._elements : model._elements[node.snElementId];
 
-                    console.log(node._elements.length, model);
+                    self._renderEls(elements);
 
-                    for (var el, i = 0, n = node._elements.length; i < n; i++) {
-                        el = node._elements[i];
+                } else if (model instanceof Collection) {
+                    for (var i = 0, n = model.models.length; i < n; i++) {
 
-                        if (isArray ? self.upperRepeatEl(el, function (el) {
-                            if (model.indexOf(el) != -1) return true;
+                        elements = model.models[i]._elements[node.snElementId];
 
-                        }, false) : (model == this || model.under() || self.upperRepeatEl(el, function (el) {
-                            if (el.snModel == model || el.snModel.contains(model, true)) {
-                                console.log(el.snModel == model);
-                                return true;
-                            }
+                        self._renderEls(elements);
+                    }
+                } else if ($.isArray(model)) {
+                    for (var el, i = 0, n = model.length; i < n; i++) {
+                        el = model[i];
 
-                        }, false))) {
+                        elements = el.snModel._elements[node.snElementId];
 
-
-                            self._render(el, attr);
-                        }
+                        self._renderEls(elements);
                     }
                 }
             });
