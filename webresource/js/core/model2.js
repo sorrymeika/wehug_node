@@ -25,7 +25,7 @@
         if (repeat) {
             code += ',{';
             for (var parent = repeat.parent, current = repeat; parent != null; current = parent, parent = parent.parent) {
-                code += parent.alias + ':' + (current.isChild ? 'model.closest(\'' + parent.collectionName + '^child\').data' : 'root.eachRepeat(el,function(rp,md){ if (rp.repeat.alias == "' + parent.alias + '") return md.data; },null)') + ',';
+                code += parent.alias + ':' + (current.isChild ? 'model.closest(\'' + parent.collectionName + '^child\').data' : 'root.upperRepeatEl(el,function(el){ if (el.snRepeat.repeat.alias == "' + parent.alias + '") return el.snModel.data; },null)') + ',';
 
                 if (parent.indexAlias) {
                     code += parent.indexAlias + ':function(){ for (var node=el;node!=null;node=node.parentNode) { if (node.snIndexAlias=="' + parent.indexAlias + '") return node.snIndex } return ""},';
@@ -104,6 +104,7 @@
         this.model = {};
         this.parent = parent;
         this.root = parent.root;
+        this._elements = {};
 
         this.set(data);
     }
@@ -149,8 +150,8 @@
                 changed,
                 attrs,
                 model = self.model,
-                parent;
-            var keys;
+                parent,
+                keys;
 
             if (cover !== true)
                 val = key, key = cover, cover = false;
@@ -255,6 +256,7 @@
 
             if (!changeEventsTimer) {
                 changeEventsTimer = setTimeout(function () {
+                    var now = Date.now();
 
                     var roots = [];
 
@@ -274,6 +276,8 @@
                     roots.forEach(function (root) {
                         root.trigger("viewDidUpdate");
                     });
+
+                    console.log(Date.now() - now);
 
                 }, 0);
             }
@@ -469,7 +473,7 @@
             }
 
             var prevEl;
-            var indexChange;
+            var changedEls = [];
 
             this.elIndex = 0;
 
@@ -493,7 +497,7 @@
 
                     if (repeat.indexAlias && el.snIndex !== this.elIndex) {
                         el.snIndex = this.elIndex;
-                        indexChange = true;
+                        changedEls.push(el);
                     }
                     this.elIndex++;
 
@@ -502,8 +506,10 @@
                 }
             }
 
-            if (indexChange) {
-                root._triggerChangeEvent(repeat.collectionName + '/' + repeat.alias + '/' + repeat.indexAlias);
+            if (changedEls.length) {
+                console.log(changedEls.length);
+
+                root._triggerChangeEvent(repeat.collectionName + '/' + repeat.alias + '/' + repeat.indexAlias, changedEls);
             }
 
             if (fragment.childNodes.length) parentNode.insertBefore(fragment, this.replacement);
@@ -545,6 +551,7 @@
                     if (model) {
                         node._origin = el._origin;
                         el._origin._elements.push(node);
+                        (model._elements[el._origin] || (model._elements[el._origin] = []).push(node);
                         model.root._render(node);
 
                     } else {
@@ -709,8 +716,10 @@
 
     Collection.prototype.set = function (data) {
         this._silent = true;
+
         if (!data || data.length == 0) {
             this.clear();
+
         } else {
             var modelsLen = this.models.length;
 
@@ -946,13 +955,25 @@
                     self._render(node, attr);
 
                 } else {
-                    for (var i = 0; i < node._elements.length; i++) {
-                        var el = node._elements[i];
+                    var isArray = $.isArray(model);
 
-                        if (model == this || model.under() || self.eachRepeat(el, function (snRepeat, snModel) {
-                            if (snModel == model || snModel.contains(model, true))
+                    console.log(node._elements.length, model);
+
+                    for (var el, i = 0, n = node._elements.length; i < n; i++) {
+                        el = node._elements[i];
+
+                        if (isArray ? self.upperRepeatEl(el, function (el) {
+                            if (model.indexOf(el) != -1) return true;
+
+                        }, false) : (model == this || model.under() || self.upperRepeatEl(el, function (el) {
+                            if (el.snModel == model || el.snModel.contains(model, true)) {
+                                console.log(el.snModel == model);
                                 return true;
-                        }, false)) {
+                            }
+
+                        }, false))) {
+
+
                             self._render(el, attr);
                         }
                     }
@@ -961,8 +982,8 @@
         },
 
         _closestByEl: function (el) {
-            return this.eachRepeat(el, function (snRepeat, snModel) {
-                return snModel;
+            return this.upperRepeatEl(el, function (el) {
+                return el.snModel;
             });
         },
 
@@ -976,8 +997,8 @@
             } else if (alias == "$state")
                 return self.$state;
 
-            return this.eachRepeat(el, function (snRepeat, snModel) {
-                if (snRepeat.repeat.alias == alias)
+            return this.upperRepeatEl(el, function (el) {
+                if (el.snRepeat.repeat.alias == alias)
                     return snModel;
             });
         },
@@ -993,14 +1014,14 @@
             model.set(model == this || model == self.$state ? name : name.replace(/^[^\.]+\./, ''), value);
         },
 
-        eachRepeat: function (el, fn, ret) {
+        upperRepeatEl: function (el, fn, ret) {
 
             while (el) {
                 if (el.snRepeatNode)
                     el = el.snRepeatNode;
 
                 if (el.snModel && el.snRepeat) {
-                    if ((val = fn(el.snRepeat, el.snModel)) !== undefined) return val;
+                    if ((val = fn(el)) !== undefined) return val;
 
                     el = el.snReplacement;
 

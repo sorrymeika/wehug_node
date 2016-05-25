@@ -39,7 +39,7 @@ module.exports = Activity.extend({
             children: []
         };
 
-        for (var i = 0; i < 100; i++) {
+        for (var i = 0; i < 10; i++) {
             data.data.push({
                 name: 'nn' + i,
                 children: [{
@@ -59,6 +59,27 @@ module.exports = Activity.extend({
         }
 
         self.model = new model.ViewModel(this.$el, {});
+
+        self.model.set(data);
+
+        for (var i = 0; i < 100; i++) {
+            data.data.push({
+                name: 'nn' + i,
+                children: [{
+                    name: 'tt' + i
+                }]
+            });
+
+            data.children.push({
+                name: 'cc' + i,
+                content: 'asdf',
+                children: [{
+                    name: 'bb' + i
+                }, {
+                        name: 'oo' + i
+                    }]
+            });
+        }
 
         self.model.set(data);
 
