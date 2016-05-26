@@ -22,6 +22,7 @@
     //   li:has(label:contains("foo")) + li:has(label:contains("bar"))
     //   ul.inner:first > li
     var filters = $.expr[':'] = {
+        text: function () { if (this.type === 'text') return this },
         visible: function () { if (visible(this)) return this },
         hidden: function () { if (!visible(this)) return this },
         selected: function () { if (this.selected) return this },
