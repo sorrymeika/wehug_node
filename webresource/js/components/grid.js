@@ -764,7 +764,7 @@
 
                     if (option.type == "calendar") {
                         input = $('<input name="' + name + '" class="' + option.className + '" type="text"/>');
-                        seajs.use(['./components/jquery.datepicker', './components/jquery.datepicker.css'], function () {
+                        seajs.use(['./components/datepicker'], function () {
                             input.datePicker($.extend(option.options, {
                                 clickInput: true
                             }));
