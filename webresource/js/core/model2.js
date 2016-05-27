@@ -152,7 +152,8 @@
                 attrs,
                 model = self.model,
                 parent,
-                keys;
+                keys,
+                coverChild = false;
 
             if (typeof cover != "boolean")
                 val = key, key = cover, cover = false;
@@ -175,34 +176,20 @@
                 return this;
 
             } else {
-                var sourceModel;
-
+                cover = false;
+                coverChild = true;
                 attrs = {};
-                console.log(key);
                 keys = key.split('.');
                 if (keys.length > 1) {
                     var lastKey = keys.pop();
-                    var lastData;
-                    sourceModel = this.getModel(keys);
-                    if (sourceModel) {
-                        sourceModel.set(cover, lastKey, val);
-                        return;
-
-                    } else {
-                        lastData = attrs;
-                        for (var i = 0, len = keys.length, prev; i < len; i++) {
-                            key = keys[i];
-                            lastData = lastData[key] = {};
-                        }
-                        lastData[lastKey] = val;
+                    var lastData = attrs;
+                    for (var i = 0, len = keys.length, prev; i < len; i++) {
+                        key = keys[i];
+                        lastData = lastData[key] = {};
                     }
+                    lastData[lastKey] = val;
 
                 } else {
-                    sourceModel = this.model[key];
-                    if (sourceModel instanceof Model) {
-                        sourceModel.set(cover, key, val);
-                        return;
-                    }
                     attrs[key] = val;
                 }
             }
@@ -225,7 +212,7 @@
                 if (origin !== value) {
 
                     if (origin instanceof Model) {
-                        value === null || value === undefined ? origin.clear() : origin.set(value);
+                        value === null || value === undefined ? origin.clear() : origin.set(coverChild, value);
 
                     } else if (origin instanceof Collection) {
                         if (!$.isArray(value)) {
