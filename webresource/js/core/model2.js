@@ -176,21 +176,24 @@
                 return this;
 
             } else {
-                cover = false;
-                coverChild = true;
-                attrs = {};
                 keys = key.split('.');
                 if (keys.length > 1) {
                     var lastKey = keys.pop();
-                    var lastData = attrs;
                     for (var i = 0, len = keys.length, prev; i < len; i++) {
                         key = keys[i];
-                        lastData = lastData[key] = {};
+                        model = model[key];
+
+                        if (!(model instanceof Model)) {
+                            model = model[key] = new Model(this, key, {});
+                        }
                     }
-                    lastData[lastKey] = val;
+                    model.set(cover, lastKey, val);
+                    return;
 
                 } else {
-                    attrs[key] = val;
+                    coverChild = cover;
+                    cover = false;
+                    (attrs = {})[key] = val;
                 }
             }
             if (!$.isPlainObject(this.data)) this.data = {};
@@ -212,7 +215,7 @@
                 if (origin !== value) {
 
                     if (origin instanceof Model) {
-                        value === null || value === undefined ? origin.clear() : origin.set(coverChild, value);
+                        value === null || value === undefined ? origin.reset() : origin.set(coverChild, value);
 
                     } else if (origin instanceof Collection) {
                         if (!$.isArray(value)) {
