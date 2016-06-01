@@ -101,7 +101,7 @@ module.exports = Activity.extend({
                     }, 2000);
 
                 } else if (res.status == 2) {
-                    self.forward("/news/order" + self.route.query.id);
+                    self.forward("/news/order" + self.route.data.id);
                     self.model.set('data.PUR_PAS_ID', 2);
                 }
             }

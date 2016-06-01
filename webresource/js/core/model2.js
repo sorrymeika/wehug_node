@@ -179,7 +179,7 @@
                 keys = key.split('.');
                 if (keys.length > 1) {
                     var lastKey = keys.pop();
-                    for (var i = 0, len = keys.length, prev; i < len; i++) {
+                    for (var i = 0, len = keys.length; i < len; i++) {
                         key = keys[i];
                         model = model[key];
 
@@ -292,7 +292,7 @@
             return this;
         },
 
-        clear: function () {
+        reset: function () {
 
             var data = {};
             for (var attr in this.data) {
@@ -337,7 +337,7 @@
             (this._elements[id] || (this._elements[id] = [])).push(node);
         }
     }
-    ModelProto.reset = ModelProto.clear;
+    ModelProto.clear = ModelProto.reset;
 
     Model.prototype = $.extend({}, Event, ModelProto);
 
@@ -455,11 +455,11 @@
         },
 
         _removeEl: function (el) {
-            eachElement($(el).remove(), function (child, i) {
-                if (child._origin) {
-                    var elements = child._origin._elements;
+            eachElement($(el).remove(), function (node, i) {
+                if (node._origin) {
+                    var elements = node._origin._elements;
                     for (var i = elements.length - 1; i >= 0; i--) {
-                        if (elements[i] == child) {
+                        if (elements[i] == node) {
                             elements.splice(i, 1);
                             break;
                         }
