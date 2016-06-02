@@ -40,6 +40,8 @@ var Deletion = function (options) {
     this.touch = new Touch2(options.el, {
         enableVertical: false,
         enableHorizontal: true,
+        divisorX: options.width,
+        maxDuration: 200,
         children: options.children
     });
 

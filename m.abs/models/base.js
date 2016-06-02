@@ -175,6 +175,14 @@ exports.ProductHeadAPI = ShopAPI.extend({
     }
 });
 
+
+exports.ExpressAPI = ShopAPI.extend({
+    url: '/api/shop/getexpress',
+    params: {
+        pur_code: '86342016010103750166'
+    }
+});
+
 exports.ProductAPI = ShopAPI.extend({
     url: '/api/prod/prditem',
     params: {

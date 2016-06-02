@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function (require, exports, module) {
 
     var $ = require('$');
     var util = require('util');
@@ -14,19 +14,19 @@ define(function(require, exports, module) {
 
     return Activity.extend({
         events: {
-            'tap .open_msg': function(e) {
+            'tap .open_msg': function (e) {
                 if ($(e.target).hasClass('open_msg')) {
                     $(e.target).removeClass('show');
                 }
             },
-            'tap .btn_go': function() {
+            'tap .btn_go': function () {
                 self.back('/all');
             }
         },
 
         swipeRightBackAction: '/',
 
-        onCreate: function() {
+        onCreate: function () {
             var self = this;
             var $main = this.$('.main');
 
@@ -44,14 +44,22 @@ define(function(require, exports, module) {
 
             this.wxPayApi = new api.WxPayAPI({
                 $el: self.$el,
-                success: function(res) {
+                success: function (res) {
                     console.log(res);
                     bridge.open(res.url);
                 }
             });
 
+            var expressApi = new api.ExpressAPI({
+                $el: self.$el,
+                success: function (res) {
+                },
+                error: function () {
+                }
+            });
+
             $.extend(this.model, {
-                select: function(e, type) {
+                select: function (e, type) {
                     if (!$(e.currentTarget).hasClass('curr')) {
                         $(e.currentTarget).addClass('curr').siblings('.curr').removeClass('curr');
 
@@ -75,11 +83,27 @@ define(function(require, exports, module) {
                         this.set('currentType', type)
                     }
                 },
-                showExpress: function(e, item) {
-                    item.set('showExpress', !item.showExpress);
+                showExpress: function (e, item, itemModel) {
+                    itemModel.set('showExpress', !item.showExpress);
                     e.stopPropagation();
+
+                    if (!item.express) {
+                        itemModel.set('express', []);
+
+                        expressApi.setParam({
+                            pur_code: item.PUR_CODE,
+                            pspcode: self.user.PSP_CODE
+
+                        }).load(function (err, res) {
+                            if (res && res.success) {
+                                itemModel.set('express', res.data);
+                            }
+                        });
+                    }
+
+
                 },
-                openOrder: function(e, order) {
+                openOrder: function (e, order) {
                     if ($(e.target).hasClass('btn_sml') && $(e.target).html() != '立即付款') return;
 
                     if (order.PUS_DESC == '待付款') {
@@ -90,9 +114,9 @@ define(function(require, exports, module) {
                     }
                     e.stopPropagation();
                 },
-                cancelOrder: function(e, order) {
+                cancelOrder: function (e, order) {
 
-                    self.confirm('你确定取消订单吗？', function() {
+                    self.confirm('你确定取消订单吗？', function () {
                         self.cancelOrderApi.setParam({
                             purcode: order.PUR_CODE
 
@@ -101,7 +125,7 @@ define(function(require, exports, module) {
                     e.stopPropagation();
                     e.preventDefault();
                 },
-                openPrd: function(e, prd, order) {
+                openPrd: function (e, prd, order) {
                     e.stopPropagation();
                     if (order.PUS_DESC != '待付款' || e.target.tagName == "IMG") {
                         if (prd.PRD_DISCONTINUED_FLAG) {
@@ -118,7 +142,7 @@ define(function(require, exports, module) {
                 }
             })
 
-            self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function(e) {
+            self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function (e) {
                 if (!self.$open_msg.hasClass('show')) {
                     self.$open_msg.hide();
                 }
@@ -128,13 +152,13 @@ define(function(require, exports, module) {
                 url: "/api/order/list",
                 $el: this.$el,
                 checkData: false,
-                success: function(res) {
+                success: function (res) {
                     self.model.set({
                         isLoading: false,
                         data: res.data
                     });
                 },
-                append: function(res) {
+                append: function (res) {
                     self.model.getModel('data').add(res.data);
                 }
             });
@@ -146,7 +170,7 @@ define(function(require, exports, module) {
 
             }).load();
 
-            self.onResult("OrderChange", function() {
+            self.onResult("OrderChange", function () {
                 self.loading.reload();
             });
 
@@ -156,7 +180,7 @@ define(function(require, exports, module) {
                 params: {
                     pspcode: self.user.PSP_CODE
                 },
-                success: function(res) {
+                success: function (res) {
                     if (res.success) {
                         sl.tip('订单已成功取消');
                         self.loading.reload();
@@ -165,7 +189,7 @@ define(function(require, exports, module) {
                         self.setResult("UserChange");
                     }
                 },
-                error: function(res) {
+                error: function (res) {
                     sl.tip(res.msg);
                 }
             });
@@ -173,11 +197,11 @@ define(function(require, exports, module) {
 
         },
 
-        onShow: function() {
+        onShow: function () {
             var self = this;
         },
 
-        onDestory: function() {
+        onDestory: function () {
             var self = this;
             self.timer && clearTimeout(self.timer);
         }
