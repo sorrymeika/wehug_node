@@ -1022,7 +1022,7 @@
 
             return this.upperRepeatEl(el, function (el) {
                 if (el.snRepeat.repeat.alias == alias)
-                    return snModel;
+                    return el.snModel;
             });
         },
         _getVal: function (model, name) {
