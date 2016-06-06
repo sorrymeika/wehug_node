@@ -132,7 +132,7 @@ define(function (require, exports, module) {
                             .setResult('ResetCart')
                             .setResult('UserChange');
 
-                        if (self.model.refs.total.innerHTML != '¥0') {
+                        if (res.pur_amount != 0) {
 
                             if (self.model.get('payType') == 1) {
                                 bridge.ali({
