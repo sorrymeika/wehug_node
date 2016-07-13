@@ -51,10 +51,6 @@ module.exports = Activity.extend({
             error: function () {
             }
         });
-    },
-
-    onUpdate: function () {
-        var self = this;
 
         self.discoverListAPI.setParam({
             dctid: this.route.data.id || 0,
@@ -64,6 +60,12 @@ module.exports = Activity.extend({
             order: 'VIEW'
 
         }).load();
+    },
+
+    onEnter: function () {
+        var self = this;
+
+        
     },
 
     onDestory: function () {

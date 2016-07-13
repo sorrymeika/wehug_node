@@ -10,6 +10,14 @@
     var Activity = Page.extend({
         toggleAnim: 'def',
 
+        initialize: function () {
+            this.on('Create', this.onHtmlLoad);
+            this.on('Show', this._onShow);
+            this.on('Destroy', this._onDestroy);
+
+            Page.prototype.initialize.apply(this, arguments);
+        },
+
         onHtmlLoad: function () {
             var that = this;
 
@@ -23,30 +31,24 @@
             that._hasUpdate = false;
         },
 
-        _onUpdate: function () {
+        _onShow: function () {
             this.onLoad && this.onLoad();
 
             if (!this._hasUpdate || this.isForward) {
-                this.trigger('Update');
-                this.onUpdate && this.onUpdate();
+                this.trigger('Enter');
+                this.onEnter && this.onEnter();
             }
             this._hasUpdate = true;
         },
 
-        initialize: function () {
-            this.on('Create', this.onHtmlLoad);
-            this.on('Show', this._onUpdate);
-            this.on('Destroy', this._onDestroy);
 
-            Page.prototype.initialize.apply(this, arguments);
-        },
         _onDestroy: function () {
             if (this._scrolls) this._scrolls.destory();
             this.application.remove(this.url);
         },
 
         isExiting: false,
-        startExit: function () {
+        _startExit: function () {
             var that = this;
             if (that.isExiting) return;
             that.isExiting = true;
@@ -59,7 +61,7 @@
             that.$el.removeClass('active');
         },
 
-        finishEnterAnimation: function () {
+        _enterAnimationEnd: function () {
             var that = this;
             that.application.mask.hide();
 

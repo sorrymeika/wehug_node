@@ -4,7 +4,7 @@ define(function (require, exports, module) {
     var util = require('util');
     var Activity = require('activity');
     var Loading = require('../widget/loading');
-    var model = require('../core/model');
+    var model = require('../core/model2');
     var Scroll = require('../widget/scroll');
     var animation = require('animation');
 
@@ -43,7 +43,7 @@ define(function (require, exports, module) {
                     self.model.set("data", res.data);
                 },
                 append: function (res) {
-                    self.model.get('data').append(res.data);
+                    self.model.getModel('data').add(res.data);
                 }
             });
         },

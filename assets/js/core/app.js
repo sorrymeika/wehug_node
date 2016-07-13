@@ -204,7 +204,7 @@
                 that._currentActivity=that.swipeActivity;
                 that.navigate(activity.url);
 
-                activity.finishEnterAnimation();
+                activity._enterAnimationEnd();
 
                 if(that.isSwipeOpen) {
                     activity.referrer=currentActivity.url;
@@ -392,7 +392,7 @@
 
                 anim.finish=function () {
                     callback&&callback(activity);
-                    activity.finishEnterAnimation();
+                    activity._enterAnimationEnd();
                     that.turning();
                     //console.log(that._history);
                 }

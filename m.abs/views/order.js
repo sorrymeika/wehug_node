@@ -83,7 +83,7 @@ module.exports = Activity.extend({
                 })
 
                 if (res.data.PUR_PAS_ID == 2) {
-                    self.forward("/news/order" + self.route.query.id);
+                    self.forward("/news/order" + self.route.data.id);
                 }
             }
         });

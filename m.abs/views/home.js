@@ -68,7 +68,10 @@ module.exports = Activity.extend({
                 if (index == 1) {
                     if (!this.model.data.baiduMap) {
                         this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html?v4") + '" frameborder="0" ></iframe>');
-                        this.$baiduMap = this.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
+
+                        setTimeout(function () {
+                            self.$baiduMap = self.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
+                        }, 0)
                     }
 
                     bridge.getLocation(function (res) {

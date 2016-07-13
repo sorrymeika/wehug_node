@@ -46,7 +46,7 @@
     }
 
     var adjustActivity = function (currentActivity, activity) {
-        currentActivity.startExit();
+        currentActivity._startExit();
         currentActivity.$el.siblings('.view:not([data-path="' + activity.path + '"])').hide();
         if (activity.el.parentNode === null) activity.$el.appendTo(currentActivity.application.el);
     };
@@ -143,7 +143,7 @@
                                 that._currentActivity = that.swipeActivity;
                                 that.navigate(activity.url, that.isSwipeOpen);
 
-                                activity.finishEnterAnimation();
+                                activity._enterAnimationEnd();
 
                                 if (that.isSwipeOpen) {
                                     activity.referrer = currentActivity.url;
@@ -351,7 +351,7 @@
                 }
 
                 var finish = function () {
-                    activity.finishEnterAnimation();
+                    activity._enterAnimationEnd();
                     callback && callback(activity);
                     that.queue.resolve();
                 };

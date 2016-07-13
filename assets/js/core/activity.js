@@ -49,7 +49,7 @@
             application.mask.show();
         },
 
-        finishEnterAnimation: function () {
+        _enterAnimationEnd: function () {
             var that=this;
             that.application.mask.hide();
 

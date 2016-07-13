@@ -64,7 +64,7 @@ module.exports = Activity.extend({
                 self.model.set({
                     users: res.data,
                     user: res.user
-                })
+                });
             }
         });
         couponUserAPI.load();
