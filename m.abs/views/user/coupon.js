@@ -16,7 +16,9 @@ define(function(require, exports, module) {
 
         var count = items.length;
         var index = count - 1;
-        items.parent().css({ height: 100 * count });
+        items.parent().css({
+            height: 100 * count
+        });
         items.each(function(j, item) {
             item.style.zIndex = j;
         });
@@ -158,8 +160,8 @@ define(function(require, exports, module) {
                         }
                         self.share.set({
                             linkURL: res.url,
-                            title: 'ABS优惠券分享',
-                            description: 'ABS优惠券分享'
+                            title: '两情相悦就送券！',
+                            description: item.VCA_NAME
 
                         }).show();
                     } else {
@@ -180,15 +182,13 @@ define(function(require, exports, module) {
                 checkData: false,
                 success: function(res) {
                     if (res.closeNumber) {
-                        self.confirm("您有" + res.closeNumber + '张优惠券马上就要过期啦，<br>尽快使用哦', function() {
-                        });
+                        self.confirm("您有" + res.closeNumber + '张优惠券马上就要过期啦，<br>尽快使用哦', function() {});
                     }
 
                     if (!res || !res.data || res.data.length == 0) {
                         self.model.set("data", []);
                         self.model.set("data1", []);
-                    }
-                    else {
+                    } else {
                         var data = util.find(res.data, function(item) {
                             return item.VCA_VCT_ID != 4;
                         });
@@ -243,7 +243,6 @@ define(function(require, exports, module) {
             }
         },
 
-        onDestory: function() {
-        }
+        onDestory: function() {}
     });
 });

@@ -22,38 +22,38 @@ Model.State.set({
 var cartQtyApi = new api.CartQtyAPI({
     $el: $(''),
     checkData: false,
-    success: function (res) {
+    success: function(res) {
         Model.State.set({
             cartQty: res.data
         });
     },
-    error: function () {
-    }
+    error: function() {}
 });
 
 module.exports = Activity.extend({
     events: {
-        'tap .head_tab li': function (e) {
+        'tap .head_tab li': function(e) {
             this.model.set('tab', $(e.target).index());
         },
-        'tap .home_tip_mask': function (e) {
+        'tap .home_tip_mask': function(e) {
             util.store('showTipStep', 2);
-            this.model.set({ showTipStep: 2 });
+            this.model.set({
+                showTipStep: 2
+            });
         },
-        'tap .open_msg': function (e) {
+        'tap .open_msg': function(e) {
             if ($(e.target).hasClass('open_msg')) {
                 $(e.target).removeClass('show');
             }
         },
-        'tap .js_offline .btn': function () {
+        'tap .js_offline .btn': function() {
             this.requestUser();
         },
-        'tap .js_comment_list [data-id]': function (e) {
-        },
-        'tap .rainbow_bd': function (e) {
+        'tap .js_comment_list [data-id]': function(e) {},
+        'tap .rainbow_bd': function(e) {
             this.$('.footer li').eq(3).trigger('tap');
         },
-        'tap .footer li': function (e) {
+        'tap .footer li': function(e) {
             var self = this;
             var $target = $(e.currentTarget);
             var index = $target.index();
@@ -69,12 +69,15 @@ module.exports = Activity.extend({
                     if (!this.model.data.baiduMap) {
                         this.model.set('baiduMap', '<iframe class="js_baidu_map" src="' + bridge.url("/baiduMap.html?v4") + '" frameborder="0" ></iframe>');
 
-                        setTimeout(function () {
-                            self.$baiduMap = self.$('.js_baidu_map').css({ width: window.innerWidth, height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0) });
-                        }, 0)
+                        setTimeout(function() {
+                            self.$baiduMap = self.$('.js_baidu_map').css({
+                                width: window.innerWidth,
+                                height: window.innerHeight - 47 - 44 - (util.isInApp ? 20 : 0)
+                            });
+                        }, 16)
                     }
 
-                    bridge.getLocation(function (res) {
+                    bridge.getLocation(function(res) {
                         self.$baiduMap[0].src = bridge.url("/baiduMap.html?v3#longitude=" + res.longitude + "&latitude=" + res.latitude);
                     });
 
@@ -89,7 +92,7 @@ module.exports = Activity.extend({
                     if (!self.recDiscovery) {
                         self.recDiscovery = new api.RecDiscoveryAPI({
                             $el: self.model.refs.messages,
-                            success: function (res) {
+                            success: function(res) {
                                 console.log(res);
 
                                 self.model.set({
@@ -97,8 +100,7 @@ module.exports = Activity.extend({
                                 })
                             },
 
-                            error: function () {
-                            }
+                            error: function() {}
                         });
 
                         self.recDiscovery.load();
@@ -106,7 +108,7 @@ module.exports = Activity.extend({
                 }
             }
         },
-        'touchstart .hm_tab_con': function (e) {
+        'touchstart .hm_tab_con': function(e) {
             var self = this;
 
             this.pointY = this.startY = e.touches[0].pageY;
@@ -119,7 +121,7 @@ module.exports = Activity.extend({
             this.x = !self.model.data.tab ? 0 : -window.innerWidth;
             this.x1 = !self.model.data.tab ? window.innerWidth : 0;
         },
-        'touchmove .hm_tab_con': function (e) {
+        'touchmove .hm_tab_con': function(e) {
             var self = this,
                 pointX = e.touches[0].pageX,
                 pointY = e.touches[0].pageY;
@@ -161,7 +163,7 @@ module.exports = Activity.extend({
 
             self.isTouchMoved = true;
         },
-        'touchend .hm_tab_con': function (e) {
+        'touchend .hm_tab_con': function(e) {
             var self = this;
 
             if (!self.isTouchMoved) return;
@@ -174,7 +176,7 @@ module.exports = Activity.extend({
 
             self.$tabs.css({
                 '-webkit-transition': '-webkit-transform 300ms ease-out 0ms'
-            }).each(function () {
+            }).each(function() {
                 this.clientHeight;
             });
 
@@ -186,7 +188,7 @@ module.exports = Activity.extend({
 
             return false;
         },
-        'tap .guide1': function () {
+        'tap .guide1': function() {
             this.model.set({
                 showGuide: false
             })
@@ -195,14 +197,14 @@ module.exports = Activity.extend({
 
     className: 'home',
 
-    onCreate: function () {
+    onCreate: function() {
         var self = this;
         self.user = userModel.get();
         self.$tabs = self.$('.hm_tab_con');
 
-        self.$tabs.on($.fx.transitionEnd, function () {
+        self.$tabs.on($.fx.transitionEnd, function() {
             if (self.model.data.tab == 1 && self.slider) {
-                setTimeout(function () {
+                setTimeout(function() {
                     self.slider._adjustWidth();
                 }, 400)
             }
@@ -220,16 +222,16 @@ module.exports = Activity.extend({
             tab: 0,
             bottomTab: 0,
             chartType: 0,
-            open: function () {
+            open: function() {
                 bridge.openInApp(self.user.OpenUrl || 'http://m.abs.cn');
             },
-            openUrl: function (e, url) {
+            openUrl: function(e, url) {
                 bridge.openInApp(url || 'http://m.abs.cn');
             },
             searchHistory: util.store("searchHistory")
         });
 
-        model.showSearch = function () {
+        model.showSearch = function() {
             this.set({
                 isShowSearch: true
             });
@@ -238,7 +240,7 @@ module.exports = Activity.extend({
             this.refs.searchText.focus();
         }
 
-        model.clearSearch = function () {
+        model.clearSearch = function() {
             util.store("searchHistory", null);
 
             this.set({
@@ -246,7 +248,7 @@ module.exports = Activity.extend({
             });
         }
 
-        model.hideSearch = function () {
+        model.hideSearch = function() {
             this.set({
                 isShowSearch: false
             });
@@ -261,7 +263,7 @@ module.exports = Activity.extend({
             params: {
                 id: 2
             },
-            success: function (res) {
+            success: function(res) {
                 console.log(res);
             }
         });
@@ -274,13 +276,13 @@ module.exports = Activity.extend({
                 version: sl.appVersion,
                 platform: util.ios ? 1 : 2
             },
-            success: function (res) {
+            success: function(res) {
 
                 if (res.success && res.data.AVS_UPDATE_URL) {
                     var confirm = new Confirm({
                         content: res.data.AVS_UPDATE_MSG,
                         alwaysOpen: res.data.AVS_FORCE_FLAG,
-                        confirm: function () {
+                        confirm: function() {
                             bridge.update(res.data.AVS_UPDATE_URL, res.data.AVS_VERSION);
                         }
                     });
@@ -288,14 +290,13 @@ module.exports = Activity.extend({
                     confirm.show();
                 }
             },
-            error: function () {
-            }
+            error: function() {}
         });
         update.load();
 
         this.stewardQtyApi = new api.StewardQtyAPI({
             checkData: false,
-            success: function (res) {
+            success: function(res) {
                 self.user.StewardNum = res.data;
                 userModel.set(self.user);
                 model.set('user.StewardNum', res.data);
@@ -306,7 +307,7 @@ module.exports = Activity.extend({
             url: '/api/settings/ad_list?name=launch&type=base64',
             check: false,
             checkData: false,
-            success: function (res) {
+            success: function(res) {
                 if (res && res.data && res.data.length) {
                     localStorage.setItem('LAUNCH_IMAGE', res.data[0].Src);
                 }
@@ -316,7 +317,7 @@ module.exports = Activity.extend({
 
         self.shopApi = new api.ActivityAPI({
             $el: self.$('.hm_shop'),
-            success: function (res) {
+            success: function(res) {
 
                 model.set({
                     activity: res.data,
@@ -354,7 +355,7 @@ module.exports = Activity.extend({
             url: '/api/prod/newproductlist',
             checkData: false,
             check: false,
-            success: function (res) {
+            success: function(res) {
                 if (res.success) {
                     model.set({
                         newproducts: res.data
@@ -362,13 +363,13 @@ module.exports = Activity.extend({
                 }
 
             },
-            error: function () {
+            error: function() {
 
             }
         }).load();
 
 
-        model.on('change:tab', function () {
+        model.on('change:tab', function() {
             if (this.data.tab == 1) {
                 self.scroll.get('.js_shop').imageLazyLoad();
             }
@@ -385,24 +386,23 @@ module.exports = Activity.extend({
                 data: [{
                     id: 0
                 }, {
-                        id: 1
-                    }],
-                onChange: function (index) {
-                }
+                    id: 1
+                }],
+                onChange: function(index) {}
             });
         }
 
         Scroll.bind(this.$('.main:not(.js_shop)'));
 
         this.scroll = Scroll.bind(this.$('.js_shop'), {
-            refresh: function (resolve, reject) {
-                self.shopApi.load(function () {
+            refresh: function(resolve, reject) {
+                self.shopApi.load(function() {
                     resolve();
                 });
             }
         });
 
-        self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function (e) {
+        self.$open_msg = this.$('.open_msg').on($.fx.transitionEnd, function(e) {
             if (!self.$open_msg.hasClass('show')) {
                 self.$open_msg.hide();
             }
@@ -416,7 +416,7 @@ module.exports = Activity.extend({
         this.context = canvas.getContext('2d');
 
         var $launchImgs = this.$('.launch img');
-        var $mask = this.$('.home_mask').on($.fx.transitionEnd, function (e) {
+        var $mask = this.$('.home_mask').on($.fx.transitionEnd, function(e) {
             if ($mask.hasClass('toggle')) {
                 $mask.removeClass('toggle');
 
@@ -426,13 +426,13 @@ module.exports = Activity.extend({
             }
         });
 
-        setTimeout(function () {
+        setTimeout(function() {
             $mask.addClass('toggle');
 
             setTimeout(arguments.callee, 3200)
         }, 3200);
 
-        self.onResult("Login", function () {
+        self.onResult("Login", function() {
             self.user = userModel.get();
 
             model.set({
@@ -441,26 +441,26 @@ module.exports = Activity.extend({
             });
             self.doWhenLogin();
 
-        }).onResult("UserChange", function () {
+        }).onResult("UserChange", function() {
             self.requestUser();
 
-        }).onResult("Logout", function () {
+        }).onResult("Logout", function() {
             self.user = null;
             model.set({
                 isLogin: false,
                 user: null
             });
-        }).onResult('CartChange', function () {
+        }).onResult('CartChange', function() {
 
             self.getCartQty();
         });
 
-        setInterval(function () {
+        setInterval(function() {
             self.getUnreadMsg();
 
         }, 10000);
 
-        this.listenTo($(this.model.refs.search), 'keydown', function (e) {
+        this.listenTo($(this.model.refs.search), 'keydown', function(e) {
             if (e.keyCode == 13) {
                 self.forward('/discovery/list?s=' + encodeURIComponent(e.target.value) + '&from=/');
                 e.preventDefault();
@@ -468,7 +468,7 @@ module.exports = Activity.extend({
             }
         });
 
-        this.listenTo($(this.model.refs.searchText), 'keydown', function (e) {
+        this.listenTo($(this.model.refs.searchText), 'keydown', function(e) {
             if (e.keyCode == 13) {
 
                 model.search(e, e.target.value);
@@ -477,7 +477,7 @@ module.exports = Activity.extend({
             }
         });
 
-        model.search = function (e, item) {
+        model.search = function(e, item) {
             var searchHistory = util.store('searchHistory') || [];
             var index = searchHistory.indexOf(item);
 
@@ -496,7 +496,7 @@ module.exports = Activity.extend({
 
     },
 
-    getCartQty: function () {
+    getCartQty: function() {
         if (this.user.PSP_CODE) {
             cartQtyApi.setParam({
                 pspcode: this.user.PSP_CODE
@@ -505,10 +505,10 @@ module.exports = Activity.extend({
         }
     },
 
-    requestUser: function () {
+    requestUser: function() {
         var self = this;
 
-        userModel.request(function (err, res) {
+        userModel.request(function(err, res) {
 
             if (err) {
                 if (err.error_code == 503) {
@@ -541,7 +541,7 @@ module.exports = Activity.extend({
         }, util.store('ivcode') || '0000');
     },
 
-    showMessageDialog: function (message) {
+    showMessageDialog: function(message) {
         var self = this;
         self.model.set('showTipStep', 1);
         self.$open_msg.show();
@@ -555,7 +555,7 @@ module.exports = Activity.extend({
 
     _angleFrom: 0,
 
-    drawCircle: function (percent) {
+    drawCircle: function(percent) {
         if (!this._angleFrom) {
             this._angleFrom = 1.5 * Math.PI;
         }
@@ -578,7 +578,7 @@ module.exports = Activity.extend({
         //this._angleFrom = angleTo;
     },
 
-    showEnergy: function () {
+    showEnergy: function() {
         if (!this.user) return;
 
         var self = this;
@@ -607,7 +607,7 @@ module.exports = Activity.extend({
             self.model.set({
                 energy: total
             });
-            animation.animate(function (d) {
+            animation.animate(function(d) {
                 var num = Math.round(animation.step(0, total, d));
 
                 self.model.set('energyAnimNum', num);
@@ -618,7 +618,7 @@ module.exports = Activity.extend({
         }
     },
 
-    getUnreadMsg: function () {
+    getUnreadMsg: function() {
         var self = this;
 
         if (self.user && self.user.Auth) {
@@ -626,7 +626,7 @@ module.exports = Activity.extend({
                 UserID: self.user.ID,
                 Auth: self.user.Auth
 
-            }, function (res) {
+            }, function(res) {
                 if (res.success) {
                     self.model.set('msg_count', res.count);
                 }
@@ -635,7 +635,7 @@ module.exports = Activity.extend({
         }
     },
 
-    doWhenLogin: function () {
+    doWhenLogin: function() {
         var self = this;
         var user = userModel.get();
 
@@ -644,7 +644,7 @@ module.exports = Activity.extend({
             isLogin: true
         });
 
-        var load = function (token) {
+        var load = function(token) {
 
             userModel.setParam({
                 IMEI: !token ? 'CAN_NOT_GET' : (typeof token == 'string' ? token : token.imei)
@@ -655,7 +655,7 @@ module.exports = Activity.extend({
         util.isInApp ? bridge.getDeviceToken(load) : load();
     },
 
-    onLoad: function () {
+    onLoad: function() {
 
         if (this.user) {
             this.showEnergy();
@@ -663,7 +663,7 @@ module.exports = Activity.extend({
         }
     },
 
-    onShow: function () {
+    onShow: function() {
         var self = this;
 
         this.setResult('ResetCart');
@@ -671,10 +671,9 @@ module.exports = Activity.extend({
         this.guideSlider && this.guideSlider._adjustWidth();
     },
 
-    onPause: function () {
-    },
+    onPause: function() {},
 
-    onQueryChange: function () {
+    onQueryChange: function() {
         if (this.query.tab) {
             this.$('.footer li:nth-child(1)').trigger('tap');
             this.model.set({
@@ -683,6 +682,5 @@ module.exports = Activity.extend({
         }
     },
 
-    onDestory: function () {
-    }
+    onDestory: function() {}
 });
